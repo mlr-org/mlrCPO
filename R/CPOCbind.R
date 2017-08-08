@@ -1,4 +1,3 @@
-#' @include getHyperPars.R
 #' @include CPO_meta.R
 
 #' @title \dQuote{cbind} the Result of multiple CPOs

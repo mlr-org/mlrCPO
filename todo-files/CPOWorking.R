@@ -1,10 +1,31 @@
 
 library("roxygen2")
 
-roxygenise("../../ParamHelpers")
+changeData
+* makeChainModel
+* makeXXXTaskDesc
+* makeTaskDescInternal
+* checkLearner
 
 
-devtools::load_all("..")
+#' Exported for internal use.
+#' @param id [\code{character}]\cr
+#'   task id
+#' @param data [\code{data.frame}]\cr
+#'   data
+#' @param target [\code{character}]\cr
+#'   target columns
+#' @param weights [\code{numeric}]\cr
+#'   weights
+#' @param blocking [\code{numeric}\cr
+#'   task data blocking
+
+#' @export
+#' @rdname makeTaskDesc
+
+roxygenise("..")
+
+devtools::load_all("../../mlr")
 options(error = dump.frames)
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 

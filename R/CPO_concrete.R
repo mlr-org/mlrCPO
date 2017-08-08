@@ -1,5 +1,3 @@
-#' @include ParamSetSugar.R
-
 #' @title Construct a CPO for PCA preprocessing
 #'
 #' @template cpo_description

@@ -1,5 +1,3 @@
-#' @include Filter.R
-
 #' @title Filter features by thresholding filter values.
 #'
 #' @description
