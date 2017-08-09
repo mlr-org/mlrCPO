@@ -264,6 +264,35 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), ...)
 }
 
+
+makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
+                   fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
+                   properties.adding = character(0), properties.needed = character(0),
+                   properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
+                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                   packages = character(0), cpo.trafo) {
+  dataformat = match.arg(dataformat)
+
+  assertSubset(properties, cpo.dataproperties)
+  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
+  assertSubset(properties.needed, cpo.dataproperties)
+
+  makeCPOGeneral(.cpotype = "databound",
+    .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
+    .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    .fix.factors = fix.factors, .data.dependent = TRUE,
+    .retrafo.format = "combined", .export.params = export.params, .properties = properties,
+    .properties.adding = properties.adding, .properties.needed = properties.needed,
+    .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
+    .predict.type = NULL, .packages = packages,
+    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = NULL)
+
+}
+
+
+
+
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .retrafo.format, .export.params,
                           .properties, .properties.adding, .properties.needed,
