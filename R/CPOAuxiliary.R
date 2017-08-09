@@ -851,10 +851,10 @@ invert = function(inverter, prediction, predict.type = "response") {
     inverted$new.td = switch(outputtype,
       classif = {
         levels = ifelse(predict.type == "prob", colnames(invdata), levels(invdata))
-        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "target", NULL, NULL, levels[1])
+        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL, levels[1])
       },
       cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL),
-      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "target", NULL, NULL),
+      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
       multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
       surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL, "rcens"),
       # assuming rcens since nothing else ever gets used.

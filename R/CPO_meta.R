@@ -109,7 +109,8 @@ registerCPO(cpoApply, "meta", NULL, "Apply a freely chosen CPOs, without exporti
 #'
 #' @export
 cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(), .export = list(),
-                   .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+                   .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   .dataformat.factor.with.ordered = TRUE,
                    .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
                    .properties.target = NULL, cpo.build) {
   .dataformat = match.arg(.dataformat)
@@ -177,8 +178,14 @@ cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
     index = integer(0), names = character(0), pattern = NULL, invert = FALSE, pattern.ignore.case = FALSE,
     pattern.perl = FALSE, pattern.fixed = FALSE)
 
+  if (.dataformat == "split") {
+    .dataformat = ifelse(.dataformat.factor.with.ordered, "most", "all")
+  } else if (.dataformat == "factor" && !.dataformat.factor.with.ordered) {
+    .dataformat = "onlyfactor"
+  }
+
   makeCPO(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
-    .dataformat = "task", .properties = .properties, .properties.adding = .properties.adding,
+    .dataformat = "task", .dataformat.factor.with.ordered = FALSE, .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, .properties.target = .properties.target,
     cpo.trafo = function(data, target, ...) {
       args = list(...)

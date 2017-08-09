@@ -208,7 +208,7 @@
 #' # an example constant feature remover CPO
 #' # demonstrates the "combined" CPO API
 #' constFeatRem = makeCPO("constFeatRem",
-#'   .dataformat = "target",
+#'   .dataformat = "df.features",
 #'   .retrafo.format = "combined",
 #'   cpo.trafo = function(data, target) {
 #'     cols.keep = names(Filter(function(x) {
@@ -231,8 +231,9 @@
 #'     as.matrix(data) * 2
 #'   })
 #'
-makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                   .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
+                   .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   .dataformat.factor.with.ordered = TRUE,
                    .retrafo.format = c("separate", "combined", "stateless"),
                    .export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    .fix.factors = FALSE, .properties = c("numerics", "factors", "ordered", "missings"),
@@ -254,7 +255,8 @@ makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 
   makeCPOGeneral(.cpotype = "databound",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
-    .dataformat = .dataformat, .fix.factors = .fix.factors, .data.dependent = TRUE,
+    .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    .fix.factors = .fix.factors, .data.dependent = TRUE,
     .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties.target, .type.from = NULL, .type.to = NULL,
@@ -263,7 +265,7 @@ makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 }
 
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
-                          .dataformat, .fix.factors, .data.dependent, .retrafo.format, .export.params,
+                          .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .retrafo.format, .export.params,
                           .properties, .properties.adding, .properties.needed,
                           .properties.target, .type.from, .type.to, .predict.type, .packages, cpo.trafo, cpo.retrafo, ...) {
 
@@ -321,7 +323,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     "affect.pattern.perl", "affect.pattern.fixed")
   export.possibilities = c("export.default", "export.set", "export.default.set", "export.unset", "export.default.unset",
     "export.all", "export.none", "export.all.plus")
-  reserved.params = c("data", "target", "predict.type", "control", "id", "export", affect.params, export.possibilities)
+  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
   if (any(names(.par.set$pars) %in% reserved.params)) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
@@ -356,11 +358,11 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     cpo.trafo = makeFunction(trafo.expr, required.arglist.trafo, env = parent.frame(2))
   } else if (.cpotype == "targetbound") {
     stop("A target-bound CPO must have a cpo.trafo function, even if stateless.")
-  } else if (.dataformat %in% c("task", "no")) {
+  } else if (.dataformat %in% c("task", "df.all")) {
     stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'no'.")
   } else {
-    if (.dataformat == "no") {
-      .dataformat = "target"
+    if (.dataformat == "df.all") {
+      .dataformat = "df.features"
     }
     cpo.trafo = NULL
   }
@@ -406,6 +408,12 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     affect.type = NULL, affect.index = integer(0),
     affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
     affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE))
+
+  if (.dataformat == "split") {
+    .dataformat = ifelse(.dataformat.factor.with.ordered, "most", "all")
+  } else if (.dataformat == "factor" && !.dataformat.factor.with.ordered) {
+    .dataformat = "onlyfactor"
+  }
 
   funbody = quote({
     # in the first two code lines, there are still arguments around that we don't know the names of.
@@ -621,7 +629,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   if (cpo$type == "functional") {
     state = trafoenv$cpo.retrafo
     if (cpo$bound == "targetbound") {
-      requiredargs = c("target", "predict.type")
+      requiredargs = c("df.features", "predict.type")
       if (is.null(state) || !isTRUE(checkFunction(state, args = requiredargs, nargs = 2))) {
         stopf('.data.dependent targetbound CPO %s cpo.trafo must set a variable "cpo.retrafo"\n%s"%s".',
           cpo$name, "to a function with two arguments ", collapse(requiredargs, sep = '", "'))

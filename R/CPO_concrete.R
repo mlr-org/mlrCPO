@@ -53,7 +53,7 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
   .par.set = makeParamSet(
       makeFunctionLearnerParam("fun"),
       makeLogicalLearnerParam("vectorize", default = TRUE)),
-  .dataformat = "target", cpo.trafo = {
+  .dataformat = "df.features", cpo.trafo = {
     if (vectorize) {
       fun2 = fun
     } else {
@@ -417,7 +417,7 @@ registerCPO(cpoScale, "data", "numeric data preprocessing", "Center and / or sca
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoDummyEncode = makeCPO("dummyencode", reference.cat = FALSE: logical, .dataformat = "target",  # nolint
+cpoDummyEncode = makeCPO("dummyencode", reference.cat = FALSE: logical, .dataformat = "df.features",  # nolint
   .properties.needed = "numerics", .properties.adding = c("factors", "ordered"),
   cpo.trafo = {
     lvls = lapply(data, levels)
@@ -500,7 +500,7 @@ cpoSelect = makeCPO("select",  # nolint
           pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
           pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
           invert = FALSE: logical)),
-  .dataformat = "target", cpo.trafo = {
+  .dataformat = "df.features", cpo.trafo = {
     assertCharacter(names, any.missing = FALSE, unique = TRUE)
     assertIntegerish(index, any.missing = FALSE, unique = TRUE)
 
@@ -544,7 +544,7 @@ registerCPO(cpoSelect, "data", "feature selection ", "Select features from a dat
 #' @export
 cpoDropConstants = makeCPO("dropconst", rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],  # nolint
   ignore.na = FALSE: logical,
-  .dataformat = "target", cpo.trafo = {
+  .dataformat = "df.features", cpo.trafo = {
     control = sapply(data, function(col) {
       if (ignore.na) {
         col = col[!(is.na(col) | is.nan(col))]
@@ -593,7 +593,7 @@ registerCPO(cpoDropConstants, "data", "cleanup", "Drop constant or near-constant
 #' @family CPO
 #' @export
 cpoFixFactors = makeCPO("fixfactors", drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical,  # nolint
-  .dataformat = "target",
+  .dataformat = "df.features",
   .properties.needed = "missings",
   cpo.trafo = {
     if (drop.unused.levels) {
@@ -631,7 +631,7 @@ registerCPO(cpoFixFactors, "data", "cleanup", "Clean up Factorial Features.")
 #' @family CPO
 #' @export
 cpoMissingIndicators = makeCPO("missingindicators", force.dummies = FALSE: logical,  # nolint
-  .dataformat = "target",
+  .dataformat = "df.features",
   .properties.needed = "factors",
   .properties.adding = c("numerics", "ordered", "missings"),
   cpo.trafo = {
@@ -662,7 +662,7 @@ registerCPO(cpoMissingIndicators, "tools", "imputation", "Generate factorial col
 #' @family CPO
 #' @export
 cpoModelMatrix = makeCPO("model.matrix", .fix.factors = TRUE, .retrafo.format = "stateless",  # nolint
-  .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "target",
+  .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "df.features",
   .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",
   cpo.trafo = NULL, cpo.retrafo = {
     as.data.frame(model.matrix(formula, data = data))

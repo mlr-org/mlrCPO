@@ -8,7 +8,8 @@
 #' @rdname makeCPO
 #' @export
 makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                           .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+                           .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                           .dataformat.factor.with.ordered = TRUE,
                            .data.dependent = TRUE, .retrafo.format = c("separate", "combined", "stateless"),
                            .export.params = TRUE,
                            .properties.data = c("numerics", "factors", "ordered", "missings"),
@@ -32,7 +33,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   assertFlag(.data.dependent)
 
   if (!.data.dependent) {
-    if (.dataformat %in% c("no", "task")) {
+    if (.dataformat %in% c("df.all", "task")) {
       stop("When .data.dependent is FALSE, .dataformat must not be 'no' or 'task'")
     }
     if (!setequal(.properties, c("numerics", "factors", "ordered", "missings"))) {
@@ -87,7 +88,8 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 
   makeCPOGeneral(.cpotype = "targetbound",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
-    .dataformat = .dataformat, .fix.factors = FALSE, .data.dependent = .data.dependent,
+    .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    .fix.factors = FALSE, .data.dependent = .data.dependent,
     .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties.target,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties, .type.from = .type, .type.to = .type.out,

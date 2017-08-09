@@ -109,7 +109,7 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
   present.properties = getTaskProperties(small.recombined)
   assertPropertiesOk(present.properties, allowed.properties, "trafo", "out", name)
   assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), "trafo", "adding", name)
-  if (datasplit %in% c("no", "task")) {
+  if (datasplit %in% c("df.all", "task")) {
     # in this case, take shape info with 'target' separated
     shapeinfo = makeOutputShapeInfo(small.recombined)
   } else {
@@ -131,9 +131,9 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
 handleRetrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.properties, properties.adding, shapeinfo.output, subset.index, name) {
   outdata = rebuildOutdata(outdata, tempdata, datasplit)
   datasplit = getLLDatasplit(datasplit)
-  if (datasplit %in% c("no", "task")) {
+  if (datasplit %in% c("df.all", "task")) {
     # target is always split off during retrafo
-    datasplit = "target"
+    datasplit = "df.features"
   }
   targetcols = character(0)
 
@@ -559,7 +559,7 @@ splitColsByType = function(which = c("numeric", "factor", "ordered", "other"), d
 # this performs no checks. possibly need to check that properties are adhered to
 # in retrafo, must also check if the format is the same as during training
 # 'possibly' here means: if not attached to a learner
-splittask = function(task, datasplit = c("target", "most", "all", "no", "task")) {
+splittask = function(task, datasplit = c("df.features", "most", "all", "df.all", "task")) {
   datasplit = match.arg(datasplit)
 
 
@@ -579,10 +579,10 @@ splittask = function(task, datasplit = c("target", "most", "all", "no", "task"))
       target = getTaskData(task, features = character(0))))  # want the target to always be a data.frame
 }
 
-splitdf = function(df, datasplit = c("target", "most", "all", "no", "task")) {
+splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "task")) {
   datasplit = match.arg(datasplit)
   switch(datasplit,
-    task = list(data = makeClusterTask(data = df, fixup.data = "no"), target = character(0)),
+    task = list(data = makeClusterTask(data = df, fixup.data = "df.all"), target = character(0)),
     no = list(data = df, target = character(0)),
     target = list(data = df, target = df[, character(0), drop = FALSE]),
     most = list(data = splitColsByType(c("numeric", "factor", "other"), df),
@@ -654,7 +654,7 @@ recombineLL = function(olddata, newdata, targetnames, datasplit, subset.index, n
 # targetbound: TRUE or FALSE
 # newtasktype: only if targetbound, type of new task. Give even if no task conversion happens.
 # censtype only needed if newtasktype == surv
-recombinetask = function(task, newdata, datasplit = c("no", "task", "target", "most", "all"),
+recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.features", "most", "all"),
                          subset.index, targetbound, newtasktype, censtype, name) {
   datasplit = match.arg(datasplit)
 
@@ -663,7 +663,7 @@ recombinetask = function(task, newdata, datasplit = c("no", "task", "target", "m
     task = makeClusterTask(id = "CPO-constructed", data = task)
   }
 
-  if (datasplit %in% c("target", "most", "all")) {
+  if (datasplit %in% c("df.features", "most", "all")) {
     if (targetbound) {
       # return is just 'target' in a df.
       if (!is.data.frame(newdata)) {
@@ -691,7 +691,7 @@ recombinetask = function(task, newdata, datasplit = c("no", "task", "target", "m
     }
   }
 
-  if (datasplit == "no") {
+  if (datasplit == "df.all") {
     checkDFBasics(task, newdata, targetbound, name)
     if (!targetbound) {
       newdata = changeData(task, newdata)
@@ -736,10 +736,10 @@ recombinetask = function(task, newdata, datasplit = c("no", "task", "target", "m
   } else {
     new.subset.index = c(which(aretargets), new.subset.index)
   }
-  changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "no", new.subset.index, character(0), name))
+  changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "df.all", new.subset.index, character(0), name))
 }
 
-recombinedf = function(df, newdata, datasplit = c("target", "most", "all", "no", "task"), subset.index, targetcols, name) {
+recombinedf = function(df, newdata, datasplit = c("df.features", "most", "all", "df.all", "task"), subset.index, targetcols, name) {
 # otherwise it contains the columns removed from the DF because they were target columns.
   datasplit = match.arg(datasplit)
   if (datasplit %in% c("most", "all")) {
@@ -835,7 +835,7 @@ checkDFBasics = function(task, newdata, targetbound, name) {
     addendum = ""
     if (targetbound) {
       addendum = paste("\nIf you want to change names or number of target columns in targetbound CPOs",
-        'you must use other .dataformat values, e.g. "target".', sep = "\n")
+        'you must use other .dataformat values, e.g. "df.features".', sep = "\n")
     }
    stopf("CPO %s cpo.trafo gave bad result\ndata.frame did not contain target column%s %s.%s",
      name, ifelse(length(missingt) > 1, "s", ""), missingt, addendum)

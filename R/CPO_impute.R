@@ -89,7 +89,7 @@ cpoImpute = makeCPO("impute", # nolint
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-  .dataformat = "target", # no properties.adding 'missings', since we don't impute all cols
+  .dataformat = "df.features", # no properties.adding 'missings', since we don't impute all cols
   .properties.needed = "factors",
   cpo.trafo = function(data, target, target.cols, ...) {
     impresult = impute(data, target.cols, ...)
@@ -114,7 +114,7 @@ cpoImputeAll = makeCPO("impute", # nolint
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-  .dataformat = "target", .properties.adding = "missings",
+  .dataformat = "df.features", .properties.adding = "missings",
   .properties.needed = "factors",
   cpo.trafo = function(data, target, target.cols, ...) {
     impresult = impute(data, target.cols, ...)
@@ -134,7 +134,7 @@ declareImputeFunction = function(name, method, additional.params, types = NULL) 
       paramSetSugar(
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-    .dataformat = "target",
+    .dataformat = "df.features",
     .properties = c("missings", if (is.null(types)) c("numerics", "factors", "ordered") else types),
     .properties.adding = "missings",
     cpo.trafo = function(data, target, impute.new.levels, recode.factor.levels, ...) {
