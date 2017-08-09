@@ -68,7 +68,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
 
   pr = collectProperties(constructed)
 
-  makeCPO("multiplex", .par.set = paramset, .par.vals = pv, .datasplit = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
+  makeCPO("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
           .properties.needed = pr$properties.needed, .properties.target = pr$properties.target, cpo.trafo = function(data, target, selected.cpo, ...) {
             cpo = constructed[[selected.cpo]]
             cpo = setHyperPars(cpo, par.vals = list(...)[names(getParamSet(cpo)$pars)])
@@ -94,7 +94,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoApply = makeCPO("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .datasplit = "task",  # nolint
+cpoApply = makeCPO("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
                    cpo.trafo = { control = retrafo({res = data %>>% cpo}) ; res }, cpo.retrafo = { data %>>% control })
 # FIXME: require databound
 registerCPO(cpoApply, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
@@ -109,10 +109,10 @@ registerCPO(cpoApply, "meta", NULL, "Apply a freely chosen CPOs, without exporti
 #'
 #' @export
 cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(), .export = list(),
-                   .datasplit = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+                   .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
                    .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
                    .properties.target = NULL, cpo.build) {
-  .datasplit = match.arg(.datasplit)
+  .dataformat = match.arg(.dataformat)
   if (is.null(names(.export))) {
     names(.export) = sapply(.export, function(c) {
       if ("CPOConstructor" %in% class(c)) {
@@ -178,13 +178,13 @@ cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
     pattern.perl = FALSE, pattern.fixed = FALSE)
 
   makeCPO(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
-    .datasplit = "task", .properties = .properties, .properties.adding = .properties.adding,
+    .dataformat = "task", .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, .properties.target = .properties.target,
     cpo.trafo = function(data, target, ...) {
       args = list(...)
       buildfunargs = c(args[names(paramset.pass.on$pars)], lapply(.export, function(cpo)
         setHyperPars(cpo, par.vals = args[names(getParamSet(cpo)$pars)])))
-      tin = prepareTrafoInput(data, .datasplit, c(.properties, .properties.target, cpo.predict.properties), fullaffect, FALSE, .cpo.name)
+      tin = prepareTrafoInput(data, .dataformat, c(.properties, .properties.target, cpo.predict.properties), fullaffect, FALSE, .cpo.name)
 
       cpo = do.call(buildfun, insert(buildfunargs, tin$indata))
       result = data %>>% cpo

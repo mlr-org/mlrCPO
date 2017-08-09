@@ -37,7 +37,7 @@ cpoFilterFeatures = makeCPO("filterFeatures", #nolint
           abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
           threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),
       makeParamSet(makeUntypedLearnerParam("filter.args", default = list()))),
-  .datasplit = "task",
+  .dataformat = "task",
   cpo.trafo = function(data, target, method, fval, perc, abs, threshold, filter.args) {
     assertList(filter.args)
     fullargs = c(list(task = data, method = method, fval = fval, perc = perc, abs = abs, threshold = threshold), filter.args)
@@ -63,7 +63,7 @@ declareFilterCPO = function(method, ..., .par.set = NULL) {
 
   methodobj = get(method, envir = .FilterRegister)
 
-  makeCPO(method, .par.set = .par.set, .datasplit = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
+  makeCPO(method, .par.set = .par.set, .dataformat = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
     cpo.trafo = function(data, target, perc, abs, threshold, ...) {
       filter.args = list(...)
       td = getTaskData(data, target.extra = TRUE)$data

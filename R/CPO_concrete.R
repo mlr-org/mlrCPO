@@ -10,7 +10,7 @@
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoPca = makeCPO("pca", .datasplit = "numeric", cpo.trafo = {  # nolint
+cpoPca = makeCPO("pca", .dataformat = "numeric", cpo.trafo = {  # nolint
   pcr = prcomp(as.matrix(data), center = FALSE, scale. = FALSE)
   data = as.data.frame(pcr$x)
   control = list(rotation = pcr$rotation)
@@ -53,7 +53,7 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
   .par.set = makeParamSet(
       makeFunctionLearnerParam("fun"),
       makeLogicalLearnerParam("vectorize", default = TRUE)),
-  .datasplit = "target", cpo.trafo = {
+  .dataformat = "target", cpo.trafo = {
     if (vectorize) {
       fun2 = fun
     } else {
@@ -95,7 +95,7 @@ registerCPO(cpoPca, "data", "general data preprocessing", "Apply an arbitrary fu
 #' @family CPO
 #' @export
 cpoScaleRange = makeCPO("range.scale", lower = 0: numeric[~., ~.], upper = 1: numeric[~., ~.],  # nolint
-  .datasplit = "numeric",
+  .dataformat = "numeric",
   cpo.trafo = {
     ranges = lapply(data, function(x) {
       rng = range(x, na.rm = TRUE, finite = TRUE)
@@ -133,7 +133,7 @@ registerCPO(cpoScaleRange, "data", "numeric data preprocessing", "Scale numeric 
 #' @family CPO
 #' @export
 cpoScaleMaxAbs = makeCPO("maxabs.scale", maxabs = 1: numeric[0, ~.],  # nolint
-  .datasplit = "numeric", .retrafo.format = "combined",
+  .dataformat = "numeric", .retrafo.format = "combined",
   cpo.trafo = {
     scaling = lapply(data, function(x) {
       s = max(abs(range(x, na.rm = TRUE, finite = TRUE)))
@@ -166,7 +166,7 @@ registerCPO(cpoScaleMaxAbs, "data", "numeric data preprocessing", "Scale numeric
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoSpatialSign = makeCPO("spatial.sign", length = 1: numeric[0, ~.], .datasplit = "numeric", .retrafo.format = "stateless",  # nolint
+cpoSpatialSign = makeCPO("spatial.sign", length = 1: numeric[0, ~.], .dataformat = "numeric", .retrafo.format = "stateless",  # nolint
   .properties = c("numerics", "factors", "ordered"),  # no missings
   cpo.trafo = NULL, cpo.retrafo = {
     t(apply(as.matrix(data), 1, function(x) {
@@ -193,7 +193,7 @@ registerCPO(cpoSpatialSign, "data", "numeric data preprocessing", "Scale numeric
 #' @family CPO
 #' @export
 cpoProbEncode = makeCPO("prob.encode",  # nolint
-  .datasplit = "factor",
+  .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
   .properties.needed = "numerics",
   .properties.target = c("twoclass", "multiclass", "classif"),
@@ -234,7 +234,7 @@ registerCPO(cpoProbEncode, "data", "feature conversion", "Convert factorial colu
 #' @export
 cpoImpactEncodeClassif = makeCPO("impact.encode.classif",  # nolint
   smoothing = 1e-4: numeric[~0, ~.],
-  .datasplit = "factor",
+  .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
   .properties.needed = "numerics",
   .properties.target = c("twoclass", "multiclass", "classif"),
@@ -282,7 +282,7 @@ registerCPO(cpoImpactEncodeClassif, "data", "feature conversion", "Convert facto
 #' @export
 cpoImpactEncodeRegr = makeCPO("impact.encode.regr",  # nolint
   smoothing = 1e-4: numeric[~0, ~.],
-  .datasplit = "factor",
+  .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
   .properties.needed = "numerics",
   .properties.target = "regr",  # TODO: multiclass?
@@ -321,7 +321,7 @@ registerCPO(cpoImpactEncodeRegr, "data", "feature conversion", "Convert factoria
 #' @export
 cpoCollapseFact = makeCPO("collapse.fact",  # nolint
   max.collapsed.class.prevalence = 0.1: numeric[0, ~1],
-  .datasplit = "factor",
+  .dataformat = "factor",
   cpo.trafo = {
     newlevels = sapply(data, function(d) {
       if (all(is.na(d))) {
@@ -359,7 +359,7 @@ registerCPO(cpoCollapseFact, "data", "factor data preprocessing", "Combine rare 
 #' @export
 cpoQuantileBinNumerics = makeCPO("bin.numerics", numsplits = 2: integer[2, ],  # nolint
   .properties.needed = "ordered", .properties.adding = "numerics",
-  .datasplit = "numeric", cpo.trafo = {
+  .dataformat = "numeric", cpo.trafo = {
     breaks = lapply(data, function(d)
       unique(c(-Inf, quantile(d, (1:(numsplits - 1)) / numsplits, na.rm = TRUE), Inf)))
     cpo.retrafo = function(data) {
@@ -378,7 +378,7 @@ registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert Numerics to 
 #' @family CPO
 #' @export
 cpoAsNumeric = makeCPO("as.numeric", .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",  # nolint
-  .retrafo.format = "stateless", .datasplit = "factor", cpo.trafo = function(data, target) {
+  .retrafo.format = "stateless", .dataformat = "factor", cpo.trafo = function(data, target) {
     as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) }, cpo.retrafo = function(data) {
       as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) })
 registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert all Features to Numerics using as.numeric.")
@@ -396,7 +396,7 @@ registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert all Features
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoScale = makeCPO("scale", center = TRUE: logical, scale = TRUE: logical, .datasplit = "numeric", cpo.trafo = {  # nolint
+cpoScale = makeCPO("scale", center = TRUE: logical, scale = TRUE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
   result = scale(as.matrix(data), center = center, scale = scale)
   control = list(center = coalesce(attr(result, "scaled:center"), FALSE), scale = coalesce(attr(result, "scaled:scale"), FALSE))
   result
@@ -417,7 +417,7 @@ registerCPO(cpoScale, "data", "numeric data preprocessing", "Center and / or sca
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoDummyEncode = makeCPO("dummyencode", reference.cat = FALSE: logical, .datasplit = "target",  # nolint
+cpoDummyEncode = makeCPO("dummyencode", reference.cat = FALSE: logical, .dataformat = "target",  # nolint
   .properties.needed = "numerics", .properties.adding = c("factors", "ordered"),
   cpo.trafo = {
     lvls = lapply(data, levels)
@@ -500,7 +500,7 @@ cpoSelect = makeCPO("select",  # nolint
           pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
           pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
           invert = FALSE: logical)),
-  .datasplit = "target", cpo.trafo = {
+  .dataformat = "target", cpo.trafo = {
     assertCharacter(names, any.missing = FALSE, unique = TRUE)
     assertIntegerish(index, any.missing = FALSE, unique = TRUE)
 
@@ -544,7 +544,7 @@ registerCPO(cpoSelect, "data", "feature selection ", "Select features from a dat
 #' @export
 cpoDropConstants = makeCPO("dropconst", rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],  # nolint
   ignore.na = FALSE: logical,
-  .datasplit = "target", cpo.trafo = {
+  .dataformat = "target", cpo.trafo = {
     control = sapply(data, function(col) {
       if (ignore.na) {
         col = col[!(is.na(col) | is.nan(col))]
@@ -593,7 +593,7 @@ registerCPO(cpoDropConstants, "data", "cleanup", "Drop constant or near-constant
 #' @family CPO
 #' @export
 cpoFixFactors = makeCPO("fixfactors", drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical,  # nolint
-  .datasplit = "target",
+  .dataformat = "target",
   .properties.needed = "missings",
   cpo.trafo = {
     if (drop.unused.levels) {
@@ -631,7 +631,7 @@ registerCPO(cpoFixFactors, "data", "cleanup", "Clean up Factorial Features.")
 #' @family CPO
 #' @export
 cpoMissingIndicators = makeCPO("missingindicators", force.dummies = FALSE: logical,  # nolint
-  .datasplit = "target",
+  .dataformat = "target",
   .properties.needed = "factors",
   .properties.adding = c("numerics", "ordered", "missings"),
   cpo.trafo = {
@@ -662,7 +662,7 @@ registerCPO(cpoMissingIndicators, "tools", "imputation", "Generate factorial col
 #' @family CPO
 #' @export
 cpoModelMatrix = makeCPO("model.matrix", .fix.factors = TRUE, .retrafo.format = "stateless",  # nolint
-  .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .datasplit = "target",
+  .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "target",
   .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",
   cpo.trafo = NULL, cpo.retrafo = {
     as.data.frame(model.matrix(formula, data = data))

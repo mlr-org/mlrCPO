@@ -8,7 +8,7 @@
 #' @rdname makeCPO
 #' @export
 makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                           .datasplit = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+                           .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
                            .data.dependent = TRUE, .retrafo.format = c("separate", "combined", "stateless"),
                            .export.params = TRUE,
                            .properties.data = c("numerics", "factors", "ordered", "missings"),
@@ -27,13 +27,13 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   possible.properties = list(multilabel = character(0), regr = character(0), cluster = character(0),
       classif = c("oneclass", "twoclass", "multiclass"))
 
-  .datasplit = match.arg(.datasplit)
+  .dataformat = match.arg(.dataformat)
 
   assertFlag(.data.dependent)
 
   if (!.data.dependent) {
-    if (.datasplit %in% c("no", "task")) {
-      stop("When .data.dependent is FALSE, .datasplit must not be 'no' or 'task'")
+    if (.dataformat %in% c("no", "task")) {
+      stop("When .data.dependent is FALSE, .dataformat must not be 'no' or 'task'")
     }
     if (!setequal(.properties, c("numerics", "factors", "ordered", "missings"))) {
       stop("When .data.dependent is FALSE, .properties must have the default value.")
@@ -87,7 +87,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 
   makeCPOGeneral(.cpotype = "targetbound",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
-    .datasplit = .datasplit, .fix.factors = FALSE, .data.dependent = .data.dependent,
+    .dataformat = .dataformat, .fix.factors = FALSE, .data.dependent = .data.dependent,
     .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties.target,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties, .type.from = .type, .type.to = .type.out,

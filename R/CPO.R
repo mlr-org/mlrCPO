@@ -22,7 +22,7 @@
 #'   Named list of default parameter values for the CPO. These are used additionally to the
 #'   parameter default values in \dQuote{...} and \code{.par.set}. It is preferred to use
 #'   these default values, and not \code{.par.vals}. Default is \code{list()}.
-#' @param .datasplit [\code{character(1)}]\cr
+#' @param .dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
 #'   \itemize{
 #'     \item{\bold{target}} the \dQuote{data} variable contains the data as a data.frame without
@@ -48,21 +48,21 @@
 #'   }
 #'
 #'   If the CPO is a Target Operation CPO, the return value of both \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}
-#'   must be either a task if \code{.datasplit} is \dQuote{task}, the complete (modified) data.frame
-#'   if \code{.datasplit} is \dQuote{no}, and a data.frame containing only the target column(s) otherwise.
+#'   must be either a task if \code{.dataformat} is \dQuote{task}, the complete (modified) data.frame
+#'   if \code{.dataformat} is \dQuote{no}, and a data.frame containing only the target column(s) otherwise.
 #'   Default is \dQuote{target}.
 #'
 #'   If the CPO is a Feature Operation CPO, then the return value must be in the same format as the one requested.
-#'   E.g. if \code{.datasplit} is \dQuote{most}, the return value must be a named list with entries \dQuote{numeric},
+#'   E.g. if \code{.dataformat} is \dQuote{most}, the return value must be a named list with entries \dQuote{numeric},
 #'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
 #'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
 #'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
 #'
-#'   If \code{.datasplit} is either \dQuote{no} or \dQuote{task}, the
+#'   If \code{.dataformat} is either \dQuote{no} or \dQuote{task}, the
 #'   target column(s) in the returned value must be identical with the target column(s) given as input.
 #'
-#'   If \dQuote{.datasplit} is \dQuote{most} or \dQuote{all}, the \dQuote{$numeric} slot of the returned
-#'   object may also be a \code{matrix}. If \dQuote{.datasplit} is \dQuote{numeric}, the returned object may also be a
+#'   If \dQuote{.dataformat} is \dQuote{most} or \dQuote{all}, the \dQuote{$numeric} slot of the returned
+#'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
 #' @param .retrafo.format [\code{character(1)}]\cr
 #'   Indicates what API is used for \code{cpo.trafo} and \code{cpo.retrafo}, and how state information is transferred
@@ -80,7 +80,7 @@
 #'       If \code{.retrafo.format} is \dQuote{combined}, \code{pco.retrafo} must be \code{NULL}.
 #'     \item{stateless} Specification of \code{cpo.trafo} is optional and may be \code{NULL}. If it is not given, \code{cpo.retrafo} is used on both
 #'       training and new data; otherwise, \code{cpo.trafo} is applied to training data, \code{cpo.retrafo} is used on predict data. There
-#'       is no transfer of information from trafo to retrafo. If \code{cpo.trafo} is not given, \code{.datasplit} must not be \dQuote{task} or \dQuote{no}.
+#'       is no transfer of information from trafo to retrafo. If \code{cpo.trafo} is not given, \code{.dataformat} must not be \dQuote{task} or \dQuote{no}.
 #'   }
 #' @param .export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
@@ -96,7 +96,7 @@
 #'   There should be a bias towards including properties. If a property is absent, the preproc
 #'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
 #'   missings (like PCA), it is recommended to give all properties, ignore the columns that
-#'   are not numeric (using \dQuote{.datasplit} = \dQuote{most}), and giving an error when
+#'   are not numeric (using \dQuote{.dataformat} = \dQuote{most}), and giving an error when
 #'   there are missings in the numeric columns (since missings in factorial features are not a problem).
 #'   Defaults to the maximal set.
 #' @param .properties.adding [\code{character}]\cr
@@ -141,7 +141,7 @@
 #'   If this is a function, it must have the parameters \dQuote{data} and \dQuote{target},
 #'   as well as the parameters specified in \dQuote{...} or \dQuote{.par.set}. (Alternatively,
 #'   the function may have a dotdotdot argument). Depending on the values of \code{.retrafo.format} and
-#'   \code{.datasplit} -- see there --, it must return a \dQuote{data.frame}, a \dQuote{task},
+#'   \code{.dataformat} -- see there --, it must return a \dQuote{data.frame}, a \dQuote{task},
 #'   a dQuote{matrix}, \dQuote{list} of \dQuote{data.frame} and \dQuote{matrix} objects, or a retrafo function.
 #'
 #'   If \dQuote{cpo.retrafo} is given and \code{.retrafo.format} is \dQuote{separate}, it must create a \dQuote{control}
@@ -160,8 +160,8 @@
 #'   If this is not \code{NULL}, this function must have the same arguments as \code{cpo.trafo}, with the exception that
 #'   the \dQuote{target} argument is replaced by a \dQuote{control} argument, which will be
 #'   the value created in the \dQuote{cpo.trafo} run. It gets its input data in the same format as
-#'   \dQuote{cpo.trafo}, with the exception that if \dQuote{.datasplit} is \dQuote{task}, it gets a
-#'   \dQuote{data.frame} as if \dQuote{.datasplit} were \dQuote{no}. This function must similarly return an
+#'   \dQuote{cpo.trafo}, with the exception that if \dQuote{.dataformat} is \dQuote{task}, it gets a
+#'   \dQuote{data.frame} as if \dQuote{.dataformat} were \dQuote{no}. This function must similarly return an
 #'   object in the same format as it received as input.
 #'
 #' @family CPO
@@ -172,7 +172,7 @@
 #' # demonstrates the (object based) "separate" CPO API
 #' pca = makeCPO("pca",  # name
 #'   center = TRUE: logical,  # one logical parameter 'center'
-#'   .datasplit= "numeric",  # only handle numeric columns
+#'   .dataformat= "numeric",  # only handle numeric columns
 #'   .retrafo.format = "separate",  # default, can be omitted
 #'   # cpo.trafo is given as a function body. The function head is added
 #'   # automatically, containing 'data', 'target', and 'center'
@@ -193,7 +193,7 @@
 #' # an example 'scale' CPO
 #' # demonstrates the (functional) "separate" CPO API
 #' scaleCPO = makeCPO("scale",
-#'   .datasplit = "numeric",
+#'   .dataformat = "numeric",
 #'   # .retrafo.format = "separate" is implicit
 #'   cpo.trafo = function(data, target) {
 #'     result = scale(as.matrix(data), center = center, scale = scale)
@@ -208,7 +208,7 @@
 #' # an example constant feature remover CPO
 #' # demonstrates the "combined" CPO API
 #' constFeatRem = makeCPO("constFeatRem",
-#'   .datasplit = "target",
+#'   .dataformat = "target",
 #'   .retrafo.format = "combined",
 #'   cpo.trafo = function(data, target) {
 #'     cols.keep = names(Filter(function(x) {
@@ -224,7 +224,7 @@
 #' # an example 'square' CPO
 #' # demonstrates the "stateless" CPO API
 #' square = makeCPO("scale",
-#'   .datasplit = "numeric",
+#'   .dataformat = "numeric",
 #'   .retrafo.format = "stateless",
 #'   cpo.trafo = NULL, # optional, we don't need it since trafo & retrafo same
 #'   cpo.retrafo = function(data) {
@@ -232,7 +232,7 @@
 #'   })
 #'
 makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                   .datasplit = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
+                   .dataformat = c("target", "most", "all", "no", "task", "factor", "onlyfactor", "ordered", "numeric"),
                    .retrafo.format = c("separate", "combined", "stateless"),
                    .export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    .fix.factors = FALSE, .properties = c("numerics", "factors", "ordered", "missings"),
@@ -245,7 +245,7 @@ makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   # The reason cpo.trafo and cpo.retrafo are not dotted is that they always need to be given.
   # If that changes, they would also neede to be dotted.
 
-  .datasplit = match.arg(.datasplit)
+  .dataformat = match.arg(.dataformat)
   .retrafo.format = match.arg(.retrafo.format)
 
   assertSubset(.properties, cpo.dataproperties)
@@ -254,7 +254,7 @@ makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 
   makeCPOGeneral(.cpotype = "databound",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
-    .datasplit = .datasplit, .fix.factors = .fix.factors, .data.dependent = TRUE,
+    .dataformat = .dataformat, .fix.factors = .fix.factors, .data.dependent = TRUE,
     .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties.target, .type.from = NULL, .type.to = NULL,
@@ -263,7 +263,7 @@ makeCPO = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 }
 
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
-                          .datasplit, .fix.factors, .data.dependent, .retrafo.format, .export.params,
+                          .dataformat, .fix.factors, .data.dependent, .retrafo.format, .export.params,
                           .properties, .properties.adding, .properties.needed,
                           .properties.target, .type.from, .type.to, .predict.type, .packages, cpo.trafo, cpo.retrafo, ...) {
 
@@ -356,11 +356,11 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     cpo.trafo = makeFunction(trafo.expr, required.arglist.trafo, env = parent.frame(2))
   } else if (.cpotype == "targetbound") {
     stop("A target-bound CPO must have a cpo.trafo function, even if stateless.")
-  } else if (.datasplit %in% c("task", "no")) {
-    stop("A stateless CPO without cpo.trafo cannot have .datasplit 'task' or 'no'.")
+  } else if (.dataformat %in% c("task", "no")) {
+    stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'no'.")
   } else {
-    if (.datasplit == "no") {
-      .datasplit = "target"
+    if (.dataformat == "no") {
+      .dataformat = "target"
     }
     cpo.trafo = NULL
   }
@@ -495,7 +495,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
       unexported.args = unexported.args,
       unexported.pars = unexported.pars,
       bare.par.set = .par.set,
-      datasplit = .datasplit,
+      datasplit = .dataformat,
       stateless = .stateless,
       fix.factors = .fix.factors,
       type = ifelse(is.null(cpo.retrafo), "functional", "object"),
@@ -663,9 +663,9 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 #
 # A CPO tree looks like this:
 #
-#                  CPOTree
+#                CPOCompound
 #               /[first]    \[second]
-#       CPOTree               CPOTree
+#     CPOCompound           CPOCompound
 #     /[first]  \[second]   /[first]  \[second]
 # CPOPrim1    CPOPrim2  CPOPrim3    CPOPrim4
 #
@@ -677,7 +677,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 #
 # retr.1 <-- retr.2 <-- retr.3 <-- retr.4
 #
-callCPO.CPOTree = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
+callCPO.CPOCompound = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$name)
   first = cpo$first
   second = cpo$second
@@ -785,7 +785,7 @@ composeCPO.CPO = function(cpo1, cpo2) {
   newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$name, cpo2$name)
   newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$name, cpo2$name)
 
-  makeS3Obj(c("CPOTree", "CPO"),
+  makeS3Obj(c("CPOCompound", "CPO"),
     # --- CPO Part
     bare.name = paste(cpo2$bare.name, cpo1$bare.name, sep = "."),
     name = paste(cpo1$name, cpo2$name, sep = " >> "),
@@ -794,7 +794,7 @@ composeCPO.CPO = function(cpo1, cpo2) {
     properties = newprops,
     bound = unique(cpo1$bound, cpo2$bound),
     predict.type = newpt,
-    # --- CPOTree part
+    # --- CPOCompound part
     first = cpo1,
     second = cpo2)
 }
@@ -808,7 +808,7 @@ as.list.CPOPrimitive = function(x, ...) {
 }
 
 #' @export
-as.list.CPOTree = function(x, ...) {
+as.list.CPOCompound = function(x, ...) {
   first = x$first
   second = x$second
   first$par.vals = subsetParams(x$par.vals, first$par.set)

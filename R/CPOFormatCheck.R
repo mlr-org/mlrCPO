@@ -835,7 +835,7 @@ checkDFBasics = function(task, newdata, targetbound, name) {
     addendum = ""
     if (targetbound) {
       addendum = paste("\nIf you want to change names or number of target columns in targetbound CPOs",
-        'you must use other .datasplit values, e.g. "target".', sep = "\n")
+        'you must use other .dataformat values, e.g. "target".', sep = "\n")
     }
    stopf("CPO %s cpo.trafo gave bad result\ndata.frame did not contain target column%s %s.%s",
      name, ifelse(length(missingt) > 1, "s", ""), missingt, addendum)
