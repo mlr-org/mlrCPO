@@ -14,7 +14,7 @@
 #'   The name of the resulting CPO constructor / CPO. This is used for identification in output,
 #'   and as the default \code{id}.
 #' @param ...
-#'   Parameters of the CPO, in the format of \code{\link{paramSetSugar}}.
+#'   Parameters of the CPO, in the format of \code{\link[mlr]{paramSetSugar}}.
 #' @param .par.set [\code{ParamSet}]\cr
 #'   Optional parameter set. If this is not \code{NULL}, the \dQuote{...} parameters are ignored.
 #'   Default is \code{NULL}.
@@ -24,28 +24,19 @@
 #'   these default values, and not \code{.par.vals}. Default is \code{list()}.
 #' @param .dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
-#'   \itemize{
-#'     \item{\bold{target}} the \dQuote{data} variable contains the data as a data.frame without
-#'       the target column(s), the \dQuote{target} variable contains the target column(s) as
-#'       a data.frame.
-#'     \item{\bold{no}} the \dQuote{data} variable contains a data.frame with all data, the \dQuote{target}
-#'       variable is a \code{character} indicating the names of the target columns.
-#'     \item{\bold{task}} the \dQuote{data} variable contains the data as a \dQuote{\link{Task}}.
-#'     \item{\bold{most}} the \dQuote{data} is a named list containing three data.frames: \dQuote{numeric}
-#'       the numeric columns, \dQuote{factor} the factorial columns (ordered and unordered),
-#'       \dQuote{other} the columns that are neither numeric nor factors. The \dQuote{target}
-#'       variable contains the target column(s) as a data.frame.
-#'     \item{\bold{all}} similarly to \dQuote{most}, but factors are additionally split up into \dQuote{factor}
-#'       (unordered factors) and \dQuote{ordered}.
-#'     \item{\bold{factor}} similar to \dQuote{target}, but \dQuote{data} will only contain the features
-#'       that are either of type \dQuote{factor} or \dQuote{ordered}.
-#'     \item{\bold{onlyfactor}} similar to \dQuote{target} but \dQuote{data} will only contain the features
-#'       that are of type \dQuote{factor}.
-#'     \item{\bold{ordered}} similar to \dQuote{target} but \dQuote{data} will only contain the features
-#'       that are of type \dQuote{ordered}.
-#'     \item{\bold{numeric}} similar to \dQuote{target} but \dQuote{data} will only contain the features
-#'       that are of type \dQuote{numeric}.
+#'   \tabular{lll}{
+#'     .dataformat \tab data                          \tab target                \cr
+#'     \hline
+#'     df.all      \tab data.frame with target cols   \tab target colnames       \cr
+#'     df.features \tab data.frame without target     \tab data.frame of target  \cr
+#'     task        \tab full task                     \tab target colnames       \cr
+#'     split       \tab list of data.frames by type   \tab data.frame of target  \cr
+#'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
 #'   }
+#'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
+#'   For \code{.dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
+#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{.dataformat.factor.with.ordered}
+#'   is \code{FALSE}.
 #'
 #'   If the CPO is a Target Operation CPO, the return value of both \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}
 #'   must be either a task if \code{.dataformat} is \dQuote{task}, the complete (modified) data.frame
@@ -64,20 +55,20 @@
 #'   If \dQuote{.dataformat} is \dQuote{most} or \dQuote{all}, the \dQuote{$numeric} slot of the returned
 #'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
-#' @param .retrafo.format [\code{character(1)}]\cr
+#' @param .trafo.type [\code{character(1)}]\cr
 #'   Indicates what API is used for \code{cpo.trafo} and \code{cpo.retrafo}, and how state information is transferred
 #'   between them. Possibilities are:
 #'   \itemize{
-#'     \item{separate} \code{cpo.trafo} must be specified and is called with the training data and the CPO parameters.
+#'     \item{trafo.returns.data} \code{cpo.trafo} must be specified and is called with the training data and the CPO parameters.
 #'       It must return the modified data, and within its namespace must either specify a \dQuote{control} variable ("Object-Based CPO"),
 #'       if \code{cpo.retrafo} is given, or a \dQuote{cpo.retrafo} variable, if (the makeCPO parameter) \code{cpo.retrafo}
 #'       is \code{NULL} ("Functional CPO"). For Object-Based CPO, \code{cpo.retrafo} is called with the \code{control} object
 #'       created in \code{cpo.trafo}, additionally with the new data, and the CPO parameters. For Functional CPO, \code{cpo.retrafo} is
 #'       constructed inside the \code{cpo.trafo} call and is used for transformation of new data. It must take a single argument and
 #'       return the transformed data.
-#'     \item{combined} \code{cpo.trafo} must be specified and is called with the training data and the CPO parameters. It must return
+#'     \item{trafo.returns.control} \code{cpo.trafo} must be specified and is called with the training data and the CPO parameters. It must return
 #'       a \code{cpo.retrafo} function that takes the data to be transformed as a single argument, and returns the transformed data.
-#'       If \code{.retrafo.format} is \dQuote{combined}, \code{pco.retrafo} must be \code{NULL}.
+#'       If \code{.trafo.type} is \dQuote{trafo.returns.control}, \code{pco.retrafo} must be \code{NULL}.
 #'     \item{stateless} Specification of \code{cpo.trafo} is optional and may be \code{NULL}. If it is not given, \code{cpo.retrafo} is used on both
 #'       training and new data; otherwise, \code{cpo.trafo} is applied to training data, \code{cpo.retrafo} is used on predict data. There
 #'       is no transfer of information from trafo to retrafo. If \code{cpo.trafo} is not given, \code{.dataformat} must not be \dQuote{task} or \dQuote{no}.
@@ -140,18 +131,18 @@
 #'   This can either be a function, or just the function body wrapped in curly braces.
 #'   If this is a function, it must have the parameters \dQuote{data} and \dQuote{target},
 #'   as well as the parameters specified in \dQuote{...} or \dQuote{.par.set}. (Alternatively,
-#'   the function may have a dotdotdot argument). Depending on the values of \code{.retrafo.format} and
+#'   the function may have a dotdotdot argument). Depending on the values of \code{.trafo.type} and
 #'   \code{.dataformat} -- see there --, it must return a \dQuote{data.frame}, a \dQuote{task},
 #'   a dQuote{matrix}, \dQuote{list} of \dQuote{data.frame} and \dQuote{matrix} objects, or a retrafo function.
 #'
-#'   If \dQuote{cpo.retrafo} is given and \code{.retrafo.format} is \dQuote{separate}, it must create a \dQuote{control}
+#'   If \dQuote{cpo.retrafo} is given and \code{.trafo.type} is \dQuote{trafo.returns.data}, it must create a \dQuote{control}
 #'   variable in its namespace, which will be passed on to \dQuote{cpo.retrafo}. If \dQuote{cpo.retrafo} is
-#'   not given and \code{.retrafo.format} is \dQuote{separate}, it must create a \dQuote{cpo.retrafo} function within its namespace, which will be called
+#'   not given and \code{.trafo.type} is \dQuote{trafo.returns.data}, it must create a \dQuote{cpo.retrafo} function within its namespace, which will be called
 #'   for re-transformation.
 #'
-#'   If \code{.retrafo.format} is \dQuote{combined}, this function must return a \dQuote{cpo.retrafo} function.
+#'   If \code{.trafo.type} is \dQuote{trafo.returns.control}, this function must return a \dQuote{cpo.retrafo} function.
 #'
-#'   If \code{.retrafo.format} is
+#'   If \code{.trafo.type} is
 #'   \dQuote{stateless}, this argument may be \code{NULL}, or a function which just returns the transformed data.
 #'
 #'   If \dQuote{cpo.trafo} is a list of expressions (preferred), it is turned into a function by mlr, with the correct function arguments.
@@ -169,11 +160,11 @@
 #'
 #' @examples
 #' # an example 'pca' CPO
-#' # demonstrates the (object based) "separate" CPO API
+#' # demonstrates the (object based) "trafo.returns.data" CPO API
 #' pca = makeCPO("pca",  # name
 #'   center = TRUE: logical,  # one logical parameter 'center'
 #'   .dataformat= "numeric",  # only handle numeric columns
-#'   .retrafo.format = "separate",  # default, can be omitted
+#'   .trafo.type = "trafo.returns.data",  # default, can be omitted
 #'   # cpo.trafo is given as a function body. The function head is added
 #'   # automatically, containing 'data', 'target', and 'center'
 #'   # (since a 'center' parameter was defined)
@@ -191,10 +182,10 @@
 #'   })
 #'
 #' # an example 'scale' CPO
-#' # demonstrates the (functional) "separate" CPO API
+#' # demonstrates the (functional) "trafo.returns.data" CPO API
 #' scaleCPO = makeCPO("scale",
 #'   .dataformat = "numeric",
-#'   # .retrafo.format = "separate" is implicit
+#'   # .trafo.type = "trafo.returns.data" is implicit
 #'   cpo.trafo = function(data, target) {
 #'     result = scale(as.matrix(data), center = center, scale = scale)
 #'     cpo.retrafo = function(data) {
@@ -206,10 +197,10 @@
 #'   }, cpo.retrafo = NULL)  # don't forget to set it cpo.retrafo to NULL
 #'
 #' # an example constant feature remover CPO
-#' # demonstrates the "combined" CPO API
+#' # demonstrates the "trafo.returns.control" CPO API
 #' constFeatRem = makeCPO("constFeatRem",
 #'   .dataformat = "df.features",
-#'   .retrafo.format = "combined",
+#'   .trafo.type = "trafo.returns.control",
 #'   cpo.trafo = function(data, target) {
 #'     cols.keep = names(Filter(function(x) {
 #'         length(unique(x)) > 1
@@ -225,7 +216,7 @@
 #' # demonstrates the "stateless" CPO API
 #' square = makeCPO("scale",
 #'   .dataformat = "numeric",
-#'   .retrafo.format = "stateless",
+#'   .trafo.type = "stateless",
 #'   cpo.trafo = NULL, # optional, we don't need it since trafo & retrafo same
 #'   cpo.retrafo = function(data) {
 #'     as.matrix(data) * 2
@@ -234,7 +225,7 @@
 makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
-                   .retrafo.format = c("separate", "combined", "stateless"),
+                   .trafo.type = c("trafo.returns.data", "trafo.returns.control", "stateless"),
                    .export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    .fix.factors = FALSE, .properties = c("numerics", "factors", "ordered", "missings"),
                    .properties.adding = character(0), .properties.needed = character(0),
@@ -247,7 +238,7 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   # If that changes, they would also neede to be dotted.
 
   .dataformat = match.arg(.dataformat)
-  .retrafo.format = match.arg(.retrafo.format)
+  .trafo.type = match.arg(.trafo.type)
 
   assertSubset(.properties, cpo.dataproperties)
   assertSubset(.properties.target, c(cpo.tasktypes, cpo.targetproperties))
@@ -257,7 +248,7 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
     .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
     .fix.factors = .fix.factors, .data.dependent = TRUE,
-    .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties,
+    .trafo.type = .trafo.type, .export.params = .export.params, .properties = .properties,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties.target, .type.from = NULL, .type.to = NULL,
     .predict.type = NULL, .packages = .packages,
@@ -282,7 +273,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
     .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
     .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
     .fix.factors = fix.factors, .data.dependent = TRUE,
-    .retrafo.format = "combined", .export.params = export.params, .properties = properties,
+    .trafo.type = "trafo.returns.control", .export.params = export.params, .properties = properties,
     .properties.adding = properties.adding, .properties.needed = properties.needed,
     .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
     .predict.type = NULL, .packages = packages,
@@ -294,7 +285,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 
 
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
-                          .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .retrafo.format, .export.params,
+                          .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,
                           .properties, .properties.adding, .properties.needed,
                           .properties.target, .type.from, .type.to, .predict.type, .packages, cpo.trafo, cpo.retrafo, ...) {
 
@@ -302,7 +293,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
   assertFlag(.data.dependent)
   assertString(.cpo.name)
   assertList(.par.vals, names = "unique")
-  .stateless = .retrafo.format == "stateless"
+  .stateless = .trafo.type == "stateless"
 
 
   if (is.null(.par.set)) {
@@ -395,7 +386,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     }
     cpo.trafo = NULL
   }
-  if (.retrafo.format == "combined") {
+  if (.trafo.type == "trafo.returns.control") {
     retrafo.gen = cpo.trafo
     cpo.trafo = function(data, target, ...) {
       cpo.retrafo = retrafo.gen(data, target, ...)
@@ -408,7 +399,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
 
   retrafo.expr = cpo.retrafo
   if ((is.recursive(retrafo.expr) && identical(retrafo.expr[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, env = parent.frame(2)))) {
-    if (.retrafo.format == "combined") {
+    if (.trafo.type == "trafo.returns.control") {
       stop("Combined retrafo must have cpo.retrafo = NULL")
     }
     required.arglist.retrafo = funargs

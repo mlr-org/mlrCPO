@@ -10,7 +10,7 @@
 makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                            .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            .dataformat.factor.with.ordered = TRUE,
-                           .data.dependent = TRUE, .retrafo.format = c("separate", "combined", "stateless"),
+                           .data.dependent = TRUE, .trafo.type = c("trafo.returns.data", "trafo.returns.control", "stateless"),
                            .export.params = TRUE,
                            .properties.data = c("numerics", "factors", "ordered", "missings"),
                            .properties.adding = character(0), .properties.needed = character(0),
@@ -22,7 +22,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                            cpo.trafo, cpo.retrafo) {
 
   .type = match.arg(.type)
-  .retrafo.format = match.arg(.retrafo.format)
+  .trafo.type = match.arg(.trafo.type)
   .type.out = match.arg(.type.out, choices = c("cluster", "classif", "multilabel", "regr", "surv"))
 
   possible.properties = list(multilabel = character(0), regr = character(0), cluster = character(0),
@@ -90,7 +90,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
     .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
     .fix.factors = FALSE, .data.dependent = .data.dependent,
-    .retrafo.format = .retrafo.format, .export.params = .export.params, .properties = .properties.target,
+    .trafo.type = .trafo.type, .export.params = .export.params, .properties = .properties.target,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
     .properties.target = .properties, .type.from = .type, .type.to = .type.out,
     .predict.type = .predict.type, .packages = .packages,
