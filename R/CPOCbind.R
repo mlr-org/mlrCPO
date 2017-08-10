@@ -104,7 +104,7 @@ cpoCbind = function(..., .cpos = list()) {
 
   control = NULL  # pacify static code analyser
 
-  addClasses(makeCPO("cbind", .par.set = par.set, .par.vals = par.vals, .dataformat = "task",
+  addClasses(makeCPOExtended("cbind", .par.set = par.set, .par.vals = par.vals, .dataformat = "task",
     .properties = collectedprops$properties,
     .properties.adding = collectedprops$properties.adding,
     .properties.needed = collectedprops$properties.needed,

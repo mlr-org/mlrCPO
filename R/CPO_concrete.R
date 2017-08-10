@@ -10,7 +10,7 @@
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoPca = makeCPO("pca", .dataformat = "numeric", cpo.trafo = {  # nolint
+cpoPca = makeCPOExtended("pca", .dataformat = "numeric", cpo.trafo = {  # nolint
   pcr = prcomp(as.matrix(data), center = FALSE, scale. = FALSE)
   data = as.data.frame(pcr$x)
   control = list(rotation = pcr$rotation)
@@ -49,7 +49,7 @@ registerCPO(cpoPca, "data", "numeric data preprocessing", "Perform Principal Com
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoApplyFun = makeCPO("fun.apply",  # nolint
+cpoApplyFun = makeCPOExtended("fun.apply",  # nolint
   .par.set = makeParamSet(
       makeFunctionLearnerParam("fun"),
       makeLogicalLearnerParam("vectorize", default = TRUE)),
@@ -94,7 +94,7 @@ registerCPO(cpoPca, "data", "general data preprocessing", "Apply an arbitrary fu
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoScaleRange = makeCPO("range.scale", lower = 0: numeric[~., ~.], upper = 1: numeric[~., ~.],  # nolint
+cpoScaleRange = makeCPOExtended("range.scale", lower = 0: numeric[~., ~.], upper = 1: numeric[~., ~.],  # nolint
   .dataformat = "numeric",
   cpo.trafo = {
     ranges = lapply(data, function(x) {
@@ -132,7 +132,7 @@ registerCPO(cpoScaleRange, "data", "numeric data preprocessing", "Scale numeric 
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoScaleMaxAbs = makeCPO("maxabs.scale", maxabs = 1: numeric[0, ~.],  # nolint
+cpoScaleMaxAbs = makeCPOExtended("maxabs.scale", maxabs = 1: numeric[0, ~.],  # nolint
   .dataformat = "numeric", .trafo.type = "trafo.returns.control",
   cpo.trafo = {
     scaling = lapply(data, function(x) {
@@ -166,7 +166,7 @@ registerCPO(cpoScaleMaxAbs, "data", "numeric data preprocessing", "Scale numeric
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoSpatialSign = makeCPO("spatial.sign", length = 1: numeric[0, ~.], .dataformat = "numeric", .trafo.type = "stateless",  # nolint
+cpoSpatialSign = makeCPOExtended("spatial.sign", length = 1: numeric[0, ~.], .dataformat = "numeric", .trafo.type = "stateless",  # nolint
   .properties = c("numerics", "factors", "ordered"),  # no missings
   cpo.trafo = NULL, cpo.retrafo = {
     t(apply(as.matrix(data), 1, function(x) {
@@ -192,7 +192,7 @@ registerCPO(cpoSpatialSign, "data", "numeric data preprocessing", "Scale numeric
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoProbEncode = makeCPO("prob.encode",  # nolint
+cpoProbEncode = makeCPOExtended("prob.encode",  # nolint
   .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
   .properties.needed = "numerics",
@@ -232,7 +232,7 @@ registerCPO(cpoProbEncode, "data", "feature conversion", "Convert factorial colu
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoImpactEncodeClassif = makeCPO("impact.encode.classif",  # nolint
+cpoImpactEncodeClassif = makeCPOExtended("impact.encode.classif",  # nolint
   smoothing = 1e-4: numeric[~0, ~.],
   .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
@@ -280,7 +280,7 @@ registerCPO(cpoImpactEncodeClassif, "data", "feature conversion", "Convert facto
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoImpactEncodeRegr = makeCPO("impact.encode.regr",  # nolint
+cpoImpactEncodeRegr = makeCPOExtended("impact.encode.regr",  # nolint
   smoothing = 1e-4: numeric[~0, ~.],
   .dataformat = "factor",
   .properties.adding = c("factors", "ordered"),
@@ -319,7 +319,7 @@ registerCPO(cpoImpactEncodeRegr, "data", "feature conversion", "Convert factoria
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoCollapseFact = makeCPO("collapse.fact",  # nolint
+cpoCollapseFact = makeCPOExtended("collapse.fact",  # nolint
   max.collapsed.class.prevalence = 0.1: numeric[0, ~1],
   .dataformat = "factor",
   cpo.trafo = {
@@ -357,7 +357,7 @@ registerCPO(cpoCollapseFact, "data", "factor data preprocessing", "Combine rare 
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoQuantileBinNumerics = makeCPO("bin.numerics", numsplits = 2: integer[2, ],  # nolint
+cpoQuantileBinNumerics = makeCPOExtended("bin.numerics", numsplits = 2: integer[2, ],  # nolint
   .properties.needed = "ordered", .properties.adding = "numerics",
   .dataformat = "numeric", cpo.trafo = {
     breaks = lapply(data, function(d)
@@ -377,7 +377,7 @@ registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert Numerics to 
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoAsNumeric = makeCPO("as.numeric", .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",  # nolint
+cpoAsNumeric = makeCPOExtended("as.numeric", .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",  # nolint
   .trafo.type = "stateless", .dataformat = "factor", cpo.trafo = function(data, target) {
     as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) }, cpo.retrafo = function(data) {
       as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) })
@@ -396,7 +396,7 @@ registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert all Features
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoScale = makeCPO("scale", center = TRUE: logical, scale = TRUE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
+cpoScale = makeCPOExtended("scale", center = TRUE: logical, scale = TRUE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
   result = scale(as.matrix(data), center = center, scale = scale)
   control = list(center = coalesce(attr(result, "scaled:center"), FALSE), scale = coalesce(attr(result, "scaled:scale"), FALSE))
   result
@@ -417,7 +417,7 @@ registerCPO(cpoScale, "data", "numeric data preprocessing", "Center and / or sca
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoDummyEncode = makeCPO("dummyencode", reference.cat = FALSE: logical, .dataformat = "df.features",  # nolint
+cpoDummyEncode = makeCPOExtended("dummyencode", reference.cat = FALSE: logical, .dataformat = "df.features",  # nolint
   .properties.needed = "numerics", .properties.adding = c("factors", "ordered"),
   cpo.trafo = {
     lvls = lapply(data, levels)
@@ -489,7 +489,7 @@ registerCPO(cpoDummyEncode, "data", "feature conversion", "Convert factorial col
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoSelect = makeCPO("select",  # nolint
+cpoSelect = makeCPOExtended("select",  # nolint
   .par.set = c(
       paramSetSugar(type = list(): discrete[numeric, ordered, factor, other]^NA,
         index = integer(0): integer[1, ]^NA),
@@ -542,7 +542,7 @@ registerCPO(cpoSelect, "data", "feature selection ", "Select features from a dat
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoDropConstants = makeCPO("dropconst", rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],  # nolint
+cpoDropConstants = makeCPOExtended("dropconst", rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],  # nolint
   ignore.na = FALSE: logical,
   .dataformat = "df.features", cpo.trafo = {
     control = sapply(data, function(col) {
@@ -592,7 +592,7 @@ registerCPO(cpoDropConstants, "data", "cleanup", "Drop constant or near-constant
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoFixFactors = makeCPO("fixfactors", drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical,  # nolint
+cpoFixFactors = makeCPOExtended("fixfactors", drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical,  # nolint
   .dataformat = "df.features",
   .properties.needed = "missings",
   cpo.trafo = {
@@ -630,7 +630,7 @@ registerCPO(cpoFixFactors, "data", "cleanup", "Clean up Factorial Features.")
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoMissingIndicators = makeCPO("missingindicators", force.dummies = FALSE: logical,  # nolint
+cpoMissingIndicators = makeCPOExtended("missingindicators", force.dummies = FALSE: logical,  # nolint
   .dataformat = "df.features",
   .properties.needed = "factors",
   .properties.adding = c("numerics", "ordered", "missings"),
@@ -661,7 +661,7 @@ registerCPO(cpoMissingIndicators, "tools", "imputation", "Generate factorial col
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoModelMatrix = makeCPO("model.matrix", .fix.factors = TRUE, .trafo.type = "stateless",  # nolint
+cpoModelMatrix = makeCPOExtended("model.matrix", .fix.factors = TRUE, .trafo.type = "stateless",  # nolint
   .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "df.features",
   .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",
   cpo.trafo = NULL, cpo.retrafo = {

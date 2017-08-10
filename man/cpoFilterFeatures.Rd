@@ -49,14 +49,6 @@ First, calls \code{\link{generateFilterValuesData}}.
 Features are then selected via \code{select} and \code{val}.
 }
 \seealso{
-Other filter: \code{\link{filterFeatures}},
-  \code{\link{generateFilterValuesData}},
-  \code{\link{getFilterValues}},
-  \code{\link{getFilteredFeatures}},
-  \code{\link{makeFilterWrapper}},
-  \code{\link{plotFilterValuesGGVIS}},
-  \code{\link{plotFilterValues}}
-
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{attachCPO}},
@@ -77,12 +69,10 @@ Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
   \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}}, \code{\link{getHyperPars}},
-  \code{\link{getRetrafoState}},
+  \code{\link{getCPOName}}, \code{\link{getRetrafoState}},
   \code{\link{hasTagInvert}}, \code{\link{inverter<-}},
-  \code{\link{inverter}}, \code{\link{makeCPO}},
+  \code{\link{inverter}}, \code{\link{makeCPOExtended}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{retrafo<-}}, \code{\link{retrafo}},
-  \code{\link{setCPOId}}, \code{\link{setHyperPars}},
-  \code{\link{tagInvert}}
+  \code{\link{setCPOId}}, \code{\link{tagInvert}}
 }

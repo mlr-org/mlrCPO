@@ -78,7 +78,7 @@
 #' @export
 #' @family impute
 #' @family CPO
-cpoImpute = makeCPO("impute", # nolint
+cpoImpute = makeCPOExtended("impute", # nolint
   .par.set = c(
       makeParamSet(makeUntypedLearnerParam("target.cols", default = character(0)),
         makeUntypedLearnerParam("classes", default = list()),
@@ -103,7 +103,7 @@ registerCPO(cpoImpute, "imputation", "general", "General imputation CPO that use
 
 #' @rdname cpoImpute
 #' @export
-cpoImputeAll = makeCPO("impute", # nolint
+cpoImputeAll = makeCPOExtended("impute", # nolint
   .par.set = c(
       makeParamSet(makeUntypedLearnerParam("target.cols", default = character(0)),
         makeUntypedLearnerParam("classes", default = list()),
@@ -129,7 +129,7 @@ registerCPO(cpoImputeAll, "imputation", "general", "General imputation CPO that 
 #   types == NULL: all types
 #   otherwise: subset of "numerics", "factors", "ordered"
 declareImputeFunction = function(name, method, additional.params, types = NULL) {
-  makeCPO(paste0("impute.", name),
+  makeCPOExtended(paste0("impute.", name),
     .par.set = c(additional.params,
       paramSetSugar(
         impute.new.levels = TRUE: logical,

@@ -176,10 +176,7 @@ The description object contains these slots
 }
 }
 \seealso{
-Other impute: \code{\link{cpoImpute}},
-  \code{\link{imputations}}, \code{\link{impute}},
-  \code{\link{makeImputeMethod}},
-  \code{\link{makeImputeWrapper}}, \code{\link{reimpute}}
+Other impute: \code{\link{cpoImpute}}
 
 Other CPO: \code{\link{CPO}}, \code{\link{NULLCPO}},
   \code{\link{\%>>\%}}, \code{\link{applyCPO}},
@@ -202,12 +199,10 @@ Other CPO: \code{\link{CPO}}, \code{\link{NULLCPO}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
   \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}}, \code{\link{getHyperPars}},
-  \code{\link{getRetrafoState}},
+  \code{\link{getCPOName}}, \code{\link{getRetrafoState}},
   \code{\link{hasTagInvert}}, \code{\link{inverter<-}},
-  \code{\link{inverter}}, \code{\link{makeCPO}},
+  \code{\link{inverter}}, \code{\link{makeCPOExtended}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{retrafo<-}}, \code{\link{retrafo}},
-  \code{\link{setCPOId}}, \code{\link{setHyperPars}},
-  \code{\link{tagInvert}}
+  \code{\link{setCPOId}}, \code{\link{tagInvert}}
 }

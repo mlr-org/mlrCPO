@@ -28,7 +28,7 @@
 #' @export
 #' @family filter
 #' @family CPO
-cpoFilterFeatures = makeCPO("filterFeatures", #nolint
+cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
   .par.set = c(
       makeParamSet(makeDiscreteLearnerParam("method", values = ls(.FilterRegister), default = "randomForestSRC.rfsrc"),
         makeUntypedLearnerParam("fval", default = NULL)),
@@ -63,7 +63,7 @@ declareFilterCPO = function(method, ..., .par.set = NULL) {
 
   methodobj = get(method, envir = .FilterRegister)
 
-  makeCPO(method, .par.set = .par.set, .dataformat = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
+  makeCPOExtended(method, .par.set = .par.set, .dataformat = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
     cpo.trafo = function(data, target, perc, abs, threshold, ...) {
       filter.args = list(...)
       td = getTaskData(data, target.extra = TRUE)$data

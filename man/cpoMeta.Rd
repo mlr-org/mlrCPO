@@ -5,8 +5,9 @@
 \title{Build data-dependent CPOs}
 \usage{
 cpoMeta(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
-  .export = list(), .datasplit = c("target", "most", "all", "no", "task",
-  "factor", "onlyfactor", "ordered", "numeric"), .properties = NULL,
+  .export = list(), .dataformat = c("df.features", "split", "df.all",
+  "task", "factor", "ordered", "numeric"),
+  .dataformat.factor.with.ordered = TRUE, .properties = NULL,
   .properties.adding = NULL, .properties.needed = NULL,
   .properties.target = NULL, cpo.build)
 }

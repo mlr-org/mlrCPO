@@ -63,12 +63,10 @@ Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
   \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}}, \code{\link{getHyperPars}},
-  \code{\link{getRetrafoState}},
+  \code{\link{getCPOName}}, \code{\link{getRetrafoState}},
   \code{\link{hasTagInvert}}, \code{\link{inverter<-}},
-  \code{\link{inverter}}, \code{\link{makeCPO}},
+  \code{\link{inverter}}, \code{\link{makeCPOExtended}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{retrafo<-}}, \code{\link{retrafo}},
-  \code{\link{setCPOId}}, \code{\link{setHyperPars}},
-  \code{\link{tagInvert}}
+  \code{\link{setCPOId}}, \code{\link{tagInvert}}
 }

@@ -68,7 +68,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
 
   pr = collectProperties(constructed)
 
-  makeCPO("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
+  makeCPOExtended("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
           .properties.needed = pr$properties.needed, .properties.target = pr$properties.target, cpo.trafo = function(data, target, selected.cpo, ...) {
             cpo = constructed[[selected.cpo]]
             cpo = setHyperPars(cpo, par.vals = list(...)[names(getParamSet(cpo)$pars)])
@@ -94,7 +94,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoApply = makeCPO("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
+cpoApply = makeCPOExtended("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
                    cpo.trafo = { control = retrafo({res = data %>>% cpo}) ; res }, cpo.retrafo = { data %>>% control })
 # FIXME: require databound
 registerCPO(cpoApply, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
@@ -184,7 +184,7 @@ cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
     .dataformat = "onlyfactor"
   }
 
-  makeCPO(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
+  makeCPOExtended(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
     .dataformat = "task", .dataformat.factor.with.ordered = FALSE, .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, .properties.target = .properties.target,
     cpo.trafo = function(data, target, ...) {
