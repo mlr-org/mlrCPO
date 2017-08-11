@@ -1,7 +1,9 @@
 #' @include CPOFormatCheck.R
 ##################################
-### Creator                    ###
+### Creators                   ###
 ##################################
+
+
 
 #' @title Create a custom CPO constructor
 #'
@@ -9,6 +11,146 @@
 #' \code{makeCPO} creates a Feature Operation CPO constructor, i.e. a constructor for a CPO that will
 #' operate on feature columns. \code{makeCPOTargetOp} creates a Target Operation CPO constructor, which
 #' creates CPOs that operate on the target column.
+#'
+#' \code{makeCPO} has a comparatively easy user-interface; for more advanced use-cases and interesting shortcuts,
+#' use \code{\link{makeCPOExtended}}.
+#'
+#' @param cpo.name [\code{character(1)}]\cr
+#'   The name of the resulting CPO constructor / CPO. This is used for identification in output,
+#'   and as the default \code{id}.
+#' @param par.set [\code{ParamSet} | \code{NULL}]\cr
+#'   Optional parameter set, for configuration of CPOs during construction or by hyperparameters.
+#'   Default is \code{NULL}.
+#' @param par.vals [\code{list}]\cr
+#'   Named list of default parameter values for the CPO. These are used additionally to the
+#'   parameter default values in \code{.par.set}. It is preferred to use
+#'   these default values, and not \code{.par.vals}. Default is \code{list()}.
+#' @param dataformat [\code{character(1)}]\cr
+#'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and the retrafo function. Possibilities are:
+#'   \tabular{lll}{
+#'     .dataformat \tab data                          \tab target                \cr
+#'     \hline
+#'     df.all      \tab data.frame with target cols   \tab target colnames       \cr
+#'     df.features \tab data.frame without target     \tab data.frame of target  \cr
+#'     task        \tab full task                     \tab target colnames       \cr
+#'     split       \tab list of data.frames by type   \tab data.frame of target  \cr
+#'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
+#'   }
+#'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
+#'   For \code{.dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
+#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{.dataformat.factor.with.ordered}
+#'   is \code{FALSE}.
+#'
+#'   If the CPO is a Feature Operation CPO, then the return value of the retrafo function must be in the same format as the one requested.
+#'   E.g. if \code{.dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
+#'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
+#'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
+#'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
+#'
+#'   If \code{.dataformat} is either \dQuote{df.all} or \dQuote{task}, the
+#'   target column(s) in the returned value of the retrafo function must be identical with the target column(s) given as input.
+#'
+#'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the value returned by the retrafo function
+#'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
+#'   matrix.
+#' @param export.params [\code{logical(1)} | \code{character}]\cr
+#'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
+#'   but exporting too many parameters may lead to messy parameter sets if many CPOs are combined. This can be overridden on construction.
+#'   If this is a \code{logical(1)}, \code{TRUE} exports all parameters, \code{FALSE} to exports no parameters. It may also be a \code{character},
+#'   indicating the names of parameters to be exported. Default is \code{TRUE}.
+#' @param fix.factors [\code{logical(1)}]\cr
+#'   Whether to constrain factor levels of new data to the levels of training data, for each factorial or ordered column. If new data contains
+#'   factors that were not present in training data, the values are set to \code{NA}. Default is \code{FALSE}.
+#' @param properties [\code{character}]\cr
+#'   The kind if data that the CPO will be able to handle. This can be one or many of: \dQuote{numerics},
+#'   \dQuote{factors}, \dQuote{ordered}, \dQuote{missings}.
+#'   There should be a bias towards including properties. If a property is absent, the preproc
+#'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
+#'   missings (like PCA), it is recommended to give all properties, ignore the columns that
+#'   are not numeric (using \dQuote{.dataformat} = \dQuote{split}), and giving an error when
+#'   there are missings in the numeric columns (since missings in factorial features are not a problem).
+#'   Defaults to the maximal set.
+#' @param properties.adding [\code{character}]\cr
+#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs, and one or many of the same values as \dQuote{.properties.target}
+#'   for Target Operation CPOs. These properties get added to a Learner (or CPO) coming after / behind this CPO. When a CPO imputes missing values, for example,
+#'   this should be \dQuote{missings}. This must be a subset of \dQuote{.properties} or \dQuote{.properties.target}. Default is
+#'   \code{character(0)}.
+#' @param properties.needed [\code{character}]\cr
+#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs,
+#'   and one or many of the same values as \dQuote{.properties.target}. These properties are required
+#'   from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
+#'   numerics, this should be \dQuote{numerics} (and \dQuote{.properties.adding} should be \dQuote{factors}).
+#'   Default is \code{character(0)}.
+#' @param properties.target [\code{character}]\cr
+#'   For Feature Operation CPOs, this can be one or many of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr}, \dQuote{surv},
+#'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{.properties}, it
+#'   indicates what kind of data a CPO can work with. Data given as data.frame needs the \dQuote{cluster} property. Default is the maximal set.
+#'
+#'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
+#'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
+#' @param packages [\code{character}]\cr
+#'   Package(s) that should be loaded when the CPO is constructed. This gives the user an early error if
+#'   a package required for the CPO is not available on his system, or can not be loaded. Default is \code{character(0)}.
+#' @param cpo.trafo [\code{function}]\cr
+#'   This is a function which must have the parameters \dQuote{data} and \dQuote{target},
+#'   as well as the parameters specified in \dQuote{par.set}. (Alternatively,
+#'   the function may have a dotdotdot argument). This is a constructor function which must return a \dQuote{retrafo} function which
+#'   modifies data. This retrafo function must have exactly one argument--the (new) data--and return the modified data. The format
+#'   of the argument, and of the return value of the retrafo function, depends on the value of the \code{dataformat} parameter.
+#'
+#' @family CPO
+#' @export
+#'
+#' @examples
+#' # an example constant feature remover CPO
+#' # demonstrates the "trafo.returns.control" CPO API
+#' constFeatRem = makeCPO("constFeatRem",
+#'   .dataformat = "df.features",
+#'   .trafo.type = "trafo.returns.control",
+#'   cpo.trafo = function(data, target) {
+#'     cols.keep = names(Filter(function(x) {
+#'         length(unique(x)) > 1
+#'       }, data))
+#'     # the following function will do both the trafo and retrafo
+#'     result = function(data) {
+#'       data[cols.keep]
+#'     }
+#'     result
+#'   })
+makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
+                   fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
+                   properties.adding = character(0), properties.needed = character(0),
+                   properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
+                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                   packages = character(0), cpo.trafo) {
+  dataformat = match.arg(dataformat)
+
+  assertSubset(properties, cpo.dataproperties)
+  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
+  assertSubset(properties.needed, cpo.dataproperties)
+
+  makeCPOGeneral(.cpotype = "databound",
+    .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
+    .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    .fix.factors = fix.factors, .data.dependent = TRUE,
+    .trafo.type = "trafo.returns.control", .export.params = export.params, .properties = properties,
+    .properties.adding = properties.adding, .properties.needed = properties.needed,
+    .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
+    .predict.type = NULL, .packages = packages,
+    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = NULL)
+
+}
+
+#' @title Create a custom CPO constructor
+#'
+#' @description
+#' \code{makeCPOExtended} creates a Feature Operation CPO constructor, i.e. a constructor for a CPO that will
+#' operate on feature columns. \code{makeCPOTargetOp} creates a Target Operation CPO constructor, which
+#' creates CPOs that operate on the target column.
+#'
+#' \code{makeCPOExtended} is for advanced users and internal use; for a much simpler user-interface, use
+#' \code{\link{makeCPO}}.
 #'
 #' @param .cpo.name [\code{character(1)}]\cr
 #'   The name of the resulting CPO constructor / CPO. This is used for identification in output,
@@ -40,19 +182,19 @@
 #'
 #'   If the CPO is a Target Operation CPO, the return value of both \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}
 #'   must be either a task if \code{.dataformat} is \dQuote{task}, the complete (modified) data.frame
-#'   if \code{.dataformat} is \dQuote{no}, and a data.frame containing only the target column(s) otherwise.
-#'   Default is \dQuote{target}.
+#'   if \code{.dataformat} is \dQuote{df.all}, and a data.frame containing only the target column(s) otherwise.
+#'   Default is \dQuote{df.features}.
 #'
 #'   If the CPO is a Feature Operation CPO, then the return value must be in the same format as the one requested.
-#'   E.g. if \code{.dataformat} is \dQuote{most}, the return value must be a named list with entries \dQuote{numeric},
+#'   E.g. if \code{.dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
 #'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
 #'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
 #'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
 #'
-#'   If \code{.dataformat} is either \dQuote{no} or \dQuote{task}, the
+#'   If \code{.dataformat} is either \dQuote{df.all} or \dQuote{task}, the
 #'   target column(s) in the returned value must be identical with the target column(s) given as input.
 #'
-#'   If \dQuote{.dataformat} is \dQuote{most} or \dQuote{all}, the \dQuote{$numeric} slot of the returned
+#'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the returned
 #'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
 #' @param .trafo.type [\code{character(1)}]\cr
@@ -61,7 +203,7 @@
 #'   \itemize{
 #'     \item{trafo.returns.data} \code{cpo.trafo} must be specified and is called with the training data and the CPO parameters.
 #'       It must return the modified data, and within its namespace must either specify a \dQuote{control} variable ("Object-Based CPO"),
-#'       if \code{cpo.retrafo} is given, or a \dQuote{cpo.retrafo} variable, if (the makeCPO parameter) \code{cpo.retrafo}
+#'       if \code{cpo.retrafo} is given, or a \dQuote{cpo.retrafo} variable, if (the makeCPOExtended parameter) \code{cpo.retrafo}
 #'       is \code{NULL} ("Functional CPO"). For Object-Based CPO, \code{cpo.retrafo} is called with the \code{control} object
 #'       created in \code{cpo.trafo}, additionally with the new data, and the CPO parameters. For Functional CPO, \code{cpo.retrafo} is
 #'       constructed inside the \code{cpo.trafo} call and is used for transformation of new data. It must take a single argument and
@@ -71,7 +213,7 @@
 #'       If \code{.trafo.type} is \dQuote{trafo.returns.control}, \code{pco.retrafo} must be \code{NULL}.
 #'     \item{stateless} Specification of \code{cpo.trafo} is optional and may be \code{NULL}. If it is not given, \code{cpo.retrafo} is used on both
 #'       training and new data; otherwise, \code{cpo.trafo} is applied to training data, \code{cpo.retrafo} is used on predict data. There
-#'       is no transfer of information from trafo to retrafo. If \code{cpo.trafo} is not given, \code{.dataformat} must not be \dQuote{task} or \dQuote{no}.
+#'       is no transfer of information from trafo to retrafo. If \code{cpo.trafo} is not given, \code{.dataformat} must not be \dQuote{task} or \dQuote{df.all}.
 #'   }
 #' @param .export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
@@ -87,7 +229,7 @@
 #'   There should be a bias towards including properties. If a property is absent, the preproc
 #'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
 #'   missings (like PCA), it is recommended to give all properties, ignore the columns that
-#'   are not numeric (using \dQuote{.dataformat} = \dQuote{most}), and giving an error when
+#'   are not numeric (using \dQuote{.dataformat} = \dQuote{split}), and giving an error when
 #'   there are missings in the numeric columns (since missings in factorial features are not a problem).
 #'   Defaults to the maximal set.
 #' @param .properties.adding [\code{character}]\cr
@@ -152,7 +294,7 @@
 #'   the \dQuote{target} argument is replaced by a \dQuote{control} argument, which will be
 #'   the value created in the \dQuote{cpo.trafo} run. It gets its input data in the same format as
 #'   \dQuote{cpo.trafo}, with the exception that if \dQuote{.dataformat} is \dQuote{task}, it gets a
-#'   \dQuote{data.frame} as if \dQuote{.dataformat} were \dQuote{no}. This function must similarly return an
+#'   \dQuote{data.frame} as if \dQuote{.dataformat} were \dQuote{df.all}. This function must similarly return an
 #'   object in the same format as it received as input.
 #'
 #' @family CPO
@@ -161,7 +303,7 @@
 #' @examples
 #' # an example 'pca' CPO
 #' # demonstrates the (object based) "trafo.returns.data" CPO API
-#' pca = makeCPO("pca",  # name
+#' pca = makeCPOExtended("pca",  # name
 #'   center = TRUE: logical,  # one logical parameter 'center'
 #'   .dataformat= "numeric",  # only handle numeric columns
 #'   .trafo.type = "trafo.returns.data",  # default, can be omitted
@@ -183,7 +325,7 @@
 #'
 #' # an example 'scale' CPO
 #' # demonstrates the (functional) "trafo.returns.data" CPO API
-#' scaleCPO = makeCPO("scale",
+#' scaleCPO = makeCPOExtended("scale",
 #'   .dataformat = "numeric",
 #'   # .trafo.type = "trafo.returns.data" is implicit
 #'   cpo.trafo = function(data, target) {
@@ -198,7 +340,7 @@
 #'
 #' # an example constant feature remover CPO
 #' # demonstrates the "trafo.returns.control" CPO API
-#' constFeatRem = makeCPO("constFeatRem",
+#' constFeatRem = makeCPOExtended("constFeatRem",
 #'   .dataformat = "df.features",
 #'   .trafo.type = "trafo.returns.control",
 #'   cpo.trafo = function(data, target) {
@@ -214,7 +356,7 @@
 #'
 #' # an example 'square' CPO
 #' # demonstrates the "stateless" CPO API
-#' square = makeCPO("scale",
+#' square = makeCPOExtended("scale",
 #'   .dataformat = "numeric",
 #'   .trafo.type = "stateless",
 #'   cpo.trafo = NULL, # optional, we don't need it since trafo & retrafo same
@@ -254,35 +396,6 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .predict.type = NULL, .packages = .packages,
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), ...)
 }
-
-
-makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
-                   dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
-                   fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
-                   properties.adding = character(0), properties.needed = character(0),
-                   properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
-                   packages = character(0), cpo.trafo) {
-  dataformat = match.arg(dataformat)
-
-  assertSubset(properties, cpo.dataproperties)
-  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
-  assertSubset(properties.needed, cpo.dataproperties)
-
-  makeCPOGeneral(.cpotype = "databound",
-    .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
-    .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
-    .fix.factors = fix.factors, .data.dependent = TRUE,
-    .trafo.type = "trafo.returns.control", .export.params = export.params, .properties = properties,
-    .properties.adding = properties.adding, .properties.needed = properties.needed,
-    .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
-    .predict.type = NULL, .packages = packages,
-    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = NULL)
-
-}
-
-
-
 
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,

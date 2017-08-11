@@ -5,7 +5,7 @@
 
 #' @title Create a custom Target Operation CPO Constructor
 #'
-#' @rdname makeCPO
+#' @rdname makeCPOExtended
 #' @export
 makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                            .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
