@@ -23,8 +23,8 @@
 #'   Default is \code{NULL}.
 #' @param par.vals [\code{list}]\cr
 #'   Named list of default parameter values for the CPO. These are used additionally to the
-#'   parameter default values in \code{.par.set}. It is preferred to use
-#'   these default values, and not \code{.par.vals}. Default is \code{list()}.
+#'   parameter default values in \code{par.set}. It is preferred to use
+#'   these default values, and not \code{par.vals}. Default is \code{list()}.
 #' @param dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and the retrafo function. Possibilities are:
 #'   \tabular{lll}{
@@ -37,21 +37,21 @@
 #'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
 #'   }
 #'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
-#'   For \code{.dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
-#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{.dataformat.factor.with.ordered}
+#'   For \code{dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
+#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{dataformat.factor.with.ordered}
 #'   is \code{FALSE}.
 #'
 #'   If the CPO is a Feature Operation CPO, then the return value of the retrafo function must be in the same format as the one requested.
-#'   E.g. if \code{.dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
+#'   E.g. if \code{dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
 #'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
 #'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
-#'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
+#'   that has a type not already present in the data, \dQuote{properties.needed} must specify this.)
 #'
-#'   If \code{.dataformat} is either \dQuote{df.all} or \dQuote{task}, the
+#'   If \code{dataformat} is either \dQuote{df.all} or \dQuote{task}, the
 #'   target column(s) in the returned value of the retrafo function must be identical with the target column(s) given as input.
 #'
-#'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the value returned by the retrafo function
-#'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
+#'   If \dQuote{dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the value returned by the retrafo function
+#'   object may also be a \code{matrix}. If \dQuote{dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
 #' @param export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
@@ -67,23 +67,23 @@
 #'   There should be a bias towards including properties. If a property is absent, the preproc
 #'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
 #'   missings (like PCA), it is recommended to give all properties, ignore the columns that
-#'   are not numeric (using \dQuote{.dataformat} = \dQuote{split}), and giving an error when
+#'   are not numeric (using \dQuote{dataformat} = \dQuote{split}), and giving an error when
 #'   there are missings in the numeric columns (since missings in factorial features are not a problem).
 #'   Defaults to the maximal set.
 #' @param properties.adding [\code{character}]\cr
-#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs, and one or many of the same values as \dQuote{.properties.target}
+#'   Can be one or many of the same values as \dQuote{properties} for Feature Operation CPOs, and one or many of the same values as \dQuote{properties.target}
 #'   for Target Operation CPOs. These properties get added to a Learner (or CPO) coming after / behind this CPO. When a CPO imputes missing values, for example,
-#'   this should be \dQuote{missings}. This must be a subset of \dQuote{.properties} or \dQuote{.properties.target}. Default is
+#'   this should be \dQuote{missings}. This must be a subset of \dQuote{properties} or \dQuote{properties.target}. Default is
 #'   \code{character(0)}.
 #' @param properties.needed [\code{character}]\cr
-#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs,
-#'   and one or many of the same values as \dQuote{.properties.target}. These properties are required
+#'   Can be one or many of the same values as \dQuote{properties} for Feature Operation CPOs,
+#'   and one or many of the same values as \dQuote{properties.target}. These properties are required
 #'   from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
-#'   numerics, this should be \dQuote{numerics} (and \dQuote{.properties.adding} should be \dQuote{factors}).
+#'   numerics, this should be \dQuote{numerics} (and \dQuote{properties.adding} should be \dQuote{factors}).
 #'   Default is \code{character(0)}.
 #' @param properties.target [\code{character}]\cr
 #'   For Feature Operation CPOs, this can be one or many of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr}, \dQuote{surv},
-#'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{.properties}, it
+#'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{properties}, it
 #'   indicates what kind of data a CPO can work with. Data given as data.frame needs the \dQuote{cluster} property. Default is the maximal set.
 #'
 #'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
@@ -103,10 +103,8 @@
 #'
 #' @examples
 #' # an example constant feature remover CPO
-#' # demonstrates the "trafo.returns.control" CPO API
 #' constFeatRem = makeCPO("constFeatRem",
-#'   .dataformat = "df.features",
-#'   .trafo.type = "trafo.returns.control",
+#'   dataformat = "df.features",
 #'   cpo.trafo = function(data, target) {
 #'     cols.keep = names(Filter(function(x) {
 #'         length(unique(x)) > 1

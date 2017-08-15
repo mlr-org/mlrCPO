@@ -570,8 +570,8 @@ splittask = function(task, datasplit = c("df.features", "most", "all", "df.all",
 
   switch(datasplit,
     task = list(data = task, target = getTaskTargetNames(task)),
-    no = list(data = getTaskData(task), target = getTaskTargetNames(task)),
-    target = list(data = getTaskData(task, target.extra = TRUE)$data,
+    df.all = list(data = getTaskData(task), target = getTaskTargetNames(task)),
+    df.features = list(data = getTaskData(task, target.extra = TRUE)$data,
       target = getTaskData(task, features = character(0))),  # want the target to always be a data.frame
     most = list(data = splitColsByType(c("numeric", "factor", "other"), splt$data),
       target = getTaskData(task, features = character(0))),  # want the target to always be a data.frame
@@ -583,8 +583,8 @@ splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "ta
   datasplit = match.arg(datasplit)
   switch(datasplit,
     task = list(data = makeClusterTask(data = df, fixup.data = "df.all"), target = character(0)),
-    no = list(data = df, target = character(0)),
-    target = list(data = df, target = df[, character(0), drop = FALSE]),
+    df.all = list(data = df, target = character(0)),
+    df.features = list(data = df, target = df[, character(0), drop = FALSE]),
     most = list(data = splitColsByType(c("numeric", "factor", "other"), df),
       target = df[, character(0), drop = FALSE]),
     all = list(data = splitColsByType(c("numeric", "factor", "ordered", "other"), df),

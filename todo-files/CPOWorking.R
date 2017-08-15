@@ -2,9 +2,6 @@
 library("roxygen2")
 
 changeData
-* makeChainModel
-* makeXXXTaskDesc
-* makeTaskDescInternal
 * checkLearner
 
 
@@ -19,13 +16,34 @@ changeData
 #'   weights
 #' @param blocking [\code{numeric}\cr
 #'   task data blocking
+#' @name makeTaskDesc
 
 #' @export
 #' @rdname makeTaskDesc
 
 roxygenise("..")
 
+roxygenise("../../mlr")
+
 devtools::load_all("../../mlr")
+
+devtools::load_all("..", export_all = FALSE)
+
+ constFeatRem = makeCPO("constFeatRem",
+   dataformat = "df.features",
+   cpo.trafo = function(data, target) {
+     cols.keep = names(Filter(function(x) {
+         length(unique(x)) > 1
+       }, data))
+     # the following function will do both the trafo and retrafo
+     result = function(data) {
+       data[cols.keep]
+     }
+     result
+   })
+
+iris %>>% constFeatRem()
+debugger()
 options(error = dump.frames)
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 
