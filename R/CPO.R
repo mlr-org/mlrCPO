@@ -29,11 +29,11 @@
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and the retrafo function. Possibilities are:
 #'   \tabular{lll}{
 #'     .dataformat \tab data                          \tab target                \cr
-#'     \hline
-#'     df.all      \tab data.frame with target cols   \tab target colnames       \cr
-#'     df.features \tab data.frame without target     \tab data.frame of target  \cr
-#'     task        \tab full task                     \tab target colnames       \cr
-#'     split       \tab list of data.frames by type   \tab data.frame of target  \cr
+#'     ---         \tab ---                             \tab ---                   \cr
+#'     df.all      \tab data.frame with target cols     \tab target colnames       \cr
+#'     df.features \tab data.frame without target       \tab data.frame of target  \cr
+#'     task        \tab full task                       \tab target colnames       \cr
+#'     split       \tab list of data.frames by type     \tab data.frame of target  \cr
 #'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
 #'   }
 #'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
@@ -166,11 +166,11 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
 #'   \tabular{lll}{
 #'     .dataformat \tab data                          \tab target                \cr
-#'     \hline
-#'     df.all      \tab data.frame with target cols   \tab target colnames       \cr
-#'     df.features \tab data.frame without target     \tab data.frame of target  \cr
-#'     task        \tab full task                     \tab target colnames       \cr
-#'     split       \tab list of data.frames by type   \tab data.frame of target  \cr
+#'     ---         \tab ---                             \tab ---                   \cr
+#'     df.all      \tab data.frame with target cols     \tab target colnames       \cr
+#'     df.features \tab data.frame without target       \tab data.frame of target  \cr
+#'     task        \tab full task                       \tab target colnames       \cr
+#'     split       \tab list of data.frames by type     \tab data.frame of target  \cr
 #'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
 #'   }
 #'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr

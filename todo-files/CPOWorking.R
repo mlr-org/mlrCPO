@@ -29,6 +29,8 @@ devtools::load_all("../../mlr")
 
 devtools::load_all("..", export_all = FALSE)
 
+devtools::load_all("..", export_all = FALSE)
+
  constFeatRem = makeCPO("constFeatRem",
    dataformat = "df.features",
    cpo.trafo = function(data, target) {
@@ -42,7 +44,8 @@ devtools::load_all("..", export_all = FALSE)
      result
    })
 
-iris %>>% constFeatRem()
+head(iris) %>>% constFeatRem()
+
 debugger()
 options(error = dump.frames)
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
