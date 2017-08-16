@@ -979,7 +979,7 @@ invertCPO = function(inverter, prediction, predict.type) {
 #'
 #' @family CPO
 #' @export
-chainCPO = function(pplist) {
+pipeCPO = function(pplist) {
   assert(checkList(pplist, types = "CPO"),
     checkList(pplist, types = "CPORetrafo"))
   Reduce(`%>>%`, c(list(NULLCPO), pplist))

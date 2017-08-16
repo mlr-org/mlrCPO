@@ -94,21 +94,21 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoApply = makeCPOExtended("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
+cpoWrap = makeCPOExtended("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
                    cpo.trafo = { control = retrafo({res = data %>>% cpo}) ; res }, cpo.retrafo = { data %>>% control })
 # FIXME: require databound
-registerCPO(cpoApply, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
+registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
 
 
 
 #' @title Build data-dependent CPOs
 #'
 #' @description
-#' The Meta-CPO determines what CPO to apply to a data depending on
+#' The meta CPO which determines what CPO to apply to a data depending on
 #' a provided function
 #'
 #' @export
-cpoMeta = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(), .export = list(),
+cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(), .export = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
                    .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
