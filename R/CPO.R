@@ -802,9 +802,9 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 #
 # A CPO tree looks like this:
 #
-#                CPOCompound
+#                CPOPipeline
 #               /[first]    \[second]
-#     CPOCompound           CPOCompound
+#     CPOPipeline           CPOPipeline
 #     /[first]  \[second]   /[first]  \[second]
 # CPOPrim1    CPOPrim2  CPOPrim3    CPOPrim4
 #
@@ -816,7 +816,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 #
 # retr.1 <-- retr.2 <-- retr.3 <-- retr.4
 #
-callCPO.CPOCompound = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
+callCPO.CPOPipeline = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$name)
   first = cpo$first
   second = cpo$second
@@ -924,7 +924,7 @@ composeCPO.CPO = function(cpo1, cpo2) {
   newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$name, cpo2$name)
   newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$name, cpo2$name)
 
-  makeS3Obj(c("CPOCompound", "CPO"),
+  makeS3Obj(c("CPOPipeline", "CPO"),
     # --- CPO Part
     bare.name = paste(cpo2$bare.name, cpo1$bare.name, sep = "."),
     name = paste(cpo1$name, cpo2$name, sep = " >> "),
@@ -933,7 +933,7 @@ composeCPO.CPO = function(cpo1, cpo2) {
     properties = newprops,
     bound = unique(cpo1$bound, cpo2$bound),
     predict.type = newpt,
-    # --- CPOCompound part
+    # --- CPOPipeline part
     first = cpo1,
     second = cpo2)
 }
@@ -947,7 +947,7 @@ as.list.CPOPrimitive = function(x, ...) {
 }
 
 #' @export
-as.list.CPOCompound = function(x, ...) {
+as.list.CPOPipeline = function(x, ...) {
   first = x$first
   second = x$second
   first$par.vals = subsetParams(x$par.vals, first$par.set)
