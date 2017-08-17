@@ -115,6 +115,8 @@
 #'     }
 #'     result
 #'   })
+#
+# Developer Notes: Like all CPO defining functions, this one just calls makeCPOGeneral, with certain parameters already set.
 makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
@@ -362,6 +364,8 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 #'     as.matrix(data) * 2
 #'   })
 #'
+#
+# Developer Notes: Like all CPO defining functions, this one just calls makeCPOGeneral
 makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
@@ -395,6 +399,10 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), ...)
 }
 
+
+# This is the central CPO defining function, for Feature Operating CPOs and Target Operating CPOs.
+# It checks that the given parameters are valid, creates functions and ParamSet from nonstandardevaluation
+# arguments, and then returns the CPO creator function.
 makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,
                           .properties, .properties.adding, .properties.needed,
@@ -546,6 +554,9 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
     .dataformat = "onlyfactor"
   }
 
+  ####
+  # The CPO creator function
+  ####
   funbody = quote({
     # in the first two code lines, there are still arguments around that we don't know the names of.
     # therefore, we need to catch them into the 'args' list and delete them, always referencing the
@@ -654,6 +665,10 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
   addClasses(eval(call("function", as.pairlist(funargs), funbody)), "CPOConstructor")
 }
 
+# Creates the "Inverter" S3 object. Both "Inverter" and "Retrafo"
+# have the class "CPORetrafo", with slight differences between them.
+# Since a Retrafo can sometimes do the work of an Inverter, we can't
+# use S3 to differentiate between them effectively.
 makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
   if (!"Task" %in% class(data)) {
     data = makeClusterTask("CPO Generated", data, check.data = FALSE)
@@ -666,6 +681,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
   inverter
 }
 
+# Creates the "Retrafo" S3 object. See comment above 'makeCPOInverter'
 makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
   retrafo = makeCPORetrafoBasic(cpo, state, prev.retrafo, c("retrafo", if (cpo$hybrid.inverter) "inverter"))
   # --- only in "retrafo" kind
@@ -675,7 +691,8 @@ makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.o
   retrafo
 }
 
-
+# Creates an object of class "CPORetrafo", which
+# serves as basis for both "Inverter" and "Retrafo" objects.
 makeCPORetrafoBasic = function(cpo, state, prev.retrafo, kind) {
   retrafo = makeS3Obj(c("CPORetrafoPrimitive", "CPORetrafo"),
     cpo = setCPOId(cpo, NULL),
@@ -695,11 +712,22 @@ makeCPORetrafoBasic = function(cpo, state, prev.retrafo, kind) {
 ##################################
 ### Primary Operations         ###
 ##################################
-
 # CPO is a tree datastructure. CPOPrimitive are
-# the leaves, CPOTree the nodes.
+# the leaves, CPOPipeline the nodes.
 # CPORetrafo is a linked list, which gets automatically
 # constructed in 'callCPO'.
+
+# Call the (possibly compound) CPO pipeline.
+# Internal function; the user-facing functions also makes some checks
+# and strips the retrafo and inverter tags.
+# Parameters:
+#   cpo, data: obvious
+#   build.retrafo: boolean, whether to create 'retrafo' object
+#   prev.retrafo: possible retrafo linked list that the newly created retrafo gets appended to
+#   build.inverter: boolean, whether to create 'inverter' object, if applicable
+#   prev.inverter: possible inverter linked list to append the new inverter to
+# Returns:
+#  list(data, retrafo, inverter)
 callCPO = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
   UseMethod("callCPO")
 }
@@ -711,7 +739,6 @@ callCPO = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.
 # - automatically subsets 'args' to the relevant ones for cpo
 # - collects control / cpo.retrafo from called function
 # - returns list(data, retrafo = [CPORetrafo object])
-
 # attaches prev.retrafo to the returned retrafo object, if present.
 callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
 
@@ -812,7 +839,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 #
 #    1 -------> 2 -------> 3 -------> 4
 #
-# Retrafos will be chained by 'prev.retrafo', as:
+# Retrafos are a chained list, where slot 'prev.retrafo' points to the previous retrafo object:
 #
 # retr.1 <-- retr.2 <-- retr.3 <-- retr.4
 #
@@ -880,6 +907,8 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
     inverter = prev.inverter)
 }
 
+# User-facing cpo retrafo application to a data object.
+# does checks, removes retrafo / inverter attributes, and calls 'applyCPORetrafoEx'
 #' @export
 applyCPO.CPORetrafo = function(cpo, data) {
   retrafo = cpo
@@ -912,11 +941,12 @@ applyCPO.CPORetrafo = function(cpo, data) {
 
 
 ##################################
-### Trafo Operations           ###
+### CPO Trafo Operations       ###
 ##################################
+# (as opposed to retrafo, inverter ops)
 
 # CPO %>>% CPO
-
+# Just creates a 'CPOPipeline' object
 #' @export
 composeCPO.CPO = function(cpo1, cpo2) {
   assertClass(cpo2, "CPO")
@@ -939,13 +969,16 @@ composeCPO.CPO = function(cpo1, cpo2) {
 }
 
 # CPO splitting
-
+# Splitting a primitive object gives a list of that object
 #' @export
 as.list.CPOPrimitive = function(x, ...) {
   assert(length(list(...)) == 0)
   list(x)
 }
 
+# Compound objects are a binary tree, so
+# splitting a compound object recursively calls as.list to both children
+# and then concatenates.
 #' @export
 as.list.CPOPipeline = function(x, ...) {
   first = x$first
@@ -957,6 +990,16 @@ as.list.CPOPipeline = function(x, ...) {
 
 # CPO %>>% Learner
 
+# attachCPO does four things:
+#  1) Check that properties of CPOs and learners agree
+#  2) Check that parameter names don't clash
+#  3) possibly create a wrapper around the learner to get a 'CPOLearner' *
+#  4) Modify CPO, Parameters, Properties of the learner
+# * When attaching to a learner, we could, in principle, create a long chain of
+# wrappers around a learner. This makes retrieving the operations, that go
+# on in a learner with a long pipeline, relatively complicated.
+# Therefore, if the learner is already a CPOLearner, we just change the
+# attached CPO to a compound CPO.
 #' @export
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
@@ -991,6 +1034,10 @@ attachCPO.CPO = function(cpo, learner) {
   setPredictType(learner, next.predict.type)
 }
 
+# Get the properties that a learner must have when a CPO with given properties is attached.
+# the learner has only one 'properties' slot, the CPO has more than one. Also, the CPOs
+# don't concern all properties a learner may have, so absence of a property in a CPO doesn't
+# necessarily mean that it needs to be removed from the learner.
 compositeCPOLearnerProps = function(cpo, learner) {
   props = setdiff(getLearnerProperties(learner), "weights")
   props = union(props, getLearnerType(learner))
@@ -1003,6 +1050,7 @@ compositeCPOLearnerProps = function(cpo, learner) {
   c(props.relevant, setdiff(props, relevant))
 }
 
+# wraps around callCPO and makeChainModel
 #' @export
 trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   if (!is.null(.subset)) {
@@ -1024,6 +1072,7 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   model
 }
 
+# Wraps around applyCPORetrafoEx and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
   retrafod = applyCPORetrafoEx(.model$learner.model$retrafo, .newdata, TRUE, NULL)
@@ -1036,6 +1085,7 @@ predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
 }
 
 # get CPO from learner
+# Care needs to be taken that the learner's parameter values that concern the CPO are kept.
 singleLearnerCPO.CPOLearner = function(learner) {
   cpo = learner$cpo
   cpo$par.vals = subsetParams(learner$par.vals, cpo$par.set)
@@ -1043,6 +1093,9 @@ singleLearnerCPO.CPOLearner = function(learner) {
 }
 
 #' @export
+# Target Bound CPOs have the possibility of mapping some predict.type values
+# of a wrapped learner to different predict.type values of the base learner.
+# Therefore we need to overload setPredictType.
 setPredictType.CPOLearner = function(learner, predict.type) {
   assertChoice(predict.type, c("response", "prob", "se"))
   ptconvert = learner$cpo$predict.type
@@ -1058,6 +1111,7 @@ setPredictType.CPOLearner = function(learner, predict.type) {
 }
 
 # DATA %>>% CPO
+# Basically wraps around callCPO with some checks and handling of attributes
 #' @export
 applyCPO.CPO = function(cpo, task) {
   if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
@@ -1110,7 +1164,7 @@ setHyperPars2.CPO = function(learner, par.vals = list()) {
   learner
 }
 
-# get par.vals with bare par.set names
+# get par.vals with bare par.set names, i.e. the param names without the ID
 getBareHyperPars = function(cpo) {
   assertClass(cpo, "CPOPrimitive")
   args = cpo$par.vals
@@ -1120,7 +1174,6 @@ getBareHyperPars = function(cpo) {
 }
 
 # Properties
-
 #' @export
 getCPOProperties.CPO = function(cpo, only.data = FALSE) {
   if (only.data) {
@@ -1138,6 +1191,9 @@ getCPOName.CPO = function(cpo) {
   cpo$name
 }
 
+# When changing the ID, we need to change each parameter's name, which
+# should have the form <ID>.<bare.par.name>
+# This means we need to modify $par.set AND $par.vals
 #' @export
 setCPOId.CPOPrimitive = function(cpo, id) {
   if (is.null(id)) {
@@ -1174,6 +1230,7 @@ getCPOKind.CPO = function(cpo) {
   "trafo"
 }
 
+# Normalize "affect.*" arguments of CPOs
 #' @export
 getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
   affect.args = cpo$affect.args
@@ -1204,8 +1261,8 @@ getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
 ### Retrafo Operations         ###
 ##################################
 
-# get RETRAFO from learner
-# 'prevfun' is not a function for CPO!
+# get RETRAFO from mlr model
+# possibly concatenate with another retrafo 'prev'
 singleModelRetrafo.CPOModel = function(model, prev) {
   retrafo = model$learner.model$retrafo
   if (!is.null(prev)) {
@@ -1215,7 +1272,9 @@ singleModelRetrafo.CPOModel = function(model, prev) {
 }
 
 # RETRAFO %>>% RETRAFO
-
+# Check types, check properties.
+# Since "Retrafo" and "Inverter" are fundamentally the
+# same class, some special cases need to be handled.
 #' @export
 composeCPO.CPORetrafo = function(cpo1, cpo2) {
   assertClass(cpo2, "CPORetrafo")
@@ -1261,6 +1320,8 @@ composeCPO.CPORetrafo = function(cpo1, cpo2) {
 }
 
 # chain CPOs with predict.type pt1 %>>% pt2  # FIXME: sort this where it belongs
+# the 'predict.type' slot is a map (i.e. a named vector of character that maps a -> predict.type[a])
+# when chaining CPOs, the predict.types need to be chained as well.
 chainPredictType = function(pt1, pt2, name1, name2) {
   result = sapply(pt1, function(x) unname(pt2[x]))
   result = result[!is.na(result)]
@@ -1273,11 +1334,10 @@ chainPredictType = function(pt1, pt2, name1, name2) {
   result
 }
 
-
-
-
 # RETRAFO splitting
-
+# retrafos are a linked list, so on a basic level what happens is
+# c(as.list(x$prev.retrafo), list({x$prev.retrafo = NULL ; x}))
+# However, some other things that happen in composeCPO.CPORetrafo need to be undone.
 #' @export
 as.list.CPORetrafo = function(x, ...) {
   assert(length(list(...)) == 0)
@@ -1298,7 +1358,8 @@ as.list.CPORetrafo = function(x, ...) {
 }
 
 # RETRAFO State
-
+# The state is basically the control object, or the trafo-function's environment
+# We also keep the shapeinfo.input and shapeinfo.output information
 #' @export
 getRetrafoState.CPORetrafoPrimitive = function(retrafo.object) {
   cpo = retrafo.object$cpo
@@ -1324,6 +1385,8 @@ getRetrafoState.CPORetrafoPrimitive = function(retrafo.object) {
 }
 
 #' @export
+# rebuilds a retrafo object from a given state. It does that by
+# constructing a "bare" (empty) retrafo object and fills in the missing slots.
 makeRetrafoFromState.CPOConstructor = function(constructor, state) {
   assertList(state, names = "unique")
   bare = constructor()

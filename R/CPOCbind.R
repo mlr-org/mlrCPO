@@ -119,7 +119,7 @@ cpoCbind = function(..., .cpos = list()) {
     })(), "CPOCbind")
 }
 
-
+# Iterate through the graph objects in order of dependency, apply each CPO to the data.
 applyGraph = function(graph, data, is.trafo, args) {
   graph[[1]]$data[[1]] = data
   for (n in seq_along(graph)) {
@@ -189,6 +189,8 @@ applyGraph = function(graph, data, is.trafo, args) {
 }
 
 #' @export
+# This is more for debugging; the user should not see the "graph" in itself
+# (and uses only print.CPOCbind), since the graph itself is hidden quite deeply.
 print.CPOGraphItem = function(x, ...) {
   catf("CPOGraphItem [%s] %s P[%s] C[%s]", x$type,
     switch(x$type, SOURCE = "", CPO = getCPOName(x$content), CBIND = paste0("{", collapse(x$content), "}"), "INVALID"),
@@ -196,6 +198,7 @@ print.CPOGraphItem = function(x, ...) {
 }
 
 #' @export
+# print the CPOCbind object, including the graph.
 print.CPOCbind = function(x, ...) {
   NextMethod("print")
   par.vals = getHyperPars(x)
@@ -213,7 +216,14 @@ print.CPOCbind = function(x, ...) {
   printGraph(rev(children), rev(descriptions))
 }
 
-
+# Creator for a single graph item used in CPOCbind.
+# type is 'SOURCE' (the data goes in here; a graph has only one of these. has no parents, one or more children.),
+#   'CPO' (the node represents a CPO applied to data; has exactly one parent and one child)
+#   or 'CBIND' (node that applies 'cbind' to incoming data streams; has multiple parents, at most one child.)
+# parents is of type 'integer', a vector of indices of parent objects in the containing list of CPOGraphItems
+#   'SOURCE' CPOGraphItems have no parents, so it is an integer(0) in that case.
+# children is an integer vector pointing to the node's children.
+# content: the 'content' of the node: either the CPO in a "CPO" node, or the names assigned to each created block for a 'CBIND' block.
 makeCPOGraphItem = function(type, parents, children, content) {
   assertChoice(type, c("SOURCE", "CPO", "CBIND"))
   assertInteger(parents)
@@ -235,11 +245,14 @@ setCPOId.CPOCbind = function(cpo, id) {
   cpo
 }
 
-
-# children: list of numeric vectors, indicating child indices
-# node 1 is assumed to not have any parents.
-# descriptions: Descriptions to print
-# width: maximum width
+# pretty-print the graph of a cpoCbind object.
+# Each node of the graph is implicitly numbered 1..n, so only
+# the edges, and the descriptions, of each node need to be given.
+# parameters:
+#   children: list of numeric vectors, indicating child indices
+#             node 1 is assumed to not have any parents.
+#   descriptions: Descriptions to print
+#   width: maximum printing width
 printGraph = function(children, descriptions, width = getOption("width")) {
   # get list of indices of parents
   parents = replicate(length(children), integer(0), simplify = FALSE)
@@ -343,8 +356,11 @@ printGraph = function(children, descriptions, width = getOption("width")) {
   }
 }
 
-
-
+# This connects two cpoCbind operations together.
+# If CBIND_1 is a graph (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK)
+# and CBIND_2 is a graph (SOURCE -> CPOC -> SINK) and (SOURCE -> CBIND_1 (!!!) -> SINK)
+# then we here we incorporate the graph of CBIND_1 into CBIND_2 to get
+# (SOURCE -> CPOC -> SINK), (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK)
 uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
   idxoffset = length(cpograph) - 1
 
@@ -373,6 +389,15 @@ uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
   cpograph
 }
 
+# This checks the graph for operations that can be combined into one operation.
+# If we have e.g.
+# SOURCE -+-> CPOA -> CPOB -.
+#          \                 \
+#           `-> CPOA -> CPOC -+-> SINK
+# then we will find CPOA to be a duplicate and get the graph
+# SOURCE -> CPOA -+-> CPOB -.
+#                  \         \
+#                   `-> CPOC -+-> SINK
 synchronizeGraph = function(cpograph) {
   newgraph = list()
   for (oldgraph.index in seq_along(cpograph)) {

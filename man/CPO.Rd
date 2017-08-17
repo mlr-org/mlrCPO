@@ -9,8 +9,7 @@ FIXME to come
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{NULLCPO}},
   \code{\link{\%>>\%}}, \code{\link{applyCPO}},
-  \code{\link{attachCPO}}, \code{\link{chainCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoApply}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
   \code{\link{cpoAsNumeric}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
@@ -27,12 +26,14 @@ Other CPO: \code{\link{CPOImputer}}, \code{\link{NULLCPO}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}}, \code{\link{getRetrafoState}},
+  \code{\link{cpoWrap}}, \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}}, \code{\link{getCPOName}},
+  \code{\link{getRetrafoState}},
   \code{\link{hasTagInvert}}, \code{\link{inverter<-}},
   \code{\link{inverter}}, \code{\link{makeCPOExtended}},
   \code{\link{makeCPO}},
   \code{\link{makeRetrafoFromState}},
-  \code{\link{retrafo<-}}, \code{\link{retrafo}},
-  \code{\link{setCPOId}}, \code{\link{tagInvert}}
+  \code{\link{pipeCPO}}, \code{\link{retrafo<-}},
+  \code{\link{retrafo}}, \code{\link{setCPOId}},
+  \code{\link{tagInvert}}
 }
