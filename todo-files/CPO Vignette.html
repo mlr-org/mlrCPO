@@ -11784,7 +11784,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="kn">library</span><span class="p">(</span><span class="s">&quot;mlr&quot;</span><span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>devtools<span class="o">::</span>load_all<span class="p">(</span><span class="s">&quot;../../mlr&quot;</span><span class="p">)</span>
+devtools<span class="o">::</span>load_all<span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11801,7 +11802,9 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>Loading required package: ParamHelpers
+<pre>Loading mlr
+Loading required package: ParamHelpers
+Loading mlrCPO
 </pre>
 </div>
 </div>
@@ -12744,7 +12747,7 @@ composeCPO<span class="p">(</span>setCPOId<span class="p">(</span>scale1<span cl
 
 <div class="output_html rendered_html output_subarea ">
 <ol class=list-inline>
-	<li>'CPOTree'</li>
+	<li>'CPOPipeline'</li>
 	<li>'CPO'</li>
 </ol>
 
@@ -12834,7 +12837,7 @@ scale2.scale  logical   - TRUE      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">as.character</span><span class="p">(</span><span class="kp">try</span><span class="p">(</span>getCPOId<span class="p">(</span>compound<span class="p">)))</span>  <span class="c1"># error: no ID for compound CPOs</span>
@@ -12879,7 +12882,7 @@ scale2.scale  logical   - TRUE      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getParamSet<span class="p">(</span>compound<span class="p">)</span>
@@ -12916,7 +12919,7 @@ scale2.scale  logical   - TRUE      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getHyperPars<span class="p">(</span>compound<span class="p">)</span>
@@ -12958,7 +12961,7 @@ scale2.scale  logical   - TRUE      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>setHyperPars<span class="p">(</span>compound<span class="p">,</span> scale1.center <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> scale2.center <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
@@ -12999,7 +13002,7 @@ scale2.scale  logical   - TRUE      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">as.list</span><span class="p">(</span>compound<span class="p">)</span>
@@ -13037,10 +13040,10 @@ scale2&lt;scale&gt;(center = TRUE, scale = TRUE)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span><span class="kp">as.list</span><span class="p">(</span>compound<span class="p">))</span>  <span class="c1"># chainCPO: list CPO -&gt; CPO</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span><span class="kp">as.list</span><span class="p">(</span>compound<span class="p">))</span>  <span class="c1"># chainCPO: list CPO -&gt; CPO</span>
 </pre></div>
 
 </div>
@@ -13078,7 +13081,7 @@ scale2&lt;scale&gt;(center = TRUE, scale = TRUE)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>lrn <span class="o">=</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.logreg&quot;</span><span class="p">)</span>
@@ -13091,7 +13094,7 @@ scale2&lt;scale&gt;(center = TRUE, scale = TRUE)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="p">(</span>cpolrn <span class="o">=</span> cpo <span class="o">%&gt;&gt;%</span> lrn<span class="p">)</span>  <span class="c1"># the new learner has the CPO hyperparameters</span>
@@ -13131,7 +13134,7 @@ Hyperparameters: model=FALSE,scale.center=TRUE,scale.scale=TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>attachCPO<span class="p">(</span>compound<span class="p">,</span> lrn<span class="p">)</span>  <span class="c1"># attaching compound CPO</span>
@@ -13171,7 +13174,7 @@ Hyperparameters: model=FALSE,scale1.center=TRUE,scale1.scale=TRUE,scale2.center=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># CPO learner decomposition</span>
@@ -13236,7 +13239,7 @@ Hyperparameters: model=FALSE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>transformed <span class="o">=</span> iris <span class="o">%&gt;&gt;%</span> cpo
@@ -13280,7 +13283,7 @@ Hyperparameters: model=FALSE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>retrafo<span class="p">(</span>transformed<span class="p">)</span>
@@ -13314,7 +13317,7 @@ Hyperparameters: model=FALSE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># retrafos are stored as attributes</span>
@@ -13378,7 +13381,7 @@ CPO Retrafo chain
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="p">(</span>state <span class="o">=</span> getRetrafoState<span class="p">(</span>retrafo<span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoScale<span class="p">())))</span>
@@ -13440,7 +13443,7 @@ other:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>state<span class="o">$</span>control<span class="o">$</span>center<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="o">=</span> <span class="m">1000</span>  <span class="c1"># will now subtract 1000 from the first column</span>
@@ -13493,7 +13496,7 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> retrafo<span class="p">(</span>transformed<span class="p">)</span>
@@ -13548,7 +13551,7 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>cpomodel <span class="o">=</span> train<span class="p">(</span>cpolrn<span class="p">,</span> pid.task<span class="p">)</span>
@@ -13561,7 +13564,7 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>retrafo<span class="p">(</span>cpomodel<span class="p">)</span>
@@ -13595,7 +13598,7 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>getTaskData<span class="p">(</span>pid.task <span class="o">%&gt;&gt;%</span> retrafo<span class="p">(</span>cpomodel<span class="p">)))</span>
@@ -13648,10 +13651,10 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>data <span class="o">=</span> <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> pca
+<div class=" highlight hl-r"><pre><span></span>data <span class="o">=</span> <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> cpoPca<span class="p">()</span>
 retrafo<span class="p">(</span>data<span class="p">)</span>
 </pre></div>
 
@@ -13668,17 +13671,13 @@ retrafo<span class="p">(</span>data<span class="p">)</span>
 <div class="prompt"></div>
 
 
-<div class="output_subarea output_text output_error">
-<pre>
-Error in &#34;NULLCPO&#34; %in% class(cpo): object &#39;pca&#39; not found
-Traceback:
 
-1. head(iris) %&gt;&gt;% pca
-2. `%&gt;&gt;%.data.frame`(head(iris), pca)
-3. `%&gt;&gt;%.Task`(cpo1, cpo2)
-4. is.nullcpo(cpo2)
-5. &#34;NULLCPO&#34; %in% class(cpo)</pre>
+
+<div class="output_text output_subarea ">
+<pre>CPO Retrafo chain
+[RETRAFO pca()]</pre>
 </div>
+
 </div>
 
 </div>
@@ -13687,7 +13686,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>data2 <span class="o">=</span> data <span class="o">%&gt;&gt;%</span> cpoScale<span class="p">()</span>
@@ -13712,7 +13711,7 @@ retrafo<span class="p">(</span>data2<span class="p">)</span>
 
 <div class="output_text output_subarea ">
 <pre>CPO Retrafo chain
-[RETRAFO scale(scale.center = TRUE, scale.scale = TRUE)]</pre>
+[RETRAFO pca()]=&gt;[RETRAFO scale(scale.center = TRUE, scale.scale = TRUE)]</pre>
 </div>
 
 </div>
@@ -13723,7 +13722,7 @@ retrafo<span class="p">(</span>data2<span class="p">)</span>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># to interrupt this chain, set retrafo to NULL</span>
@@ -13768,7 +13767,7 @@ retrafo<span class="p">(</span>data2<span class="p">)</span>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>compound.retrafo <span class="o">=</span> retrafo<span class="p">(</span><span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> compound<span class="p">)</span>
@@ -13803,7 +13802,7 @@ compound.retrafo
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="p">(</span>retrafolist <span class="o">=</span> <span class="kp">as.list</span><span class="p">(</span>compound.retrafo<span class="p">))</span>
@@ -13843,7 +13842,7 @@ CPO Retrafo chain
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>retrafolist<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">%&gt;&gt;%</span> retrafolist<span class="p">[[</span><span class="m">2</span><span class="p">]]</span>
@@ -13877,10 +13876,10 @@ CPO Retrafo chain
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span>retrafolist<span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span>retrafolist<span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13921,7 +13920,7 @@ CPO Retrafo chain
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># there is currently no example targetbound cpo</span>
@@ -13937,39 +13936,10 @@ logtransform <span class="o">=</span> makeCPOTargetOp<span class="p">(</span><sp
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_text output_error">
-<pre>
-Error in setequal(.properties, c(&#34;numerics&#34;, &#34;factors&#34;, &#34;ordered&#34;, &#34;missings&#34;)): object &#39;.properties&#39; not found
-Traceback:
-
-1. makeCPOTargetOp(&#34;logtransform&#34;, .data.dependent = FALSE, .stateless = TRUE, 
- .     .type = &#34;regr&#34;, cpo.trafo = {
- .         target[[1]] = log(target[[1]])
- .         target
- .     }, cpo.retrafo = {
- .         print(match.call())
- .     })
-2. setequal(.properties, c(&#34;numerics&#34;, &#34;factors&#34;, &#34;ordered&#34;, &#34;missings&#34;))
-3. as.vector(x)</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>log.retrafo <span class="o">=</span> retrafo<span class="p">(</span>bh.task <span class="o">%&gt;&gt;%</span> logtransform<span class="p">())</span>  <span class="c1"># get a target-bound retrafo</span>
@@ -13981,35 +13951,10 @@ getCPOBound<span class="p">(</span>log.retrafo<span class="p">)</span>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_text output_error">
-<pre>
-Error in logtransform(): could not find function &#34;logtransform&#34;
-Traceback:
-
-1. retrafo(bh.task %&gt;&gt;% logtransform())
-2. bh.task %&gt;&gt;% logtransform()
-3. `%&gt;&gt;%.Task`(bh.task, logtransform())
-4. is.nullcpo(cpo2)
-5. &#34;NULLCPO&#34; %in% class(cpo)</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>inverter<span class="p">(</span>bh.task <span class="o">%&gt;&gt;%</span> log.retrafo<span class="p">)</span>
@@ -14019,35 +13964,10 @@ Traceback:
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_text output_error">
-<pre>
-Error in &#34;NULLCPO&#34; %in% class(cpo): object &#39;log.retrafo&#39; not found
-Traceback:
-
-1. inverter(bh.task %&gt;&gt;% log.retrafo)
-2. bh.task %&gt;&gt;% log.retrafo
-3. `%&gt;&gt;%.Task`(bh.task, log.retrafo)
-4. is.nullcpo(cpo2)
-5. &#34;NULLCPO&#34; %in% class(cpo)</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1">#inverter(tagInvert(bh.task) %&gt;&gt;% log.retrafo)</span>
@@ -14070,7 +13990,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[63]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>log.bh <span class="o">=</span> bh.task <span class="o">%&gt;&gt;%</span> logtransform<span class="p">()</span>
@@ -14081,34 +14001,10 @@ log.prediction <span class="o">=</span> predict<span class="p">(</span>train<spa
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_text output_error">
-<pre>
-Error in logtransform(): could not find function &#34;logtransform&#34;
-Traceback:
-
-1. bh.task %&gt;&gt;% logtransform()
-2. `%&gt;&gt;%.Task`(bh.task, logtransform())
-3. is.nullcpo(cpo2)
-4. &#34;NULLCPO&#34; %in% class(cpo)</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># invert(retrafo(log.bh), log.prediction)  # not implemented :-/</span>
@@ -14131,7 +14027,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getCPOProperties<span class="p">(</span>cpoDummyEncode<span class="p">())</span>
@@ -14215,7 +14111,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>train<span class="p">(</span><span class="s">&quot;classif.geoDA&quot;</span><span class="p">,</span> bc.task<span class="p">)</span>  <span class="c1"># gives an error</span>
@@ -14240,9 +14136,9 @@ Error in checkLearnerBeforeTrain(task, learner, weights): Task &#39;BreastCancer
 Traceback:
 
 1. train(&#34;classif.geoDA&#34;, bc.task)
-2. checkLearnerBeforeTrain(task, learner, weights)
+2. checkLearnerBeforeTrain(task, learner, weights)   # at line 58 of file /home/mb706/lmu/master/mlr/R/train.R
 3. stopf(&#34;Task &#39;%s&#39; has factor inputs in &#39;%s&#39;, but learner &#39;%s&#39; does not support that!&#34;, 
- .     td$id, wrong.cols, learner$id)</pre>
+ .     td$id, wrong.cols, learner$id)   # at line 26 of file /home/mb706/lmu/master/mlr/R/checkLearnerBeforeTrain.R</pre>
 </div>
 </div>
 
@@ -14252,7 +14148,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>train<span class="p">(</span>cpoDummyEncode<span class="p">(</span>reference.cat <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">%&gt;&gt;%</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.geoDA&quot;</span><span class="p">),</span> bc.task<span class="p">)</span>
@@ -14262,10 +14158,32 @@ Traceback:
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+
+<div class="output_text output_subarea ">
+<pre>Model for learner.id=classif.geoDA.dummyencode; learner.class=CPOLearner
+Trained on: task.id = BreastCancer-example; obs = 683; features = 9
+Hyperparameters: validation=NULL,dummyencode.reference.cat=TRUE</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getLearnerProperties<span class="p">(</span><span class="s">&quot;classif.geoDA&quot;</span><span class="p">)</span>
@@ -14275,10 +14193,34 @@ Traceback:
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol class=list-inline>
+	<li>'twoclass'</li>
+	<li>'multiclass'</li>
+	<li>'numerics'</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getLearnerProperties<span class="p">(</span>cpoDummyEncode<span class="p">(</span><span class="kc">TRUE</span><span class="p">)</span> <span class="o">%&gt;&gt;%</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.geoDA&quot;</span><span class="p">))</span>
@@ -14334,7 +14276,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>NULLCPO
@@ -14367,7 +14309,7 @@ Traceback:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>is.nullcpo<span class="p">(</span>NULLCPO<span class="p">)</span>
@@ -14399,7 +14341,7 @@ TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>NULLCPO <span class="o">%&gt;&gt;%</span> cpoScale<span class="p">()</span>
@@ -14432,7 +14374,7 @@ TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[71]:</div>
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>NULLCPO <span class="o">%&gt;&gt;%</span> NULLCPO
@@ -14465,7 +14407,7 @@ TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[72]:</div>
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">print</span><span class="p">(</span><span class="kp">as.list</span><span class="p">(</span>NULLCPO<span class="p">))</span>
@@ -14496,10 +14438,10 @@ TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[73]:</div>
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span><span class="kt">list</span><span class="p">())</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span><span class="kt">list</span><span class="p">())</span>
 </pre></div>
 
 </div>
@@ -14538,10 +14480,10 @@ TRUE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>cpa <span class="o">=</span> cpoApply<span class="p">()</span>
+<div class=" highlight hl-r"><pre><span></span>cpa <span class="o">=</span> cpoWrap<span class="p">()</span>
 <span class="kp">summary</span><span class="p">(</span>cpa<span class="p">)</span>
 </pre></div>
 
@@ -14576,7 +14518,7 @@ apply.cpo untyped   -   -      -   -    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> setHyperPars<span class="p">(</span>cpa<span class="p">,</span> apply.cpo <span class="o">=</span> cpoScale<span class="p">()))</span>
@@ -14586,40 +14528,10 @@ apply.cpo untyped   -   -      -   -    TRUE     -</pre>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>-0.8976739 </td><td> 1.01560199</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.1392005 </td><td>-0.13153881</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.3807271 </td><td> 0.32731751</td><td>-1.392399  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.5014904 </td><td> 0.09788935</td><td>-1.279104  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.0184372 </td><td> 1.24503015</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-0.5353840 </td><td> 1.93331463</td><td>-1.165809  </td><td>-1.048667  </td><td>setosa     </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> setHyperPars<span class="p">(</span>cpa<span class="p">,</span> apply.cpo <span class="o">=</span> cpoPca<span class="p">()))</span>
@@ -14629,40 +14541,10 @@ apply.cpo untyped   -   -      -   -    TRUE     -</pre>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Species</th><th scope=col>PC1</th><th scope=col>PC2</th><th scope=col>PC3</th><th scope=col>PC4</th></tr></thead>
-<tbody>
-	<tr><td>setosa      </td><td>-5.912747   </td><td>2.302033    </td><td> 0.007401536</td><td> 0.003087706</td></tr>
-	<tr><td>setosa      </td><td>-5.572482   </td><td>1.971826    </td><td> 0.244592251</td><td> 0.097552888</td></tr>
-	<tr><td>setosa      </td><td>-5.446977   </td><td>2.095206    </td><td> 0.015029262</td><td> 0.018013331</td></tr>
-	<tr><td>setosa      </td><td>-5.436459   </td><td>1.870382    </td><td> 0.020504880</td><td>-0.078491501</td></tr>
-	<tr><td>setosa      </td><td>-5.875645   </td><td>2.328290    </td><td>-0.110338269</td><td>-0.060719326</td></tr>
-	<tr><td>setosa      </td><td>-6.477598   </td><td>2.324650    </td><td>-0.237202487</td><td>-0.021419633</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># attaching the cpo applicator to a learner gives this learner a &quot;cpo&quot; hyperparameter</span>
@@ -14671,28 +14553,6 @@ getParamSet<span class="p">(</span>cpoApply<span class="p">()</span> <span class
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-
-<div class="output_text output_subarea ">
-<pre>             Type len  Def Constr Req Tunable Trafo
-apply.cpo untyped   -    -      -   -    TRUE     -
-model     logical   - TRUE      -   -   FALSE     -</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -14708,7 +14568,7 @@ model     logical   - TRUE      -   -   FALSE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>cpm <span class="o">=</span> cpoMultiplex<span class="p">(</span><span class="kt">list</span><span class="p">(</span>cpoScale<span class="p">,</span> cpoPca<span class="p">))</span>
@@ -14748,7 +14608,7 @@ multiplex.scale.scale   logical   -  TRUE         -   Y    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[79]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> setHyperPars<span class="p">(</span>cpm<span class="p">,</span> multiplex.selected.cpo <span class="o">=</span> <span class="s">&quot;scale&quot;</span><span class="p">))</span>
@@ -14758,40 +14618,10 @@ multiplex.scale.scale   logical   -  TRUE         -   Y    TRUE     -</pre>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>-0.8976739 </td><td> 1.01560199</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.1392005 </td><td>-0.13153881</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.3807271 </td><td> 0.32731751</td><td>-1.392399  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.5014904 </td><td> 0.09788935</td><td>-1.279104  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-1.0184372 </td><td> 1.24503015</td><td>-1.335752  </td><td>-1.311052  </td><td>setosa     </td></tr>
-	<tr><td>-0.5353840 </td><td> 1.93331463</td><td>-1.165809  </td><td>-1.048667  </td><td>setosa     </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[80]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># every CPO&#39;s Hyperparameters are exported</span>
@@ -14802,76 +14632,16 @@ multiplex.scale.scale   logical   -  TRUE         -   Y    TRUE     -</pre>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>0.8613268</td><td>1.1296201</td><td>0.3362663</td><td>0.140405 </td><td>setosa   </td></tr>
-	<tr><td>0.8275493</td><td>0.9682458</td><td>0.3362663</td><td>0.140405 </td><td>setosa   </td></tr>
-	<tr><td>0.7937718</td><td>1.0327956</td><td>0.3122473</td><td>0.140405 </td><td>setosa   </td></tr>
-	<tr><td>0.7768830</td><td>1.0005207</td><td>0.3602853</td><td>0.140405 </td><td>setosa   </td></tr>
-	<tr><td>0.8444380</td><td>1.1618950</td><td>0.3362663</td><td>0.140405 </td><td>setosa   </td></tr>
-	<tr><td>0.9119931</td><td>1.2587196</td><td>0.4083234</td><td>0.280810 </td><td>setosa   </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> setHyperPars<span class="p">(</span>cpm<span class="p">,</span> multiplex.selected.cpo <span class="o">=</span> <span class="s">&quot;pca&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Species</th><th scope=col>PC1</th><th scope=col>PC2</th><th scope=col>PC3</th><th scope=col>PC4</th></tr></thead>
-<tbody>
-	<tr><td>setosa      </td><td>-5.912747   </td><td>2.302033    </td><td> 0.007401536</td><td> 0.003087706</td></tr>
-	<tr><td>setosa      </td><td>-5.572482   </td><td>1.971826    </td><td> 0.244592251</td><td> 0.097552888</td></tr>
-	<tr><td>setosa      </td><td>-5.446977   </td><td>2.095206    </td><td> 0.015029262</td><td> 0.018013331</td></tr>
-	<tr><td>setosa      </td><td>-5.436459   </td><td>1.870382    </td><td> 0.020504880</td><td>-0.078491501</td></tr>
-	<tr><td>setosa      </td><td>-5.875645   </td><td>2.328290    </td><td>-0.110338269</td><td>-0.060719326</td></tr>
-	<tr><td>setosa      </td><td>-6.477598   </td><td>2.324650    </td><td>-0.237202487</td><td>-0.021419633</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -14887,10 +14657,10 @@ multiplex.scale.scale   logical   -  TRUE         -   Y    TRUE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="prompt input_prompt">In&nbsp;[71]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>s.and.p <span class="o">=</span> cpoMeta<span class="p">(</span>logical.param<span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>
+<div class=" highlight hl-r"><pre><span></span>s.and.p <span class="o">=</span> cpoCase<span class="p">(</span>logical.param<span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>
 <span class="m">.</span>export <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>cpoScale<span class="p">(</span>id <span class="o">=</span> <span class="s">&quot;scale&quot;</span><span class="p">),</span> 
   cpoPca<span class="p">(</span>id <span class="o">=</span> <span class="s">&quot;pca&quot;</span><span class="p">)),</span>
 cpo.build <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">,</span> logical.param<span class="p">,</span> <span class="kp">scale</span><span class="p">,</span> pca<span class="p">)</span> <span class="p">{</span>
@@ -14909,7 +14679,7 @@ cpo.build <span class="o">=</span> <span class="kr">function</span><span class="
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">summary</span><span class="p">(</span>s.and.p<span class="p">())</span>
@@ -14967,7 +14737,7 @@ The all CPOs listed in <code>.export</code> are passed to the <code>cpo.build</c
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[84]:</div>
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>scale <span class="o">=</span> cpoScale<span class="p">(</span>id <span class="o">=</span> <span class="s">&quot;scale&quot;</span><span class="p">)</span>
@@ -14982,7 +14752,7 @@ cbinder <span class="o">=</span> cpoCbind<span class="p">(</span>scaled <span cl
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># cpoCbind recognises that &quot;scale.scale&quot; happens before &quot;pca.pca&quot; but is also fed to the</span>
@@ -15014,7 +14784,7 @@ cbinder <span class="o">=</span> cpoCbind<span class="p">(</span>scaled <span cl
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[86]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cbinder<span class="p">)</span>
@@ -15024,40 +14794,10 @@ cbinder <span class="o">=</span> cpoCbind<span class="p">(</span>scaled <span cl
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>scaled.Sepal.Length</th><th scope=col>scaled.Sepal.Width</th><th scope=col>scaled.Petal.Length</th><th scope=col>scaled.Petal.Width</th><th scope=col>scaled.Species</th><th scope=col>pcad.Species</th><th scope=col>pcad.PC1</th><th scope=col>pcad.PC2</th><th scope=col>pcad.PC3</th><th scope=col>pcad.PC4</th><th scope=col>original.Sepal.Length</th><th scope=col>original.Sepal.Width</th><th scope=col>original.Petal.Length</th><th scope=col>original.Petal.Width</th><th scope=col>original.Species</th></tr></thead>
-<tbody>
-	<tr><td>-0.8976739  </td><td> 1.01560199 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.257141   </td><td>-0.4784238  </td><td> 0.12727962 </td><td> 0.024087508</td><td>5.1         </td><td>3.5         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.1392005  </td><td>-0.13153881 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.074013   </td><td> 0.6718827  </td><td> 0.23382552 </td><td> 0.102662845</td><td>4.9         </td><td>3.0         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.3807271  </td><td> 0.32731751 </td><td>-1.392399   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.356335   </td><td> 0.3407664  </td><td>-0.04405390 </td><td> 0.028282305</td><td>4.7         </td><td>3.2         </td><td>1.3         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.5014904  </td><td> 0.09788935 </td><td>-1.279104   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.291707   </td><td> 0.5953999  </td><td>-0.09098530 </td><td>-0.065735340</td><td>4.6         </td><td>3.1         </td><td>1.5         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.0184372  </td><td> 1.24503015 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.381863   </td><td>-0.6446757  </td><td>-0.01568565 </td><td>-0.035802870</td><td>5.0         </td><td>3.6         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-0.5353840  </td><td> 1.93331463 </td><td>-1.165809   </td><td>-1.048667   </td><td>setosa      </td><td>setosa      </td><td>-2.068701   </td><td>-1.4842053  </td><td>-0.02687825 </td><td> 0.006586116</td><td>5.4         </td><td>3.9         </td><td>1.7         </td><td>0.4         </td><td>setosa      </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[87]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># the unnecessary copies of &quot;Species&quot; are unfortunate. Remove them with cpoSelect:</span>
@@ -15071,50 +14811,10 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>scaled.Sepal.Length</th><th scope=col>scaled.Sepal.Width</th><th scope=col>scaled.Petal.Length</th><th scope=col>scaled.Petal.Width</th><th scope=col>scaled.Species</th><th scope=col>pcad.Species</th><th scope=col>pcad.PC1</th><th scope=col>pcad.PC2</th><th scope=col>pcad.PC3</th><th scope=col>pcad.PC4</th><th scope=col>original.Sepal.Length</th><th scope=col>original.Sepal.Width</th><th scope=col>original.Petal.Length</th><th scope=col>original.Petal.Width</th><th scope=col>original.Species</th></tr></thead>
-<tbody>
-	<tr><td>-0.8976739  </td><td> 1.01560199 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.257141   </td><td>-0.4784238  </td><td> 0.12727962 </td><td> 0.024087508</td><td>5.1         </td><td>3.5         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.1392005  </td><td>-0.13153881 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.074013   </td><td> 0.6718827  </td><td> 0.23382552 </td><td> 0.102662845</td><td>4.9         </td><td>3.0         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.3807271  </td><td> 0.32731751 </td><td>-1.392399   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.356335   </td><td> 0.3407664  </td><td>-0.04405390 </td><td> 0.028282305</td><td>4.7         </td><td>3.2         </td><td>1.3         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.5014904  </td><td> 0.09788935 </td><td>-1.279104   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.291707   </td><td> 0.5953999  </td><td>-0.09098530 </td><td>-0.065735340</td><td>4.6         </td><td>3.1         </td><td>1.5         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-1.0184372  </td><td> 1.24503015 </td><td>-1.335752   </td><td>-1.311052   </td><td>setosa      </td><td>setosa      </td><td>-2.381863   </td><td>-0.6446757  </td><td>-0.01568565 </td><td>-0.035802870</td><td>5.0         </td><td>3.6         </td><td>1.4         </td><td>0.2         </td><td>setosa      </td></tr>
-	<tr><td>-0.5353840  </td><td> 1.93331463 </td><td>-1.165809   </td><td>-1.048667   </td><td>setosa      </td><td>setosa      </td><td>-2.068701   </td><td>-1.4842053  </td><td>-0.02687825 </td><td> 0.006586116</td><td>5.4         </td><td>3.9         </td><td>1.7         </td><td>0.4         </td><td>setosa      </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[88]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># alternatively, we apply the cbinder only to numerical data</span>
@@ -15122,36 +14822,6 @@ cbinder.select
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Species</th><th scope=col>scaled.Sepal.Length</th><th scope=col>scaled.Sepal.Width</th><th scope=col>scaled.Petal.Length</th><th scope=col>scaled.Petal.Width</th><th scope=col>pcad.PC1</th><th scope=col>pcad.PC2</th><th scope=col>pcad.PC3</th><th scope=col>pcad.PC4</th><th scope=col>original.Sepal.Length</th><th scope=col>original.Sepal.Width</th><th scope=col>original.Petal.Length</th><th scope=col>original.Petal.Width</th></tr></thead>
-<tbody>
-	<tr><td>setosa      </td><td>-0.8976739  </td><td> 1.01560199 </td><td>-1.335752   </td><td>-1.311052   </td><td>-2.257141   </td><td>-0.4784238  </td><td> 0.12727962 </td><td> 0.024087508</td><td>5.1         </td><td>3.5         </td><td>1.4         </td><td>0.2         </td></tr>
-	<tr><td>setosa      </td><td>-1.1392005  </td><td>-0.13153881 </td><td>-1.335752   </td><td>-1.311052   </td><td>-2.074013   </td><td> 0.6718827  </td><td> 0.23382552 </td><td> 0.102662845</td><td>4.9         </td><td>3.0         </td><td>1.4         </td><td>0.2         </td></tr>
-	<tr><td>setosa      </td><td>-1.3807271  </td><td> 0.32731751 </td><td>-1.392399   </td><td>-1.311052   </td><td>-2.356335   </td><td> 0.3407664  </td><td>-0.04405390 </td><td> 0.028282305</td><td>4.7         </td><td>3.2         </td><td>1.3         </td><td>0.2         </td></tr>
-	<tr><td>setosa      </td><td>-1.5014904  </td><td> 0.09788935 </td><td>-1.279104   </td><td>-1.311052   </td><td>-2.291707   </td><td> 0.5953999  </td><td>-0.09098530 </td><td>-0.065735340</td><td>4.6         </td><td>3.1         </td><td>1.5         </td><td>0.2         </td></tr>
-	<tr><td>setosa      </td><td>-1.0184372  </td><td> 1.24503015 </td><td>-1.335752   </td><td>-1.311052   </td><td>-2.381863   </td><td>-0.6446757  </td><td>-0.01568565 </td><td>-0.035802870</td><td>5.0         </td><td>3.6         </td><td>1.4         </td><td>0.2         </td></tr>
-	<tr><td>setosa      </td><td>-0.5353840  </td><td> 1.93331463 </td><td>-1.165809   </td><td>-1.048667   </td><td>-2.068701   </td><td>-1.4842053  </td><td>-0.02687825 </td><td> 0.006586116</td><td>5.4         </td><td>3.9         </td><td>1.7         </td><td>0.4         </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15175,7 +14845,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[89]:</div>
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>listCPO<span class="p">()</span>
@@ -15248,9 +14918,9 @@ cbinder.select
 	<tr><th scope=row>47</th><td>cpoImputeMode                                                                                    </td><td>impute.mode                                                                                      </td><td>imputation                                                                                       </td><td>specialised                                                                                      </td><td>Imputation using the mode.                                                                       </td></tr>
 	<tr><th scope=row>51</th><td>cpoImputeNormal                                                                                  </td><td>impute.normal                                                                                    </td><td>imputation                                                                                       </td><td>specialised                                                                                      </td><td>Imputation using normally distributed random values.                                             </td></tr>
 	<tr><th scope=row>50</th><td>cpoImputeUniform                                                                                 </td><td>impute.uniform                                                                                   </td><td>imputation                                                                                       </td><td>specialised                                                                                      </td><td>Imputation using uniformly distributed random values.                                            </td></tr>
-	<tr><th scope=row>2</th><td>cpoApply                                                                                         </td><td>apply                                                                                            </td><td>meta                                                                                             </td><td>                                                                                                 </td><td>Apply a freely chosen CPOs, without exporting its hyperparameters.                               </td></tr>
 	<tr><th scope=row>3</th><td>cpoCbind                                                                                         </td><td>cbind                                                                                            </td><td>meta                                                                                             </td><td>                                                                                                 </td><td>Combine multiple CPO operations by joining their outputs column-wise.                            </td></tr>
 	<tr><th scope=row>1</th><td>cpoMultiplex                                                                                     </td><td>multiplex                                                                                        </td><td>meta                                                                                             </td><td>                                                                                                 </td><td>Apply one of a given set of CPOs, each having their hyperparameters exported.                    </td></tr>
+	<tr><th scope=row>2</th><td>cpoWrap                                                                                          </td><td>apply                                                                                            </td><td>meta                                                                                             </td><td>                                                                                                 </td><td>Apply a freely chosen CPOs, without exporting its hyperparameters.                               </td></tr>
 	<tr><th scope=row>20</th><td>cpoMissingIndicators                                                                             </td><td>missingindicators                                                                                </td><td>tools                                                                                            </td><td>imputation                                                                                       </td><td>Generate factorial columns indicating whether data was NA.                                       </td></tr>
 </tbody>
 </table>
@@ -15274,7 +14944,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[90]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>df <span class="o">%&gt;&gt;%</span> cpoScale<span class="p">()</span>
@@ -15284,70 +14954,16 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>-1</td><td> 1</td></tr>
-	<tr><td> 0</td><td> 0</td></tr>
-	<tr><td> 1</td><td>-1</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[91]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>df <span class="o">%&gt;&gt;%</span> cpoScale<span class="p">(</span>scale <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>  <span class="c1"># center = TRUE</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>-1 </td><td> 10</td></tr>
-	<tr><td> 0 </td><td>  0</td></tr>
-	<tr><td> 1 </td><td>-10</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15363,80 +14979,26 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[92]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>df <span class="o">%&gt;&gt;%</span> cpoPca<span class="p">()</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>PC1</th><th scope=col>PC2</th></tr></thead>
-<tbody>
-	<tr><td>-10.04988</td><td>0        </td></tr>
-	<tr><td>-20.09975</td><td>0        </td></tr>
-	<tr><td>-30.14963</td><td>0        </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[93]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>df <span class="o">%&gt;&gt;%</span> cpoPca<span class="p">()</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>PC1</th><th scope=col>PC2</th></tr></thead>
-<tbody>
-	<tr><td>-10.04988</td><td>0        </td></tr>
-	<tr><td>-20.09975</td><td>0        </td></tr>
-	<tr><td>-30.14963</td><td>0        </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15452,7 +15014,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[94]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoDummyEncode<span class="p">())</span>
@@ -15462,76 +15024,16 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Speciessetosa</th><th scope=col>Speciesversicolor</th><th scope=col>Speciesvirginica</th></tr></thead>
-<tbody>
-	<tr><td>5.1</td><td>3.5</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.9</td><td>3.0</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.7</td><td>3.2</td><td>1.3</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.6</td><td>3.1</td><td>1.5</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.0</td><td>3.6</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.4</td><td>3.9</td><td>1.7</td><td>0.4</td><td>1  </td><td>0  </td><td>0  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[95]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoDummyEncode<span class="p">(</span>reference.cat <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Speciesversicolor</th><th scope=col>Speciesvirginica</th></tr></thead>
-<tbody>
-	<tr><td>5.1</td><td>3.5</td><td>1.4</td><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.9</td><td>3.0</td><td>1.4</td><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.7</td><td>3.2</td><td>1.3</td><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.6</td><td>3.1</td><td>1.5</td><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.0</td><td>3.6</td><td>1.4</td><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.4</td><td>3.9</td><td>1.7</td><td>0.4</td><td>0  </td><td>0  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15547,7 +15049,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[96]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoSelect<span class="p">(</span>pattern <span class="o">=</span> <span class="s">&quot;Width&quot;</span><span class="p">))</span>
@@ -15557,40 +15059,10 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Width</th><th scope=col>Petal.Width</th></tr></thead>
-<tbody>
-	<tr><td>3.5</td><td>0.2</td></tr>
-	<tr><td>3.0</td><td>0.2</td></tr>
-	<tr><td>3.2</td><td>0.2</td></tr>
-	<tr><td>3.1</td><td>0.2</td></tr>
-	<tr><td>3.6</td><td>0.2</td></tr>
-	<tr><td>3.9</td><td>0.4</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[97]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># selection is additive</span>
@@ -15598,36 +15070,6 @@ cbinder.select
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Width</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>3.5   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>3.0   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>3.2   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>3.1   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>3.6   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>3.9   </td><td>0.4   </td><td>setosa</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15643,7 +15085,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[98]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> cpoDropConstants<span class="p">()</span>  <span class="c1"># drops &#39;species&#39;</span>
@@ -15651,59 +15093,6 @@ cbinder.select
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th></tr></thead>
-<tbody>
-	<tr><td>5.1</td><td>3.5</td><td>1.4</td><td>0.2</td></tr>
-	<tr><td>4.9</td><td>3.0</td><td>1.4</td><td>0.2</td></tr>
-	<tr><td>4.7</td><td>3.2</td><td>1.3</td><td>0.2</td></tr>
-	<tr><td>4.6</td><td>3.1</td><td>1.5</td><td>0.2</td></tr>
-	<tr><td>5.0</td><td>3.6</td><td>1.4</td><td>0.2</td></tr>
-	<tr><td>5.4</td><td>3.9</td><td>1.7</td><td>0.4</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th></tr></thead>
-<tbody>
-	<tr><td>5.1</td><td>3.5</td><td>1.4</td></tr>
-	<tr><td>4.9</td><td>3.0</td><td>1.4</td></tr>
-	<tr><td>4.7</td><td>3.2</td><td>1.3</td></tr>
-	<tr><td>4.6</td><td>3.1</td><td>1.5</td></tr>
-	<tr><td>5.0</td><td>3.6</td><td>1.4</td></tr>
-	<tr><td>5.4</td><td>3.9</td><td>1.7</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15719,7 +15108,7 @@ cbinder.select
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[99]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">levels</span><span class="p">(</span>iris<span class="o">$</span>Species<span class="p">)</span>
@@ -15729,34 +15118,10 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<ol class=list-inline>
-	<li>'setosa'</li>
-	<li>'versicolor'</li>
-	<li>'virginica'</li>
-</ol>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[100]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>irisfix <span class="o">=</span> <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> cpoFixFactors<span class="p">()</span>  <span class="c1"># Species only has level &#39;setosa&#39; in train</span>
@@ -15767,29 +15132,10 @@ cbinder.select
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-'setosa'
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[101]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>rf <span class="o">=</span> retrafo<span class="p">(</span>irisfix<span class="p">)</span>
@@ -15798,53 +15144,6 @@ iris<span class="p">[</span><span class="kt">c</span><span class="p">(</span><sp
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th></th><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><th scope=row>1</th><td>5.1       </td><td>3.5       </td><td>1.4       </td><td>0.2       </td><td>setosa    </td></tr>
-	<tr><th scope=row>100</th><td>5.7       </td><td>2.8       </td><td>4.1       </td><td>1.3       </td><td>versicolor</td></tr>
-	<tr><th scope=row>140</th><td>6.9       </td><td>3.1       </td><td>5.4       </td><td>2.1       </td><td>virginica </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th></th><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><th scope=row>1</th><td>5.1   </td><td>3.5   </td><td>1.4   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><th scope=row>100</th><td>5.7   </td><td>2.8   </td><td>4.1   </td><td>1.3   </td><td>NA    </td></tr>
-	<tr><th scope=row>140</th><td>6.9   </td><td>3.1   </td><td>5.4   </td><td>2.1   </td><td>NA    </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15860,7 +15159,7 @@ iris<span class="p">[</span><span class="kt">c</span><span class="p">(</span><sp
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[102]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>impdata <span class="o">=</span> df
@@ -15872,37 +15171,10 @@ impdata
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>NA </td><td>-10</td></tr>
-	<tr><td> 2 </td><td>-20</td></tr>
-	<tr><td> 3 </td><td>-30</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[103]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>impdata <span class="o">%&gt;&gt;%</span> cpoMissingIndicators<span class="p">()</span>
@@ -15910,53 +15182,6 @@ impdata <span class="o">%&gt;&gt;%</span> cpoCbind<span class="p">(</span>NULLCP
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th></tr></thead>
-<tbody>
-	<tr><td>TRUE </td></tr>
-	<tr><td>FALSE</td></tr>
-	<tr><td>FALSE</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th><th scope=col>dummy.a</th></tr></thead>
-<tbody>
-	<tr><td>NA   </td><td>-10  </td><td>TRUE </td></tr>
-	<tr><td> 2   </td><td>-20  </td><td>FALSE</td></tr>
-	<tr><td> 3   </td><td>-30  </td><td>FALSE</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -15972,43 +15197,13 @@ impdata <span class="o">%&gt;&gt;%</span> cpoCbind<span class="p">(</span>NULLCP
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[104]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoApplyFun<span class="p">(</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="kp">sqrt</span><span class="p">(</span>x<span class="p">)</span> <span class="o">-</span> <span class="m">10</span><span class="p">,</span> affect.type <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>-7.741682</td><td>-8.129171</td><td>-8.816784</td><td>-9.552786</td><td>setosa   </td></tr>
-	<tr><td>-7.786406</td><td>-8.267949</td><td>-8.816784</td><td>-9.552786</td><td>setosa   </td></tr>
-	<tr><td>-7.832052</td><td>-8.211146</td><td>-8.859825</td><td>-9.552786</td><td>setosa   </td></tr>
-	<tr><td>-7.855239</td><td>-8.239318</td><td>-8.775255</td><td>-9.552786</td><td>setosa   </td></tr>
-	<tr><td>-7.763932</td><td>-8.102633</td><td>-8.816784</td><td>-9.552786</td><td>setosa   </td></tr>
-	<tr><td>-7.676210</td><td>-8.025158</td><td>-8.696160</td><td>-9.367544</td><td>setosa   </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16024,43 +15219,13 @@ impdata <span class="o">%&gt;&gt;%</span> cpoCbind<span class="p">(</span>NULLCP
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[105]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris<span class="p">[</span><span class="kp">sample</span><span class="p">(</span><span class="kp">nrow</span><span class="p">(</span>iris<span class="p">),</span> <span class="m">10</span><span class="p">),</span> <span class="p">]</span> <span class="o">%&gt;&gt;%</span> cpoAsNumeric<span class="p">())</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th></th><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><th scope=row>62</th><td>5.9</td><td>3.0</td><td>4.2</td><td>1.5</td><td>2  </td></tr>
-	<tr><th scope=row>132</th><td>7.9</td><td>3.8</td><td>6.4</td><td>2.0</td><td>3  </td></tr>
-	<tr><th scope=row>140</th><td>6.9</td><td>3.1</td><td>5.4</td><td>2.1</td><td>3  </td></tr>
-	<tr><th scope=row>7</th><td>4.6</td><td>3.4</td><td>1.4</td><td>0.3</td><td>1  </td></tr>
-	<tr><th scope=row>78</th><td>6.7</td><td>3.0</td><td>5.0</td><td>1.7</td><td>2  </td></tr>
-	<tr><th scope=row>130</th><td>7.2</td><td>3.0</td><td>5.8</td><td>1.6</td><td>3  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16076,7 +15241,7 @@ impdata <span class="o">%&gt;&gt;%</span> cpoCbind<span class="p">(</span>NULLCP
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[106]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>iris2 <span class="o">=</span> iris
@@ -16087,67 +15252,6 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>5.1   </td><td>3.5   </td><td>1.4   </td><td>0.2   </td><td>a     </td></tr>
-	<tr><td>4.9   </td><td>3.0   </td><td>1.4   </td><td>0.2   </td><td>b     </td></tr>
-	<tr><td>4.7   </td><td>3.2   </td><td>1.3   </td><td>0.2   </td><td>c     </td></tr>
-	<tr><td>4.6   </td><td>3.1   </td><td>1.5   </td><td>0.2   </td><td>b     </td></tr>
-	<tr><td>5.0   </td><td>3.6   </td><td>1.4   </td><td>0.2   </td><td>b     </td></tr>
-	<tr><td>5.4   </td><td>3.9   </td><td>1.7   </td><td>0.4   </td><td>c     </td></tr>
-	<tr><td>4.6   </td><td>3.4   </td><td>1.4   </td><td>0.3   </td><td>b     </td></tr>
-	<tr><td>5.0   </td><td>3.4   </td><td>1.5   </td><td>0.2   </td><td>c     </td></tr>
-	<tr><td>4.4   </td><td>2.9   </td><td>1.4   </td><td>0.2   </td><td>setosa</td></tr>
-	<tr><td>4.9   </td><td>3.1   </td><td>1.5   </td><td>0.1   </td><td>setosa</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>5.1      </td><td>3.5      </td><td>1.4      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>4.9      </td><td>3.0      </td><td>1.4      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>4.7      </td><td>3.2      </td><td>1.3      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>4.6      </td><td>3.1      </td><td>1.5      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>5.0      </td><td>3.6      </td><td>1.4      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>5.4      </td><td>3.9      </td><td>1.7      </td><td>0.4      </td><td>collapsed</td></tr>
-	<tr><td>4.6      </td><td>3.4      </td><td>1.4      </td><td>0.3      </td><td>collapsed</td></tr>
-	<tr><td>5.0      </td><td>3.4      </td><td>1.5      </td><td>0.2      </td><td>collapsed</td></tr>
-	<tr><td>4.4      </td><td>2.9      </td><td>1.4      </td><td>0.2      </td><td>setosa   </td></tr>
-	<tr><td>4.9      </td><td>3.1      </td><td>1.5      </td><td>0.1      </td><td>setosa   </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16163,7 +15267,7 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[107]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoModelMatrix<span class="p">(</span><span class="o">~</span><span class="m">0</span> <span class="o">+</span> Species<span class="o">:</span>Petal.Width<span class="p">))</span>
@@ -16172,59 +15276,6 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Speciessetosa:Petal.Width</th><th scope=col>Speciesversicolor:Petal.Width</th><th scope=col>Speciesvirginica:Petal.Width</th></tr></thead>
-<tbody>
-	<tr><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>0.2</td><td>0  </td><td>0  </td></tr>
-	<tr><td>0.4</td><td>0  </td><td>0  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Speciessetosa</th><th scope=col>Speciesversicolor</th><th scope=col>Speciesvirginica</th><th scope=col>Petal.Width:Speciesversicolor</th><th scope=col>Petal.Width:Speciesvirginica</th></tr></thead>
-<tbody>
-	<tr><td>5.1</td><td>3.5</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.9</td><td>3.0</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.7</td><td>3.2</td><td>1.3</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>4.6</td><td>3.1</td><td>1.5</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.0</td><td>3.6</td><td>1.4</td><td>0.2</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-	<tr><td>5.4</td><td>3.9</td><td>1.7</td><td>0.4</td><td>1  </td><td>0  </td><td>0  </td><td>0  </td><td>0  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16240,43 +15291,13 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[108]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoScaleRange<span class="p">(</span><span class="m">-1</span><span class="p">,</span> <span class="m">1</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>-0.5555556 </td><td> 0.25000000</td><td>-0.8644068 </td><td>-0.9166667 </td><td>setosa     </td></tr>
-	<tr><td>-0.6666667 </td><td>-0.16666667</td><td>-0.8644068 </td><td>-0.9166667 </td><td>setosa     </td></tr>
-	<tr><td>-0.7777778 </td><td> 0.00000000</td><td>-0.8983051 </td><td>-0.9166667 </td><td>setosa     </td></tr>
-	<tr><td>-0.8333333 </td><td>-0.08333333</td><td>-0.8305085 </td><td>-0.9166667 </td><td>setosa     </td></tr>
-	<tr><td>-0.6111111 </td><td> 0.33333333</td><td>-0.8644068 </td><td>-0.9166667 </td><td>setosa     </td></tr>
-	<tr><td>-0.3888889 </td><td> 0.58333333</td><td>-0.7627119 </td><td>-0.7500000 </td><td>setosa     </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16292,43 +15313,13 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[109]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoScaleMaxAbs<span class="p">(</span><span class="m">0.1</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>0.06455696</td><td>0.07954545</td><td>0.02028986</td><td>0.008     </td><td>setosa    </td></tr>
-	<tr><td>0.06202532</td><td>0.06818182</td><td>0.02028986</td><td>0.008     </td><td>setosa    </td></tr>
-	<tr><td>0.05949367</td><td>0.07272727</td><td>0.01884058</td><td>0.008     </td><td>setosa    </td></tr>
-	<tr><td>0.05822785</td><td>0.07045455</td><td>0.02173913</td><td>0.008     </td><td>setosa    </td></tr>
-	<tr><td>0.06329114</td><td>0.08181818</td><td>0.02028986</td><td>0.008     </td><td>setosa    </td></tr>
-	<tr><td>0.06835443</td><td>0.08863636</td><td>0.02463768</td><td>0.016     </td><td>setosa    </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16344,43 +15335,13 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[110]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoSpatialSign<span class="p">())</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>0.8037728 </td><td>0.5516088 </td><td>0.2206435 </td><td>0.03152050</td><td>setosa    </td></tr>
-	<tr><td>0.8281329 </td><td>0.5070201 </td><td>0.2366094 </td><td>0.03380134</td><td>setosa    </td></tr>
-	<tr><td>0.8053331 </td><td>0.5483119 </td><td>0.2227517 </td><td>0.03426949</td><td>setosa    </td></tr>
-	<tr><td>0.8000302 </td><td>0.5391508 </td><td>0.2608794 </td><td>0.03478392</td><td>setosa    </td></tr>
-	<tr><td>0.7909650 </td><td>0.5694948 </td><td>0.2214702 </td><td>0.03163860</td><td>setosa    </td></tr>
-	<tr><td>0.7841750 </td><td>0.5663486 </td><td>0.2468699 </td><td>0.05808704</td><td>setosa    </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16418,7 +15379,7 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[111]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>impdata <span class="o">%&gt;&gt;%</span> cpoImpute<span class="p">(</span>cols <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>a <span class="o">=</span> imputeMedian<span class="p">()))</span>
@@ -16428,37 +15389,10 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>2.5</td><td>-10</td></tr>
-	<tr><td>2.0</td><td>-20</td></tr>
-	<tr><td>3.0</td><td>-30</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[112]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>impdata <span class="o">%&gt;&gt;%</span> cpoImpute<span class="p">(</span>cols <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>b <span class="o">=</span> imputeMedian<span class="p">()))</span>  <span class="c1"># NAs remain</span>
@@ -16469,37 +15403,10 @@ iris2<span class="o">$</span>Species <span class="o">=</span> <span class="kp">f
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>NA </td><td>-10</td></tr>
-	<tr><td> 2 </td><td>-20</td></tr>
-	<tr><td> 3 </td><td>-30</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[113]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>missing.task <span class="o">=</span> makeRegrTask<span class="p">(</span><span class="s">&quot;missing.task&quot;</span><span class="p">,</span> impdata<span class="p">,</span> target <span class="o">=</span> <span class="s">&quot;b&quot;</span><span class="p">)</span>
@@ -16511,28 +15418,6 @@ train<span class="p">(</span>cpoImputeAll<span class="p">(</span>cols <span clas
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-
-<div class="output_text output_subarea ">
-<pre>Model for learner.id=regr.lm.impute; learner.class=CPOLearner
-Trained on: task.id = missing.task; obs = 3; features = 1
-Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16548,7 +15433,7 @@ Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[114]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>impdata <span class="o">%&gt;&gt;%</span> cpoImputeConstant<span class="p">(</span><span class="m">10</span><span class="p">)</span>
@@ -16558,37 +15443,10 @@ Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>10 </td><td>-10</td></tr>
-	<tr><td> 2 </td><td>-20</td></tr>
-	<tr><td> 3 </td><td>-30</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[115]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>getTaskData<span class="p">(</span>missing.task <span class="o">%&gt;&gt;%</span> cpoImputeMedian<span class="p">())</span>
@@ -16598,37 +15456,10 @@ Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th></tr></thead>
-<tbody>
-	<tr><td>2.5</td><td>-10</td></tr>
-	<tr><td>2.0</td><td>-20</td></tr>
-	<tr><td>3.0</td><td>-30</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[116]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># The specialised impute CPOs are:</span>
@@ -16637,40 +15468,6 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th></th><th scope=col>name</th><th scope=col>description</th></tr></thead>
-<tbody>
-	<tr><th scope=row>44</th><td>cpoImputeConstant                                                        </td><td>Imputation using a constant value.                                       </td></tr>
-	<tr><th scope=row>52</th><td>cpoImputeHist                                                            </td><td>Imputation using random values with probabilities approximating the data.</td></tr>
-	<tr><th scope=row>53</th><td>cpoImputeLearner                                                         </td><td>Imputation using the response of a classification or regression learner. </td></tr>
-	<tr><th scope=row>49</th><td>cpoImputeMax                                                             </td><td>Imputation using constant values shifted above the maximum.              </td></tr>
-	<tr><th scope=row>46</th><td>cpoImputeMean                                                            </td><td>Imputation using the mean.                                               </td></tr>
-	<tr><th scope=row>45</th><td>cpoImputeMedian                                                          </td><td>Imputation using the median.                                             </td></tr>
-	<tr><th scope=row>48</th><td>cpoImputeMin                                                             </td><td>Imputation using constant values shifted below the minimum.              </td></tr>
-	<tr><th scope=row>47</th><td>cpoImputeMode                                                            </td><td>Imputation using the mode.                                               </td></tr>
-	<tr><th scope=row>51</th><td>cpoImputeNormal                                                          </td><td>Imputation using normally distributed random values.                     </td></tr>
-	<tr><th scope=row>50</th><td>cpoImputeUniform                                                         </td><td>Imputation using uniformly distributed random values.                    </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16692,7 +15489,7 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[117]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>getTaskData<span class="p">(</span>iris.task <span class="o">%&gt;&gt;%</span> cpoFilterFeatures<span class="p">(</span>method <span class="o">=</span> <span class="s">&quot;variance&quot;</span><span class="p">,</span> perc <span class="o">=</span> <span class="m">0.5</span><span class="p">)))</span>
@@ -16702,40 +15499,10 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Petal.Length</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>5.1   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>4.9   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>4.7   </td><td>1.3   </td><td>setosa</td></tr>
-	<tr><td>4.6   </td><td>1.5   </td><td>setosa</td></tr>
-	<tr><td>5.0   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>5.4   </td><td>1.7   </td><td>setosa</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[118]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">head</span><span class="p">(</span>getTaskData<span class="p">(</span>iris.task <span class="o">%&gt;&gt;%</span> cpoFilterVariance<span class="p">(</span>perc <span class="o">=</span> <span class="m">0.5</span><span class="p">)))</span>
@@ -16745,40 +15512,10 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Petal.Length</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>5.1   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>4.9   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>4.7   </td><td>1.3   </td><td>setosa</td></tr>
-	<tr><td>4.6   </td><td>1.5   </td><td>setosa</td></tr>
-	<tr><td>5.0   </td><td>1.4   </td><td>setosa</td></tr>
-	<tr><td>5.4   </td><td>1.7   </td><td>setosa</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[119]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># The specialised filter CPOs are:</span>
@@ -16787,49 +15524,6 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th></th><th scope=col>name</th><th scope=col>description</th></tr></thead>
-<tbody>
-	<tr><th scope=row>38</th><td>cpoFilterAnova                                                           </td><td>Filter features using analysis of variance.                              </td></tr>
-	<tr><th scope=row>24</th><td>cpoFilterCarscore                                                        </td><td>Filter features using correlation-adjusted marginal correlation.         </td></tr>
-	<tr><th scope=row>34</th><td>cpoFilterChiSquared                                                      </td><td>Filter features using chi-squared test.                                  </td></tr>
-	<tr><th scope=row>32</th><td>cpoFilterGainRatio                                                       </td><td>Filter features using entropy-based information gain ratio               </td></tr>
-	<tr><th scope=row>31</th><td>cpoFilterInformationGain                                                 </td><td>Filter features using entropy-based information gain.                    </td></tr>
-	<tr><th scope=row>39</th><td>cpoFilterKruskal                                                         </td><td>Filter features using the Kruskal-Wallis rank sum test.                  </td></tr>
-	<tr><th scope=row>29</th><td>cpoFilterLinearCorrelation                                               </td><td>Filter features using Pearson correlation.                               </td></tr>
-	<tr><th scope=row>23</th><td>cpoFilterMrmr                                                            </td><td>Filter features using 'minimum redundancy, maximum relevance'.           </td></tr>
-	<tr><th scope=row>36</th><td>cpoFilterOneR                                                            </td><td>Filter features using the OneR learner.                                  </td></tr>
-	<tr><th scope=row>41</th><td>cpoFilterPermutationImportance                                           </td><td>Filter features using predictiveness loss upon permutation of a variable.</td></tr>
-	<tr><th scope=row>30</th><td>cpoFilterRankCorrelation                                                 </td><td>Filter features using Spearman correlation.                              </td></tr>
-	<tr><th scope=row>35</th><td>cpoFilterRelief                                                          </td><td>Filter features using the ReliefF algorithm.                             </td></tr>
-	<tr><th scope=row>27</th><td>cpoFilterRfCImportance                                                   </td><td>Filter features using party::cforest variable importance.                </td></tr>
-	<tr><th scope=row>28</th><td>cpoFilterRfImportance                                                    </td><td>Filter features using randomForest variable importance.                  </td></tr>
-	<tr><th scope=row>25</th><td>cpoFilterRfSRCImportance                                                 </td><td>Filter features using randomForestSRC.rfsrc.                             </td></tr>
-	<tr><th scope=row>26</th><td>cpoFilterRfSRCMinDepth                                                   </td><td>Filter features using randomForestSRC minimal depth.                     </td></tr>
-	<tr><th scope=row>33</th><td>cpoFilterSymmetricalUncertainty                                          </td><td>Filter features using entropy-based symmetrical uncertainty              </td></tr>
-	<tr><th scope=row>37</th><td>cpoFilterUnivariate                                                      </td><td>Filter features using the predictiveness using a given learner.          </td></tr>
-	<tr><th scope=row>40</th><td>cpoFilterVariance                                                        </td><td>Filter features using feature variance.                                  </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -16844,7 +15538,7 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[120]:</div>
+<div class="prompt input_prompt">In&nbsp;[77]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="kp">names</span><span class="p">(</span><span class="kp">formals</span><span class="p">(</span>makeCPO<span class="p">))</span>  <span class="c1"># see help(makeCPO) for explanation of arguments</span>
@@ -16866,21 +15560,19 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 
 <div class="output_html rendered_html output_subarea ">
 <ol class=list-inline>
-	<li>'.cpo.name'</li>
-	<li>'...'</li>
-	<li>'.par.set'</li>
-	<li>'.par.vals'</li>
-	<li>'.datasplit'</li>
-	<li>'.retrafo.format'</li>
-	<li>'.export.params'</li>
-	<li>'.fix.factors'</li>
-	<li>'.properties'</li>
-	<li>'.properties.adding'</li>
-	<li>'.properties.needed'</li>
-	<li>'.properties.target'</li>
-	<li>'.packages'</li>
+	<li>'cpo.name'</li>
+	<li>'par.set'</li>
+	<li>'par.vals'</li>
+	<li>'dataformat'</li>
+	<li>'dataformat.factor.with.ordered'</li>
+	<li>'export.params'</li>
+	<li>'fix.factors'</li>
+	<li>'properties'</li>
+	<li>'properties.adding'</li>
+	<li>'properties.needed'</li>
+	<li>'properties.target'</li>
+	<li>'packages'</li>
 	<li>'cpo.trafo'</li>
-	<li>'cpo.retrafo'</li>
 </ol>
 
 </div>
@@ -16893,135 +15585,11 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[121]:</div>
+<div class="prompt input_prompt">In&nbsp;[80]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;pca&#39; CPO</span>
-<span class="c1"># demonstrates the (object based) &quot;separate&quot; CPO API</span>
-pca <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;pca&quot;</span><span class="p">,</span>  <span class="c1"># name</span>
-  center <span class="o">=</span> <span class="kc">TRUE</span><span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>  <span class="c1"># one logical parameter &#39;center&#39;</span>
-  <span class="m">.</span>datasplit<span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>  <span class="c1"># only handle numeric columns</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;separate&quot;</span><span class="p">,</span>  <span class="c1"># default, can be omitted</span>
-  <span class="c1"># cpo.trafo is given as a function body. The function head is added</span>
-  <span class="c1"># automatically, containing &#39;data&#39;, &#39;target&#39;, and &#39;center&#39;</span>
-  <span class="c1"># (since a &#39;center&#39; parameter was defined)</span>
-  cpo.trafo <span class="o">=</span> <span class="p">{</span>
-    pcr <span class="o">=</span> prcomp<span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> center <span class="o">=</span> center<span class="p">)</span>
-    <span class="c1"># The following line creates a &#39;control&#39; object, which will be given</span>
-    <span class="c1"># to retrafo.</span>
-    control <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>rotation <span class="o">=</span> pcr<span class="o">$</span>rotation<span class="p">,</span> center <span class="o">=</span> pcr<span class="o">$</span>center<span class="p">)</span>
-    pcr<span class="o">$</span>x  <span class="c1"># returning a matrix is ok</span>
-  <span class="c1"># Just like cpo.trafo, cpo.retrafo is a function body, with implicit</span>
-  <span class="c1"># arguments &#39;data&#39;, &#39;control&#39;, and &#39;center&#39;.</span>
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="p">{</span>
-    <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> center <span class="o">=</span> control<span class="o">$</span>center<span class="p">,</span> scale <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span> <span class="o">%*%</span>
-      control<span class="o">$</span>rotation
-  <span class="p">})</span>
-<span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> pca<span class="p">())</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Species</th><th scope=col>PC1</th><th scope=col>PC2</th><th scope=col>PC3</th><th scope=col>PC4</th></tr></thead>
-<tbody>
-	<tr><td>setosa      </td><td>-2.684126   </td><td>-0.3193972  </td><td> 0.02791483 </td><td> 0.002262437</td></tr>
-	<tr><td>setosa      </td><td>-2.714142   </td><td> 0.1770012  </td><td> 0.21046427 </td><td> 0.099026550</td></tr>
-	<tr><td>setosa      </td><td>-2.888991   </td><td> 0.1449494  </td><td>-0.01790026 </td><td> 0.019968390</td></tr>
-	<tr><td>setosa      </td><td>-2.745343   </td><td> 0.3182990  </td><td>-0.03155937 </td><td>-0.075575817</td></tr>
-	<tr><td>setosa      </td><td>-2.728717   </td><td>-0.3267545  </td><td>-0.09007924 </td><td>-0.061258593</td></tr>
-	<tr><td>setosa      </td><td>-2.280860   </td><td>-0.7413304  </td><td>-0.16867766 </td><td>-0.024200858</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[122]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;scale&#39; CPO</span>
-<span class="c1"># demonstrates the (functional) &quot;separate&quot; CPO API</span>
-scaleC <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;scale&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>
-  <span class="c1"># .retrafo.format = &quot;separate&quot; is implicit</span>
-  cpo.trafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">)</span> <span class="p">{</span>
-    result <span class="o">=</span> <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">))</span>
-    cpo.retrafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">)</span> <span class="p">{</span>
-      <span class="c1"># here we can use the &#39;result&#39; object generated in cpo.trafo</span>
-      <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> <span class="kp">attr</span><span class="p">(</span>result<span class="p">,</span> <span class="s">&quot;scaled:center&quot;</span><span class="p">),</span>
-    <span class="kp">attr</span><span class="p">(</span>result<span class="p">,</span> <span class="s">&quot;scaled:scale&quot;</span><span class="p">))</span>
-    <span class="p">}</span>
-    result
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span>
-<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> scaleC<span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td> 0.5206576</td><td> 0.3401105</td><td>-0.3627381</td><td>-0.4082483</td><td>setosa    </td></tr>
-	<tr><td>-0.1735525</td><td>-1.1175060</td><td>-0.3627381</td><td>-0.4082483</td><td>setosa    </td></tr>
-	<tr><td>-0.8677627</td><td>-0.5344594</td><td>-1.0882144</td><td>-0.4082483</td><td>setosa    </td></tr>
-	<tr><td>-1.2148677</td><td>-0.8259827</td><td> 0.3627381</td><td>-0.4082483</td><td>setosa    </td></tr>
-	<tr><td> 0.1735525</td><td> 0.6316338</td><td>-0.3627381</td><td>-0.4082483</td><td>setosa    </td></tr>
-	<tr><td> 1.5619728</td><td> 1.5062037</td><td> 1.8136906</td><td> 2.0412415</td><td>setosa    </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[123]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example constant feature remover CPO</span>
-<span class="c1"># demonstrates the &quot;combined&quot; CPO API</span>
-constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;constFeatRem&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;target&quot;</span><span class="p">,</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;combined&quot;</span><span class="p">,</span>
+<div class=" highlight hl-r"><pre><span></span>constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;constFeatRem&quot;</span><span class="p">,</span>
+  dataformat <span class="o">=</span> <span class="s">&quot;df.features&quot;</span><span class="p">,</span>
   cpo.trafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">)</span> <span class="p">{</span>
     cols.keep <span class="o">=</span> <span class="kp">names</span><span class="p">(</span><span class="kp">Filter</span><span class="p">(</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
     <span class="kp">length</span><span class="p">(</span><span class="kp">unique</span><span class="p">(</span>x<span class="p">))</span> <span class="o">&gt;</span> <span class="m">1</span>
@@ -17031,7 +15599,7 @@ constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class
       data<span class="p">[</span>cols.keep<span class="p">]</span>
     <span class="p">}</span>
     result
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span>
+  <span class="p">})</span>
 <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> constFeatRem<span class="p">()</span>
 </pre></div>
 
@@ -17070,58 +15638,6 @@ constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class
 </div>
 
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[124]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;square&#39; CPO</span>
-<span class="c1"># demonstrates the &quot;stateless&quot; CPO API</span>
-square <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;scale&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;stateless&quot;</span><span class="p">,</span>
-  cpo.trafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">,</span> <span class="c1"># optional, we don&#39;t need it since trafo &amp; retrafo same</span>
-  cpo.retrafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">)</span> <span class="p">{</span>
-    <span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">)</span> <span class="o">*</span> <span class="m">2</span>
-  <span class="p">})</span>
-<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> square<span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>Sepal.Length</th><th scope=col>Sepal.Width</th><th scope=col>Petal.Length</th><th scope=col>Petal.Width</th><th scope=col>Species</th></tr></thead>
-<tbody>
-	<tr><td>10.2  </td><td>7.0   </td><td>2.8   </td><td>0.4   </td><td>setosa</td></tr>
-	<tr><td> 9.8  </td><td>6.0   </td><td>2.8   </td><td>0.4   </td><td>setosa</td></tr>
-	<tr><td> 9.4  </td><td>6.4   </td><td>2.6   </td><td>0.4   </td><td>setosa</td></tr>
-	<tr><td> 9.2  </td><td>6.2   </td><td>3.0   </td><td>0.4   </td><td>setosa</td></tr>
-	<tr><td>10.0  </td><td>7.2   </td><td>2.8   </td><td>0.4   </td><td>setosa</td></tr>
-	<tr><td>10.8  </td><td>7.8   </td><td>3.4   </td><td>0.8   </td><td>setosa</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
@@ -17133,7 +15649,7 @@ square <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[128]:</div>
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="p">(</span>clrn <span class="o">=</span> cpoModelMatrix<span class="p">()</span> <span class="o">%&gt;&gt;%</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.logreg&quot;</span><span class="p">))</span>
@@ -17189,7 +15705,7 @@ model                logical   - TRUE      -   -   FALSE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[136]:</div>
+<div class="prompt input_prompt">In&nbsp;[82]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>ps <span class="o">=</span> makeParamSet<span class="p">(</span>
@@ -17205,7 +15721,7 @@ model                logical   - TRUE      -   -   FALSE     -</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[137]:</div>
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>tuneParams<span class="p">(</span>clrn<span class="p">,</span> pid.task<span class="p">,</span> cv5<span class="p">,</span> par.set <span class="o">=</span> ps<span class="p">,</span>
@@ -17235,18 +15751,20 @@ Imputation value: 1
 [Tune-x] 1: model.matrix.formula=first
 Resampling: cross-validation
 Measures:             mmce      
-[Tune-y] 1: mmce.test.mean=0.2227145; time: 0.1 min
+[Tune-y] 1: mmce.test.mean=0.2264918; time: 0.1 min
 [Tune-x] 2: model.matrix.formula=second
 Resampling: cross-validation
 Measures:             mmce      
-[Tune-y] 2: mmce.test.mean=0.2448943; time: 0.0 min
+[Tune-y] 2: mmce.test.mean=0.2434683; time: 0.0 min
 [Tune-x] 3: model.matrix.formula=third
 Resampling: cross-validation
 Measures:             mmce      
 Warning message:
 “glm.fit: fitted probabilities numerically 0 or 1 occurred”Warning message:
-“glm.fit: fitted probabilities numerically 0 or 1 occurred”[Tune-y] 3: mmce.test.mean=0.2708683; time: 0.0 min
-[Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2227145
+“glm.fit: fitted probabilities numerically 0 or 1 occurred”Warning message:
+“glm.fit: fitted probabilities numerically 0 or 1 occurred”Warning message:
+“glm.fit: fitted probabilities numerically 0 or 1 occurred”[Tune-y] 3: mmce.test.mean=0.2890247; time: 0.0 min
+[Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2264918
 </pre>
 </div>
 </div>
@@ -17261,7 +15779,7 @@ Warning message:
 <div class="output_text output_subarea ">
 <pre>Tune result:
 Op. pars: model.matrix.formula=first
-mmce.test.mean=0.2227145</pre>
+mmce.test.mean=0.2264918</pre>
 </div>
 
 </div>
@@ -17281,11 +15799,11 @@ mmce.test.mean=0.2227145</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[147]:</div>
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>tlrn <span class="o">=</span> cpoModelMatrix<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
-       cpoApply<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
+       cpoWrap<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
        cpoFilterGainRatio<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
        makeLearner<span class="p">(</span><span class="s">&quot;classif.ctree&quot;</span><span class="p">)</span>
 <span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;Parameters: %s&quot;</span><span class="p">,</span> <span class="kp">paste</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>getParamSet<span class="p">(</span>tlrn<span class="p">)</span><span class="o">$</span>pars<span class="p">),</span> collapse<span class="o">=</span><span class="s">&quot;, &quot;</span><span class="p">))</span>
@@ -17330,7 +15848,7 @@ ps2 <span class="o">=</span> makeParamSet<span class="p">(</span>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[153]:</div>
+<div class="prompt input_prompt">In&nbsp;[86]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># commit a70edb1f makes output unbearably ugly, so suppress it here</span>
@@ -17356,8 +15874,8 @@ ps2 <span class="o">=</span> makeParamSet<span class="p">(</span>
 
 <div class="output_text output_subarea ">
 <pre>Tune result:
-Op. pars: model.matrix.formula=first; apply.cpo=addpca; gain.ratio.perc=1; teststat=max
-mmce.test.mean=0.2421272</pre>
+Op. pars: model.matrix.formula=second; apply.cpo=nopca; gain.ratio.perc=1; teststat=quad
+mmce.test.mean=0.2434089</pre>
 </div>
 
 </div>

@@ -11784,7 +11784,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="kn">library</span><span class="p">(</span><span class="s">&quot;mlr&quot;</span><span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>devtools<span class="o">::</span>load_all<span class="p">(</span><span class="s">&quot;../../mlr&quot;</span><span class="p">)</span>
+devtools<span class="o">::</span>load_all<span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12252,7 +12253,7 @@ composeCPO<span class="p">(</span>setCPOId<span class="p">(</span>scale1<span cl
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span><span class="kp">as.list</span><span class="p">(</span>compound<span class="p">))</span>  <span class="c1"># chainCPO: list CPO -&gt; CPO</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span><span class="kp">as.list</span><span class="p">(</span>compound<span class="p">))</span>  <span class="c1"># chainCPO: list CPO -&gt; CPO</span>
 </pre></div>
 
 </div>
@@ -12498,7 +12499,7 @@ new.retrafo <span class="o">=</span> makeRetrafoFromState<span class="p">(</span
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>data <span class="o">=</span> <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> pca
+<div class=" highlight hl-r"><pre><span></span>data <span class="o">=</span> <span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> cpoPca<span class="p">()</span>
 retrafo<span class="p">(</span>data<span class="p">)</span>
 </pre></div>
 
@@ -12591,7 +12592,7 @@ compound.retrafo
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span>retrafolist<span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span>retrafolist<span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12868,7 +12869,7 @@ log.prediction <span class="o">=</span> predict<span class="p">(</span>train<spa
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>chainCPO<span class="p">(</span><span class="kt">list</span><span class="p">())</span>
+<div class=" highlight hl-r"><pre><span></span>pipeCPO<span class="p">(</span><span class="kt">list</span><span class="p">())</span>
 </pre></div>
 
 </div>
@@ -12890,7 +12891,7 @@ log.prediction <span class="o">=</span> predict<span class="p">(</span>train<spa
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>cpa <span class="o">=</span> cpoApply<span class="p">()</span>
+<div class=" highlight hl-r"><pre><span></span>cpa <span class="o">=</span> cpoWrap<span class="p">()</span>
 <span class="kp">summary</span><span class="p">(</span>cpa<span class="p">)</span>
 </pre></div>
 
@@ -13017,7 +13018,7 @@ getParamSet<span class="p">(</span>cpoApply<span class="p">()</span> <span class
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>s.and.p <span class="o">=</span> cpoMeta<span class="p">(</span>logical.param<span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>
+<div class=" highlight hl-r"><pre><span></span>s.and.p <span class="o">=</span> cpoCase<span class="p">(</span>logical.param<span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>
 <span class="m">.</span>export <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>cpoScale<span class="p">(</span>id <span class="o">=</span> <span class="s">&quot;scale&quot;</span><span class="p">),</span> 
   cpoPca<span class="p">(</span>id <span class="o">=</span> <span class="s">&quot;pca&quot;</span><span class="p">)),</span>
 cpo.build <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">,</span> logical.param<span class="p">,</span> <span class="kp">scale</span><span class="p">,</span> pca<span class="p">)</span> <span class="p">{</span>
@@ -13791,72 +13792,8 @@ listCPO<span class="p">()[</span>listCPO<span class="p">()</span><span class="o"
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;pca&#39; CPO</span>
-<span class="c1"># demonstrates the (object based) &quot;separate&quot; CPO API</span>
-pca <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;pca&quot;</span><span class="p">,</span>  <span class="c1"># name</span>
-  center <span class="o">=</span> <span class="kc">TRUE</span><span class="o">:</span> <span class="kt">logical</span><span class="p">,</span>  <span class="c1"># one logical parameter &#39;center&#39;</span>
-  <span class="m">.</span>datasplit<span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>  <span class="c1"># only handle numeric columns</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;separate&quot;</span><span class="p">,</span>  <span class="c1"># default, can be omitted</span>
-  <span class="c1"># cpo.trafo is given as a function body. The function head is added</span>
-  <span class="c1"># automatically, containing &#39;data&#39;, &#39;target&#39;, and &#39;center&#39;</span>
-  <span class="c1"># (since a &#39;center&#39; parameter was defined)</span>
-  cpo.trafo <span class="o">=</span> <span class="p">{</span>
-    pcr <span class="o">=</span> prcomp<span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> center <span class="o">=</span> center<span class="p">)</span>
-    <span class="c1"># The following line creates a &#39;control&#39; object, which will be given</span>
-    <span class="c1"># to retrafo.</span>
-    control <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>rotation <span class="o">=</span> pcr<span class="o">$</span>rotation<span class="p">,</span> center <span class="o">=</span> pcr<span class="o">$</span>center<span class="p">)</span>
-    pcr<span class="o">$</span>x  <span class="c1"># returning a matrix is ok</span>
-  <span class="c1"># Just like cpo.trafo, cpo.retrafo is a function body, with implicit</span>
-  <span class="c1"># arguments &#39;data&#39;, &#39;control&#39;, and &#39;center&#39;.</span>
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="p">{</span>
-    <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> center <span class="o">=</span> control<span class="o">$</span>center<span class="p">,</span> scale <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span> <span class="o">%*%</span>
-      control<span class="o">$</span>rotation
-  <span class="p">})</span>
-<span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> pca<span class="p">())</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;scale&#39; CPO</span>
-<span class="c1"># demonstrates the (functional) &quot;separate&quot; CPO API</span>
-scaleC <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;scale&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>
-  <span class="c1"># .retrafo.format = &quot;separate&quot; is implicit</span>
-  cpo.trafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">)</span> <span class="p">{</span>
-    result <span class="o">=</span> <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">))</span>
-    cpo.retrafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">)</span> <span class="p">{</span>
-      <span class="c1"># here we can use the &#39;result&#39; object generated in cpo.trafo</span>
-      <span class="kp">scale</span><span class="p">(</span><span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">),</span> <span class="kp">attr</span><span class="p">(</span>result<span class="p">,</span> <span class="s">&quot;scaled:center&quot;</span><span class="p">),</span>
-    <span class="kp">attr</span><span class="p">(</span>result<span class="p">,</span> <span class="s">&quot;scaled:scale&quot;</span><span class="p">))</span>
-    <span class="p">}</span>
-    result
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span>
-<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> scaleC<span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example constant feature remover CPO</span>
-<span class="c1"># demonstrates the &quot;combined&quot; CPO API</span>
-constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;constFeatRem&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;target&quot;</span><span class="p">,</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;combined&quot;</span><span class="p">,</span>
+<div class=" highlight hl-r"><pre><span></span>constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;constFeatRem&quot;</span><span class="p">,</span>
+  dataformat <span class="o">=</span> <span class="s">&quot;df.features&quot;</span><span class="p">,</span>
   cpo.trafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">,</span> target<span class="p">)</span> <span class="p">{</span>
     cols.keep <span class="o">=</span> <span class="kp">names</span><span class="p">(</span><span class="kp">Filter</span><span class="p">(</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
     <span class="kp">length</span><span class="p">(</span><span class="kp">unique</span><span class="p">(</span>x<span class="p">))</span> <span class="o">&gt;</span> <span class="m">1</span>
@@ -13866,30 +13803,8 @@ constFeatRem <span class="o">=</span> makeCPO<span class="p">(</span><span class
       data<span class="p">[</span>cols.keep<span class="p">]</span>
     <span class="p">}</span>
     result
-  <span class="p">},</span> cpo.retrafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span>
-<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> constFeatRem<span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># an example &#39;square&#39; CPO</span>
-<span class="c1"># demonstrates the &quot;stateless&quot; CPO API</span>
-square <span class="o">=</span> makeCPO<span class="p">(</span><span class="s">&quot;scale&quot;</span><span class="p">,</span>
-  <span class="m">.</span>datasplit <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">,</span>
-  <span class="m">.</span>retrafo.format <span class="o">=</span> <span class="s">&quot;stateless&quot;</span><span class="p">,</span>
-  cpo.trafo <span class="o">=</span> <span class="kc">NULL</span><span class="p">,</span> <span class="c1"># optional, we don&#39;t need it since trafo &amp; retrafo same</span>
-  cpo.retrafo <span class="o">=</span> <span class="kr">function</span><span class="p">(</span>data<span class="p">)</span> <span class="p">{</span>
-    <span class="kp">as.matrix</span><span class="p">(</span>data<span class="p">)</span> <span class="o">*</span> <span class="m">2</span>
   <span class="p">})</span>
-<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> square<span class="p">()</span>
+<span class="kp">head</span><span class="p">(</span>iris<span class="p">)</span> <span class="o">%&gt;&gt;%</span> constFeatRem<span class="p">()</span>
 </pre></div>
 
 </div>
@@ -13966,7 +13881,7 @@ getParamSet<span class="p">(</span>clrn<span class="p">)</span>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span>tlrn <span class="o">=</span> cpoModelMatrix<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
-       cpoApply<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
+       cpoWrap<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
        cpoFilterGainRatio<span class="p">()</span> <span class="o">%&gt;&gt;%</span>
        makeLearner<span class="p">(</span><span class="s">&quot;classif.ctree&quot;</span><span class="p">)</span>
 <span class="kp">sprintf</span><span class="p">(</span><span class="s">&quot;Parameters: %s&quot;</span><span class="p">,</span> <span class="kp">paste</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>getParamSet<span class="p">(</span>tlrn<span class="p">)</span><span class="o">$</span>pars<span class="p">),</span> collapse<span class="o">=</span><span class="s">&quot;, &quot;</span><span class="p">))</span>
