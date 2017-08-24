@@ -9,7 +9,7 @@ test_that("CPOs can be created", {
 
   expect_class(makeCPOFunctional("testCPO", a = 1: integer[, 1], .par.vals = list(a = 0), cpo.trafo = { }), "CPOConstructor")
 
-  expect_class(makeCPOFunctional("testCPO", .par.set = paramSetSugar(a: integer[0, 1]), .par.vals = list(a = 0), cpo.trafo = { }), "CPOConstructor")
+  expect_class(makeCPOFunctional("testCPO", .par.set = pSSLrn(a: integer[0, 1]), .par.vals = list(a = 0), cpo.trafo = { }), "CPOConstructor")
 
 
   expect_class(makeCPOObject("testCPO", cpo.trafo = { }, cpo.retrafo = { }), "CPOConstructor")
@@ -18,7 +18,7 @@ test_that("CPOs can be created", {
 
   expect_class(makeCPOObject("testCPO", a = 1: integer[, 1], .par.vals = list(a = 0), cpo.trafo = { }, cpo.retrafo = { }), "CPOConstructor")
 
-  expect_class(makeCPOObject("testCPO", .par.set = paramSetSugar(a: integer[0, 1]), .par.vals = list(a = 0), cpo.trafo = { }, cpo.retrafo = { }), "CPOConstructor")
+  expect_class(makeCPOObject("testCPO", .par.set = pSSLrn(a: integer[0, 1]), .par.vals = list(a = 0), cpo.trafo = { }, cpo.retrafo = { }), "CPOConstructor")
 
 })
 
@@ -913,9 +913,9 @@ test_that("retrafo catabolization and anabolization work", {
     expect_identical(getHyperPars(as.list(chained.again)[[7]]), list(summand = 10))
     expect_identical(getHyperPars(as.list(chained.again)[[4]]), list(factor = -2))
 
-    expect_identical(getParamSet(as.list(chained.again)[[1]]), paramSetSugar(summand = 1: integer[, ]))
-    expect_identical(getParamSet(as.list(chained.again)[[7]]), paramSetSugar(summand = 1: integer[, ]))
-    expect_identical(getParamSet(as.list(chained.again)[[4]]), paramSetSugar(factor = 1: numeric[~., ~.]))
+    expect_identical(getParamSet(as.list(chained.again)[[1]]), pSSLrn(summand = 1: integer[, ]))
+    expect_identical(getParamSet(as.list(chained.again)[[7]]), pSSLrn(summand = 1: integer[, ]))
+    expect_identical(getParamSet(as.list(chained.again)[[4]]), pSSLrn(factor = 1: numeric[~., ~.]))
 
     testdfcpo %>>% chainCPO(as.list(cpochain)[1:3])
     firsthalf = retrafo(testdfcpo %>>% chainCPO(as.list(cpochain)[1:3]))

@@ -869,6 +869,8 @@ invert = function(inverter, prediction, predict.type = "response") {
   }
 }
 
+# data is either a data.frame or a matrix, and will be turned into
+# a uniform format.
 sanitizePrediction = function(data) {
   if (is.data.frame(data)) {
     if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {

@@ -491,11 +491,11 @@ registerCPO(cpoDummyEncode, "data", "feature conversion", "Convert factorial col
 #' @export
 cpoSelect = makeCPOExtended("select",  # nolint
   .par.set = c(
-      paramSetSugar(type = list(): discrete[numeric, ordered, factor, other]^NA,
+      pSSLrn(type = list(): discrete[numeric, ordered, factor, other]^NA,
         index = integer(0): integer[1, ]^NA),
       makeParamSet(makeUntypedLearnerParam("names", default = character(0)),
         makeCharacterParam("pattern", NULL, special.vals = list(NULL))),
-      paramSetSugar(
+      pSSLrn(
           pattern.ignore.case = FALSE: logical [[requires = quote(!is.null(pattern))]],
           pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
           pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],

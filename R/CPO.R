@@ -156,7 +156,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 #'   The name of the resulting CPO constructor / CPO. This is used for identification in output,
 #'   and as the default \code{id}.
 #' @param ...
-#'   Parameters of the CPO, in the format of \code{\link[mlr]{paramSetSugar}}.
+#'   Parameters of the CPO, in the format of \code{\link[mlr]{pSSLrn}}.
 #' @param .par.set [\code{ParamSet}]\cr
 #'   Optional parameter set. If this is not \code{NULL}, the \dQuote{...} parameters are ignored.
 #'   Default is \code{NULL}.
@@ -416,7 +416,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
 
 
   if (is.null(.par.set)) {
-    .par.set = paramSetSugar(..., .pss.env = parent.frame(2))
+    .par.set = pSSLrn(..., .pss.env = parent.frame(2))
   }
 
   assertCharacter(.properties, unique = TRUE)

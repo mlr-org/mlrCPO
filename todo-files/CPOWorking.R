@@ -21,7 +21,10 @@ changeData
 #' @export
 #' @rdname makeTaskDesc
 
-roxygenise("..")
+roxygenise("../../ParamHelpers")
+
+devtools::load_all("../../ParamHelpers")
+devtools::test(pkg = "../../ParamHelpers")
 
 roxygenise("../../mlr")
 

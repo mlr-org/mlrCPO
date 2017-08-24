@@ -34,7 +34,7 @@ cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
   .par.set = c(
       makeParamSet(makeDiscreteLearnerParam("method", values = ls(.FilterRegister), default = "randomForestSRC.rfsrc"),
         makeUntypedLearnerParam("fval", default = NULL)),
-      paramSetSugar(
+      pSSLrn(
           perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
           abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
           threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),
@@ -55,9 +55,9 @@ registerCPO(cpoFilterFeatures, "featurefilter", "general", "Filter features usin
 
 declareFilterCPO = function(method, ..., .par.set = NULL) {
   if (is.null(.par.set)) {
-    .par.set = paramSetSugar(..., .pss.env = parent.frame())
+    .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
-  .par.set = c(paramSetSugar(
+  .par.set = c(pSSLrn(
       perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
       abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
       threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),

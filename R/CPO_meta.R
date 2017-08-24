@@ -62,7 +62,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
     ps
   }))
 
-  paramset = c(paramSetSugar(selected.cpo = selected.cpo: discrete[names(cpos)]), paramset.list)
+  paramset = c(pSSLrn(selected.cpo = selected.cpo: discrete[names(cpos)]), paramset.list)
 
   pv = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
 
@@ -142,7 +142,7 @@ cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
   names(constructed) = names(.export)
 
   if (is.null(.par.set)) {
-    .par.set = paramSetSugar(..., .pss.env = parent.frame())
+    .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
   paramset.pass.on = .par.set

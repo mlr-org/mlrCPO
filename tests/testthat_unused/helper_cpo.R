@@ -9,7 +9,7 @@ makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                              .properties.adding = character(0), .properties.needed = character(0),
                              cpo.trafo, cpo.retrafo) {
   if (is.null(.par.set)) {
-    .par.set = paramSetSugar(..., .pss.env = parent.frame())
+    .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
   eval.parent(substitute(makeCPO(.cpo.name = .cpo.name,
@@ -24,7 +24,7 @@ makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list()
                              .properties.adding = character(0), .properties.needed = character(0),
                              cpo.trafo) {
   if (is.null(.par.set)) {
-    .par.set = paramSetSugar(..., .pss.env = parent.frame())
+    .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
   eval.parent(substitute(makeCPO(.cpo.name = .cpo.name,
@@ -260,7 +260,7 @@ cpoadder.nt.o = makeCPOObject("adderO", summand = 1: integer[, ], cpo.trafo = {
 })
 
 
-pss = paramSetSugar
+pss = pSSLrn
 
 cpogen = function(name, type = c("o", "f"), ps, trafo, retrafo, datasplit,
                   properties = c("numerics", "factors", "ordered", "missings"),

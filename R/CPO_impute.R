@@ -85,7 +85,7 @@ cpoImpute = makeCPOExtended("impute", # nolint
         makeUntypedLearnerParam("cols", default = list()),
         makeUntypedLearnerParam("dummy.classes", default = character(0)),
         makeUntypedLearnerParam("dummy.cols", default = character(0))),
-      paramSetSugar(dummy.type = "factor": discrete[numeric, factor],
+      pSSLrn(dummy.type = "factor": discrete[numeric, factor],
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
@@ -110,7 +110,7 @@ cpoImputeAll = makeCPOExtended("impute", # nolint
         makeUntypedLearnerParam("cols", default = list()),
         makeUntypedLearnerParam("dummy.classes", default = character(0)),
         makeUntypedLearnerParam("dummy.cols", default = character(0))),
-      paramSetSugar(dummy.type = "factor": discrete[numeric, factor],
+      pSSLrn(dummy.type = "factor": discrete[numeric, factor],
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
@@ -131,7 +131,7 @@ registerCPO(cpoImputeAll, "imputation", "general", "General imputation CPO that 
 declareImputeFunction = function(name, method, additional.params, types = NULL) {
   makeCPOExtended(paste0("impute.", name),
     .par.set = c(additional.params,
-      paramSetSugar(
+      pSSLrn(
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
     .dataformat = "df.features",
@@ -225,12 +225,12 @@ registerCPO(cpoImputeMode, "imputation", "specialised", "Imputation using the mo
 #' @param multiplier [\code{numeric(1)}]\cr
 #'   Value that stored minimum or maximum is multiplied with when imputation is done.
 #' @rdname CPOImputer
-cpoImputeMin = declareImputeFunction("min", imputeMin, paramSetSugar(multiplier = 1: numeric[, ]), "numerics")  # nolint
+cpoImputeMin = declareImputeFunction("min", imputeMin, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMin, "imputation", "specialised", "Imputation using constant values shifted below the minimum.")
 
 #' @export
 #' @rdname CPOImputer
-cpoImputeMax = declareImputeFunction("max", imputeMax, paramSetSugar(multiplier = 1: numeric[, ]), "numerics")  # nolint
+cpoImputeMax = declareImputeFunction("max", imputeMax, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constant values shifted above the maximum.")
 
 #' @export
@@ -242,7 +242,7 @@ registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constan
 #'   If NA (default), it will be estimated from the data.
 #' @rdname CPOImputer
 cpoImputeUniform = declareImputeFunction("uniform", imputeUniform, {  # nolint
-  ps = paramSetSugar(min = 0: numeric[, ] [[special.vals = list(NA_real_)]],
+  ps = pSSLrn(min = 0: numeric[, ] [[special.vals = list(NA_real_)]],
     max = 0: numeric[, ] [[special.vals = list(NA_real_)]])
   ps$pars$min$default = NA_real_
   ps$pars$max$default = NA_real_
@@ -257,7 +257,7 @@ registerCPO(cpoImputeUniform, "imputation", "specialised", "Imputation using uni
 #'   Standard deviation of normal distribution. If missing it will be estimated from the data.
 #' @rdname CPOImputer
 cpoImputeNormal = declareImputeFunction("normal", imputeNormal, {  # nolint
-  ps = paramSetSugar(mu = 0: numeric[, ] [[special.vals = list(NA_real_)]],
+  ps = pSSLrn(mu = 0: numeric[, ] [[special.vals = list(NA_real_)]],
     sd = 0: numeric[, ] [[special.vals = list(NA_real_)]])
   ps$pars$mu$default = NA_real_
   ps$pars$sd$default = NA_real_
@@ -273,7 +273,7 @@ registerCPO(cpoImputeNormal, "imputation", "specialised", "Imputation using norm
 #'  If \code{x} is numeric and a histogram is used, impute with bin mids (default)
 #'  or instead draw uniformly distributed samples within bin range.
 #' @rdname CPOImputer
-cpoImputeHist = declareImputeFunction("hist", imputeHist, paramSetSugar(breaks = "Sturges": integer[1, ] [[special.vals = list("Sturges")]],  # nolint
+cpoImputeHist = declareImputeFunction("hist", imputeHist, pSSLrn(breaks = "Sturges": integer[1, ] [[special.vals = list("Sturges")]],  # nolint
   use.mids = TRUE: logical))
 registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random values with probabilities approximating the data.")
 
