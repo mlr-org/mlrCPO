@@ -16,7 +16,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
     data = makeClusterTask("CPO Generated", data, check.data = FALSE)
   }
 
-  inverter = makeCPORetrafoBasic(cpo, state, prev.inverter, "inverter")
+  inverter = makeCPORetrafoBasic(cpo, state, prev.inverter, "CPOInverter")
   # --- only in pure "inverter" kind
   inverter$indatatd = getTaskDesc(data)
   inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$bare.name)$target
@@ -24,9 +24,9 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
 }
 
 # Creates the "Retrafo" S3 object. See comment above 'makeCPOInverter'
-makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
-  retrafo = makeCPORetrafoBasic(cpo, state, prev.retrafo, c("retrafo", if (cpo$hybrid.inverter) "inverter"))
-  # --- only in "retrafo" kind
+makeCPOFeatureRetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
+  retrafo = makeCPORetrafoBasic(cpo, state, prev.retrafo, c("CPOFeatureRetrafo", if (cpo$hybrid.retrafo) "CPOInverter"))
+  # --- only in "CPOFeatureRetrafo"
   retrafo$shapeinfo.input = shapeinfo.input
   retrafo$shapeinfo.output = shapeinfo.output
   retrafo$properties.needed = cpo$properties$properties.needed
@@ -35,21 +35,19 @@ makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.o
 
 # Creates an object of class "CPORetrafo", which
 # serves as basis for both "Inverter" and "Retrafo" objects.
-makeCPORetrafoBasic = function(cpo, state, prev.retrafo, kind) {
-  retrafo = makeS3Obj(c("CPORetrafoPrimitive", "CPORetrafo"),
+makeCPORetrafoBasic = function(cpo, state, prev.retrafo, subclass) {
+  retrafo = makeS3Obj(c("CPORetrafoPrimitive", subclass, "CPORetrafo"),
     cpo = setCPOId(cpo, NULL),
     state = state,
     prev.retrafo = NULL,
     # --- Target Bound things
     bound = cpo$bound,
-    predict.type = cpo$predict.type,  # named list type to predict --> needed type
-    kind = kind)
+    predict.type = cpo$predict.type)  # named list type to predict --> needed type
   if (!is.null(prev.retrafo)) {
     retrafo = composeCPO(prev.retrafo, retrafo)
   }
   retrafo
 }
-
 
 ##################################
 ### Primary Operations         ###
@@ -91,6 +89,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   }
 
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$name)
+
   if (is.nullcpo(prev.retrafo)) {
     prev.retrafo = NULL
   }
@@ -108,8 +107,6 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     assertCharacter(prevneeded, unique = TRUE)
     assertSubset(prevneeded, cpo$properties$properties)  # this should never happen, since we test this during CPO composition
   }
-
-
 
   tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties$properties.data, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$name)
   if (!cpo$data.dependent) {
@@ -158,9 +155,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
     cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$name)
 
-
-
-  retrafo = if (build.retrafo) makeCPORetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo) else prev.retrafo
+  retrafo = if (build.retrafo) makeCPOFeatureRetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo) else prev.retrafo
 
   inverter = if (build.inverter && cpo$bound == "targetbound") makeCPOInverter(cpo, state, prev.inverter, data, tin$shapeinfo) else prev.inverter
 
@@ -347,3 +342,20 @@ getCPOPredictType.CPORetrafo = function(cpo) {
   names(cpo$predict.type)
 }
 
+checkAllParams = function(par.vals, par.set, name) {
+  present = names(par.vals)
+
+  # these parameters are either present or have fulfilled requirements
+  needed = names(Filter(function(x) {
+    x$id %in% names(par.vals) ||
+          is.null(x$requires) || isTRUE(try(eval(x$requires, envir = par.vals), silent = TRUE))
+  }, par.set$pars))
+
+  missing.pars = setdiff(needed, present)
+  if (length(missing.pars)) {
+    plur = length(missing.pars) > 1
+    stopf("Parameter%s %s of CPO %s %s missing\n%s", ifelse(plur, "s", ""),
+      collapse(missing.pars, sep = ", "), name, ifelse(plur, "are", "is"),
+      "Either give it during construction, or with setHyperPars.")
+  }
+}

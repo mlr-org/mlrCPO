@@ -125,7 +125,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
   assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
   assertSubset(properties.needed, cpo.dataproperties)
 
-  makeCPOGeneral(.cpotype = "databound",
+  makeCPOGeneral(.cpotype = "feature",
     .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
     .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
     .fix.factors = fix.factors, .data.dependent = TRUE,
@@ -383,7 +383,7 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   assertSubset(.properties.target, c(cpo.tasktypes, cpo.targetproperties))
   assertSubset(.properties.needed, cpo.dataproperties)
 
-  makeCPOGeneral(.cpotype = "databound",
+  makeCPOGeneral(.cpotype = "feature",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
     .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
     .fix.factors = .fix.factors, .data.dependent = TRUE,
@@ -477,7 +477,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
   .properties.adding = c(.properties.adding, setdiff(names(.predict.type), c("response", unname(.predict.type))))
   .properties.target = c(.properties.target, setdiff(names(.predict.type), "response"))
 
-  makeCPOGeneral(.cpotype = "targetbound",
+  makeCPOGeneral(.cpotype = "feature",
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
     .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
     .fix.factors = FALSE, .data.dependent = .data.dependent,
@@ -491,7 +491,7 @@ makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 # This is the central CPO defining function, for Feature Operating CPOs and Target Operating CPOs.
 # It checks that the given parameters are valid, creates functions and ParamSet from nonstandardevaluation
 # arguments, and then returns the CPO creator function.
-makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .par.set, .par.vals,
+makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,
                           .properties, .properties.adding, .properties.needed,
                           .properties.target, .type.from, .type.to, .predict.type, .packages, cpo.trafo, cpo.retrafo, ...) {
@@ -512,13 +512,13 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
   assertCharacter(.properties.adding, unique = TRUE)
   assertCharacter(.properties.target, unique = TRUE)
   if (is.null(.predict.type)) {
-    # for databound CPOs, this is the identity.
+    # for feature operating CPOs, this is the identity.
     .predict.type = c(response = "response", prob = "prob", se = "se")
     .properties = c(.properties, "prob", "se")
   }
   assertCharacter(.predict.type, any.missing = FALSE, names = "unique")
 
-  if (.cpotype == "targetbound") {
+  if (.cpotype == "target") {
     assertChoice(.type.from, cpo.tasktypes)
     assertChoice(.type.to, cpo.tasktypes)
     if (.type.from != .type.to) {
@@ -583,8 +583,8 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
   trafo.expr = cpo.trafo
   if (!.stateless || (is.recursive(trafo.expr) && identical(trafo.expr[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = parent.frame(2)))) {
     cpo.trafo = makeFunction(trafo.expr, required.arglist.trafo, env = parent.frame(2))
-  } else if (.cpotype == "targetbound") {
-    stop("A target-bound CPO must have a cpo.trafo function, even if stateless.")
+  } else if (.cpotype == "target") {
+    stop("A Target Operating CPO must have a cpo.trafo function, even if stateless.")
   } else if (.dataformat %in% c("task", "df.all")) {
     stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'no'.")
   } else {
@@ -610,7 +610,7 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
       stop("Combined retrafo must have cpo.retrafo = NULL")
     }
     required.arglist.retrafo = funargs
-    if (.cpotype == "targetbound") {
+    if (.cpotype == "target") {
       required.arglist.retrafo$target = substitute()
       required.arglist.retrafo$predict.type = substitute()
     } else if (.data.dependent) {
@@ -716,33 +716,33 @@ makeCPOGeneral = function(.cpotype = c("databound", "targetbound"), .cpo.name, .
 
     cpo = makeS3Obj(c("CPOPrimitive", "CPO"),
       # --- CPO part
-      bare.name = .cpo.name,
-      name = .cpo.name,
-      par.set = .par.set,
-      par.vals = present.pars,
-      properties = list(properties = .properties,
-        properties.data = .properties,
-        properties.adding = .properties.adding,
-        properties.needed = .properties.needed),
-      bound = .cpotype,
-      predict.type = .predict.type,
+      bare.name = .cpo.name,                       # [character(1)] the name of the operation performed by this CPO
+      name = .cpo.name,                            # [character(1)] the name, possibly augmented by the ID
+      par.set = .par.set,                          # [ParamSet] exported parameters
+      par.vals = present.pars,                     # [named list] values of exported parameters
+      properties = list(properties = .properties,  # properties$properties: [character] properties handled by this CPO
+        properties.data = .properties,             # properties$properties.data [character] properties handled by this CPO
+        properties.adding = .properties.adding,    # properties$adding [character] capabilities that this CPO adds to the next processor
+        properties.needed = .properties.needed),   # properties$needed [character] capabilities needed by the next processor
+      operating = .cpotype,                        # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
+      predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
-      id = NULL,
-      packages = .packages,
-      affect.args = affect.args,
-      unexported.args = unexported.args,
-      unexported.pars = unexported.pars,
-      bare.par.set = .par.set,
-      datasplit = .dataformat,
-      stateless = .stateless,
-      fix.factors = .fix.factors,
-      type = ifelse(is.null(cpo.retrafo), "functional", "object"),
-      trafo = cpo.trafo,
-      retrafo = cpo.retrafo,
-      convertfrom = .type.from,
-      convertto = .type.to,
-      data.dependent = .data.dependent,
-      hybrid.inverter = .cpotype == "targetbound" && .stateless)
+      id = NULL,                                   # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
+      packages = .packages,                        # [character] package(s) to load when constructing the CPO
+      affect.args = affect.args,                   # [named list] values of the "affect.*" arguments
+      unexported.args = unexported.args,           # [ParamSet] parameters that not exported
+      unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
+      bare.par.set = .par.set,                     # [ParamSet] exported parameters with names not containing the ID prefix
+      datasplit = .dataformat,                     # [character(1)] data format as received by trafo / retrafo
+      stateless = .stateless,                      # [logical(1)] whether data gets passed to retrafo
+      fix.factors = .fix.factors,                  # [logical(1)] whether to clean up factor levels in retrafo
+      type = ifelse(is.null(cpo.retrafo), "functional", "object"),  # [character(1)] whether retrafo is taken from trafo environment, or uses 'control' object
+      trafo = cpo.trafo,                           # [function] trafo function
+      retrafo = cpo.retrafo,                       # [function] retrafo function
+      convertfrom = .type.from,                    # [character(1)] task type to convert from. Only for operating = "target"
+      convertto = .type.to,                        # [character(1)] task type to convert to. Only for operating = "target"
+      data.dependent = .data.dependent,            # [logical(1)] whether trafo uses data at all. Only for operating = "target"
+      hybrid.retrafo = .cpotype == "target" && .stateless)  # [logical(1)] whether the CPOFeatureRetrafo object can also function as an CPOInverter object
     if (length(getCPOAffect(cpo))) {
       # data is subset, so the overall 'properties' is the maximal set
       cpo$properties$properties = union(cpo$properties$properties,  c("numerics", "factors", "ordered", "missings"))

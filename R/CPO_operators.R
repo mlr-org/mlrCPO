@@ -129,7 +129,7 @@ as.list.CPORetrafo = function(x, ...) {
   x$predict.type = x$cpo$predict.type
   x$bound = x$cpo$bound
   if (identical(x$kind, "retrafo")) {
-    if (x$cpo$hybrid.inverter) {
+    if (x$cpo$hybrid.retrafo) {
       x$kind = c("retrafo", "inverter")
     }
   }
