@@ -507,7 +507,6 @@ getCPOKind = function(cpo) {
   UseMethod("getCPOKind")
 }
 
-
 #' @title Get the CPO predict.type
 #'
 #' @description
@@ -519,79 +518,6 @@ getCPOKind = function(cpo) {
 #' @export
 getCPOPredictType = function(cpo) {
   UseMethod("getCPOPredictType")
-}
-
-
-##################################
-### CPO-Learner Disassembly    ###
-##################################
-
-#' @title Get the CPO associated with a learner
-#'
-#' @description
-#' Returns the (outermost) chain of CPOs that are part of a learner. This is useful to inspect the
-#' preprocessing done by a learner object.
-#'
-#' If there are hidden CPOs (e.g. if \dQuote{learner} has CPOs, but is wrapped by a \code{TuneWrapper}),
-#' this function can not retrieve these CPOs, but it will emit a warning if \dQuote{warn.buried} is \dQuote{TRUE}.
-#'
-#' @param learner [\code{\link{Learner}}]\cr
-#'   The learner to query
-#' @param warn.buried [\code{logical(1)}]\cr
-#'   Whether to warn about CPOs that could not be retrieved.
-#' @export
-getLearnerCPO = function(learner, warn.buried = TRUE) {
-  checkLearner(learner)
-  name = getLearnerName(learner)
-  appending = TRUE
-  result = NULLCPO
-  repeat {
-    if (!"CPOLearner" %in% class(learner)) {
-      if (is.atomic(learner) || is.null(learner$next.learner)) {
-        break
-      }
-      appending = FALSE
-    } else {
-      if (is.atomic(learner) || is.null(learner$next.learner)) {
-        stop("Error: found learner with class CPOLearner but without $next.learner slot.")
-      }
-      if (appending) {
-        result = result %>>% singleLearnerCPO(learner)
-      } else {
-        warningf("Learner %s had buried CPOs", name)
-        break
-      }
-    }
-    learner = learner$next.learner
-  }
-  result
-}
-
-#' @title Get the learner with the reachable CPOs removed
-#'
-#' @description
-#' Get the bare Learner without the CPOs that were previously added.
-#'
-#' It is still possible for the result to be a wrapped learner, e.g. a
-#' TuningWrapper wrapped learner. It is also possible that below the
-#' tuning wrapper, there are more CPOs. These will not be removed.
-#'
-#' @param learner [\code{\link{Learner}}]\cr
-#'   The learner to strip.
-#' @export
-getLearnerBare = function(learner) {
-  checkLearner(learner)
-  while ("CPOLearner" %in% class(learner)) {
-    if (is.atomic(learner) || is.null(learner$next.learner)) {
-      stop("Error: found learner with class CPOLearner but without $next.learner slot.")
-    }
-    learner = learner$next.learner
-  }
-  learner
-}
-
-singleLearnerCPO = function(learner) {
-  UseMethod("singleLearnerCPO")
 }
 
 #' @title determine the bound of a CPO or Retrafo
@@ -638,47 +564,6 @@ retrafo.WrappedModel = function(data) {
 }
 
 
-#' @export
-retrafo.CPOModel = function(data) {
-  # go through the chained model and see if there are wrapped models that
-  # are not %>>%-chained (since the user probably wants to be warned about
-  # that.
-  recurseRetrafo = function(model, prev) {
-    res = singleModelRetrafo(model, prev)
-    next.model = model$learner.model$next.model
-    if ("BaseWrapperModel" %in% class(next.model)) {
-      if ("CPOModel" %in% class(next.model)) {
-        return(recurseRetrafo(next.model, res))
-      }
-      do.message = FALSE
-      while (!is.null(next.model)) {
-        if (!is.list(next.model$learner.model)) {
-          break
-        }
-        next.model = next.model$learner.model$next.model
-        if ("CPOModel" %in% class(next.model)) {
-          warningf("The model apparently has some CPOs wrapped by other wrappers\n%s\n%s",
-            "The resulting retrafo will only cover the operations up to",
-            "the first non-CPO wrapper!")
-          do.message = FALSE
-          break
-        }
-        if (!"BaseWrapperModel" %in% class(next.model)) {
-          do.message = TRUE
-        }
-      }
-      if (do.message) {
-        message("The model has some wrappers besides CPOs, which will not be part of the retrafo.")
-      }
-    }
-    res
-  }
-  recurseRetrafo(data, NULL)
-}
-
-singleModelRetrafo = function(model, prev) {
-  UseMethod("singleModelRetrafo")
-}
 
 #' @export
 `retrafo<-.default` = function(data, value) {
@@ -1120,28 +1005,6 @@ is.nullcpo = function(cpo) {  # nolint
   "NULLCPO" %in% class(cpo)
 }
 
-#' @export
-getLearnerProperties.CPOLearner = function(learner) {
-  # we could do this dynamically, always query the learner below.
-  # then learner's properties could depend on its hyperparameters.
-  # Whenever there is a conflict of properties (a cpo producing
-  # missings when the learner below in its configuration happens to
-  # not be able to handle missings) one could return 'empty' properties
-  # -- the learner is not able to handle any data.
-  #
-  # One would ideally check whether some properties are fixed or depend
-  # on parameters, and give an error on construction if there is a conflict
-  # that will always be present.
-  #
-  # The much simpler and almost as good solution is to give maximal freedom
-  # with properties and to just let the learner crash when something does not
-  # work together as it should. This is bound to happen anyways
-  # (e.g. because missings don't give info which kind of data is missing, and
-  #  some CPO might be fine with missings in factors, but not with missings in
-  #  numerics) unless one rewrites the whole properties-datatypes-hyperparameter
-  # stuff in something like prolog.
-  learner$properties
-}
 
 ##################################
 ### Printing                   ###
