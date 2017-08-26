@@ -1,3 +1,7 @@
+# callCPO.R: functions that are involved in calling CPOs and retrafos.
+# They handle input checks, call the relevant CPO functions, and construct
+# relevant Retrafo / Inverter objects.
+
 #' @include CPOFormatCheck.R
 ##################################
 ### Creators                   ###
@@ -316,35 +320,6 @@ getBareHyperPars = function(cpo) {
   setNames(args, namestranslation[names(args)])
 }
 
-# When changing the ID, we need to change each parameter's name, which
-# should have the form <ID>.<bare.par.name>
-# This means we need to modify $par.set AND $par.vals
-#' @export
-setCPOId.CPOPrimitive = function(cpo, id) {
-  if (is.null(id)) {
-    id = cpo$bare.name
-  }
-  cpo$id = id
-  cpo$name = if (id == cpo$bare.name) cpo$bare.name else sprintf("%s<%s>", cpo$id, cpo$bare.name)
-  cpo$par.vals = getBareHyperPars(cpo)
-  cpo$par.set = cpo$bare.par.set
-  pars = cpo$par.set$pars
-  if (length(pars)) {
-    trans = setNames(paste(id, names(pars), sep = "."), names(pars))
-    names(pars) = trans
-    pars = lapply(pars, function(x) {
-      x$id = trans[x$id]
-      if (!is.null(x$requires)) {
-        x$requires = renameNonfunctionNames(x$requires, trans)
-      }
-      x
-    })
-    cpo$par.set$pars = pars
-    names(cpo$par.vals) = trans[names(cpo$par.vals)]
-  }
-  cpo
-}
-
 #' @export
 getCPOBound.CPO = function(cpo) {
   cpo$bound
@@ -355,32 +330,7 @@ getCPOKind.CPO = function(cpo) {
   "trafo"
 }
 
-# Normalize "affect.*" arguments of CPOs
-#' @export
-getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
-  affect.args = cpo$affect.args
-  if (!drop.defaults) {
-    if (!length(getCPOAffect(cpo))) {
-      affect.args$type = c("numeric", "factor", "ordered", "other")
-    }
-    return(affect.args)
-  }
-  if (setequal(affect.args$type, c("numeric", "factor", "ordered", "other"))) {
-    affect.args$type = NULL
-  }
-  if (!length(affect.args$index)) {
-    affect.args$index = NULL
-  }
-  if (!length(affect.args$names)) {
-    affect.args$names = NULL
-  }
-  if (is.null(affect.args$pattern)) {
-    affect.args$pattern.ignore.case = NULL
-    affect.args$pattern.perl = NULL
-    affect.args$pattern.fixed = NULL
-  }
-  Filter(function(x) !is.null(x) && !identical(x, FALSE), affect.args)
-}
+
 
 #' @export
 getCPOBound.CPORetrafo = function(cpo) {

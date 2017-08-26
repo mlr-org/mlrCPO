@@ -1,4 +1,6 @@
-
+# generics.R contains generic function definitions.
+# Everything that is (1) exported and (2) calls UseMethod should probably
+# go here.
 
 ##################################
 ### Generics                   ###
@@ -150,7 +152,6 @@ retrafo = function(data) {
   UseMethod("retrafo")
 }
 
-
 #' @title Get the prediction inverse function
 #'
 #' @description
@@ -285,11 +286,6 @@ getCPOId = function(cpo) {
   UseMethod("getCPOId")
 }
 
-#' @export
-getCPOId.CPO = function(cpo) {
-  stop("Compound CPOs have no IDs.")
-}
-
 #' @title Get the Selection Arguments for affected CPOs
 #'
 #' @description
@@ -305,11 +301,6 @@ getCPOId.CPO = function(cpo) {
 #' @export
 getCPOAffect = function(cpo, drop.defaults = TRUE) {
   UseMethod("getCPOAffect")
-}
-
-#' @export
-getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
-  stop("Compound CPOs have no affect arguments.")
 }
 
 #' @title Get the Properties of the given CPO object
@@ -344,7 +335,6 @@ getCPOProperties = function(cpo, only.data = FALSE) {
   assertFlag(only.data)
   UseMethod("getCPOProperties")
 }
-
 
 #' @title Get the CPO Kind
 #'
@@ -391,3 +381,12 @@ getCPOPredictType = function(cpo) {
 getCPOBound = function(cpo) {
   UseMethod("getCPOBound")
 }
+
+# 'prediction' is whatever type the prediction usually has (depending on type). must return
+# a list (new.prediction, new.td, new.truth)
+#
+# new.td & new.truth may be NULL if no target change occurred.
+invertCPO = function(inverter, prediction, predict.type) {
+  UseMethod("invertCPO")
+}
+

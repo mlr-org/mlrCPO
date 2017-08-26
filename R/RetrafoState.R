@@ -1,4 +1,5 @@
-
+# RetrafoState.R provides functionality for inspecting the state of a Retrafo
+# object, and reconstructing a Retrafo object with a modified state.
 
 # RETRAFO State
 # The state is basically the control object, or the trafo-function's environment
@@ -25,6 +26,11 @@ getRetrafoState.CPORetrafoPrimitive = function(retrafo.object) {
   # c() to drop the retrafo.object's class
   res$data = c(retrafo.object[c("shapeinfo.input", "shapeinfo.output")])  # nolint
   res
+}
+
+#' @export
+getRetrafoState.CPORetrafo = function(retrafo.object) {
+  stop("Cannot get state of compound retrafo. Use as.list to get individual elements")
 }
 
 #' @export

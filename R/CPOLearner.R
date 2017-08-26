@@ -1,6 +1,4 @@
-
-
-# CPO %>>% Learner
+# CPOLearner.R concerns itself with attaching CPOs to mlr Learners
 
 # attachCPO does four things:
 #  1) Check that properties of CPOs and learners agree

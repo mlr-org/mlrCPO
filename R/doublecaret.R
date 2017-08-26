@@ -1,3 +1,4 @@
+# doublecaret.R -- the %>>% ("double caret") operator.
 
 ##################################
 ### %>>% Operator              ###
@@ -85,7 +86,7 @@
 
 #' @export
 `%>>%.CPOConstructor` = function(cpo1, cpo2) {
-  stop("Cannot compose CPO Constructors.")
+  stop("Cannot compose CPO Constructors.\nDid you forget to construct the CPO?")
 }
 
 #' @export

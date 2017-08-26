@@ -1,3 +1,7 @@
+# NULLCPO.R -- all the operations provided by and for the NULLCPO object.
+# These are mostly generics that provide the proper behaviour of NULLCPO.
+# If a generic concerns itself mostly with NULLCPO, it should probably
+# go here, and *not* in other files that it might also touch (e.g. printing).
 
 #' @title CPO composition neutral element
 #'

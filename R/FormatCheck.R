@@ -1,3 +1,13 @@
+# FormatCheck.R is central within the CPO framework. It checks that
+# incoming & outgoing data conforms with the properties declared by
+# a CPO and with requirements implicit within the CPO framework
+# (Task column not changed in Feature Operating CPOs, number of rows
+# not changed unless Training Only CPO, data for retrafo is the same
+# as data for trafo).
+# In the same stride, data format is changed to match the required
+# format of the CPO functions -- see `dataformat` argument of
+# makeCPO.
+
 
 cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks

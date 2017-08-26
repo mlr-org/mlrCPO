@@ -34,9 +34,6 @@ retrafo.WrappedModel = function(data) {
   if (!is.null(value)) {
     assertClass(value, "CPORetrafo")
   }
-  if ("WrappedModel" %in% class(data)) {
-    stop("Cannot add retrafo to an mlr model.")
-  }
   if (!any(c("data.frame", "Task") %in% class(data))) {
     warningf("argument is neither a Task nor data.frame.\n%s\n%s",
       "are you sure you are applying it to the input or",
@@ -58,7 +55,6 @@ retrafo.WrappedModel = function(data) {
 ##################################
 ### Inverter                   ###
 ##################################
-
 
 #' @export
 inverter.default = function(data) {
@@ -138,184 +134,6 @@ hasTagInvert = function(data) {
   identical(attr(data, "keep.inverter"), TRUE)
 }
 
-#' @title Invert Target Preprocessing
-#'
-#' @description
-#' Invert the transformation, done on the target column(s)
-#' of a data set, after prediction.
-#'
-#' Use either a retrafo object, or an inverter retrieved with
-#' \code{\link{inverter}} from a data object that was fed through a retrafo
-#' chain with \code{\link{tagInvert}} set to \code{TRUE}.
-#'
-#' If the retrafo object used had no target-bound transformations,
-#' this is mostly a no-op, except that it possibly changes the task description
-#' of the prediction.
-#'
-#' @param inverter [\code{CPORetrafo}]\cr
-#'   The retrafo or inverter to apply
-#' @param prediction [\code{\link{Prediction}} | \code{matrix} | \code{data.frame}]\cr
-#'   The prediction to invert
-#' @return A transformed \code{\link{Prediction}} if a prediction was given,
-#'   or a \code{data.frame}. The 'truth' column(s) of the prediction will be dropped.
-#'
-#' @export
-invert = function(inverter, prediction, predict.type = "response") {
-  assertClass(inverter, "CPORetrafo")
-
-  have.prediction = "Prediction" %in% class(prediction)
-  if (have.prediction) {
-    preddf = prediction$data
-    probs = grepl("^prob(\\..*)$", names(preddf))
-    if (length(probs)) {
-      preddf = preddf[probs]
-    } else if ("se" %in% names(preddf)) {
-      preddf = preddf[c("response", "se")]
-    } else {
-      preddf = preddf$response
-    }
-    assert(is.data.frame(preddf))
-  } else {
-    preddf = prediction
-  }
-  preddf = sanitizePrediction(preddf)
-
-  if (is.nullcpo(inverter) || length(inverter$predict.type) > 2) {  # predict.type is the identity
-    cat("(Inversion was a no-op.)\n")
-    # we check this here and not earlier because the user might rely on inverter()
-    # to check his data for consistency
-    prediction
-  }
-
-  inverted = invertCPO(inverter, preddf, predict.type)
-  invdata = inverted$new.prediction
-  assert(all(grepl("^se$|^(prob|response)(\\..*)?$", names(invdata))))
-  if (is.null(inverted$new.td)) {
-    assert("retrafo" %in% getCPOKind(inverter))  # only hybrid retrafos should return a NULL td
-
-    outputtype = intersect(getCPOProperties(inverter)$properties, cpo.tasktypes)
-    assert(length(outputtype) == 1)  # hybrid retrafos should always have one, otherwise it is a bug.
-
-    tdconstructor = get(sprintf("make%sTaskDesc", stri_trans_totitle(outputtype)), mode = "function")
-
-    tdname = "[CPO CONSTRUCTED]"
-
-    inverted$new.td = switch(outputtype,
-      classif = {
-        levels = ifelse(predict.type == "prob", colnames(invdata), levels(invdata))
-        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL, levels[1])
-      },
-      cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL),
-      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
-      multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
-      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL, "rcens"),
-      # assuming rcens since nothing else ever gets used.
-      stop("unknown outputtype"))
-  }
-  if (have.prediction) {
-    makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
-      truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
-      error = prediction$error, dump = prediction$dump)
-  } else {
-    invdata
-  }
-}
-
-# data is either a data.frame or a matrix, and will be turned into
-# a uniform format.
-sanitizePrediction = function(data) {
-  if (is.data.frame(data)) {
-    if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
-      stop("Prediction had columns of multiple modes.")
-    }
-    if (ncol(data) > 1) {
-      data = as.matrix(data)
-    } else {
-      data = data[[1]]
-    }
-  }
-  if (is.matrix(data) && ncol(data) == 1) {
-    data = data[, 1, drop = TRUE]
-  }
-  if (is.logical(data) && !is.matrix(data)) {
-    data = matrix(data, ncol = 1)
-  }
-  if (!is.logical(data) && !is.numeric(data) && !is.factor(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric, factorial, or logical")
-  }
-  data
-}
-
-inferPredictionTypePossibilities = function(data) {
-  # the canonical data layout, after sanitizePrediction
-  # regr response: numeric vector
-  # regr se: numeric 2-column matrix
-  # cluster response: integer vector
-  # cluster prob: numeric matrix. This could also be a 1-D matrix but will be returned as numeric vector
-  # classif response: logical vector
-  # classif prob: numeric matrix > 1 column, except for oneclass possibly (numeric vector)
-  # surv response: numeric vector
-  # surv prob: assuming a numeric matrix > 1 column, but doesn't seem to currently exist
-  # multiclass response: logical matrix > 1 column
-  # multiclass prob: matrix > 1 column
-
-  data = sanitizePrediction(data)
-  if (is.matrix(data)) {
-    if (mode(data) == "logical") {
-      return("multilabel")
-    }
-    return(c("cluster", "classif", "multilabel", "surv", if (ncol(data) == 2) "regr"))
-  }
-
-  if (is.factor(data)) {
-    "classif"
-  } else if (!is.numeric(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric or factorial")
-  } else {
-    areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
-    c(if (areWhole(data)) "cluster", "surv", "regr")
-  }
-}
-
-# if 'typepossibilities' has one element, this will also return one element EXCEPT FOR CLASSIF, CLUSTER
-getPredResponseType = function(data, typepossibilities) {
-  assertSubset(typepossibilities, cpo.tasktypes, empty.ok = FALSE)
-  errout = function() stopf("Data did not conform to any of the possible prediction types %s", collapse(typepossibilities))
-  data = sanitizePrediction(data)
-  if (is.matrix(data)) {
-    if (mode(data) == "logical") {
-      if (!"multilabel" %in% typepossibilities) errout()
-      return("response")
-    }
-    if (ncol(data) == 2) {
-      if (identical(typepossibilities, "regr")) {
-        return("se")
-      }
-      return(c("se", "prob"))
-    }
-    if ("regr" %in% typepossibilities) errout()
-    return("prob")
-  }
-
-  if (is.factor(data)) {
-    if (!"classif" %in% typepossibilities) errout()
-    return("response")
-  }
-  if (!numeric(data)) errout()
-  areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
-  if (!areWhole(data) && !"surv" %in% typepossibilities && !"regr" %in% typepossibilities) errout()
-  c("response", if (any(c("classif", "cluster") %in% typepossibilities)) "prob")
-}
-
-# 'prediction' is whatever type the prediction usually has (depending on type). must return
-# a list (new.prediction, new.td, new.truth)
-#
-# new.td & new.truth may be NULL if no target change occurred.
-invertCPO = function(inverter, prediction, predict.type) {
-  UseMethod("invertCPO")
-}
-
-
 ##################################
 ### Chaining                   ###
 ##################################
@@ -364,11 +182,6 @@ removeHyperPars.CPOLearner = function(learner, ids) {
 predict.CPORetrafo = function(object, data, ...) {
   assert(length(list(...)) == 0)
   applyCPO(object, data)
-}
-
-#' @export
-getRetrafoState.CPORetrafo = function(retrafo.object) {
-  stop("Cannot get state of compound retrafo. Use as.list to get individual elements")
 }
 
 #' @export
