@@ -245,6 +245,36 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
     inverter = prev.inverter)
 }
 
+# Basically wraps around callCPO with some checks and handling of attributes
+#' @export
+applyCPO.CPO = function(cpo, task) {
+  if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
+    stop("CPO can not handle tasks with weights!")
+  }
+  build.inverter = hasTagInvert(task)
+  prev.inverter = inverter(task)
+  if (is.nullcpo(prev.inverter)) {
+    prev.inverter = NULL
+  }
+  if (!build.inverter && !is.null(prev.inverter)) {
+    stop("Data had 'inverter' attribute set, but not the 'keep.inverter' tag.")
+  }
+  if (!is.null(prev.inverter)) {
+    assertClass(prev.inverter, "CPORetrafo")
+  }
+  prev.retrafo = retrafo(task)
+
+  retrafo(task) = NULL
+  inverter(task) = NULL
+  task = tagInvert(task, FALSE)
+
+  result = callCPO(cpo, task, TRUE, prev.retrafo, build.inverter, prev.inverter)
+  task = result$data
+  retrafo(task) = result$retrafo
+  inverter(task) = result$inverter
+  tagInvert(task, build.inverter)
+}
+
 # User-facing cpo retrafo application to a data object.
 # does checks, removes retrafo / inverter attributes, and calls 'applyCPORetrafoEx'
 #' @export
@@ -277,110 +307,6 @@ applyCPO.CPORetrafo = function(cpo, data) {
   tagInvert(data, build.inverter)
 }
 
-
-##################################
-### CPO Trafo Operations       ###
-##################################
-# (as opposed to retrafo, inverter ops)
-
-# CPO %>>% CPO
-# Just creates a 'CPOPipeline' object
-#' @export
-composeCPO.CPO = function(cpo1, cpo2) {
-  assertClass(cpo2, "CPO")
-  parameterClashAssert(cpo1, cpo2, cpo1$name, cpo2$name)
-  newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$name, cpo2$name)
-  newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$name, cpo2$name)
-
-  makeS3Obj(c("CPOPipeline", "CPO"),
-    # --- CPO Part
-    bare.name = paste(cpo2$bare.name, cpo1$bare.name, sep = "."),
-    name = paste(cpo1$name, cpo2$name, sep = " >> "),
-    par.set = c(cpo1$par.set, cpo2$par.set),
-    par.vals = c(cpo1$par.vals, cpo2$par.vals),
-    properties = newprops,
-    bound = unique(cpo1$bound, cpo2$bound),
-    predict.type = newpt,
-    # --- CPOPipeline part
-    first = cpo1,
-    second = cpo2)
-}
-
-# CPO splitting
-# Splitting a primitive object gives a list of that object
-#' @export
-as.list.CPOPrimitive = function(x, ...) {
-  assert(length(list(...)) == 0)
-  list(x)
-}
-
-# Compound objects are a binary tree, so
-# splitting a compound object recursively calls as.list to both children
-# and then concatenates.
-#' @export
-as.list.CPOPipeline = function(x, ...) {
-  first = x$first
-  second = x$second
-  first$par.vals = subsetParams(x$par.vals, first$par.set)
-  second$par.vals = subsetParams(x$par.vals, second$par.set)
-  c(as.list(first), as.list(second))
-}
-
-
-# DATA %>>% CPO
-# Basically wraps around callCPO with some checks and handling of attributes
-#' @export
-applyCPO.CPO = function(cpo, task) {
-  if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
-    stop("CPO can not handle tasks with weights!")
-  }
-  build.inverter = hasTagInvert(task)
-  prev.inverter = inverter(task)
-  if (is.nullcpo(prev.inverter)) {
-    prev.inverter = NULL
-  }
-  if (!build.inverter && !is.null(prev.inverter)) {
-    stop("Data had 'inverter' attribute set, but not the 'keep.inverter' tag.")
-  }
-  if (!is.null(prev.inverter)) {
-    assertClass(prev.inverter, "CPORetrafo")
-  }
-  prev.retrafo = retrafo(task)
-
-  retrafo(task) = NULL
-  inverter(task) = NULL
-  task = tagInvert(task, FALSE)
-
-  result = callCPO(cpo, task, TRUE, prev.retrafo, build.inverter, prev.inverter)
-  task = result$data
-  retrafo(task) = result$retrafo
-  inverter(task) = result$inverter
-  tagInvert(task, build.inverter)
-}
-
-# Param Sets
-#' @export
-getParamSet.CPO = function(x) {
-  x$par.set
-}
-
-#' @export
-getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
-  learner$par.vals
-}
-
-#' @export
-setHyperPars2.CPO = function(learner, par.vals = list()) {
-  badpars = setdiff(names(par.vals), names(learner$par.set$pars))
-  if (length(badpars)) {
-    stopf("CPO %s does not have parameter%s %s", getLearnerName(learner),
-          ifelse(length(badpars) > 1, "s", ""), collapse(badpars, ", "))
-  }
-  checkParamsFeasible(learner$par.set, par.vals)
-  learner$par.vals = insert(learner$par.vals, par.vals)
-  learner
-}
-
 # get par.vals with bare par.set names, i.e. the param names without the ID
 getBareHyperPars = function(cpo) {
   assertClass(cpo, "CPOPrimitive")
@@ -388,24 +314,6 @@ getBareHyperPars = function(cpo) {
   namestranslation = setNames(names2(cpo$bare.par.set$pars),
     names(cpo$par.set$pars))
   setNames(args, namestranslation[names(args)])
-}
-
-# Properties
-#' @export
-getCPOProperties.CPO = function(cpo, only.data = FALSE) {
-  if (only.data) {
-    lapply(cpo$properties, intersect, y = cpo.dataproperties)
-  } else {
-    cpo$properties
-  }
-}
-
-
-# CPO ID, NAME
-
-#' @export
-getCPOName.CPO = function(cpo) {
-  cpo$name
 }
 
 # When changing the ID, we need to change each parameter's name, which
@@ -474,195 +382,6 @@ getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
   Filter(function(x) !is.null(x) && !identical(x, FALSE), affect.args)
 }
 
-##################################
-### Retrafo Operations         ###
-##################################
-
-# RETRAFO %>>% RETRAFO
-# Check types, check properties.
-# Since "Retrafo" and "Inverter" are fundamentally the
-# same class, some special cases need to be handled.
-#' @export
-composeCPO.CPORetrafo = function(cpo1, cpo2) {
-  assertClass(cpo2, "CPORetrafo")
-  is.prim = "CPORetrafoPrimitive" %in% class(cpo2)
-  assert(is.prim == is.null(cpo2$prev.retrafo))
-  newkind = intersect(cpo1$kind, cpo2$kind)
-  if (!length(newkind)) {
-    stopf("Cannot compose retrafos of kind %s with retrafos of kind %s.",
-      collapse(cpo1$kind), collapse(cpo2$kind))
-  }
-  if (!is.prim) {
-    cpo1 = composeCPO(cpo1, cpo2$prev.retrafo)
-  }
-  class(cpo2) = setdiff(class(cpo2), "CPORetrafoPrimitive")
-
-  # check for properties match
-  if ("retrafo" %in% newkind) {
-    cpo2$properties.needed = compositeProperties(
-        list(properties = character(0), properties.adding = character(0), properties.needed = cpo1$properties.needed),
-        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$bare.name)$properties.needed
-  }
-  if ("inverter" %in% newkind) {
-    if (length(newkind) == 1) {
-      # pure inverter chaining: do myopic property checking
-      assert(length(cpo1$kind) == 1)
-      assertString(cpo1$cpo$convertto)
-      assertString(cpo2$cpo$convertfrom)
-      if (cpo1$convertto != cpo2$convertfrom) {
-        stopf("Incompatible chaining of inverters: %s converts to %s, but %s needs %s.",
-          cpo1$cpo$barelname, cpo1$cpo$convertto, cpo2$cpo$bare.name, cpo2$cpo$bare.name)
-      }
-      compositeProperties(cpo1$cpo$properties, cpo2$cpo$properties, cpo1$cpo$bare.name, cpo2$cpo$bare.name)  # just for checking
-    }
-    assert(length(cpo1$predict.type) <= 2)  # predict.type cannot be the identity
-    assert(length(cpo2$predict.type) <= 2)  # the identity (and only the identity) has more than 2 elements.
-  }
-
-  cpo2$predict.type = chainPredictType(cpo1$predict.type, cpo2$cpo$predict.type, getCPOName(cpo1), cpo2$cpo$bare.name)
-  cpo2$prev.retrafo = cpo1
-  cpo2$bound = unique(cpo2$cpo$bound, cpo1$bound)
-  cpo2$kind = newkind
-  cpo2
-}
-
-# chain CPOs with predict.type pt1 %>>% pt2  # FIXME: sort this where it belongs
-# the 'predict.type' slot is a map (i.e. a named vector of character that maps a -> predict.type[a])
-# when chaining CPOs, the predict.types need to be chained as well.
-chainPredictType = function(pt1, pt2, name1, name2) {
-  result = sapply(pt1, function(x) unname(pt2[x]))
-  result = result[!is.na(result)]
-  if (!length(result)) {
-    # So this is a bit of a weird situation: The CPO chain would work for trafo AND retrafo, but not for predictions.
-    stopf("Incompatible chaining of inverters: %s needs a predict.type being%s '%s', but %s can only deliver type%s '%s'.",
-      name1, ifelse(length(pt1) == 1, " one of", ""), collapse(pt1, sep = "', '"),
-      name2, ifelse(length(pt2) > 1, "s", ""), collapse(pt2, sep = "', '"))
-  }
-  result
-}
-
-# RETRAFO splitting
-# retrafos are a linked list, so on a basic level what happens is
-# c(as.list(x$prev.retrafo), list({x$prev.retrafo = NULL ; x}))
-# However, some other things that happen in composeCPO.CPORetrafo need to be undone.
-#' @export
-as.list.CPORetrafo = function(x, ...) {
-  assert(length(list(...)) == 0)
-  prev = if (!is.null(x$prev.retrafo)) as.list(x$prev.retrafo)
-  x$prev.retrafo = NULL
-  if ("retrafo" %in% x$kind) {
-    x$properties.needed = x$cpo$properties$properties.needed
-  }
-  x$predict.type = x$cpo$predict.type
-  x$bound = x$cpo$bound
-  if (identical(x$kind, "retrafo")) {
-    if (x$cpo$hybrid.inverter) {
-      x$kind = c("retrafo", "inverter")
-    }
-  }
-  class(x) = unique(c("CPORetrafoPrimitive", class(x)))
-  c(prev, list(x))
-}
-
-# RETRAFO State
-# The state is basically the control object, or the trafo-function's environment
-# We also keep the shapeinfo.input and shapeinfo.output information
-#' @export
-getRetrafoState.CPORetrafoPrimitive = function(retrafo.object) {
-  cpo = retrafo.object$cpo
-  if (!"retrafo" %in% retrafo.object$kind) {
-    stop("Cannot get state of inverter")
-  }
-  assertChoice(cpo$type, c("functional", "object"))
-  if (cpo$type == "functional") {
-    res = as.list(environment(retrafo.object$state))
-    if (!"cpo.retrafo" %in% names(res)) {
-      res$cpo.retrafo = retrafo.object$state
-    } else if (!identical(res$cpo.retrafo, retrafo.object$state)) {
-      stopf("Could not get coherent state of CPO Retrafo %s, since 'cpo.retrafo' in\n%s",
-        cpo$name, "the environment of the retrafo function is not identical to the retrafo function.")
-    }
-  } else {  # cpo$type == "object
-    res = getBareHyperPars(cpo)
-    res$control = retrafo.object$state
-  }
-  # c() to drop the retrafo.object's class
-  res$data = c(retrafo.object[c("shapeinfo.input", "shapeinfo.output")])  # nolint
-  res
-}
-
-#' @export
-# rebuilds a retrafo object from a given state. It does that by
-# constructing a "bare" (empty) retrafo object and fills in the missing slots.
-makeRetrafoFromState.CPOConstructor = function(constructor, state) {
-  assertList(state, names = "unique")
-  bare = constructor()
-
-  data = state$data
-  state$data = NULL
-  assertSetEqual(names(data), c("shapeinfo.input", "shapeinfo.output"))
-
-  assertChoice(bare$type, c("functional", "object"))
-  if (bare$type == "functional") {
-    assertSubset("cpo.retrafo", names(state))
-    bare$par.vals = list()
-
-    newstate = state$cpo.retrafo
-    # update newstate's environment to actually contain the
-    # values set in the 'state'
-    env = new.env(parent = parent.env(environment(newstate)))
-    list2env(state, envir = env)
-    environment(newstate) = env
-    # also set the 'cpo.retrafo' in the env to point to the current 'newstate' function.
-    # if we did not do this, the 'cpo.retrafo' variable visible to newstate would
-    # be the same function *but with a different environment* -- recursion would break
-    # (this is because of 'environment(newstate) = env' above)
-    env$cpo.retrafo = newstate
-  } else {  # bare$type == "object
-    assertSubset("control", names(state))
-    newstate = state$control
-    state$control = NULL
-    bare$par.vals = state
-    assertSubset(names(bare$par.vals), names(bare$bare.par.set$pars))
-    if (length(state)) {
-      names(bare$par.vals) = paste(bare$id, names2(bare$par.vals), sep = ".")
-    }
-  }
-
-  makeCPORetrafo(bare, newstate, NULL, data$shapeinfo.input, data$shapeinfo.output)
-}
-
-# Param Sets
-
-#' @export
-getParamSet.CPORetrafoPrimitive = function(x) {
-  x$cpo$par.set
-}
-
-#' @export
-getHyperPars.CPORetrafoPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
-  learner$cpo$par.vals
-}
-
-#' @export
-getCPOProperties.CPORetrafo = function(cpo, only.data = FALSE) {
-  if (!is.null(cpo$prev.retrafo)) {
-    props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$bare.name)
-  } else {
-    props = cpo$cpo$properties
-  }
-  if (only.data) {
-    lapply(props, intersect, y = cpo.dataproperties)
-  } else {
-    props
-  }
-}
-
-#' @export
-getCPOName.CPORetrafoPrimitive = function(cpo) {
-  cpo$cpo$bare.name
-}
-
 #' @export
 getCPOBound.CPORetrafo = function(cpo) {
   cpo$bound
@@ -678,12 +397,3 @@ getCPOPredictType.CPORetrafo = function(cpo) {
   names(cpo$predict.type)
 }
 
-#' @export
-getCPOName.CPOConstructor = function(cpo) {
-  environment(cpo)$.cpo.name
-}
-
-#' @export
-getCPOId.CPOPrimitive = function(cpo) {
-  cpo$id
-}

@@ -137,6 +137,9 @@ getLearnerProperties.CPOLearner = function(learner) {
   learner$properties
 }
 
+getLearnerName = function(learner) {
+  coalesce(learner$name, learner$shortname, learner$id)
+}
 
 ##################################
 ### CPO-Learner Disassembly    ###
