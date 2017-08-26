@@ -570,6 +570,9 @@ retrafo.WrappedModel = function(data) {
   if (!is.null(value)) {
     assertClass(value, "CPORetrafo")
   }
+  if ("WrappedModel" %in% class(data)) {
+    stop("Cannot add retrafo to an mlr model.")
+  }
   if (!any(c("data.frame", "Task") %in% class(data))) {
     warningf("argument is neither a Task nor data.frame.\n%s\n%s",
       "are you sure you are applying it to the input or",
