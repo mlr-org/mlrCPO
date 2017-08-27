@@ -721,7 +721,6 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       par.set = .par.set,                          # [ParamSet] exported parameters
       par.vals = present.pars,                     # [named list] values of exported parameters
       properties = list(properties = .properties,  # properties$properties: [character] properties handled by this CPO
-        properties.data = .properties,             # properties$properties.data [character] properties handled by this CPO
         properties.adding = .properties.adding,    # properties$adding [character] capabilities that this CPO adds to the next processor
         properties.needed = .properties.needed),   # properties$needed [character] capabilities needed by the next processor
       operating = .cpotype,                        # [character(1)] one of "feature", "target", "traindata": what the CPO operates on

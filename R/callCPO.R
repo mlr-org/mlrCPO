@@ -315,27 +315,6 @@ getBareHyperPars = function(cpo) {
   setNames(args, namestranslation[names(args)])
 }
 
-#' @export
-getCPOBound.CPO = function(cpo) {
-  cpo$bound
-}
-
-#' @export
-getCPOKind.CPO = function(cpo) {
-  "trafo"
-}
-
-
-
-#' @export
-getCPOBound.CPORetrafo = function(cpo) {
-  cpo$bound
-}
-
-#' @export
-getCPOKind.CPORetrafo = function(cpo) {
-  cpo$kind
-}
 
 #' @export
 getCPOPredictType.CPORetrafo = function(cpo) {

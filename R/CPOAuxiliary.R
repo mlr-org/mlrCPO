@@ -253,24 +253,6 @@ subsetParams = function(par.vals, par.set) {
   par.vals[intersect(names(par.vals), names(par.set$pars))]
 }
 
-checkAllParams = function(par.vals, par.set, name) {
-  present = names(par.vals)
-
-  # these parameters are either present or have fulfilled requirements
-  needed = names(Filter(function(x) {
-    x$id %in% names(par.vals) ||
-          is.null(x$requires) || isTRUE(try(eval(x$requires, envir = par.vals), silent = TRUE))
-  }, par.set$pars))
-
-  missing.pars = setdiff(needed, present)
-  if (length(missing.pars)) {
-    plur = length(missing.pars) > 1
-    stopf("Parameter%s %s of CPO %s %s missing\n%s", ifelse(plur, "s", ""),
-      collapse(missing.pars, sep = ", "), name, ifelse(plur, "are", "is"),
-      "Either give it during construction, or with setHyperPars.")
-  }
-}
-
 # check that all parameters are feasible according to their limits
 # 'infeasible' parameters according to requirements are allowed
 checkParamsFeasible = function(par.set, par.vals) {

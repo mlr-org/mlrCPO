@@ -284,3 +284,26 @@ getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
 getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
   stop("Compound CPOs have no affect arguments.")
 }
+
+
+#' @export
+getCPOBound.CPO = function(cpo) {
+  cpo$bound
+}
+
+#' @export
+getCPOKind.CPO = function(cpo) {
+  "trafo"
+}
+
+
+
+#' @export
+getCPOBound.CPORetrafo = function(cpo) {
+  cpo$bound
+}
+
+#' @export
+getCPOKind.CPORetrafo = function(cpo) {
+  cpo$kind
+}
