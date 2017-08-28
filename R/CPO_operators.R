@@ -253,6 +253,16 @@ setCPOId.CPO = function(cpo) {
   stop("Cannot set ID of compound CPO.")
 }
 
+#' @export
+getCPOPredictType.CPO = function(cpo) {
+  names(cpo$predict.type)
+}
+
+#' @export
+getCPOPredictType.CPORetrafo = function(cpo) {
+  names(cpo$predict.type)
+}
+
 # When changing the ID, we need to change each parameter's name, which
 # should have the form <ID>.<bare.par.name>
 # This means we need to modify $par.set AND $par.vals

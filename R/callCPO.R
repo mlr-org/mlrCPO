@@ -1,4 +1,4 @@
-# callCPO.R: functions that are involved in calling CPOs and retrafos.
+# Callcpo.R: functions that are involved in calling CPOs and retrafos.
 # They handle input checks, call the relevant CPO functions, and construct
 # relevant Retrafo / Inverter objects.
 
@@ -82,47 +82,43 @@ callCPO = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.
 # attaches prev.retrafo to the returned retrafo object, if present.
 callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
 
-  if (!"CPOCbind" %in% class(cpo)) {
-    cpo$bare.par.set$pars = c(cpo$bare.par.set$pars, cpo$unexported.pars)
-    cpo = setCPOId(cpo, cpo$id)
-    cpo$par.vals = c(cpo$par.vals, cpo$unexported.args)
-  }
+  assert(build.inverter, is.null(prev.inverter))
 
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$debug.name)
 
   prev.retrafo = nullcpoToNull(prev.retrafo)
   prev.inverter = nullcpoToNull(prev.inverter)
 
-  if (!build.inverter) {
-    assertNull(prev.inverter)
-    inverter = NULL
-  }
   if (is.null(prev.retrafo)) {
     prevneeded = character(0)
   } else {
     prevneeded = prev.retrafo$properties.needed
     assertCharacter(prevneeded, unique = TRUE)
-    assertSubset(prevneeded, cpo$properties$properties)  # this should never happen, since we test this during CPO composition
+    if (isPropertyStrict()) {
+      assertSubset(prevneeded, cpo$properties$properties)  # this should never happen, since we test this during CPO composition
+    }
   }
 
   tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties$properties.data, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
   if (!cpo$data.dependent) {
-    assert(cpo$bound == "targetbound")
+    assert(cpo$operating.type = "target")
     tin$indata$data = NULL
   }
-  if (is.null(cpo$trafo)) {
+  if (is.null(cpo$retrafo)) {
     # stateless trafo-less CPO
+    assert(cpo$control.type == "stateless")
     tin$indata$target = NULL
-    result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
-  } else {
-    result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
+  }
 
+  result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
+
+  assertChoice(cpo$control.type, c("functional", "object", "stateless"))
+  if (cpo$control.type != "stateless") {
     trafoenv = .ENV
   }
-  assertChoice(cpo$control.type, c("functional", "object"))
   if (cpo$control.type == "functional") {
     state = trafoenv$cpo.retrafo
-    if (cpo$bound == "targetbound") {
+    if (cpo$operating.type == "target") {
       requiredargs = c("df.features", "predict.type")
       if (is.null(state) || !isTRUE(checkFunction(state, args = requiredargs, nargs = 2))) {
         stopf('.data.dependent targetbound CPO %s cpo.trafo must set a variable "cpo.retrafo"\n%s"%s".',
@@ -140,11 +136,13 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
         "this warning by giving it a name different from 'data'.", sep = "\n"))
     }
     trafoenv$data = NULL
-  } else {  # cpo$control.type == "object"
-    if (!cpo$stateless && !"control" %in% ls(trafoenv)) {
+  } else if (cpo$control.type == "object") {
+    if (!"control" %in% ls(trafoenv)) {
       stopf("CPO %s cpo.trafo did not create a 'control' object. Use the .stateless flag on creation if you don't need a control object.", cpo$debug.name)
     }
-    state = if (cpo$stateless) NULL else trafoenv$control
+    state = trafoenv$control
+  } else {  # cpo$control.type == "stateless"
+    state = NULL
   }
 
   # the properties of the output should only be the input properties + the ones we're adding
@@ -152,9 +150,17 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
     cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$debug.name)
 
-  retrafo = if (build.retrafo) makeCPOFeatureRetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo) else prev.retrafo
+  retrafo = if (build.retrafo && cpo$operating.type != "traindata") {
+      makeCPOFeatureRetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo)
+    } else {
+      prev.retrafo
+    }
 
-  inverter = if (build.inverter && cpo$bound == "targetbound") makeCPOInverter(cpo, state, prev.inverter, data, tin$shapeinfo) else prev.inverter
+  inverter = if (build.inverter && cpo$operating.type == "target") {
+      makeCPOInverter(cpo, state, prev.inverter, data, tin$shapeinfo)
+    } else {
+      prev.inverter
+    }
 
   list(data = tout$outdata, retrafo = retrafo, inverter = inverter)
 }
@@ -197,42 +203,48 @@ callCPO.CPOPipeline = function(cpo, data, build.retrafo, prev.retrafo, build.inv
 # - returns the resulting data
 
 # receiver.properties are the properties of the next layer
-applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
+# This is the retrafo equivalent to callCPO. However, since CPORetrafo
+# is a different data structure than compound CPO ("CPOPipeline"), we don't need
+# any S3 here.
+callCPORetrafo = function(retrafo, data, build.inverter, prev.inverter) {
 
   assertClass(retrafo, "CPORetrafo")
   cpo = retrafo$cpo
 
-  if (!"retrafo" %in% retrafo$kind) {
+  if (!"CPOFeatureRetrafo" %in% class(retrafo)) {
     stop("Object %s is an inverter, not a retrafo.", cpo$name)
   }
 
   if (!is.null(retrafo$prev.retrafo)) {
-    assertSubset(retrafo$prev.retrafo$properties.needed, cpo$properties$properties)  # this is already tested during composition
-    assertClass(retrafo$prev.retrafo, "CPORetrafo")
-    upper.result = applyCPORetrafoEx(retrafo$prev.retrafo, data, build.inverter, prev.inverter)
+    if (isPropertyStrict()) {
+      assertSubset(retrafo$prev.retrafo$properties.needed, cpo$properties$properties)  # this is already tested during composition
+    }
+    upper.result = callCPORetrafo(retrafo$prev.retrafo, data, build.inverter, prev.inverter)
     data = upper.result$data
     prev.inverter = upper.result$inverter
   }
 
-  if (cpo$bound == "targetbound") {
+  if (cpo$operating.type == "target") {
     return(callCPO(cpo, data, FALSE, NULL, build.inverter, prev.inverter))
   }
-  assert(cpo$bound == "databound")
+  assert(cpo$operating.type == "feature")  # "traindata" has no retrafo!
 
   tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties$properties.data, retrafo$shapeinfo.input, cpo$name)
 
-  assertChoice(cpo$control.type, c("functional", "object"))
+  assertChoice(cpo$control.type, c("functional", "object", "stateless"))
   if (cpo$control.type == "functional") {
     result = retrafo$state(tin$indata)
-  } else {  # cpo$control.type == "object"
+  } else {  # cpo$control.type %in% c("stateless", "object")
     args = getBareHyperPars(cpo)
     args$data = tin$indata
-    if (!cpo$stateless) {
+    if (cpo$control.type == "object") {
       args$control = retrafo$state
+      retrafo.fun = cpo$retrafo
+    } else {
+      retrafo.fun = cpo$trafo
     }
-    result = do.call(cpo$retrafo, args)
+    result = do.call(retrafo.fun, args)
   }
-
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$properties.needed)
 
@@ -242,60 +254,37 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
 }
 
 # Basically wraps around callCPO with some checks and handling of attributes
+# This is also called for CPORetrafo; there it calls 'callCPORetrafo'
 #' @export
 applyCPO.CPO = function(cpo, task) {
   if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
     stop("CPO can not handle tasks with weights!")
   }
-  build.inverter = hasTagInvert(task)
+
   prev.inverter = nullcpoToNull(inverter(task))
-
-  if (!build.inverter && !is.null(prev.inverter)) {
-    stop("Data had 'inverter' attribute set, but not the 'keep.inverter' tag.")
-  }
-  if (!is.null(prev.inverter)) {
-    assertClass(prev.inverter, "CPORetrafo")
-  }
-  prev.retrafo = retrafo(task)
-
-  retrafo(task) = NULL
+  assert(checkNull(prev.inverter), checkClass(prev.inverter, "CPOInverter"))
   inverter(task) = NULL
-  task = tagInvert(task, FALSE)
 
-  result = callCPO(cpo, task, TRUE, prev.retrafo, build.inverter, prev.inverter)
-  task = result$data
-  retrafo(task) = result$retrafo
+  prev.retrafo = nullcpoToNull(retrafo(task))
+  assert(checkNull(prev.inverter), checkClass(prev.inverter, "CPOFeatureRetrafo"))
+  retrafo(task) = NULL
+
+  if ("CPORetrafo" %in% class(cpo)) {
+    result = callCPORetrafo(cpo, task, TRUE, prev.inverter)
+    task = result$data
+    retrafo(task) = prev.retrafo
+  } else {
+    result = callCPO(cpo, task, TRUE, prev.retrafo, TRUE, prev.inverter)
+    task = result$data
+    retrafo(task) = result$retrafo
+  }
   inverter(task) = result$inverter
-  tagInvert(task, build.inverter)
+  task
 }
 
 # User-facing cpo retrafo application to a data object.
-# does checks, removes retrafo / inverter attributes, and calls 'applyCPORetrafoEx'
 #' @export
-applyCPO.CPORetrafo = function(cpo, data) {
-  retrafo = cpo
-  build.inverter = hasTagInvert(data)
-  prev.inverter = nullcpoToNull(inverter(data))
-
-  inverter(data) = NULL
-  data = tagInvert(data, FALSE)
-  if (!build.inverter && !is.null(prev.inverter)) {
-    stop("Data had 'inverter' attribute set, but not the 'keep.inverter' tag.")
-  }
-  if (!is.null(prev.inverter)) {
-    assertClass(prev.inverter, "CPORetrafo")
-  }
-
-  prev.retrafo = nullcpoToNull(retrafo(data))
-
-  retrafo(data) = NULL
-
-  result = applyCPORetrafoEx(retrafo, data, build.inverter, prev.inverter)
-  data = result$data
-  retrafo(data) = prev.retrafo
-  inverter(data) = result$inverter
-  tagInvert(data, build.inverter)
-}
+applyCPO.CPORetrafo = applyCPO.CPO
 
 # get par.vals with bare par.set names, i.e. the param names without the ID
 getBareHyperPars = function(cpo) {
@@ -304,12 +293,6 @@ getBareHyperPars = function(cpo) {
   namestranslation = setNames(names2(cpo$bare.par.set$pars),
     names(cpo$par.set$pars))
   setNames(args, namestranslation[names(args)])
-}
-
-
-#' @export
-getCPOPredictType.CPORetrafo = function(cpo) {
-  names(cpo$predict.type)
 }
 
 checkAllParams = function(par.vals, par.set, name) {

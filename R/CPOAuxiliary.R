@@ -308,6 +308,11 @@ firstNonNull = function(...) {
   NULL
 }
 
+# check global flag whether to strictly check property compliance
+isPropertyStrict = function() {
+  TRUE
+}
+
 
 # TO-DO:
 

@@ -534,8 +534,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   assertFlag(.data.dependent)
   assertString(.cpo.name)
   assertList(.par.vals, names = "unique")
-  .stateless = .trafo.type == "stateless"
-  if (.cpotype == "traindata") assert(!.stateless)
+  if (.cpotype == "traindata") assert(.trafo.type != "stateless")
 
   # we encode the information in .dataformat.factor.with.ordered into .dataformat:
   # split  --> most   | all
@@ -562,12 +561,14 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   funargs = lapply(.par.set$pars, function(dummy) substitute())
   funargs = insert(funargs, .par.vals)
 
-  trafo.funs = constructTrafoFunctions(funargs, trafo.expr, retrafo.expr, parent.frame(2), .data.dependent)
+  trafo.funs = constructTrafoFunctions(funargs, trafo.expr, retrafo.expr, parent.frame(2), .data.dependent, .trafo.type == "stateless")
 
   funargs = insert(funargs, list(id = NULL, export = "export.default",
     affect.type = NULL, affect.index = integer(0),
     affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
     affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE))
+
+  control.type = if (.trafo.type == "stateless") "stateless" else if (is.null(cpo.retrafo)) "functional" else "object"
 
   ####
   # The CPO creator function
@@ -654,10 +655,10 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
       id = NULL,                                   # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
-      trafo = trafo.funs$cpo.trafo                 # [function] trafo function
-      retrafo = trafo.funs$cpo.retrafo             # [function] retrafo function
-      control.type = ifelse(is.null(cpo.retrafo),  # [character(1)] whether retrafo is taken from trafo environment, or uses 'control' object
-        "functional", "object"),
+      trafo = trafo.funs$cpo.trafo,                # [function] trafo function
+      retrafo = trafo.funs$cpo.retrafo,            # [function] retrafo function
+      control.type = control.type,                 # [character(1)] whether retrafo is taken from trafo environment ("functional"),
+                                                   #                uses 'control' object ("object"), or is stateless ("stateless")
       packages = .packages,                        # [character] package(s) to load when constructing the CPO
       affect.args = affect.args,                   # [named list] values of the "affect.*" arguments
       unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
@@ -759,33 +760,24 @@ prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set) {
   list(.par.set = .par.set, .par.vals = .par.vals, .export.params = .export.params)
 }
 
-constructTrafoFunctions = function(funargs, trafo.expr, retrafo.expr, eval.env, .cpotype, .dataformat, .data.dependent) {
+constructTrafoFunctions = function(funargs, trafo.expr, retrafo.expr, eval.env, .cpotype, .dataformat, .data.dependent, .stateless) {
   required.arglist.trafo = funargs
   if (.data.dependent) {
     assert(.cpotype == "target")
     required.arglist.trafo$data = substitute()
   }
   required.arglist.trafo$target = substitute()
-  if (!.stateless || (is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env))) {
+  if (is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env)) {
     cpo.trafo = makeFunction(cpo.trafo, required.arglist.trafo, env = eval.env)
-  } else if (.cpotype == "target") {
-    # stateless, no cpo.trafo, type is 'target'
-    stop("A Target Operating CPO must have a cpo.trafo function, even if stateless.")
-  } else if (.dataformat %in% c("task", "df.all")) {
-    # stateless, no cpo.trafo, .dataformat is "task" or "df.all"
-    stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'df.all'.")
   } else {
-    # stateless, no cpo.trafo
-    cpo.trafo = NULL
+    stop("cpo.trafo must be provided.")
   }
+
   if (.cpotype == "target" && !.stateless && .dataformat == "df.all") {
     .dataformat = "df.features"
   }
 
   if ((is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, env = eval.env))) {
-    if (.trafo.type == "trafo.returns.control") {
-      stop("Combined retrafo must have cpo.retrafo = NULL")
-    }
     if (.cpotype == "traindata") {
       stop("traindata cpo must have cpo.retrafo = NULL")
     }
@@ -804,24 +796,40 @@ constructTrafoFunctions = function(funargs, trafo.expr, retrafo.expr, eval.env, 
     if (is.null(cpo.trafo) && .stateless) {
       cpo.trafo = function(target, ...) cpo.retrafo(...)
     }
-  } else if (.stateless) {
-    stop("Stateless CPO must provide cpo.retrafo.")
+  } else if (!.stateless) {
+    if (.cpotype == "target") {
+      # stateless, no cpo.trafo, type is 'target'
+      stop("A Target Operating CPO must have a cpo.retrafo function, even if stateless.")
+    } else if (.dataformat %in% c("task", "df.all")) {
+      # stateless, no cpo.retrafo, .dataformat is "task" or "df.all"
+      stop("A stateless CPO without cpo.retrafo cannot have .dataformat 'task' or 'df.all'.")
+    }
   } else {
     cpo.retrafo = NULL
   }
 
   if (.trafo.type == "trafo.returns.control") {
     retrafo.gen = cpo.trafo
-    cpo.trafo = function(data, target, ...) {
-      cpo.retrafo = retrafo.gen(data, target, ...)
-      if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
-        stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
+    if (is.null(cpo.retrafo)) {
+      # functional
+      cpo.trafo = function(data, target, ...) {
+        cpo.retrafo = retrafo.gen(data = data, target = target, ...)
+        if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
+          stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
+        }
+        cpo.retrafo(data)
       }
-      cpo.retrafo(data)
+    } else {
+      # object based
+      cpo.trafo = function(data, target, ...) {
+        control = retrafo.gen(data = data, target = target, ...)
+        cpo.retrafo(data = data, target = target, control = control, ...)
+      }
     }
   }
-
-  cpo.trafo = captureEnvWrapper(cpo.trafo)
+  if (!.stateless) {
+    cpo.trafo = captureEnvWrapper(cpo.trafo)
+  }
 
   list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)
 }
