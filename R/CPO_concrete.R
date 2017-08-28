@@ -398,7 +398,7 @@ registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert all Features
 #' @export
 cpoScale = makeCPOExtended("scale", center = TRUE: logical, scale = TRUE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
   result = scale(as.matrix(data), center = center, scale = scale)
-  control = list(center = coalesce(attr(result, "scaled:center"), FALSE), scale = coalesce(attr(result, "scaled:scale"), FALSE))
+  control = list(center = firstNonNull(attr(result, "scaled:center"), FALSE), scale = firstNonNull(attr(result, "scaled:scale"), FALSE))
   result
 }, cpo.retrafo = {
   scale(as.matrix(data), center = control$center, scale = control$scale)

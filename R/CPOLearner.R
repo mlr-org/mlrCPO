@@ -18,7 +18,7 @@ attachCPO.CPO = function(cpo, learner) {
       cpo$convertto, learner$type)
   }
 
-  parameterClashAssert(cpo, learner, cpo$name, getLearnerName(learner))
+  parameterClashAssert(cpo, learner, cpo$debug.name, getLearnerName(learner))
   if (!"CPOLearner" %in% class(learner)) {
     learner = makeBaseWrapper(learner$id, learner$type, learner,
       learner.subclass = "CPOLearner", model.subclass = "CPOModel")
@@ -33,7 +33,7 @@ attachCPO.CPO = function(cpo, learner) {
   learner$properties = setdiff(learner$properties, cpo.tasktypes)
   learner$par.vals = cpo$par.vals
   learner$par.set = cpo$par.set
-  learner$id = paste(learner$id, cpo$bare.name, sep = ".")
+  learner$id = paste(learner$id, cpo$name, sep = ".")
 
   # possibly need to reset 'predict.type', or just change it to something else.
   prev.predict.type = learner$next.learner$predict.type
@@ -56,7 +56,7 @@ compositeCPOLearnerProps = function(cpo, learner) {
   props.relevant = intersect(props, relevant)
   props.relevant = compositeProperties(cpo$properties,
     list(properties = props.relevant, properties.adding = character(0), properties.needed = character(0)),
-    cpo$name, getLearnerName(learner))$properties  # checks for property problems automatically
+    cpo$debug.name, getLearnerName(learner))$properties  # checks for property problems automatically
   c(props.relevant, setdiff(props, relevant))
 }
 
@@ -74,7 +74,7 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   # the data that is supposed to be *predicted*.
   retrafo(.task) = NULL
   inverter(.task) = NULL
-  .task = tagInvert(.task, FALSE)
+
   transformed = callCPO(cpo, .task, TRUE, NULL, FALSE, NULL)
 
   model = makeChainModel(train(.learner$next.learner, transformed$data), "CPOWrappedModel")
@@ -136,7 +136,7 @@ getLearnerProperties.CPOLearner = function(learner) {
 }
 
 getLearnerName = function(learner) {
-  coalesce(learner$name, learner$shortname, learner$id)
+  firstNonNull(learner$name, learner$shortname, learner$id)
 }
 
 ##################################

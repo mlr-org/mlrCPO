@@ -130,28 +130,7 @@ is.retrafo = function(x) {  # nolint
 
 
 
-##################################
-### Chaining                   ###
-##################################
 
-
-#' @title Turn a list of preprocessing operators into a single chained one
-#'
-#' @description
-#' Chain a list of preprocessing operators, or retrafo objects, turning \code{list(a, b, c)} into
-#' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
-#' applied on a \code{CPO} chain.
-#'
-#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPORetrafo}]\cr
-#'   A list of \code{CPO} or \code{CPORetrafo} objects.
-#'
-#' @family CPO
-#' @export
-pipeCPO = function(pplist) {
-  assert(checkList(pplist, types = "CPO"),
-    checkList(pplist, types = "CPORetrafo"))
-  Reduce(`%>>%`, c(list(NULLCPO), pplist))
-}
 
 ##################################
 ### General Generic Functions  ###
@@ -323,9 +302,20 @@ captureEnvWrapper = function(fun) {
 }
 
 requireCPOPackages = function(cpo) {
-  requirePackages(cpo$packages, why = stri_paste("CPO", cpo$bare.name, sep = " "), default.method = "load")
+  requirePackages(cpo$packages, why = stri_paste("CPO", cpo$name, sep = " "), default.method = "load")
 }
 
+# BBmisc::coalesce is dangerous, instead this sensible alternative is used
+firstNonNull = function(...) {
+  dots = match.call(expand.dots = FALSE)$...
+  for (arg in dots) {
+    val = eval.parent(arg)
+    if (!is.null(val)) {
+      return(val)
+    }
+  }
+  NULL
+}
 
 
 # TO-DO:

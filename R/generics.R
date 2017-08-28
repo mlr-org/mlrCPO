@@ -268,9 +268,6 @@ setCPOId = function(cpo, id) {
   if (!is.null(id)) {
     assertString(id)
   }
-  if (!"CPOPrimitive" %in% class(cpo)) {
-    stop("Cannot set ID of compound CPO.")
-  }
   UseMethod("setCPOId")
 }
 

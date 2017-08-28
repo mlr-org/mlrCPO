@@ -28,7 +28,7 @@ subsetParams = function(par.vals, par.set) {
 # 'infeasible' parameters according to requirements are allowed
 checkParamsFeasible = function(par.set, par.vals) {
   # names(par.vals) must be a subset of names(par.set$pars)
-  oobreaction = coalesce(getMlrOption("on.par.out.of.bounds"), "stop")
+  oobreaction = firstNonNull(getMlrOption("on.par.out.of.bounds"), "stop")
   par.vals = par.vals = convertNamesToItemsDVP(par.vals, par.set)
   if (oobreaction != "quiet") {
     for (n in names(par.vals)) {
@@ -46,7 +46,7 @@ checkParamsFeasible = function(par.set, par.vals) {
 
 # convert between character vectors and lists for discrete vector params
 convertNamesToItemsDVP = function(par.vals, par.set) {
-  oobreaction = coalesce(getMlrOption("on.par.out.of.bounds"), "stop")
+  oobreaction = firstNonNull(getMlrOption("on.par.out.of.bounds"), "stop")
   reactionFn = switch(oobreaction, stop = stopf, warn = warningf, quiet = list)  # nolint
   for (n in names(par.set$pars)) {
     if (!n %in% names(par.vals)) {

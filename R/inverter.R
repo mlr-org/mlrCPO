@@ -198,8 +198,8 @@ invertCPO.CPORetrafo = function(inverter, prediction, predict.type) {
 
     prediction = validateSupposedPredictionFormat(prediction, cpo$convertto, input.predict.type, predict.type, "input", inverter)
     args = list(target = prediction, predict.type = output.predict.type)
-    assertChoice(cpo$type, c("functional", "object"))
-    if (cpo$type == "functional") {
+    assertChoice(cpo$control.type, c("functional", "object"))
+    if (cpo$control.type == "functional") {
       result = do.call(cpo$state, args)
     } else {
       args = insert(args, cpo$par.vals)
@@ -224,7 +224,7 @@ invertCPO.CPORetrafo = function(inverter, prediction, predict.type) {
 # ultimate.predict.type: for output: what is the ultimate type we want?
 validateSupposedPredictionFormat = function(prediction, type, predict.type, ultimate.predict.type, direction = c("input", "output"), inverter) {
   direction = match.arg(direction)
-  name = inverter$cpo$bare.name
+  name = inverter$cpo$name
   if (!type %in% inferPredictionTypePossibilities(prediction)) {
     # data format in 'prediction' is not compatible with what this CPO is supposed to have converted to
     stopf("Prediction %s of CPO Inverter %s is not compatible with supposed type %s",

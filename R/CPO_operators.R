@@ -9,18 +9,18 @@
 #' @export
 composeCPO.CPO = function(cpo1, cpo2) {
   assertClass(cpo2, "CPO")
-  parameterClashAssert(cpo1, cpo2, cpo1$name, cpo2$name)
-  newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$name, cpo2$name)
-  newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$name, cpo2$name)
+  parameterClashAssert(cpo1, cpo2, cpo1$debug.name, cpo2$debug.name)
+  newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$debug.name, cpo2$debug.name)
+  newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$debug.name, cpo2$debug.name)
 
   makeS3Obj(c("CPOPipeline", "CPO"),
     # --- CPO Part
-    bare.name = paste(cpo2$bare.name, cpo1$bare.name, sep = "."),
-    name = paste(cpo1$name, cpo2$name, sep = " >> "),
+    name = paste(cpo2$name, cpo1$name, sep = "."),
+    debug.name = paste(cpo1$debug.name, cpo2$debug.name, sep = " >> "),
     par.set = c(cpo1$par.set, cpo2$par.set),
     par.vals = c(cpo1$par.vals, cpo2$par.vals),
     properties = newprops,
-    bound = unique(cpo1$bound, cpo2$bound),
+    operating.type = unique(cpo1$operating.type, cpo2$operating.type),
     predict.type = newpt,
     # --- CPOPipeline part
     first = cpo1,
@@ -74,7 +74,7 @@ composeCPO.CPORetrafo = function(cpo1, cpo2) {
   if ("retrafo" %in% newkind) {
     cpo2$properties.needed = compositeProperties(
         list(properties = character(0), properties.adding = character(0), properties.needed = cpo1$properties.needed),
-        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$bare.name)$properties.needed
+        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)$properties.needed
   }
   if ("inverter" %in% newkind) {
     if (length(newkind) == 1) {
@@ -84,15 +84,15 @@ composeCPO.CPORetrafo = function(cpo1, cpo2) {
       assertString(cpo2$cpo$convertfrom)
       if (cpo1$convertto != cpo2$convertfrom) {
         stopf("Incompatible chaining of inverters: %s converts to %s, but %s needs %s.",
-          cpo1$cpo$barelname, cpo1$cpo$convertto, cpo2$cpo$bare.name, cpo2$cpo$bare.name)
+          cpo1$cpo$name, cpo1$cpo$convertto, cpo2$cpo$name, cpo2$cpo$name)
       }
-      compositeProperties(cpo1$cpo$properties, cpo2$cpo$properties, cpo1$cpo$bare.name, cpo2$cpo$bare.name)  # just for checking
+      compositeProperties(cpo1$cpo$properties, cpo2$cpo$properties, cpo1$cpo$name, cpo2$cpo$name)  # just for checking
     }
     assert(length(cpo1$predict.type) <= 2)  # predict.type cannot be the identity
     assert(length(cpo2$predict.type) <= 2)  # the identity (and only the identity) has more than 2 elements.
   }
 
-  cpo2$predict.type = chainPredictType(cpo1$predict.type, cpo2$cpo$predict.type, getCPOName(cpo1), cpo2$cpo$bare.name)
+  cpo2$predict.type = chainPredictType(cpo1$predict.type, cpo2$cpo$predict.type, getCPOName(cpo1), cpo2$cpo$name)
   cpo2$prev.retrafo = cpo1
   cpo2$bound = unique(cpo2$cpo$bound, cpo1$bound)
   cpo2$kind = newkind
@@ -137,6 +137,32 @@ as.list.CPORetrafo = function(x, ...) {
   c(prev, list(x))
 }
 
+##################################
+### Chaining                   ###
+##################################
+
+
+#' @title Turn a list of preprocessing operators into a single chained one
+#'
+#' @description
+#' Chain a list of preprocessing operators, or retrafo objects, turning \code{list(a, b, c)} into
+#' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
+#' applied on a \code{CPO} chain.
+#'
+#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPORetrafo}]\cr
+#'   A list of \code{CPO} or \code{CPORetrafo} objects.
+#'
+#' @family CPO
+#' @export
+pipeCPO = function(pplist) {
+  assert(checkList(pplist, types = "CPO"),
+    checkList(pplist, types = "CPORetrafo"))
+  Reduce(composeCPO, c(list(NULLCPO), pplist))
+}
+
+##################################
+### Getters                    ###
+##################################
 
 
 # Param Sets
@@ -192,7 +218,7 @@ getCPOName.CPO = function(cpo) {
 #' @export
 getCPOProperties.CPORetrafo = function(cpo, only.data = FALSE) {
   if (!is.null(cpo$prev.retrafo)) {
-    props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$bare.name)
+    props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
   } else {
     props = cpo$cpo$properties
   }
@@ -205,7 +231,7 @@ getCPOProperties.CPORetrafo = function(cpo, only.data = FALSE) {
 
 #' @export
 getCPOName.CPORetrafoPrimitive = function(cpo) {
-  cpo$cpo$bare.name
+  cpo$cpo$name
 }
 
 #' @export
@@ -222,7 +248,10 @@ getCPOId.CPOPrimitive = function(cpo) {
 getCPOId.CPO = function(cpo) {
   stop("Compound CPOs have no IDs.")
 }
-
+#' @export
+setCPOId.CPO = function(cpo) {
+  stop("Cannot set ID of compound CPO.")
+}
 
 # When changing the ID, we need to change each parameter's name, which
 # should have the form <ID>.<bare.par.name>
@@ -230,10 +259,10 @@ getCPOId.CPO = function(cpo) {
 #' @export
 setCPOId.CPOPrimitive = function(cpo, id) {
   if (is.null(id)) {
-    id = cpo$bare.name
+    id = cpo$name
   }
   cpo$id = id
-  cpo$name = if (id == cpo$bare.name) cpo$bare.name else sprintf("%s<%s>", cpo$id, cpo$bare.name)
+  cpo$debug.name = if (id == cpo$name) cpo$name else sprintf("%s<%s>", cpo$id, cpo$name)
   cpo$par.vals = getBareHyperPars(cpo)
   cpo$par.set = cpo$bare.par.set
   pars = cpo$par.set$pars

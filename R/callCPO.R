@@ -19,7 +19,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
   inverter = makeCPORetrafoBasic(cpo, state, prev.inverter, "CPOInverter")
   # --- only in pure "inverter" kind
   inverter$indatatd = getTaskDesc(data)
-  inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$bare.name)$target
+  inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$name)$target
   inverter
 }
 
@@ -88,7 +88,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     cpo$par.vals = c(cpo$par.vals, cpo$unexported.args)
   }
 
-  checkAllParams(cpo$par.vals, cpo$par.set, cpo$name)
+  checkAllParams(cpo$par.vals, cpo$par.set, cpo$debug.name)
 
   if (is.nullcpo(prev.retrafo)) {
     prev.retrafo = NULL
@@ -108,7 +108,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     assertSubset(prevneeded, cpo$properties$properties)  # this should never happen, since we test this during CPO composition
   }
 
-  tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties$properties.data, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$name)
+  tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties$properties.data, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
   if (!cpo$data.dependent) {
     assert(cpo$bound == "targetbound")
     tin$indata$data = NULL
@@ -122,17 +122,17 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
     trafoenv = .ENV
   }
-  assertChoice(cpo$type, c("functional", "object"))
-  if (cpo$type == "functional") {
+  assertChoice(cpo$control.type, c("functional", "object"))
+  if (cpo$control.type == "functional") {
     state = trafoenv$cpo.retrafo
     if (cpo$bound == "targetbound") {
       requiredargs = c("df.features", "predict.type")
       if (is.null(state) || !isTRUE(checkFunction(state, args = requiredargs, nargs = 2))) {
         stopf('.data.dependent targetbound CPO %s cpo.trafo must set a variable "cpo.retrafo"\n%s"%s".',
-          cpo$name, "to a function with two arguments ", collapse(requiredargs, sep = '", "'))
+          cpo$debug.name, "to a function with two arguments ", collapse(requiredargs, sep = '", "'))
       }
     } else if (is.null(state) || !isTRUE(checkFunction(state, nargs = 1))) {
-      stopf("CPO %s cpo.trafo did not set a variable 'cpo.retrafo' to a function with one argument.", cpo$name)
+      stopf("CPO %s cpo.trafo did not set a variable 'cpo.retrafo' to a function with one argument.", cpo$debug.name)
     }
     if (!"data" %in% names(formals(state)) && referencesNonfunctionNames(body(state), "data") && cpo$data.dependent) {
       warning(paste("The function given as cpo.retrafo references a 'data' variable.",
@@ -143,9 +143,9 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
         "this warning by giving it a name different from 'data'.", sep = "\n"))
     }
     trafoenv$data = NULL
-  } else {  # cpo$type == "object"
+  } else {  # cpo$control.type == "object"
     if (!cpo$stateless && !"control" %in% ls(trafoenv)) {
-      stopf("CPO %s cpo.trafo did not create a 'control' object. Use the .stateless flag on creation if you don't need a control object.", cpo$name)
+      stopf("CPO %s cpo.trafo did not create a 'control' object. Use the .stateless flag on creation if you don't need a control object.", cpo$debug.name)
     }
     state = if (cpo$stateless) NULL else trafoenv$control
   }
@@ -153,7 +153,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$properties.needed)
   tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
-    cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$name)
+    cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$debug.name)
 
   retrafo = if (build.retrafo) makeCPOFeatureRetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo) else prev.retrafo
 
@@ -181,7 +181,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 # retr.1 <-- retr.2 <-- retr.3 <-- retr.4
 #
 callCPO.CPOPipeline = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
-  checkAllParams(cpo$par.vals, cpo$par.set, cpo$name)
+  checkAllParams(cpo$par.vals, cpo$par.set, cpo$debug.name)
   first = cpo$first
   second = cpo$second
   first$par.vals = subsetParams(cpo$par.vals, first$par.set)
@@ -206,7 +206,7 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
   cpo = retrafo$cpo
 
   if (!"retrafo" %in% retrafo$kind) {
-    stop("Object %s is an inverter, not a retrafo.", cpo$bare.name)
+    stop("Object %s is an inverter, not a retrafo.", cpo$name)
   }
 
   if (!is.null(retrafo$prev.retrafo)) {
@@ -222,12 +222,12 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
   }
   assert(cpo$bound == "databound")
 
-  tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties$properties.data, retrafo$shapeinfo.input, cpo$bare.name)
+  tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties$properties.data, retrafo$shapeinfo.input, cpo$name)
 
-  assertChoice(cpo$type, c("functional", "object"))
-  if (cpo$type == "functional") {
+  assertChoice(cpo$control.type, c("functional", "object"))
+  if (cpo$control.type == "functional") {
     result = retrafo$state(tin$indata)
-  } else {  # cpo$type == "object"
+  } else {  # cpo$control.type == "object"
     args = getBareHyperPars(cpo)
     args$data = tin$indata
     if (!cpo$stateless) {
@@ -240,7 +240,7 @@ applyCPORetrafoEx = function(retrafo, data, build.inverter, prev.inverter) {
   allowed.properties = union(tin$properties, cpo$properties$properties.needed)
 
   list(data = handleRetrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties,
-    cpo$properties$properties.adding, retrafo$shapeinfo.output, tin$subset.index, cpo$bare.name),
+    cpo$properties$properties.adding, retrafo$shapeinfo.output, tin$subset.index, cpo$name),
     inverter = prev.inverter)
 }
 

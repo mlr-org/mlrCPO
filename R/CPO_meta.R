@@ -21,10 +21,10 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
       if ("CPOConstructor" %in% class(c)) {
         getCPOName(c)
       } else if ("CPOPrimitive" %in% class(c)) {
-        coalesce(getCPOId(c), getCPOName(c))
+        firstNonNull(getCPOId(c), getCPOName(c))
       } else {
         c = as.list(c)[[1]]
-        coalesce(getCPOId(c), getCPOName(c))
+        firstNonNull(getCPOId(c), getCPOName(c))
       }
     })
   }
@@ -162,10 +162,10 @@ cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
 
 
   pr = collectProperties(constructed)
-  .properties = coalesce(.properties.adding, pr$properties, (cpo.dataproperties))
-  .properties.adding = coalesce(.properties.adding, pr$properties.adding, character(0))
-  .properties.needed = coalesce(.properties.needed, pr$properties.needed, character(0))
-  .properties.target = coalesce(.properties.target, pr$properties.target, c(cpo.targetproperties, cpo.tasktypes))
+  .properties = firstNonNull(.properties.adding, pr$properties, (cpo.dataproperties))
+  .properties.adding = firstNonNull(.properties.adding, pr$properties.adding, character(0))
+  .properties.needed = firstNonNull(.properties.needed, pr$properties.needed, character(0))
+  .properties.target = firstNonNull(.properties.target, pr$properties.target, c(cpo.targetproperties, cpo.tasktypes))
 
   required.arglist = lapply(c(paramset.pass.on$pars, .export), function(dummy) substitute())
   required.arglist = insert(required.arglist, pv.pass.on)

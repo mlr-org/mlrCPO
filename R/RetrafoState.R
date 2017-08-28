@@ -10,16 +10,16 @@ getRetrafoState.CPORetrafoPrimitive = function(retrafo.object) {
   if (!"retrafo" %in% retrafo.object$kind) {
     stop("Cannot get state of inverter")
   }
-  assertChoice(cpo$type, c("functional", "object"))
-  if (cpo$type == "functional") {
+  assertChoice(cpo$control.type, c("functional", "object"))
+  if (cpo$control.type == "functional") {
     res = as.list(environment(retrafo.object$state))
     if (!"cpo.retrafo" %in% names(res)) {
       res$cpo.retrafo = retrafo.object$state
     } else if (!identical(res$cpo.retrafo, retrafo.object$state)) {
       stopf("Could not get coherent state of CPO Retrafo %s, since 'cpo.retrafo' in\n%s",
-        cpo$name, "the environment of the retrafo function is not identical to the retrafo function.")
+        cpo$debug.name, "the environment of the retrafo function is not identical to the retrafo function.")
     }
-  } else {  # cpo$type == "object
+  } else {  # cpo$control.type == "object
     res = getBareHyperPars(cpo)
     res$control = retrafo.object$state
   }
@@ -44,8 +44,8 @@ makeRetrafoFromState.CPOConstructor = function(constructor, state) {
   state$data = NULL
   assertSetEqual(names(data), c("shapeinfo.input", "shapeinfo.output"))
 
-  assertChoice(bare$type, c("functional", "object"))
-  if (bare$type == "functional") {
+  assertChoice(bare$control.type, c("functional", "object"))
+  if (bare$control.type == "functional") {
     assertSubset("cpo.retrafo", names(state))
     bare$par.vals = list()
 
@@ -60,7 +60,7 @@ makeRetrafoFromState.CPOConstructor = function(constructor, state) {
     # be the same function *but with a different environment* -- recursion would break
     # (this is because of 'environment(newstate) = env' above)
     env$cpo.retrafo = newstate
-  } else {  # bare$type == "object
+  } else {  # bare$control.type == "object
     assertSubset("control", names(state))
     newstate = state$control
     state$control = NULL
