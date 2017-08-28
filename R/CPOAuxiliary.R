@@ -18,7 +18,8 @@ retrafo.default = function(data) {
     warningf("data is not a Task or data.frame.\n%s\n%s",
       "are you sure you are applying 'retrafo' to the result",
       "of a %>>% transformation?")
-  } else if (is.null(res)) {
+  }
+  if (is.null(res)) {
     res = NULLCPO
   }
   res
@@ -32,7 +33,7 @@ retrafo.WrappedModel = function(data) {
 #' @export
 `retrafo<-.default` = function(data, value) {
   if (!is.null(value)) {
-    assertClass(value, "CPORetrafo")
+    assert(is.retrafo(value))
   }
   if (!any(c("data.frame", "Task") %in% class(data))) {
     warningf("argument is neither a Task nor data.frame.\n%s\n%s",
@@ -51,6 +52,21 @@ retrafo.WrappedModel = function(data) {
   stop("Cannot change retrafo of a model!")
 }
 
+#' @title Check CPOFeatureRetrafo
+#'
+#' @description
+#' Check whether the given object is a \code{CPOFeatureRetrafo} object.
+#'
+#' @param x\cr
+#'   The object to check.
+#'
+#' @return \code{TRUE} if \code{x} has class \code{CPOFeatureRetrafo}, \code{FALSE} otherwise.
+#'
+#' @export
+is.retrafo = function(x) {  # nolint
+  "CPOFeatureRetrafo" %in% class(x)
+}
+
 
 ##################################
 ### Inverter                   ###
@@ -63,18 +79,22 @@ inverter.default = function(data) {
     warningf("data is not a Task or data.frame.\n%s\n%s",
       "are you sure you are applying 'retrafo' to the result",
       "of a %>>% transformation?")
-  } else if (is.null(res)) {
+  }
+  if (is.null(res)) {
     res = NULLCPO
   }
   res
 }
 
+#' @export
+inverter.WrappedModel = function(data) {
+  stop("Cannot get inverter of a model!")
+}
 
 #' @export
 `inverter<-.default` = function(data, value) {
   if (!is.null(value)) {
-    assertClass(value, "CPORetrafo")
-    assert("inverter" %in% getCPOKind(value))
+    assert(is.inverter(value))
   }
   if (!any(c("data.frame", "Task") %in% class(data))) {
     warningf("argument is neither a Task nor data.frame.\n%s\n%s",
@@ -88,51 +108,27 @@ inverter.default = function(data) {
   data
 }
 
-#' @title Set the Inverter Tag
-#'
-#' @description
-#' Tag the data that when it is sent through
-#' a \code{\link{\%>>\%}} chain, the inverter
-#' will be kept.
-#'
-#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
-#'   The data to tag
-#'
-#' @param set [\code{logical(1)}]\cr
-#'   Whether to set the tag  or unset it. Default is TRUE.
-#'
-#' @family CPO
 #' @export
-tagInvert = function(data, set = TRUE) {
-  if (!any(c("data.frame", "Task") %in% class(data))) {
-    stop("data is not a Task or data.frame.")
-  }
-  assertFlag(set)
-  if (set) {
-    attr(data, "keep.inverter") = TRUE
-  } else {
-    attr(data, "keep.inverter") = NULL
-  }
-  data
+`inverter<-.WrappedModel` = function(data, value) {
+  stop("Cannot change inverter of a model!")
 }
 
-#' @title Get the Inverter Tag
+#' @title Check CPOInverter
 #'
 #' @description
-#' Check whether the data is tagged for inverter saving
-#' when it is sent through a \code{\link{\%>>\%}} chain.
+#' Check whether the given object is a \code{CPOInverter} object.
 #'
-#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
-#'   The result of a \code{\link{\%>>\%}} chain applied to a data set.
+#' @param x\cr
+#'   The object to check.
 #'
-#' @family CPO
+#' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.
+#'
 #' @export
-hasTagInvert = function(data) {
-  if (!any(c("data.frame", "Task") %in% class(data))) {
-    stop("data is not a Task or data.frame.")
-  }
-  identical(attr(data, "keep.inverter"), TRUE)
+is.retrafo = function(x) {  # nolint
+  "CPOInverter" %in% class(x)
 }
+
+
 
 ##################################
 ### Chaining                   ###
@@ -220,132 +216,12 @@ deparseJoin = function(what, sep = " ") {
   collapse(deparse(what, 500), sep = sep)
 }
 
-getParamSetDefaults = function(ps) {
-  lapply(ps$pars[vlapply(ps$pars, function(x) x$has.default)], function(x) x$default)
-}
-
-# check that ParamSets  ps1 and ps2 have distinct names; if not, give meaningful
-# error message, referring to the objects by name1 and name2.
-parameterClashAssert = function(obj1, obj2, name1, name2) {
-  ps1 = getParamSet(obj1)
-  ps2 = getParamSet(obj2)
-  samenames = intersect(names(ps1$pars), names(ps2$pars))
-  if (length(samenames)) {
-    plur = length(samenames) > 1
-    stopf("Parameter%s %s occur%s in both %s and %s\n%s", ifelse(plur, "s", ""),
-      paste0('"', samenames, '"', collapse = ", "), ifelse(plur, "", "s"), name1, name2,
-      "Use the id parameter when constructing, or setCPOId, to prevent name collisions.")
-  }
-}
-
 noMissingAssert = function(paramlist) {
   lapply(names(paramlist), function(x) {
     if (identical(paramlist[[x]], substitute())) {
       stopf("Parameter %s missing, with no default.", x)
     }
   })
-}
-
-# get the subset of par.vals described by par set.
-# check furthermore that this subset is complete,
-# i.e. all parameters that have no unfulfilled requirements are there
-subsetParams = function(par.vals, par.set) {
-  par.vals[intersect(names(par.vals), names(par.set$pars))]
-}
-
-# check that all parameters are feasible according to their limits
-# 'infeasible' parameters according to requirements are allowed
-checkParamsFeasible = function(par.set, par.vals) {
-  # names(par.vals) must be a subset of names(par.set$pars)
-  oobreaction = coalesce(getMlrOption("on.par.out.of.bounds"), "stop")
-  par.vals = par.vals = convertNamesToItemsDVP(par.vals, par.set)
-  if (oobreaction != "quiet") {
-    for (n in names(par.vals)) {
-      if (!isFeasible(par.set$pars[[n]], par.vals[[n]])) {
-        msg = sprintf("%s is not feasible for parameter '%s'!", convertToShortString(par.vals[[n]]), n)
-        if (oobreaction == "stop") {
-          stop(msg)
-        } else {
-          warning(msg)
-        }
-      }
-    }
-  }
-}
-
-# convert between character vectors and lists for discrete vector params
-convertNamesToItemsDVP = function(par.vals, par.set) {
-  oobreaction = coalesce(getMlrOption("on.par.out.of.bounds"), "stop")
-  reactionFn = switch(oobreaction, stop = stopf, warn = warningf, quiet = list)  # nolint
-  for (n in names(par.set$pars)) {
-    if (!n %in% names(par.vals)) {
-      next
-    }
-    par = par.set$pars[[n]]
-    if (par$type != "discretevector") {
-      next
-    }
-    if (!all(sapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
-      next
-    }
-    if (!is.character(par.vals[[n]])) {
-      reactionFn("Discrete Vector Parameter %s requires character vector, not list, as values.", n)
-    }
-
-    badpars = setdiff(par.vals[[n]], names(par$values))
-    if (length(badpars)) {
-      reactionFn("Value%s '%s' do%s not occur in (names of) feasible values for parameter %s.",
-        ifelse(length(badpars) > 1, "s", ""), collapse(badpars, sep = "', '"),
-        ifelse(length(badpars) > 1, "es", ""), n)
-      next
-    }
-    par.vals[[n]] = par$values[par.vals[[n]]]
-  }
-  par.vals
-}
-
-convertItemsToNamesDVP = function(par.vals, par.set) {
-  for (n in names(par.set$pars)) {
-    par = par.set$pars[[n]]
-    if (par$type != "discretevector") {
-      next
-    }
-    if (!all(sapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
-      next
-    }
-    if (all(sapply(par.vals[[n]], is.character))) {
-      par.vals[[n]] = as.character(par.vals[[n]])
-    }
-  }
-  par.vals
-}
-
-# Manipulate requirement expressions: rename all variables from
-# one name to another. This gets problematic when e.g. one variable
-# is named 'c', because then c(1, 2, 3) gets broken. Therefore we
-# go through the expressions and change only those requirements that
-# are not function calls.
-renameNonfunctionNames = function(expr, translate) {
-  startfrom = 1
-  if (is.call(expr)) {
-    if (!is.recursive(expr)) {
-      return(expr)
-    }
-    startfrom = 2
-    if (is.recursive(expr[[1]])) {
-      startfrom = 1
-    } else if (length(expr) == 1) {
-      return(expr)
-    }
-  }
-  if (is.recursive(expr)) {
-    for (idx in seq(startfrom, length(expr))) {
-      expr[[idx]] = renameNonfunctionNames(expr[[idx]], translate)
-    }
-  } else if (is.symbol(expr) && as.character(expr) %in% names(translate)) {
-    expr = as.symbol(translate[[as.character(expr)]])
-  }
-  return(expr)
 }
 
 # Search for references to variables (not function) named in 'pattern'
@@ -508,6 +384,8 @@ requireCPOPackages = function(cpo) {
 # convertNamesToItems, ItemsToNames
 # on.par.out.of.bounds setting
 # task types checked
+# retrafoless
+# simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
 
 # news
 # colApplyCPO

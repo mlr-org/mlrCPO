@@ -10,7 +10,7 @@
 #'
 #' @family CPO
 #' @export
-NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPO"))  # nolint
+NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPOFeatureRetrafo", "CPOInverter", "CPORetrafo", "CPO"))  # nolint
 
 #' @export
 is.nullcpo = function(cpo) {  # nolint

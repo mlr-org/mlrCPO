@@ -118,7 +118,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
                    properties.adding = character(0), properties.needed = character(0),
                    properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
                      "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
-                   packages = character(0), cpo.trafo) {
+                   packages = character(0), cpo.trafo, cpo.retrafo) {
   dataformat = match.arg(dataformat)
 
   assertSubset(properties, cpo.dataproperties)
@@ -133,9 +133,44 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
     .properties.adding = properties.adding, .properties.needed = properties.needed,
     .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
     .predict.type = NULL, .packages = packages,
-    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = NULL)
-
+    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo))
 }
+
+makeCPORetrafoless = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.all", "task"),
+                   dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
+                   fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
+                   properties.adding = character(0), properties.needed = character(0),
+                   properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
+                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                   packages = character(0), cpo.trafo) {
+  dataformat = match.arg(dataformat)
+
+  assertSubset(properties, cpo.dataproperties)
+  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
+  assertSubset(properties.needed, cpo.dataproperties)
+
+  makeCPOGeneral(.cpotype = "feature",
+    .cpo.name = cpo.name, .par.set = par.set, .par.vals = par.vals,
+    .dataformat = dataformat, .dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    .fix.factors = fix.factors, .data.dependent = TRUE,
+    .trafo.type = "retrafoless", .export.params = export.params, .properties = properties,
+    .properties.adding = properties.adding, .properties.needed = properties.needed,
+    .properties.target = properties.target, .type.from = NULL, .type.to = NULL,
+    .predict.type = NULL, .packages = packages,
+    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = NULL)
+}
+
+makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   dataformat.factor.with.ordered = TRUE, data.dependent = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
+                   properties.data = c("numerics", "factors", "ordered", "missings"),
+                   properties.adding = character(0), properties.needed = character(0),
+                   properties.target = character(0),
+                   type = c("cluster", "classif", "multilabel", "regr", "surv"),
+                   type.out = type,
+                   predict.type = c(response = "response"), packages = character(0), cpo.trafo, cpo.inverter) {
+  # TODO
+}
+
 
 #' @title Create a custom CPO constructor
 #'
@@ -162,8 +197,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 #' @param .dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
 #'   \tabular{lll}{
-#'     .dataformat \tab data                          \tab target                \cr
-#'     ---         \tab ---                             \tab ---                   \cr
+#'     \bold{dataformat} \tab \bold{data}               \tab \bold{target}         \cr
 #'     df.all      \tab data.frame with target cols     \tab target colnames       \cr
 #'     df.features \tab data.frame without target       \tab data.frame of target  \cr
 #'     task        \tab full task                       \tab target colnames       \cr
@@ -364,7 +398,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
 makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
-                   .trafo.type = c("trafo.returns.data", "trafo.returns.control", "stateless"),
+                   .trafo.type = c("trafo.returns.data", "trafo.returns.control", "stateless", "retrafoless"),
                    .export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    .fix.factors = FALSE, .properties = c("numerics", "factors", "ordered", "missings"),
                    .properties.adding = character(0), .properties.needed = character(0),
@@ -398,7 +432,7 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
 #'
 #' @rdname makeCPOExtended
 #' @export
-makeCPOTargetOp = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
+makeCPOTargetOpExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                            .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            .dataformat.factor.with.ordered = TRUE,
                            .data.dependent = TRUE, .trafo.type = c("trafo.returns.data", "trafo.returns.control", "stateless"),
@@ -501,146 +535,39 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   assertString(.cpo.name)
   assertList(.par.vals, names = "unique")
   .stateless = .trafo.type == "stateless"
+  if (.cpotype == "traindata") assert(!.stateless)
 
-
-  if (is.null(.par.set)) {
-    .par.set = pSSLrn(..., .pss.env = parent.frame(2))
-  }
-
-  assertCharacter(.properties, unique = TRUE)
-  assertCharacter(.properties.needed, unique = TRUE)
-  assertCharacter(.properties.adding, unique = TRUE)
-  assertCharacter(.properties.target, unique = TRUE)
-  if (is.null(.predict.type)) {
-    # for feature operating CPOs, this is the identity.
-    .predict.type = c(response = "response", prob = "prob", se = "se")
-    .properties = c(.properties, "prob", "se")
-  }
-  assertCharacter(.predict.type, any.missing = FALSE, names = "unique")
-
-  if (.cpotype == "target") {
-    assertChoice(.type.from, cpo.tasktypes)
-    assertChoice(.type.to, cpo.tasktypes)
-    if (.type.from != .type.to) {
-      .properties.adding = union(.properties.adding, .type.from)
-      .properties.needed = union(.properties.needed, .type.to)
-    }
-    .properties = union(.properties, .type.from)
-  }
-
-  if (length(.properties)) {
-    assertSubset(.properties.adding, .properties)
-  } else {
-    assert(length(.properties.adding) == 0)
-  }
-  .properties = union(.properties, .properties.target)
-
-  badprops = intersect(.properties.adding, .properties.needed)
-  if (length(badprops)) {
-    stopf(".properties.adding and .properties.needed must not contain the same properties, but both contained %s.",
-      collapse(badprops, sep = ", "))
-  }
-
-  # these parameters are either special parameters given to the constructor function (id, affect.*),
-  # the possible special values of 'export' that should not clash with param names,
-  # special parameters given to the cpo.trafo function (data, target), special parameters given to the
-  # cpo.retrafo function (predict.type, control),
-
-  affect.params = c("affect.type", "affect.index", "affect.names", "affect.pattern", "affect.invert", "affect.pattern.ignore.case",
-    "affect.pattern.perl", "affect.pattern.fixed")
-  export.possibilities = c("export.default", "export.set", "export.default.set", "export.unset", "export.default.unset",
-    "export.all", "export.none", "export.all.plus")
-  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
-  if (any(names(.par.set$pars) %in% reserved.params)) {
-    stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
-  }
-
-  if (isTRUE(.export.params)) {
-    .export.params = names2(.par.set$pars)
-  } else if (isFALSE(.export.params)) {
-    .export.params = character(0)
-  } else {
-    assertSubset(.export.params, names2(.par.set$pars))
-  }
-
-
-  .par.vals = insert(getParamSetDefaults(.par.set), .par.vals)
-
-  assert(length(setdiff(names(.par.vals), names(.par.set$pars))) == 0)
-
-  .par.vals = convertItemsToNamesDVP(.par.vals, .par.set)
-
-  checkParamsFeasible(.par.set, .par.vals)
-
-  funargs = lapply(.par.set$pars, function(dummy) substitute())
-  funargs = insert(funargs, .par.vals)
-
-  required.arglist.trafo = funargs
-  if (.data.dependent) {
-    required.arglist.trafo$data = substitute()
-  }
-  required.arglist.trafo$target = substitute()
-  trafo.expr = cpo.trafo
-  if (!.stateless || (is.recursive(trafo.expr) && identical(trafo.expr[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = parent.frame(2)))) {
-    cpo.trafo = makeFunction(trafo.expr, required.arglist.trafo, env = parent.frame(2))
-  } else if (.cpotype == "target") {
-    stop("A Target Operating CPO must have a cpo.trafo function, even if stateless.")
-  } else if (.dataformat %in% c("task", "df.all")) {
-    stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'no'.")
-  } else {
-    if (.dataformat == "df.all") {
-      .dataformat = "df.features"
-    }
-    cpo.trafo = NULL
-  }
-  if (.trafo.type == "trafo.returns.control") {
-    retrafo.gen = cpo.trafo
-    cpo.trafo = function(data, target, ...) {
-      cpo.retrafo = retrafo.gen(data, target, ...)
-      if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
-        stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
-      }
-      cpo.retrafo(data)
-    }
-  }
-
-  retrafo.expr = cpo.retrafo
-  if ((is.recursive(retrafo.expr) && identical(retrafo.expr[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, env = parent.frame(2)))) {
-    if (.trafo.type == "trafo.returns.control") {
-      stop("Combined retrafo must have cpo.retrafo = NULL")
-    }
-    required.arglist.retrafo = funargs
-    if (.cpotype == "target") {
-      required.arglist.retrafo$target = substitute()
-      required.arglist.retrafo$predict.type = substitute()
-    } else if (.data.dependent) {
-      required.arglist.retrafo$data = substitute()
-    }
-    if (!.stateless) {
-      required.arglist.retrafo$control = substitute()
-    }
-    cpo.retrafo = makeFunction(retrafo.expr, required.arglist.retrafo, env = parent.frame(2))
-    if (is.null(cpo.trafo) && .stateless) {
-      cpo.trafo = function(target, ...) cpo.retrafo(...)
-    }
-  } else if (.stateless) {
-    stop("Stateless CPO must provide cpo.retrafo.")
-  } else {
-    cpo.retrafo = NULL
-  }
-
-  cpo.trafo = captureEnvWrapper(cpo.trafo)
-
-  funargs = insert(funargs, list(id = NULL, export = "export.default",
-    affect.type = NULL, affect.index = integer(0),
-    affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
-    affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE))
-
+  # we encode the information in .dataformat.factor.with.ordered into .dataformat:
+  # split  --> most   | all
+  # factor --> factor | onlyfactor
   if (.dataformat == "split") {
     .dataformat = ifelse(.dataformat.factor.with.ordered, "most", "all")
   } else if (.dataformat == "factor" && !.dataformat.factor.with.ordered) {
     .dataformat = "onlyfactor"
   }
+
+  params = prepareParams(.par.set, .par.vals, .export.params, pSSLrn(..., .pss.env = parent.frame(2)))
+  .par.set = params$.par.set
+  .par.vals = params$.par.vals
+  .export.params = params$.export.params
+
+  if (.cpotype == "target") {
+    assertCharacter(.predict.type, any.missing = FALSE, names = "unique")
+  } else {
+    # for feature operating CPOs, this is the identity.
+    .predict.type = c(response = "response", prob = "prob", se = "se")
+  }
+  properties.list = assembleProperties(.properties, .properties.needed, .properties.adding, .properties.target, .cpotype, .type.from, .type.to)
+
+  funargs = lapply(.par.set$pars, function(dummy) substitute())
+  funargs = insert(funargs, .par.vals)
+
+  trafo.funs = constructTrafoFunctions(funargs, trafo.expr, retrafo.expr, parent.frame(2), .data.dependent)
+
+  funargs = insert(funargs, list(id = NULL, export = "export.default",
+    affect.type = NULL, affect.index = integer(0),
+    affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
+    affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE))
 
   ####
   # The CPO creator function
@@ -720,16 +647,15 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       name = .cpo.name,                            # [character(1)] the name, possibly augmented by the ID
       par.set = .par.set,                          # [ParamSet] exported parameters
       par.vals = present.pars,                     # [named list] values of exported parameters
-      properties = list(properties = .properties,  # properties$properties: [character] properties handled by this CPO
-        properties.adding = .properties.adding,    # properties$adding [character] capabilities that this CPO adds to the next processor
-        properties.needed = .properties.needed),   # properties$needed [character] capabilities needed by the next processor
+      properties =                                 # properties$properties: [character] properties handled by this CPO
+                                                   # properties$adding [character] capabilities that this CPO adds to the next processor
+                                                   # properties$needed [character] capabilities needed by the next processor
       operating = .cpotype,                        # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
       predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
       id = NULL,                                   # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
       packages = .packages,                        # [character] package(s) to load when constructing the CPO
       affect.args = affect.args,                   # [named list] values of the "affect.*" arguments
-      unexported.args = unexported.args,           # [ParamSet] parameters that not exported
       unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
       bare.par.set = .par.set,                     # [ParamSet] exported parameters with names not containing the ID prefix
       datasplit = .dataformat,                     # [character(1)] data format as received by trafo / retrafo
@@ -750,4 +676,150 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
     setCPOId(cpo, id)  # this also adjusts par.set and par.vals
   })
   addClasses(eval(call("function", as.pairlist(funargs), funbody)), "CPOConstructor")
+}
+
+# check the validity of .properties, .properties.needed, .properties.adding, .properties.target and assemble
+# the 'properties' list that will be part of the CPO
+assembleProperties = function(.properties, .properties.needed, .properties.adding, .properties.target, .cpotype, .type.from, .type.to) {
+  assertCharacter(.properties, unique = TRUE)
+  assertCharacter(.properties.needed, unique = TRUE)
+  assertCharacter(.properties.adding, unique = TRUE)
+  assertCharacter(.properties.target, unique = TRUE)
+
+  if (.cpotype == "target") {
+    assertChoice(.type.from, cpo.tasktypes)
+    assertChoice(.type.to, cpo.tasktypes)
+    if (.type.from != .type.to) {
+      .properties.adding = union(.properties.adding, .type.from)
+      .properties.needed = union(.properties.needed, .type.to)
+    }
+    .properties = union(.properties, .type.from)
+  } else {
+    .properties = c(.properties, "prob", "se")
+  }
+
+  if (length(.properties)) {
+    assertSubset(.properties.adding, .properties)
+  } else {
+    # doing this because a bug in assertSubset doesn't recognize the empty set as a subset of itself.
+    assert(length(.properties.adding) == 0)
+  }
+  .properties = union(.properties, .properties.target)
+  badprops = intersect(.properties.adding, .properties.needed)
+  if (length(badprops)) {
+    stopf(".properties.adding and .properties.needed must not contain the same properties, but both contained %s.",
+      collapse(badprops, sep = ", "))
+  }
+  list(properties = .properties,
+    properties.adding = .properties.adding,
+    properties.needed = .properties.needed)
+}
+
+# All "affect.*" parameters
+affect.params = c("affect.type", "affect.index", "affect.names", "affect.pattern", "affect.invert", "affect.pattern.ignore.case",
+  "affect.pattern.perl", "affect.pattern.fixed")
+# The "export" parameter may either contain a list of names of parameters to export, or one of these special values:
+export.possibilities = c("export.default", "export.set", "export.default.set", "export.unset", "export.default.unset",
+  "export.all", "export.none", "export.all.plus")
+
+# check the given parameter set and parameters for validity.
+# addnl.par.set are the params given as `...` and are added to the already present
+# .par.set.
+prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set) {
+  if (is.null(.par.set)) {
+    .par.set = addnl.par.set
+  } else {
+    .par.set = c(.par.set, addnl.par.set)
+  }
+
+  # Reserved parameter names:
+  # these parameters are either special parameters given to the constructor function (id, affect.*),
+  # the possible special values of 'export' that should not clash with param names,
+  # special parameters given to the cpo.trafo function (data, target), special parameters given to the
+  # cpo.retrafo function (predict.type, control),
+  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
+  if (any(names(.par.set$pars) %in% reserved.params)) {
+    stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
+  }
+  .par.vals = insert(getParamSetDefaults(.par.set), .par.vals)
+  assert(length(setdiff(names(.par.vals), names(.par.set$pars))) == 0)
+  .par.vals = convertItemsToNamesDVP(.par.vals, .par.set)
+  checkParamsFeasible(.par.set, .par.vals)
+
+  if (isTRUE(.export.params)) {
+    .export.params = names2(.par.set$pars)
+  } else if (isFALSE(.export.params)) {
+    .export.params = character(0)
+  } else {
+    assertSubset(.export.params, names2(.par.set$pars))
+  }
+
+  list(.par.set = .par.set, .par.vals = .par.vals, .export.params = .export.params)
+}
+
+constructTrafoFunctions = function(funargs, trafo.expr, retrafo.expr, eval.env, .cpotype, .dataformat, .data.dependent) {
+  required.arglist.trafo = funargs
+  if (.data.dependent) {
+    assert(.cpotype == "target")
+    required.arglist.trafo$data = substitute()
+  }
+  required.arglist.trafo$target = substitute()
+  if (!.stateless || (is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env))) {
+    cpo.trafo = makeFunction(cpo.trafo, required.arglist.trafo, env = eval.env)
+  } else if (.cpotype == "target") {
+    # stateless, no cpo.trafo, type is 'target'
+    stop("A Target Operating CPO must have a cpo.trafo function, even if stateless.")
+  } else if (.dataformat %in% c("task", "df.all")) {
+    # stateless, no cpo.trafo, .dataformat is "task" or "df.all"
+    stop("A stateless CPO without cpo.trafo cannot have .dataformat 'task' or 'df.all'.")
+  } else {
+    # stateless, no cpo.trafo
+    cpo.trafo = NULL
+  }
+  if (.cpotype == "target" && !.stateless && .dataformat == "df.all") {
+    .dataformat = "df.features"
+  }
+
+  if ((is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, env = eval.env))) {
+    if (.trafo.type == "trafo.returns.control") {
+      stop("Combined retrafo must have cpo.retrafo = NULL")
+    }
+    if (.cpotype == "traindata") {
+      stop("traindata cpo must have cpo.retrafo = NULL")
+    }
+
+    required.arglist.retrafo = funargs
+    if (.cpotype == "target") {
+      required.arglist.retrafo$target = substitute()
+      required.arglist.retrafo$predict.type = substitute()
+    } else if (.data.dependent) {
+      required.arglist.retrafo$data = substitute()
+    }
+    if (!.stateless) {
+      required.arglist.retrafo$control = substitute()
+    }
+    cpo.retrafo = makeFunction(cpo.retrafo, required.arglist.retrafo, env = eval.env)
+    if (is.null(cpo.trafo) && .stateless) {
+      cpo.trafo = function(target, ...) cpo.retrafo(...)
+    }
+  } else if (.stateless) {
+    stop("Stateless CPO must provide cpo.retrafo.")
+  } else {
+    cpo.retrafo = NULL
+  }
+
+  if (.trafo.type == "trafo.returns.control") {
+    retrafo.gen = cpo.trafo
+    cpo.trafo = function(data, target, ...) {
+      cpo.retrafo = retrafo.gen(data, target, ...)
+      if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
+        stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
+      }
+      cpo.retrafo(data)
+    }
+  }
+
+  cpo.trafo = captureEnvWrapper(cpo.trafo)
+
+
 }
