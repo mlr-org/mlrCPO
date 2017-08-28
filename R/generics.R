@@ -23,7 +23,7 @@
 #' @export
 composeCPO = function(cpo1, cpo2) {
   assert(checkClass(cpo2, "CPO"),
-    checkClass(cpo2, "CPORetrafo"))
+    checkClass(cpo2, "CPOConstructed"))
   if (is.nullcpo(cpo2)) {
     cpo1
   }
@@ -111,7 +111,7 @@ getCPOName = function(cpo) {
 #' @param data [\code{data.frame} | \code{\link{Task}} | \code{\link{WrappedModel}}]\cr
 #'   The result of a \code{\link{\%>>\%}} chain applied to a data set.
 #'
-#' @return [\code{CPORetrafo}]. The retransformation function that can be
+#' @return [\code{CPOConstructed}]. The retransformation function that can be
 #'   applied to new data.
 #'
 #' @examples
@@ -182,7 +182,7 @@ inverter = function(data) {
 #' The object can be slightly modified and used to create a new
 #' CPO retrafo object using \code{\link{makeRetrafoFromState}}.
 #'
-#' @param retrafo.object [\code{CPORetrafo}]\cr
+#' @param retrafo.object [\code{CPOConstructed}]\cr
 #'   The object to get the state of.
 #'
 #' @return a list.
@@ -203,7 +203,7 @@ getRetrafoState = function(retrafo.object) {
 #' @param state
 #'   A state gotten from another CPO retrafo object using
 #'   \code{\link{getRetrafoState}}
-#' @return a \code{CPORetrafo}.
+#' @return a \code{CPOConstructed}.
 #' @family CPO
 #' @export
 makeRetrafoFromState = function(constructor, state) {
@@ -241,7 +241,7 @@ makeRetrafoFromState = function(constructor, state) {
 #' @param data [\code{data.frame} | \code{\link{Task}}]\cr
 #'   Something to be applied to a \code{\link{\%>>\%}} chain.
 #'
-#' @param value [\code{CPORetrafo}]\cr
+#' @param value [\code{CPOConstructed}]\cr
 #'   An inverter chain.
 #'
 #' @family CPO
@@ -371,7 +371,7 @@ getCPOPredictType = function(cpo) {
 #' with both values; for one that affects neither, it is
 #' \code{character(0)}.
 #'
-#' @param cpo [\code{CPO} | \code{CPORetrafo}]\cr
+#' @param cpo [\code{CPO} | \code{CPOConstructed}]\cr
 #'   The CPO or Retrafo to inspect.
 #'
 #' @export

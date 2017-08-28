@@ -48,19 +48,19 @@ retrafo.WrappedModel = function(data) {
   stop("Cannot change retrafo of a model!")
 }
 
-#' @title Check CPOFeatureRetrafo
+#' @title Check CPORetrafo
 #'
 #' @description
-#' Check whether the given object is a \code{CPOFeatureRetrafo} object.
+#' Check whether the given object is a \code{CPORetrafo} object.
 #'
 #' @param x\cr
 #'   The object to check.
 #'
-#' @return \code{TRUE} if \code{x} has class \code{CPOFeatureRetrafo}, \code{FALSE} otherwise.
+#' @return \code{TRUE} if \code{x} has class \code{CPORetrafo}, \code{FALSE} otherwise.
 #'
 #' @export
 is.retrafo = function(x) {  # nolint
-  "CPOFeatureRetrafo" %in% class(x)
+  "CPORetrafo" %in% class(x)
 }
 
 
@@ -128,7 +128,7 @@ is.retrafo = function(x) {  # nolint
 ##################################
 
 #' @export
-setHyperPars2.CPORetrafo = function(learner, par.vals = list()) {
+setHyperPars2.CPOConstructed = function(learner, par.vals = list()) {
   stopf("Cannot change parameter values of retrafo object\n%s\n%s\n",
     "To create a retrafo with a specific state use makeRetrafoFromState.",
     "Get the state of an existing retrafo using getRetrafoState.")
@@ -145,18 +145,18 @@ removeHyperPars.CPOLearner = function(learner, ids) {
 }
 
 #' @export
-predict.CPORetrafo = function(object, data, ...) {
+predict.CPOConstructed = function(object, data, ...) {
   assert(length(list(...)) == 0)
   applyCPO(object, data)
 }
 
 #' @export
-getParamSet.CPORetrafo = function(x) {
+getParamSet.CPOConstructed = function(x) {
   stop("Cannot get param set of compound retrafo. Use as.list to get individual elements")
 }
 
 #' @export
-getHyperPars.CPORetrafo = function(learner, for.fun = c("train", "predict", "both")) {
+getHyperPars.CPOConstructed = function(learner, for.fun = c("train", "predict", "both")) {
   stop("Cannot get parameters of compound retrafo. Use as.list to get individual elements")
 }
 
@@ -166,13 +166,13 @@ setCPOId.default = function(cpo, id) {
 }
 
 #' @export
-getCPOName.CPORetrafo = function(cpo) {
+getCPOName.CPOConstructed = function(cpo) {
   paste(sapply(as.list(cpo), getCPOName), collapse = " => ")
 }
 
 #' @export
 invertCPO.CPO = function(inverter, prediction, predict.type) {
-  stop("Cannot invert prediction with a CPO object; need a CPORetrafo object.")
+  stop("Cannot invert prediction with a CPO object; need a CPOConstructed object.")
 }
 
 ##################################
@@ -371,7 +371,7 @@ isPropertyStrict = function() {
 # on.par.out.of.bounds setting
 # task types checked
 # retrafoless
-# simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
+# simple makeCPO, makeCPOConstructedless, makeCPOTagetOp
 
 # news
 # colApplyCPO

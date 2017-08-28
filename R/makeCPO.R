@@ -136,7 +136,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo))
 }
 
-makeCPORetrafoless = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.all", "task"),
+makeCPOConstructedless = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.all", "task"),
                    dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
@@ -667,7 +667,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       stateless = .stateless,                      # [logical(1)] whether data gets passed to retrafo
       fix.factors = .fix.factors,                  # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things
-      hybrid.retrafo = .cpotype == "target" && .stateless,  # [logical(1)] whether the CPOFeatureRetrafo object can also function as an CPOInverter object
+      hybrid.retrafo = .cpotype == "target" && .stateless,  # [logical(1)] whether the CPORetrafo object can also function as an CPOInverter object
       convertfrom = .type.from,                    # [character(1)] task type to convert from.
       convertto = .type.to,                        # [character(1)] task type to convert to.
       data.dependent = .data.dependent)            # [logical(1)] whether trafo uses data at all.

@@ -10,7 +10,7 @@
 #'
 #' @family CPO
 #' @export
-NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPOFeatureRetrafo", "CPOInverter", "CPORetrafo", "CPO"))  # nolint
+NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "CPOConstructed", "CPO"))  # nolint
 
 #' @export
 is.nullcpo = function(cpo) {  # nolint
@@ -56,7 +56,7 @@ nullToNullcpo = function(cpo) {
 
 #' @export
 `%>>%.NULLCPO` = function(cpo1, cpo2) {
-  if (any(c("Learner", "CPO", "CPORetrafo") %in% class(cpo2))) {
+  if (any(c("Learner", "CPO", "CPOConstructed") %in% class(cpo2))) {
     cpo2
   } else {
     NextMethod()

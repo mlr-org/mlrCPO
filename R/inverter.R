@@ -13,7 +13,7 @@
 #' this is mostly a no-op, except that it possibly changes the task description
 #' of the prediction.
 #'
-#' @param inverter [\code{CPORetrafo}]\cr
+#' @param inverter [\code{CPOConstructed}]\cr
 #'   The retrafo or inverter to apply
 #' @param prediction [\code{\link{Prediction}} | \code{matrix} | \code{data.frame}]\cr
 #'   The prediction to invert
@@ -22,7 +22,7 @@
 #'
 #' @export
 invert = function(inverter, prediction, predict.type = "response") {
-  assertClass(inverter, "CPORetrafo")
+  assertClass(inverter, "CPOConstructed")
 
   have.prediction = "Prediction" %in% class(prediction)
   if (have.prediction) {
@@ -175,7 +175,7 @@ getPredResponseType = function(data, typepossibilities) {
 # - does superficial test whether the input format is compatible with what to expect for the task type
 # - applies the re-transformation
 # - check result for plausibility
-invertCPO.CPORetrafo = function(inverter, prediction, predict.type) {
+invertCPO.CPOConstructed = function(inverter, prediction, predict.type) {
   assertString(predict.type)
   cpo = inverter$cpo
   if ("inverter" %in% inverter$kind) {
