@@ -19,10 +19,8 @@ retrafo.default = function(data) {
       "are you sure you are applying 'retrafo' to the result",
       "of a %>>% transformation?")
   }
-  if (is.null(res)) {
-    res = NULLCPO
-  }
-  res
+
+  nullToNullcpo(res)
 }
 
 #' @export
@@ -40,9 +38,7 @@ retrafo.WrappedModel = function(data) {
       "are you sure you are applying it to the input or",
       "result of a %>>% transformation?")
   }
-  if (is.nullcpo(value)) {
-    value = NULL
-  }
+  nullcpoToNull(value)
   attr(data, "retrafo") = value
   data
 }
@@ -80,10 +76,7 @@ inverter.default = function(data) {
       "are you sure you are applying 'retrafo' to the result",
       "of a %>>% transformation?")
   }
-  if (is.null(res)) {
-    res = NULLCPO
-  }
-  res
+  nullToNullcpo(res)
 }
 
 #' @export
@@ -101,9 +94,7 @@ inverter.WrappedModel = function(data) {
       "are you sure you are applying it to the input or",
       "result of a %>>% transformation?")
   }
-  if (is.nullcpo(value)) {
-    value = NULL
-  }
+  value = nullcpoToNull(value)
   attr(data, "inverter") = value
   data
 }

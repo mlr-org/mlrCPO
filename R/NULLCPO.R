@@ -17,6 +17,43 @@ is.nullcpo = function(cpo) {  # nolint
   "NULLCPO" %in% class(cpo)
 }
 
+
+#' @title NULLCPO to NULL
+#'
+#' @description
+#' Convert NULLCPO to NULL, leave other values intact.
+#'
+#' @param cpo [\code{CPO}]\cr
+#'   The CPO.
+#' @return \code{NULL} if \code{cpo} is \code{NULLCPO}, \code{cpo} otherwise.
+#' @export
+nullcpoToNull = function(cpo) {
+  if (is.nullcpo(cpo)) {
+    NULL
+  } else {
+    cpo
+  }
+}
+
+
+#' @title NULL to NULLCPO
+#'
+#' @description
+#' Convert NULL to NULLCPO, leave other values intact.
+#'
+#' @param cpo [\code{CPO} | \code{NULL}]\cr
+#'   The CPO.
+#' @return \code{NULLCPO} if \code{cpo} is \code{NULL}, \code{cpo} otherwise.
+#' @export
+nullToNullcpo = function(cpo) {
+  if (is.null(cpo)) {
+    NULLCPO
+  } else {
+    cpo
+  }
+}
+
+
 #' @export
 `%>>%.NULLCPO` = function(cpo1, cpo2) {
   if (any(c("Learner", "CPO", "CPORetrafo") %in% class(cpo2))) {

@@ -58,7 +58,7 @@ makeCPORetrafoBasic = function(cpo, state, prev.retrafo, subclass) {
 # constructed in 'callCPO'.
 
 # Call the (possibly compound) CPO pipeline.
-# Internal function; the user-facing functions also makes some checks
+# Internal function; the user-facing functions (applyCPO) also make some checks
 # and strips the retrafo and inverter tags.
 # Parameters:
 #   cpo, data: obvious
@@ -90,12 +90,9 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$debug.name)
 
-  if (is.nullcpo(prev.retrafo)) {
-    prev.retrafo = NULL
-  }
-  if (is.nullcpo(prev.inverter)) {
-    prev.inverter = NULL
-  }
+  prev.retrafo = nullcpoToNull(prev.retrafo)
+  prev.inverter = nullcpoToNull(prev.inverter)
+
   if (!build.inverter) {
     assertNull(prev.inverter)
     inverter = NULL
@@ -251,10 +248,8 @@ applyCPO.CPO = function(cpo, task) {
     stop("CPO can not handle tasks with weights!")
   }
   build.inverter = hasTagInvert(task)
-  prev.inverter = inverter(task)
-  if (is.nullcpo(prev.inverter)) {
-    prev.inverter = NULL
-  }
+  prev.inverter = nullcpoToNull(inverter(task))
+
   if (!build.inverter && !is.null(prev.inverter)) {
     stop("Data had 'inverter' attribute set, but not the 'keep.inverter' tag.")
   }
@@ -280,10 +275,8 @@ applyCPO.CPO = function(cpo, task) {
 applyCPO.CPORetrafo = function(cpo, data) {
   retrafo = cpo
   build.inverter = hasTagInvert(data)
-  prev.inverter = inverter(data)
-  if (is.nullcpo(prev.inverter)) {
-    prev.inverter = NULL
-  }
+  prev.inverter = nullcpoToNull(inverter(data))
+
   inverter(data) = NULL
   data = tagInvert(data, FALSE)
   if (!build.inverter && !is.null(prev.inverter)) {
@@ -293,10 +286,8 @@ applyCPO.CPORetrafo = function(cpo, data) {
     assertClass(prev.inverter, "CPORetrafo")
   }
 
-  prev.retrafo = retrafo(data)
-  if (is.nullcpo(prev.retrafo)) {
-    prev.retrafo = NULL
-  }
+  prev.retrafo = nullcpoToNull(retrafo(data))
+
   retrafo(data) = NULL
 
   result = applyCPORetrafoEx(retrafo, data, build.inverter, prev.inverter)
@@ -338,3 +329,4 @@ checkAllParams = function(par.vals, par.set, name) {
       "Either give it during construction, or with setHyperPars.")
   }
 }
+
