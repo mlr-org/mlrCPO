@@ -105,7 +105,12 @@ getCPOName.NULLCPO = function(cpo) {
 }
 
 #' @export
-getCPOBound.NULLCPO = function(cpo) {
+getCPOObjectType.NULLCPO = function(cpo) {
+  "NULLCPO"
+}
+
+#' @export
+getCPOOperatingType.NULLCPO = function(cpo) {
   character(0)
 }
 

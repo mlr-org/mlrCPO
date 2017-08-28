@@ -161,19 +161,29 @@ pipeCPO = function(pplist) {
 }
 
 ##################################
-### Getters                    ###
+### Getters and Setters        ###
 ##################################
 
+# Param Sets and related
 
-# Param Sets
 #' @export
 getParamSet.CPO = function(x) {
   x$par.set
 }
 
 #' @export
+getParamSet.CPOConstructedPrimitive = function(x) {
+  x$cpo$par.set
+}
+
+#' @export
 getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
   learner$par.vals
+}
+
+#' @export
+getHyperPars.CPOConstructedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
+  learner$cpo$par.vals
 }
 
 #' @export
@@ -188,17 +198,8 @@ setHyperPars2.CPO = function(learner, par.vals = list()) {
   learner
 }
 
-#' @export
-getParamSet.CPOConstructedPrimitive = function(x) {
-  x$cpo$par.set
-}
-
-#' @export
-getHyperPars.CPOConstructedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
-  learner$cpo$par.vals
-}
-
 # Properties
+
 #' @export
 getCPOProperties.CPO = function(cpo, only.data = FALSE) {
   if (only.data) {
@@ -206,13 +207,6 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE) {
   } else {
     cpo$properties
   }
-}
-
-# CPO ID, NAME
-
-#' @export
-getCPOName.CPO = function(cpo) {
-  cpo$name
 }
 
 #' @export
@@ -227,6 +221,13 @@ getCPOProperties.CPOConstructed = function(cpo, only.data = FALSE) {
   } else {
     props
   }
+}
+
+# CPO ID, NAME
+
+#' @export
+getCPOName.CPO = function(cpo) {
+  cpo$name
 }
 
 #' @export
@@ -248,19 +249,10 @@ getCPOId.CPOPrimitive = function(cpo) {
 getCPOId.CPO = function(cpo) {
   stop("Compound CPOs have no IDs.")
 }
+
 #' @export
 setCPOId.CPO = function(cpo) {
   stop("Cannot set ID of compound CPO.")
-}
-
-#' @export
-getCPOPredictType.CPO = function(cpo) {
-  names(cpo$predict.type)
-}
-
-#' @export
-getCPOPredictType.CPOConstructed = function(cpo) {
-  names(cpo$predict.type)
 }
 
 # When changing the ID, we need to change each parameter's name, which
@@ -292,7 +284,38 @@ setCPOId.CPOPrimitive = function(cpo, id) {
   cpo
 }
 
+# CPO Type
+
+#' @export
+getCPOObjectType.CPO = function(cpo) {
+  "CPO"
+}
+
+#' @export
+getCPOObjectType.CPORetrafo = function(cpo) {
+  "CPORetrafo"
+}
+
+#' @export
+getCPOObjectType.CPOInverter = function(cpo) {
+  "CPOInverter"
+}
+
+
+# Predict Type
+
+#' @export
+getCPOPredictType.CPO = function(cpo) {
+  names(cpo$predict.type)
+}
+
+#' @export
+getCPOPredictType.CPOConstructed = function(cpo) {
+  names(cpo$predict.type)
+}
+
 # Normalize "affect.*" arguments of CPOs
+
 #' @export
 getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
   affect.args = cpo$affect.args
@@ -324,25 +347,3 @@ getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
   stop("Compound CPOs have no affect arguments.")
 }
 
-
-#' @export
-getCPOBound.CPO = function(cpo) {
-  cpo$bound
-}
-
-#' @export
-getCPOKind.CPO = function(cpo) {
-  "trafo"
-}
-
-
-
-#' @export
-getCPOBound.CPOConstructed = function(cpo) {
-  cpo$bound
-}
-
-#' @export
-getCPOKind.CPOConstructed = function(cpo) {
-  cpo$kind
-}

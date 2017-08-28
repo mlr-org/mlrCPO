@@ -129,9 +129,9 @@ is.retrafo = function(x) {  # nolint
 
 #' @export
 setHyperPars2.CPOConstructed = function(learner, par.vals = list()) {
-  stopf("Cannot change parameter values of retrafo object\n%s\n%s\n",
-    "To create a retrafo with a specific state use makeRetrafoFromState.",
-    "Get the state of an existing retrafo using getRetrafoState.")
+  stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
+    "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
+    "Get the state of an existing retrafo / inverter using getRetrafoState.")
 }
 
 #' @export
@@ -145,7 +145,7 @@ removeHyperPars.CPOLearner = function(learner, ids) {
 }
 
 #' @export
-predict.CPOConstructed = function(object, data, ...) {
+predict.CPORetrafo = function(object, data, ...) {
   assert(length(list(...)) == 0)
   applyCPO(object, data)
 }
@@ -371,7 +371,7 @@ isPropertyStrict = function() {
 # on.par.out.of.bounds setting
 # task types checked
 # retrafoless
-# simple makeCPO, makeCPOConstructedless, makeCPOTagetOp
+# simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
 
 # news
 # colApplyCPO

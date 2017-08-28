@@ -135,6 +135,7 @@ getLearnerProperties.CPOLearner = function(learner) {
   learner$properties
 }
 
+# Shorthand function to get a name for a learner that can be printed in debug messages
 getLearnerName = function(learner) {
   firstNonNull(learner$name, learner$shortname, learner$id)
 }
@@ -207,14 +208,9 @@ getLearnerBare = function(learner) {
   learner
 }
 
-singleLearnerCPO = function(learner) {
-  UseMethod("singleLearnerCPO")
-}
-
-
 # get CPO from learner
 # Care needs to be taken that the learner's parameter values that concern the CPO are kept.
-singleLearnerCPO.CPOLearner = function(learner) {
+singleLearnerCPO = function(learner) {
   cpo = learner$cpo
   cpo$par.vals = subsetParams(learner$par.vals, cpo$par.set)
   cpo
@@ -258,14 +254,9 @@ retrafo.CPOModel = function(data) {
   recurseRetrafo(data, NULL)
 }
 
-singleModelRetrafo = function(model, prev) {
-  UseMethod("singleModelRetrafo")
-}
-
-
 # get RETRAFO from mlr model
 # possibly concatenate with another retrafo 'prev'
-singleModelRetrafo.CPOModel = function(model, prev) {
+singleModelRetrafo = function(model, prev) {
   retrafo = model$learner.model$retrafo
   if (!is.null(prev)) {
     retrafo = composeCPO(prev, retrafo)

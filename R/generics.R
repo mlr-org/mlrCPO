@@ -71,21 +71,6 @@ applyCPO = function(cpo, task) {
   UseMethod("applyCPO")
 }
 
-#' @title Get the CPO object's Name
-#'
-#' @description
-#' Return the name given at creation as \dQuote{.cpo.name} to the
-#' CPO creator. If the CPO object has an ID, it will be appended.
-#'
-#' @param cpo [\code{\link{CPO}}]\cr
-#'   The CPO object.
-#'
-#' @family CPO
-#' @export
-getCPOName = function(cpo) {
-  UseMethod("getCPOName")
-}
-
 #' @title Get the Retransformation function from a resulting object
 #'
 #' @description
@@ -166,6 +151,45 @@ inverter = function(data) {
   UseMethod("inverter")
 }
 
+#' @title set an object's retransformation
+#'
+#' @description
+#' Set an object's retransformation function, as described
+#' in \code{\link{retrafo}}. Set to \code{NULL} to delete.
+#'
+#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
+#'   The task of which to set the retrafo.
+#' @param value [\code{function} | NULL]\cr
+#'   The retrafo function to set. This must either be a
+#'   function accepting a \code{data.frame} and returning
+#'   an object of the same kind, or NULL.
+#'   In most cases, you should use this only within
+#'   \code{CPOFunctionalConstructor} functions OR to
+#'   reset an object's retrafo to NULL.
+#'
+#' @family CPO
+#' @export
+`retrafo<-` = function(data, value) {
+  UseMethod("retrafo<-")
+}
+
+#' @title Set the prediction inverse function
+#'
+#' @description
+#' Sets the retrafo function that can be applied to the prediction.
+#'
+#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
+#'   Something to be applied to a \code{\link{\%>>\%}} chain.
+#'
+#' @param value [\code{CPOConstructed}]\cr
+#'   An inverter chain.
+#'
+#' @family CPO
+#' @export
+`inverter<-` = function(data, value) {
+  UseMethod("inverter<-")
+}
+
 #' @title Get the internal state of a Retrafo object
 #'
 #' @description
@@ -210,46 +234,20 @@ makeRetrafoFromState = function(constructor, state) {
   UseMethod("makeRetrafoFromState")
 }
 
-#' @title set an object's retransformation
+#' @title Get the CPO object's Name
 #'
 #' @description
-#' Set an object's retransformation function, as described
-#' in \code{\link{retrafo}}. Set to \code{NULL} to delete.
+#' Return the name given at creation as \dQuote{.cpo.name} to the
+#' CPO creator. If the CPO object has an ID, it will be appended.
 #'
-#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
-#'   The task of which to set the retrafo.
-#' @param value [\code{function} | NULL]\cr
-#'   The retrafo function to set. This must either be a
-#'   function accepting a \code{data.frame} and returning
-#'   an object of the same kind, or NULL.
-#'   In most cases, you should use this only within
-#'   \code{CPOFunctionalConstructor} functions OR to
-#'   reset an object's retrafo to NULL.
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The CPO object.
 #'
 #' @family CPO
 #' @export
-`retrafo<-` = function(data, value) {
-  UseMethod("retrafo<-")
+getCPOName = function(cpo) {
+  UseMethod("getCPOName")
 }
-
-
-#' @title Set the prediction inverse function
-#'
-#' @description
-#' Sets the retrafo function that can be applied to the prediction.
-#'
-#' @param data [\code{data.frame} | \code{\link{Task}}]\cr
-#'   Something to be applied to a \code{\link{\%>>\%}} chain.
-#'
-#' @param value [\code{CPOConstructed}]\cr
-#'   An inverter chain.
-#'
-#' @family CPO
-#' @export
-`inverter<-` = function(data, value) {
-  UseMethod("inverter<-")
-}
-
 
 #' @title Set the ID of a CPO object.
 #'
@@ -333,17 +331,22 @@ getCPOProperties = function(cpo, only.data = FALSE) {
   UseMethod("getCPOProperties")
 }
 
-#' @title Get the CPO Kind
+#' @title Get the CPO Object Type
 #'
 #' @description
-#' Is either "trafo", "retrafo", or "inverter"
+#' Get the type of the given CPO.
 #'
-#' @param cpo [\code{CPO}]\cr
+#' @param cpo [\code{CPO} | \code{CPOConstructed}]\cr
 #'   The CPO.
 #'
+#' @return \dQuote{CPO} if the given object is a CPO,
+#'   \dQuote{CPOInverter} if the object is an inverter, and
+#'   \dQuote{CPORetrafo} if the object is a retrafo object,
+#'   \dQuote{NULLCPO} if the object is \code{NULLCPO}.
+#'
 #' @export
-getCPOKind = function(cpo) {
-  UseMethod("getCPOKind")
+getCPOObjectType = function(cpo) {
+  UseMethod("getCPOObjectType")
 }
 
 #' @title Get the CPO predict.type
@@ -359,23 +362,24 @@ getCPOPredictType = function(cpo) {
   UseMethod("getCPOPredictType")
 }
 
-#' @title determine the bound of a CPO or Retrafo
+#' @title Determine the Operating Type of the CPO
 #'
 #' @description
-#' Gives the bound of a CPO or Retrafo. These can be
-#' \dQuote{targetbound} for a CPO / Retrafo that
-#' manipulates target columns, \dQuote{databound} for
-#' a CPO / Retrafo that manipulates non-target columns.
+#' Gives the \dQuote{operating type}, of a CPO or Retrafo, i.e. the part of a given data set it operates on.
+#' This can be \dQuote{target} for a CPO / Retrafo / Inverter that
+#' manipulates target columns, \dQuote{feature} for
+#' a CPO / Retrafo that manipulates non-target columns,
+#' or \dQuote{traindata} for a CPO that only handles training data
+#' (and hence can manipulate both feature and target columns, but produces no retrafo).
 #'
-#' For a CPO that affects both, it is a \code{character(2)}
-#' with both values; for one that affects neither, it is
-#' \code{character(0)}.
+#' For a composite CPO / Retrafo of different operating types, all
+#' types are returned. \code{NULLCPO} has no operating type.
 #'
 #' @param cpo [\code{CPO} | \code{CPOConstructed}]\cr
-#'   The CPO or Retrafo to inspect.
+#'   The CPO, Retrafo, or Inverter to inspect.
 #'
 #' @export
-getCPOBound = function(cpo) {
+getCPOOperatingType = function(cpo) {
   UseMethod("getCPOBound")
 }
 
