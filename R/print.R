@@ -54,7 +54,7 @@ summary.CPO = function(object, ...) {
 }
 
 #' @export
-print.CPOConstructed = function(x, ...) {
+print.CPOTrained = function(x, ...) {
   first = TRUE
   kind = getCPOKind(x)
   pt = getCPOPredictType(x)

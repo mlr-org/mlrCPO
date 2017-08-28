@@ -56,9 +56,9 @@ as.list.CPOPipeline = function(x, ...) {
 # Since "Retrafo" and "Inverter" are fundamentally the
 # same class, some special cases need to be handled.
 #' @export
-composeCPO.CPOConstructed = function(cpo1, cpo2) {
-  assertClass(cpo2, "CPOConstructed")
-  is.prim = "CPOConstructedPrimitive" %in% class(cpo2)
+composeCPO.CPOTrained = function(cpo1, cpo2) {
+  assertClass(cpo2, "CPOTrained")
+  is.prim = "CPOTrainedPrimitive" %in% class(cpo2)
   assert(is.prim == is.null(cpo2$prev.retrafo))
   newkind = intersect(cpo1$kind, cpo2$kind)
   if (!length(newkind)) {
@@ -68,7 +68,7 @@ composeCPO.CPOConstructed = function(cpo1, cpo2) {
   if (!is.prim) {
     cpo1 = composeCPO(cpo1, cpo2$prev.retrafo)
   }
-  class(cpo2) = setdiff(class(cpo2), "CPOConstructedPrimitive")
+  class(cpo2) = setdiff(class(cpo2), "CPOTrainedPrimitive")
 
   # check for properties match
   if ("retrafo" %in% newkind) {
@@ -117,9 +117,9 @@ chainPredictType = function(pt1, pt2, name1, name2) {
 # RETRAFO splitting
 # retrafos are a linked list, so on a basic level what happens is
 # c(as.list(x$prev.retrafo), list({x$prev.retrafo = NULL ; x}))
-# However, some other things that happen in composeCPO.CPOConstructed need to be undone.
+# However, some other things that happen in composeCPO.CPOTrained need to be undone.
 #' @export
-as.list.CPOConstructed = function(x, ...) {
+as.list.CPOTrained = function(x, ...) {
   assert(length(list(...)) == 0)
   prev = if (!is.null(x$prev.retrafo)) as.list(x$prev.retrafo)
   x$prev.retrafo = NULL
@@ -133,7 +133,7 @@ as.list.CPOConstructed = function(x, ...) {
       x$kind = c("retrafo", "inverter")
     }
   }
-  class(x) = unique(c("CPOConstructedPrimitive", class(x)))
+  class(x) = unique(c("CPOTrainedPrimitive", class(x)))
   c(prev, list(x))
 }
 
@@ -149,14 +149,14 @@ as.list.CPOConstructed = function(x, ...) {
 #' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
 #' applied on a \code{CPO} chain.
 #'
-#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOConstructed}]\cr
-#'   A list of \code{CPO} or \code{CPOConstructed} objects.
+#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
+#'   A list of \code{CPO} or \code{CPOTrained} objects.
 #'
 #' @family CPO
 #' @export
 pipeCPO = function(pplist) {
   assert(checkList(pplist, types = "CPO"),
-    checkList(pplist, types = "CPOConstructed"))
+    checkList(pplist, types = "CPOTrained"))
   Reduce(composeCPO, c(list(NULLCPO), pplist))
 }
 
@@ -172,7 +172,7 @@ getParamSet.CPO = function(x) {
 }
 
 #' @export
-getParamSet.CPOConstructedPrimitive = function(x) {
+getParamSet.CPOTrainedPrimitive = function(x) {
   x$cpo$par.set
 }
 
@@ -182,7 +182,7 @@ getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
 }
 
 #' @export
-getHyperPars.CPOConstructedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
+getHyperPars.CPOTrainedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
   learner$cpo$par.vals
 }
 
@@ -210,7 +210,7 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE) {
 }
 
 #' @export
-getCPOProperties.CPOConstructed = function(cpo, only.data = FALSE) {
+getCPOProperties.CPOTrained = function(cpo, only.data = FALSE) {
   if (!is.null(cpo$prev.retrafo)) {
     props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
   } else {
@@ -231,7 +231,7 @@ getCPOName.CPO = function(cpo) {
 }
 
 #' @export
-getCPOName.CPOConstructedPrimitive = function(cpo) {
+getCPOName.CPOTrainedPrimitive = function(cpo) {
   cpo$cpo$name
 }
 
@@ -310,7 +310,7 @@ getCPOPredictType.CPO = function(cpo) {
 }
 
 #' @export
-getCPOPredictType.CPOConstructed = function(cpo) {
+getCPOPredictType.CPOTrained = function(cpo) {
   names(cpo$predict.type)
 }
 

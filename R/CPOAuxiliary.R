@@ -128,7 +128,7 @@ is.retrafo = function(x) {  # nolint
 ##################################
 
 #' @export
-setHyperPars2.CPOConstructed = function(learner, par.vals = list()) {
+setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
   stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
     "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
     "Get the state of an existing retrafo / inverter using getRetrafoState.")
@@ -151,12 +151,12 @@ predict.CPORetrafo = function(object, data, ...) {
 }
 
 #' @export
-getParamSet.CPOConstructed = function(x) {
+getParamSet.CPOTrained = function(x) {
   stop("Cannot get param set of compound retrafo. Use as.list to get individual elements")
 }
 
 #' @export
-getHyperPars.CPOConstructed = function(learner, for.fun = c("train", "predict", "both")) {
+getHyperPars.CPOTrained = function(learner, for.fun = c("train", "predict", "both")) {
   stop("Cannot get parameters of compound retrafo. Use as.list to get individual elements")
 }
 
@@ -166,13 +166,13 @@ setCPOId.default = function(cpo, id) {
 }
 
 #' @export
-getCPOName.CPOConstructed = function(cpo) {
+getCPOName.CPOTrained = function(cpo) {
   paste(sapply(as.list(cpo), getCPOName), collapse = " => ")
 }
 
 #' @export
 invertCPO.CPO = function(inverter, prediction, predict.type) {
-  stop("Cannot invert prediction with a CPO object; need a CPOConstructed object.")
+  stop("Cannot invert prediction with a CPO object; need a CPOTrained object.")
 }
 
 ##################################

@@ -8,7 +8,7 @@
 ##################################
 
 # Creates the "Inverter" S3 object. Both "Inverter" and "Retrafo"
-# have the class "CPOConstructed", with slight differences between them.
+# have the class "CPOTrained", with slight differences between them.
 # Since a Retrafo can sometimes do the work of an Inverter, we can't
 # use S3 to differentiate between them effectively.
 makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
@@ -16,7 +16,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
     data = makeClusterTask("CPO Generated", data, check.data = FALSE)
   }
 
-  inverter = makeCPOConstructedBasic(cpo, state, prev.inverter, "CPOInverter")
+  inverter = makeCPOTrainedBasic(cpo, state, prev.inverter, "CPOInverter")
   # --- only in pure "inverter" kind
   inverter$indatatd = getTaskDesc(data)
   inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$name)$target
@@ -25,7 +25,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
 
 # Creates the "Retrafo" S3 object. See comment above 'makeCPOInverter'
 makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
-  retrafo = makeCPOConstructedBasic(cpo, state, prev.retrafo, c("CPORetrafo", if (cpo$hybrid.retrafo) "CPOInverter"))
+  retrafo = makeCPOTrainedBasic(cpo, state, prev.retrafo, c("CPORetrafo", if (cpo$hybrid.retrafo) "CPOInverter"))
   # --- only in "CPORetrafo"
   retrafo$shapeinfo.input = shapeinfo.input
   retrafo$shapeinfo.output = shapeinfo.output
@@ -33,10 +33,10 @@ makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.o
   retrafo
 }
 
-# Creates an object of class "CPOConstructed", which
+# Creates an object of class "CPOTrained", which
 # serves as basis for both "Inverter" and "Retrafo" objects.
-makeCPOConstructedBasic = function(cpo, state, prev.retrafo, subclass) {
-  retrafo = makeS3Obj(c("CPOConstructedPrimitive", subclass, "CPOConstructed"),
+makeCPOTrainedBasic = function(cpo, state, prev.retrafo, subclass) {
+  retrafo = makeS3Obj(c("CPOTrainedPrimitive", subclass, "CPOTrained"),
     cpo = setCPOId(cpo, NULL),
     state = state,
     prev.retrafo = NULL,
@@ -54,7 +54,7 @@ makeCPOConstructedBasic = function(cpo, state, prev.retrafo, subclass) {
 ##################################
 # CPO is a tree datastructure. CPOPrimitive are
 # the leaves, CPOPipeline the nodes.
-# CPOConstructed is a linked list, which gets automatically
+# CPOTrained is a linked list, which gets automatically
 # constructed in 'callCPO'.
 
 # Call the (possibly compound) CPO pipeline.
@@ -78,7 +78,7 @@ callCPO = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.
 # - properties check (inbound, and outbound)
 # - automatically subsets 'args' to the relevant ones for cpo
 # - collects control / cpo.retrafo from called function
-# - returns list(data, retrafo = [CPOConstructed object])
+# - returns list(data, retrafo = [CPOTrained object])
 # attaches prev.retrafo to the returned retrafo object, if present.
 callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.inverter, prev.inverter) {
 
@@ -203,12 +203,12 @@ callCPO.CPOPipeline = function(cpo, data, build.retrafo, prev.retrafo, build.inv
 # - returns the resulting data
 
 # receiver.properties are the properties of the next layer
-# This is the retrafo equivalent to callCPO. However, since CPOConstructed
+# This is the retrafo equivalent to callCPO. However, since CPOTrained
 # is a different data structure than compound CPO ("CPOPipeline"), we don't need
 # any S3 here.
-callCPOConstructed = function(retrafo, data, build.inverter, prev.inverter) {
+callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
 
-  assertClass(retrafo, "CPOConstructed")
+  assertClass(retrafo, "CPOTrained")
   cpo = retrafo$cpo
 
   if (!"CPORetrafo" %in% class(retrafo)) {
@@ -219,7 +219,7 @@ callCPOConstructed = function(retrafo, data, build.inverter, prev.inverter) {
     if (isPropertyStrict()) {
       assertSubset(retrafo$prev.retrafo$properties.needed, cpo$properties$properties)  # this is already tested during composition
     }
-    upper.result = callCPOConstructed(retrafo$prev.retrafo, data, build.inverter, prev.inverter)
+    upper.result = callCPOTrained(retrafo$prev.retrafo, data, build.inverter, prev.inverter)
     data = upper.result$data
     prev.inverter = upper.result$inverter
   }
@@ -254,7 +254,7 @@ callCPOConstructed = function(retrafo, data, build.inverter, prev.inverter) {
 }
 
 # Basically wraps around callCPO with some checks and handling of attributes
-# This is also called for CPOConstructed; there it calls 'callCPOConstructed'
+# This is also called for CPOTrained; there it calls 'callCPOTrained'
 #' @export
 applyCPO.CPO = function(cpo, task) {
   if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
@@ -269,8 +269,8 @@ applyCPO.CPO = function(cpo, task) {
   assert(checkNull(prev.inverter), checkClass(prev.inverter, "CPORetrafo"))
   retrafo(task) = NULL
 
-  if ("CPOConstructed" %in% class(cpo)) {
-    result = callCPOConstructed(cpo, task, TRUE, prev.inverter)
+  if ("CPOTrained" %in% class(cpo)) {
+    result = callCPOTrained(cpo, task, TRUE, prev.inverter)
     task = result$data
     retrafo(task) = prev.retrafo
   } else {

@@ -5,7 +5,7 @@
 # The state is basically the control object, or the trafo-function's environment
 # We also keep the shapeinfo.input and shapeinfo.output information
 #' @export
-getRetrafoState.CPOConstructedPrimitive = function(retrafo.object) {
+getRetrafoState.CPOTrainedPrimitive = function(retrafo.object) {
   cpo = retrafo.object$cpo
   if (!"retrafo" %in% retrafo.object$kind) {
     stop("Cannot get state of inverter")
@@ -29,7 +29,7 @@ getRetrafoState.CPOConstructedPrimitive = function(retrafo.object) {
 }
 
 #' @export
-getRetrafoState.CPOConstructed = function(retrafo.object) {
+getRetrafoState.CPOTrained = function(retrafo.object) {
   stop("Cannot get state of compound retrafo. Use as.list to get individual elements")
 }
 
@@ -71,5 +71,5 @@ makeRetrafoFromState.CPOConstructor = function(constructor, state) {
     }
   }
 
-  makeCPOConstructed(bare, newstate, NULL, data$shapeinfo.input, data$shapeinfo.output)
+  makeCPOTrained(bare, newstate, NULL, data$shapeinfo.input, data$shapeinfo.output)
 }

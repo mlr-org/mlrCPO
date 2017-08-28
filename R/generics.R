@@ -23,7 +23,7 @@
 #' @export
 composeCPO = function(cpo1, cpo2) {
   assert(checkClass(cpo2, "CPO"),
-    checkClass(cpo2, "CPOConstructed"))
+    checkClass(cpo2, "CPOTrained"))
   if (is.nullcpo(cpo2)) {
     cpo1
   }
@@ -96,7 +96,7 @@ applyCPO = function(cpo, task) {
 #' @param data [\code{data.frame} | \code{\link{Task}} | \code{\link{WrappedModel}}]\cr
 #'   The result of a \code{\link{\%>>\%}} chain applied to a data set.
 #'
-#' @return [\code{CPOConstructed}]. The retransformation function that can be
+#' @return [\code{CPOTrained}]. The retransformation function that can be
 #'   applied to new data.
 #'
 #' @examples
@@ -181,7 +181,7 @@ inverter = function(data) {
 #' @param data [\code{data.frame} | \code{\link{Task}}]\cr
 #'   Something to be applied to a \code{\link{\%>>\%}} chain.
 #'
-#' @param value [\code{CPOConstructed}]\cr
+#' @param value [\code{CPOTrained}]\cr
 #'   An inverter chain.
 #'
 #' @family CPO
@@ -206,7 +206,7 @@ inverter = function(data) {
 #' The object can be slightly modified and used to create a new
 #' CPO retrafo object using \code{\link{makeRetrafoFromState}}.
 #'
-#' @param retrafo.object [\code{CPOConstructed}]\cr
+#' @param retrafo.object [\code{CPOTrained}]\cr
 #'   The object to get the state of.
 #'
 #' @return a list.
@@ -227,7 +227,7 @@ getRetrafoState = function(retrafo.object) {
 #' @param state
 #'   A state gotten from another CPO retrafo object using
 #'   \code{\link{getRetrafoState}}
-#' @return a \code{CPOConstructed}.
+#' @return a \code{CPOTrained}.
 #' @family CPO
 #' @export
 makeRetrafoFromState = function(constructor, state) {
@@ -336,7 +336,7 @@ getCPOProperties = function(cpo, only.data = FALSE) {
 #' @description
 #' Get the type of the given CPO.
 #'
-#' @param cpo [\code{CPO} | \code{CPOConstructed}]\cr
+#' @param cpo [\code{CPO} | \code{CPOTrained}]\cr
 #'   The CPO.
 #'
 #' @return \dQuote{CPO} if the given object is a CPO,
@@ -375,7 +375,7 @@ getCPOPredictType = function(cpo) {
 #' For a composite CPO / Retrafo of different operating types, all
 #' types are returned. \code{NULLCPO} has no operating type.
 #'
-#' @param cpo [\code{CPO} | \code{CPOConstructed}]\cr
+#' @param cpo [\code{CPO} | \code{CPOTrained}]\cr
 #'   The CPO, Retrafo, or Inverter to inspect.
 #'
 #' @export

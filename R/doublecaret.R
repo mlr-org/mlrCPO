@@ -75,7 +75,7 @@
       "If you called 'data %>>% preproc %>>% learner', you probably meant",
       "train(preproc %>>% learner, data). Note that this is different from",
       "'train(learner, data %>>% preproc), which is usually not what you want.")
-  } else if (any(c("CPOConstructed", "CPO") %in% class(cpo2))) {
+  } else if (any(c("CPOTrained", "CPO") %in% class(cpo2))) {
     applyCPO(cpo2, cpo1)
   } else if ("CPOConstructor" %in% class(cpo2)) {
     stop("Cannot compose CPO Constructors.\nDid you forget to construct the CPO?")
@@ -107,10 +107,10 @@
 }
 
 #' @export
-`%>>%.CPOConstructed` = function(cpo1, cpo2) {
+`%>>%.CPOTrained` = function(cpo1, cpo2) {
   if (is.nullcpo(cpo2)) {
     cpo1
-  } else if ("CPOConstructed" %in% class(cpo2)) {
+  } else if ("CPOTrained" %in% class(cpo2)) {
     composeCPO(cpo1, cpo2)
   } else if ("WrappedModel" %in% class(cpo2)) {
     stop("Attaching CPO Retrafo to a model is not implemented.")

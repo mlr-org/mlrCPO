@@ -82,10 +82,10 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   model
 }
 
-# Wraps around callCPOConstructed and invertCPO
+# Wraps around callCPOTrained and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
-  retrafod = callCPOConstructed(.model$learner.model$retrafo, .newdata, TRUE, NULL)
+  retrafod = callCPOTrained(.model$learner.model$retrafo, .newdata, TRUE, NULL)
   prediction = NextMethod(.newdata = retrafod$data)
   if (!is.null(retrafod$inverter)) {
     invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
