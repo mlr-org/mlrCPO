@@ -1,5 +1,5 @@
 
-
+# get the defaults of a param.set as a list
 getParamSetDefaults = function(ps) {
   lapply(ps$pars[vlapply(ps$pars, function(x) x$has.default)], function(x) x$default)
 }
@@ -44,7 +44,8 @@ checkParamsFeasible = function(par.set, par.vals) {
   }
 }
 
-# convert between character vectors and lists for discrete vector params
+# convert from character vectors to  lists for discrete vector params
+# ("DVP" = Discrete Vector Param)
 convertNamesToItemsDVP = function(par.vals, par.set) {
   oobreaction = firstNonNull(getMlrOption("on.par.out.of.bounds"), "stop")
   reactionFn = switch(oobreaction, stop = stopf, warn = warningf, quiet = list)  # nolint
@@ -75,6 +76,7 @@ convertNamesToItemsDVP = function(par.vals, par.set) {
   par.vals
 }
 
+# convert back from list to character vector for discrete vector params
 convertItemsToNamesDVP = function(par.vals, par.set) {
   for (n in names(par.set$pars)) {
     par = par.set$pars[[n]]

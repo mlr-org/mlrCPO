@@ -12,58 +12,49 @@ print.CPOConstructor = function(x, ...) {
 }
 
 #' @export
-print.CPO = function(x, ...) {
-  isprim = "CPOPrimitive" %in% class(x)
-  pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
-  argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
-  template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
-  catf(template, getCPOName(x), argstring, newline = FALSE)
-  if (isprim && length({unexport = x$unexported.args})) {
-      catf("[not exp'd: %s]", paste(names(unexport), sapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
-  }
-  if (isprim && length({affect = getCPOAffect(x)})) {
-    catf(" [%s]", paste(names(affect), sapply(affect, convertToShortString), sep = " = ", collapse = ", "))
-  } else {
-    cat("\n")
-  }
-}
-
-#' @export
-print.DetailedCPO = function(x, ...) {
-  chain = as.list(x)
-  catf("Retrafo chain of %d elements:", length(chain))
-  is.first = TRUE
-  for (retrafo in chain) {
-    if (!is.first) {
-      cat("  ====>\n")
+print.CPO = function(x, verbose = FALSE, ...) {
+  if (verbose) {
+    chain = as.list(x)
+    catf("Retrafo chain of %d elements:", length(chain))
+    is.first = TRUE
+    for (retrafo in chain) {
+      if (!is.first) {
+        cat("  ====>\n")
+      }
+      is.first = FALSE
+      class(retrafo) = setdiff(class(retrafo), "DetailedCPO")
+      print(retrafo)
+      cat("\n")
+      print(getParamSet(retrafo))
     }
-    is.first = FALSE
-    class(retrafo) = setdiff(class(retrafo), "DetailedCPO")
-    print(retrafo)
-    cat("\n")
-    print(getParamSet(retrafo))
+  } else {
+    isprim = "CPOPrimitive" %in% class(x)
+    pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
+    argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
+    template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
+    catf(template, getCPOName(x), argstring, newline = FALSE)
+    if (isprim && length({unexport = x$unexported.args})) {
+        catf("[not exp'd: %s]", paste(names(unexport), sapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
+    }
+    if (isprim && length({affect = getCPOAffect(x)})) {
+      catf(" [%s]", paste(names(affect), sapply(affect, convertToShortString), sep = " = ", collapse = ", "))
+    } else {
+      cat("\n")
+    }
   }
-}
-
-#' @export
-summary.CPO = function(object, ...) {
-  if (!"DetailedCPO" %in% class(object)) {
-    class(object) = c(head(class(object), -1), "DetailedCPO", "CPO")
-  }
-  object
 }
 
 #' @export
 print.CPOTrained = function(x, ...) {
   first = TRUE
-  kind = getCPOKind(x)
+  object.type = getCPOObjectType(x)
+  invcap = getCPOInvertCapability(x)
   pt = getCPOPredictType(x)
   if (length(pt) == 3) {
-    assert("retrafo" %in% kind)
-    kind = "retrafo"
+    assert(object.type == "CPORetrafo")
   }
-  catf("CPO %s chain", collapse(stri_trans_totitle(kind), sep = " / "), newline = FALSE)
-  if ("inverter" %in% kind) {
+  catf("CPO %s chain", collapse(stri_trans_totitle(invcap), sep = " / "), newline = FALSE)
+  if (invcap %in% c("inverter", "hybrid")) {
     catf("(able to predict '%s')", collapse(pt, sep = "', '"))
   } else {
     cat("\n")
