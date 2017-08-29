@@ -28,6 +28,30 @@ composeCPO.CPO = function(cpo1, cpo2) {
 }
 
 ##################################
+### CPO Trafo Splitting        ###
+##################################
+
+# Splitting a primitive object gives a list of that object
+#' @export
+as.list.CPOPrimitive = function(x, ...) {
+  assert(length(list(...)) == 0)
+  list(x)
+}
+
+# Compound objects are a binary tree, so
+# splitting a compound object recursively calls as.list to both children
+# and then concatenates.
+#' @export
+as.list.CPOPipeline = function(x, ...) {
+  first = x$first
+  second = x$second
+  first$par.vals = subsetParams(x$par.vals, first$par.set)
+  second$par.vals = subsetParams(x$par.vals, second$par.set)
+  c(as.list(first), as.list(second))
+}
+
+
+##################################
 ### Retrafo Composition        ###
 ##################################
 
@@ -126,28 +150,8 @@ chainPredictType = function(pt1, pt2, name1, name2) {
 }
 
 ##################################
-### Splitting                  ###
+### Retrafo Splitting          ###
 ##################################
-
-# CPO splitting
-# Splitting a primitive object gives a list of that object
-#' @export
-as.list.CPOPrimitive = function(x, ...) {
-  assert(length(list(...)) == 0)
-  list(x)
-}
-
-# Compound objects are a binary tree, so
-# splitting a compound object recursively calls as.list to both children
-# and then concatenates.
-#' @export
-as.list.CPOPipeline = function(x, ...) {
-  first = x$first
-  second = x$second
-  first$par.vals = subsetParams(x$par.vals, first$par.set)
-  second$par.vals = subsetParams(x$par.vals, second$par.set)
-  c(as.list(first), as.list(second))
-}
 
 # RETRAFO splitting
 # retrafos are a linked list, so on a basic level what happens is
@@ -158,18 +162,16 @@ as.list.CPOTrained = function(x, ...) {
   assert(length(list(...)) == 0)
   prev = if (!is.null(x$prev.retrafo)) as.list(x$prev.retrafo)
   x$prev.retrafo = NULL
-  if ("retrafo" %in% x$kind) {
+  class(x) = setdiff(class(x), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter")))
+  if ("properties.needed" %in% names(x)) {
+    # was a CPORetrafo before
     x$properties.needed = x$cpo$properties$properties.needed
+    x = addClasses(x, getCPORetrafoSubclasses(x$cpo))
+  } else {
+    x = addClasses(x, "CPOInverter")
   }
   x$predict.type = x$cpo$predict.type
-  x$bound = x$cpo$bound
-  if (identical(x$kind, "retrafo")) {
-    if (x$cpo$hybrid.retrafo) {
-      x$kind = c("retrafo", "inverter")
-    }
-  }
-  class(x) = unique(c("CPOTrainedPrimitive", class(x)))
-  c(prev, list(x))
+  c(prev, list(addClasses(x, "CPOTrainedPrimitive")))
 }
 
 ##################################
