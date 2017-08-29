@@ -79,3 +79,45 @@ print.CPOTrained = function(x, ...) {
   }
   cat("\n")
 }
+
+# ShapeInfo printing
+
+# print single shapeinfo row
+catSI = function(x) {
+  if (length(x$colnames)) {
+    cat(collapse(sprintf("%s: %s", x$colnames, substr(x$coltypes, 1, 3)), sep = ", "))
+  } else {
+    cat("(empty)")
+  }
+}
+
+# pretty-print shapeinfo
+#' @export
+print.OutputShapeInfo = function(x, ...) {
+  cat("<ShapeInfo (output)")
+  if (all(c("colnames", "coltypes") %in% names(x))) {
+    cat(" ")
+    catSI(x)
+    cat(">\n")
+  } else {
+    cat(">:\n")
+    for (s in names(x)) {
+      cat(s, ":\n", sep = "")
+      print(x[[s]])
+    }
+  }
+}
+
+#' @export
+print.InputShapeInfo = function(x, ...) {
+  cat("<ShapeInfo (input) ")
+  catSI(x)
+  cat(">\n")
+}
+
+#' @export
+print.ShapeInfo = function(x, ...) {
+  cat("<ShapeInfo ")
+  catSI(x)
+  cat(">\n")
+}
