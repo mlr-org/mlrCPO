@@ -660,6 +660,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       properties = properties.list                 # properties$properties: [character] properties handled by this CPO
                                                    # properties$adding [character] capabilities that this CPO adds to the next processor
                                                    # properties$needed [character] capabilities needed by the next processor
+      properties.raw  = properties.list$properties # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       operating.type = .cpotype,                   # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
       predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part

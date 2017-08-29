@@ -95,7 +95,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     }
   }
 
-  tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties$properties.data, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
+  tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties.raw, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
   if (!cpo$data.dependent) {
     assert(cpo$operating.type = "target")
     tin$indata$data = NULL
@@ -143,8 +143,8 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$properties.needed)
-  tout = handleTrafoOutput(result, if (cpo$operating.type != "traindata") data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
-    cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$debug.name)
+  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
+    cpo$operating.type, cpo$convertto, tin$subset.index, cpo$debug.name)
 
   retrafo = if (build.retrafo && cpo$operating.type != "traindata") {
       makeCPORetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo)
@@ -225,7 +225,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
   }
   assert(cpo$operating.type == "feature")  # "traindata" has no retrafo!
 
-  tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties$properties.data, retrafo$shapeinfo.input, cpo$name)
+  tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties.raw, retrafo$shapeinfo.input, cpo$name)
 
   assertChoice(cpo$control.type, c("functional", "object", "stateless"))
   if (cpo$control.type == "functional") {
