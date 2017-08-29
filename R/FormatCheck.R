@@ -320,7 +320,7 @@ compositeProperties = function(prop1, prop2, name1, name2) {
   # When composing two CPOs (CPO1 %>>% CPO2), there is an additional requirement:
   # * properties.needed.1 is a subset of properties.2
   missing.properties = setdiff(properties.needed.1, properties.2)
-  if (length(missing.properties)) {
+  if (isPropertyStrict() && length(missing.properties)) {
     stopf("CPO %s creates data with propert%s %s that %s can not handle.",
       name1, ifelse(length(missing.properties) > 1, "ies", "y"),
       collapse(missing.properties, sep = ", "),
@@ -427,6 +427,9 @@ makeOutputShapeInfo = function(outdata) {
 
 # give userfriendly error message when needed properties are absent
 assertPropertiesOk = function(present.properties, allowed.properties, whichfun, direction, name) {
+  if (!isPropertyStrict()) {
+    return(invisible(NULL))
+  }
   badprops = setdiff(present.properties, allowed.properties)
   if (length(badprops)) {
     if (direction == "in") {
