@@ -1,6 +1,6 @@
 # mlrCPO: Composable Preprocessing Operators for [mlr](https://github.com/mlr-org/mlr)
 
-### GSoC 2017: Operator Based Machine Learning Pipeline Construction
+GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## What is CPO?
 
@@ -90,7 +90,7 @@ A thorough reference of `mlrCPO`' capabilities can be found in the [vignette](ht
 
 ## Project Status
 
-`mlrCPO` is not yet a mature project and may be unstable at times. Furthermore, even though it provides extensive functionality already, it is still lacking many concrete implementations of preprocessing operators.
+`mlrCPO` is not yet a mature project and may be unstable at times; setting up a CI system is in progress, which should make things much smoother soon. Furthermore, even though it provides extensive functionality already, it is still lacking many concrete implementations of preprocessing operators.
 
 
 ## Similar Projects
