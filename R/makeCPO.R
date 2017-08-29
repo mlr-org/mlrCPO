@@ -563,10 +563,14 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
 
   trafo.funs = constructTrafoFunctions(funargs, trafo.expr, retrafo.expr, parent.frame(2), .data.dependent, .trafo.type == "stateless")
 
-  funargs = insert(funargs, list(id = NULL, export = "export.default",
-    affect.type = NULL, affect.index = integer(0),
+  funargs = insert(funargs, list(id = NULL, export = "export.default"))
+  default.affect.args = list(affect.type = NULL, affect.index = integer(0),
     affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
-    affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE))
+    affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+  if (.cpotype != "traindata") {
+    # "traindata" CPOs have no affect.* arguments
+    funargs = insert(funargs, default.affect.args)
+  }
 
   control.type = if (.trafo.type == "stateless") "stateless" else if (is.null(cpo.retrafo)) "functional" else "object"
 
@@ -590,21 +594,26 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
     if (!is.null(id)) {
       assertString(id)
     }
-    affect.args = args[affect.params]
-    names(affect.args) = substring(names(affect.args), 8)
-    if (!is.null(affect.args$type)) {
-      assertSubset(affect.args$type, c("numeric", "factor", "ordered", "other"))
+    if (.cpotype == "traindata") {
+      # "traindata" CPOs must always take all data.
+      affect.args = default.affect.args
+    } else {
+      affect.args = args[affect.params]
+      names(affect.args) = substring(names(affect.args), 8)
+      if (!is.null(affect.args$type)) {
+        assertSubset(affect.args$type, c("numeric", "factor", "ordered", "other"))
+      }
+      assertIntegerish(affect.args$index, any.missing = FALSE, unique = TRUE)
+      assertCharacter(affect.args$names, any.missing = FALSE, unique = TRUE)
+      if (!is.null(affect.args$pattern)) {
+        assertString(affect.args$pattern)
+      }
+      assertFlag(affect.args$invert)
+      assertFlag(affect.args$pattern.ignore.case)
+      assertFlag(affect.args$pattern.perl)
+      assertFlag(affect.args$pattern.fixed)
+      args = dropNamed(args, affect.params)
     }
-    assertIntegerish(affect.args$index, any.missing = FALSE, unique = TRUE)
-    assertCharacter(affect.args$names, any.missing = FALSE, unique = TRUE)
-    if (!is.null(affect.args$pattern)) {
-      assertString(affect.args$pattern)
-    }
-    assertFlag(affect.args$invert)
-    assertFlag(affect.args$pattern.ignore.case)
-    assertFlag(affect.args$pattern.perl)
-    assertFlag(affect.args$pattern.fixed)
-    args = dropNamed(args, affect.params)
 
     present.pars = Filter(function(x) !identical(x, substitute()), args[names(.par.set$pars)])
     checkParamsFeasible(.par.set, present.pars)

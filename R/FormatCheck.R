@@ -111,7 +111,8 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
       small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), FALSE, name = name)
     }
   } else {  # operating.type == "traindata"
-
+    recombined = recombineRetrafolessResult(olddata, outdata, datasplit, subset.index, name)
+    small.recombined = recombined
   }
 
   present.properties = getTaskProperties(small.recombined)
@@ -845,4 +846,31 @@ checkDFBasics = function(task, newdata, targetbound, name) {
    stopf("CPO %s cpo.trafo gave bad result\ndata.frame did not contain target column%s %s.%s",
      name, ifelse(length(missingt) > 1, "s", ""), missingt, addendum)
   }
+}
+
+recombineRetrafolessResult = function(olddata, newdata, datasplit, subset.index, name) {
+  assert(identical(subset.index,_along(subset.index)))
+  assertSubset(datasplit, c("df.all", "task"))
+  if (is.data.frame(olddata)) {
+    if (datasplit == "df.all") {
+      assertClass(newdata, "data.frame")
+    } else {  # datasplit == "task"
+      assertClass(newdata, "ClusterTask")
+      newdata = getTaskData(newdata)
+    }
+  } else {
+    if (datasplit == "df.all") {
+      assertClass(newdata, "data.frame")
+      if (!all(getTaskTargetNames(olddata) %in% names(newdata))) {
+        stopf("retrafoless CPO %s must not change target names.", name)
+      }
+      newdata = changeData(olddata, newdata)
+    } else {  # datasplit == "task"
+      assert(identical(class(newdata), class(olddata)))
+      if (!all(getTaskTargetNames(olddata) == getTaskTargetNames(newdata))) {
+        stopf("retrafoless CPO %s must not change target names.", name)
+      }
+    }
+  }
+  newdata
 }
