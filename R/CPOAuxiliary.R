@@ -115,13 +115,9 @@ inverter.WrappedModel = function(data) {
 #' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.
 #'
 #' @export
-is.retrafo = function(x) {  # nolint
+is.inverter = function(x) {  # nolint
   "CPOInverter" %in% class(x)
 }
-
-
-
-
 
 ##################################
 ### General Generic Functions  ###

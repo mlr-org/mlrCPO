@@ -110,8 +110,8 @@ getCPOObjectType.NULLCPO = function(cpo) {
 }
 
 #' @export
-getCPOOperatingType.NULLCPO = function(cpo) {
-  character(0)
+getCPOInvertCapability.NULLCPO = function(cpo) {
+  "retrafo"
 }
 
 #' @export

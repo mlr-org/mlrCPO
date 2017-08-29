@@ -16,21 +16,22 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
     data = makeClusterTask("CPO Generated", data, check.data = FALSE)
   }
 
-  inverter = makeCPOTrainedBasic(cpo, state, prev.inverter, "CPOInverter")
+  inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter")
   # --- only in pure "inverter" kind
   inverter$indatatd = getTaskDesc(data)
   inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$name)$target
-  inverter
+  composeCPO(nullToNullcpo(prev.inverter), inverter)
 }
 
 # Creates the "Retrafo" S3 object. See comment above 'makeCPOInverter'
 makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
-  retrafo = makeCPOTrainedBasic(cpo, state, prev.retrafo, c("CPORetrafo", if (cpo$hybrid.retrafo) "CPOInverter"))
+  retrafo = makeCPOTrainedBasic(cpo, state, prev.retrafo, getCPORetrafoSubclasses(cpo))
   # --- only in "CPORetrafo"
+  retrafo$properties.needed = cpo$properties$properties.needed  # is updated when chaining retrafos
   retrafo$shapeinfo.input = shapeinfo.input
   retrafo$shapeinfo.output = shapeinfo.output
-  retrafo$properties.needed = cpo$properties$properties.needed
-  retrafo
+
+  composeCPO(nullToNullcpo(prev.retrafo), retrafo)
 }
 
 # Creates an object of class "CPOTrained", which
@@ -41,12 +42,7 @@ makeCPOTrainedBasic = function(cpo, state, prev.retrafo, subclass) {
     state = state,
     prev.retrafo = NULL,
     # --- Target Bound things
-    bound = cpo$bound,
     predict.type = cpo$predict.type)  # named list type to predict --> needed type
-  if (!is.null(prev.retrafo)) {
-    retrafo = composeCPO(prev.retrafo, retrafo)
-  }
-  retrafo
 }
 
 ##################################
@@ -313,3 +309,16 @@ checkAllParams = function(par.vals, par.set, name) {
   }
 }
 
+# when a CPRetrafo is generated from a cpo, what (sub)class should it have?
+# Normal (feature operating) CPOs are "CPORetrafo". Stateless
+# ("hybrid.retrafo") target operating CPOs get to be "CPORetrafoHybrid" + "CPORetrafo";
+# otherwise target operating CPOs are "CPORetrafoOnly" + "CPORetrafo".
+getCPORetrafoSubclasses = function(cpo) {
+  c(if (cpo$operating.type == "target") {
+      if (cpo$control.type == "stateless") {
+        "CPORetrafoHybrid"
+      } else {
+        "CPORetrafoOnly"
+      }
+    }, "CPORetrafo")
+}

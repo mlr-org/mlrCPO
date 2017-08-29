@@ -334,19 +334,47 @@ getCPOProperties = function(cpo, only.data = FALSE) {
 #' @title Get the CPO Object Type
 #'
 #' @description
-#' Get the type of the given CPO.
+#' Get the type / functionality provided by the given CPO object.
+#' There is a fundamental distinction between \code{CPO} objects
+#' and \code{CPOTrained} objects, the latter of which can provide either
+#' retrafo or inverter functionality, or both. \code{CPOTrained} are sublassed into
+#' \code{CPOInverter} (only inverter functionality), or
+#' \code{CPORetrafo} (retrafo, possibly also inverter). To get more information
+#' about a \code{CPORetrafo} object's capabilities, use \code{\link{getCPOInvertCapability}}.
+#'
 #'
 #' @param cpo [\code{CPO} | \code{CPOTrained}]\cr
 #'   The CPO.
 #'
-#' @return \dQuote{CPO} if the given object is a CPO,
-#'   \dQuote{CPOInverter} if the object is an inverter, and
-#'   \dQuote{CPORetrafo} if the object is a retrafo object,
+#' @return [\code{character(1)}]: \dQuote{CPO} if the given object is a CPO,
+#'   \dQuote{CPOInverter} if the object is an inverter only,
+#'   \dQuote{CPORetrafo} if the object is a retrafo object (which may have inverter capabilities),
 #'   \dQuote{NULLCPO} if the object is \code{NULLCPO}.
 #'
 #' @export
 getCPOObjectType = function(cpo) {
   UseMethod("getCPOObjectType")
+}
+
+#' @title Get the CPO's Inverter Capability
+#'
+#' @description
+#' Both \code{CPORetrafo} and \code{CPOInverter} objects can be used for
+#' \code{\link{invert}} in principle. However, some \code{CPORetrafo}
+#' objects forbid inversion (use the \code{CPOInverter} object instead),
+#' and some \code{CPORetrafo} objects are NO-OPS when called with \code{\link{invert}}.
+#'
+#' @param cpo [\code{CPOTrained}]\cr
+#'   The \code{CPOTrained} object to query.
+#'
+#' @return [\code{character(1)}]: \dQuote{inverter} if given object is an inverter only,
+#'   \dQuote{hybrid} if given object is retrafo and inverter,
+#'   \dQuote{retrafo.only} if given object is retrafo only,
+#'   \dQuote{retrafo} if given object is a retrafo that gives a NO-OP if used with \code{\link{invert}}.
+#'
+#' @export
+getCPOInvertCapability = function(cpo) {
+  UseMethod("getCPOInvertCapability")
 }
 
 #' @title Get the CPO predict.type
@@ -380,7 +408,7 @@ getCPOPredictType = function(cpo) {
 #'
 #' @export
 getCPOOperatingType = function(cpo) {
-  UseMethod("getCPOBound")
+  UseMethod("getCPOOperatingType")
 }
 
 # 'prediction' is whatever type the prediction usually has (depending on type). must return

@@ -664,10 +664,8 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
       bare.par.set = .par.set,                     # [ParamSet] exported parameters with names not containing the ID prefix
       datasplit = .dataformat,                     # [character(1)] data format as received by trafo / retrafo
-      stateless = .stateless,                      # [logical(1)] whether data gets passed to retrafo
       fix.factors = .fix.factors,                  # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things
-      hybrid.retrafo = .cpotype == "target" && .stateless,  # [logical(1)] whether the CPORetrafo object can also function as an CPOInverter object
       convertfrom = .type.from,                    # [character(1)] task type to convert from.
       convertto = .type.to,                        # [character(1)] task type to convert to.
       data.dependent = .data.dependent)            # [logical(1)] whether trafo uses data at all.
