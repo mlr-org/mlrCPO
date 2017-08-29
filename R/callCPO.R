@@ -288,7 +288,7 @@ getBareHyperPars = function(cpo) {
   args = cpo$par.vals
   namestranslation = setNames(names2(cpo$bare.par.set$pars),
     names(cpo$par.set$pars))
-  setNames(args, namestranslation[names(args)])
+  c(setNames(args, namestranslation[names(args)]), cpo$unexported.args)
 }
 
 checkAllParams = function(par.vals, par.set, name) {
