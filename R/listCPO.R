@@ -37,7 +37,7 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
 #'
 #' Categories and subcategories are:
 #' \tabular{lll}{
-#'   \bold{category} \tab \bold{subcategory}   \tab \bold{description}
+#'   \bold{category} \tab \bold{subcategory}   \tab \bold{description}          \cr
 #'   meta            \tab                      \tab CPO that acts on other CPOs \cr
 #'   tools           \tab                      \tab                             \cr
 #'   data            \tab general              \tab                             \cr
