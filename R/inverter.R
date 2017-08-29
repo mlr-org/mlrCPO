@@ -22,8 +22,6 @@
 #'
 #' @export
 invert = function(inverter, prediction, predict.type = "response") {
-  assertClass(inverter, "CPOInverter")
-
   have.prediction = "Prediction" %in% class(prediction)
   if (have.prediction) {
     preddf = prediction$data
@@ -39,19 +37,26 @@ invert = function(inverter, prediction, predict.type = "response") {
   } else {
     preddf = prediction
   }
-  preddf = sanitizePrediction(preddf)
+  prediction = sanitizePrediction(preddf)
+  UseMethod("invert", inverter, prediction = prediction)
+}
 
-  if (is.nullcpo(inverter) || length(inverter$predict.type) > 2) {  # predict.type is the identity
-    cat("(Inversion was a no-op.)\n")
-    # we check this here and not earlier because the user might rely on inverter()
-    # to check his data for consistency
-    prediction
-  }
+#' @export
+invert.CPORetrafo = function(inverter, prediction, predict.type = "response") {
+  message("(Inversion was a no-op.)")
+  # we check this here and not earlier because the user might rely on inverter()
+  # to check his data for consistency
+  prediction
+}
 
-  inverted = invertCPO(inverter, preddf, predict.type)
+#' @export
+invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
+
+  inverted = invertCPO(inverter, prediction, predict.type)
   invdata = inverted$new.prediction
   assert(all(grepl("^se$|^(prob|response)(\\..*)?$", names(invdata))))
   if (is.null(inverted$new.td)) {
+    assert(
     assert("retrafo" %in% getCPOKind(inverter))  # only hybrid retrafos should return a NULL td
 
     outputtype = intersect(getCPOProperties(inverter)$properties, cpo.tasktypes)
@@ -80,6 +85,15 @@ invert = function(inverter, prediction, predict.type = "response") {
   } else {
     invdata
   }
+}
+
+#' @export
+invert.CPORetrafoHybrid = invert.CPOInverter
+
+#' @export
+invert.CPORetrafoOnly = function(inverter, prediction, predict.type = "response") {
+  stopf("Inverting with CPO %s not possible, since it contains data-dependent inverters\nUse a CPOInverter object instead\n%s",
+    getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
 }
 
 # data is either a data.frame or a matrix, and will be turned into
