@@ -51,7 +51,7 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
 #'   imputation      \tab general              \tab imp CPO with operation arg  \cr
 #'                   \tab specialised          \tab specific imputation CPO     \cr
 #'   tools           \tab imputation           \tab                             \cr
-#'
+#' }
 #' @export
 listCPO = function() {
   df = convertListOfRowsToDataFrame(parent.env(environment())$CPOLIST)

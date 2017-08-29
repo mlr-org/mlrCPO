@@ -168,7 +168,7 @@ registerCPO(cpoScaleMaxAbs, "data", "numeric data preprocessing", "Scale numeric
 #' @export
 cpoSpatialSign = makeCPOExtended("spatial.sign", length = 1: numeric[0, ~.], .dataformat = "numeric", .trafo.type = "stateless",  # nolint
   .properties = c("numerics", "factors", "ordered"),  # no missings
-  cpo.trafo = NULL, cpo.retrafo = {
+  cpo.trafo = {
     t(apply(as.matrix(data), 1, function(x) {
       len = sqrt(sum(x ^ 2))
       if (!identical(len, 0)) {
@@ -176,7 +176,7 @@ cpoSpatialSign = makeCPOExtended("spatial.sign", length = 1: numeric[0, ~.], .da
       }
       x
     }))
-  })
+  }, cpo.retrafo = NULL)
 registerCPO(cpoSpatialSign, "data", "numeric data preprocessing", "Scale numeric rows to given length.")
 
 #' @title Probability Encoding
@@ -664,9 +664,9 @@ registerCPO(cpoMissingIndicators, "tools", "imputation", "Generate factorial col
 cpoModelMatrix = makeCPOExtended("model.matrix", .fix.factors = TRUE, .trafo.type = "stateless",  # nolint
   .par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "df.features",
   .properties.adding = c("factors", "ordered"), .properties.needed = "numerics",
-  cpo.trafo = NULL, cpo.retrafo = {
+  cpo.trafo = {
     as.data.frame(model.matrix(formula, data = data))
-  })
+  }, cpo.retrafo = NULL)
 registerCPO(cpoSelect, "data", "general", ".")
 
 

@@ -1,6 +1,13 @@
 # makeCPO.R contains all CPO constructor functions, that are used both
 # internally and are exported for user use.
 
+#' @include listCPO.R parameters.R generics.R CPO_operators.R
+
+cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
+cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
+cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
+cpo.predict.properties = c("prob", "se")
+
 #' @title Create a custom CPO constructor
 #'
 #' @description
@@ -117,7 +124,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
                    fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
                    properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                     "oneclass", "twoclass", "multiclass"),
                    packages = character(0), cpo.trafo, cpo.retrafo) {
   dataformat = match.arg(dataformat)
 
@@ -141,7 +148,7 @@ makeCPORetrafoless = function(cpo.name, par.set = NULL, par.vals = list(), dataf
                    fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
                    properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                     "oneclass", "twoclass", "multiclass"),
                    packages = character(0), cpo.trafo) {
   dataformat = match.arg(dataformat)
 
@@ -403,7 +410,7 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                    .fix.factors = FALSE, .properties = c("numerics", "factors", "ordered", "missings"),
                    .properties.adding = character(0), .properties.needed = character(0),
                    .properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-                     "oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens"),
+                     "oneclass", "twoclass", "multiclass"),
                    .packages = character(0),
                     cpo.trafo, cpo.retrafo) {
   # dotted parameter names are necessary to avoid problems with partial argument matching.
@@ -561,7 +568,8 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   funargs = lapply(.par.set$pars, function(dummy) substitute())
   funargs = insert(funargs, .par.vals)
 
-  trafo.funs = constructTrafoFunctions(funargs, trafo.expr, retrafo.expr, parent.frame(2), .data.dependent, .trafo.type == "stateless")
+  trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, parent.frame(2),
+    .cpotype, .dataformat, .trafo.type, .data.dependent, .trafo.type == "stateless")
 
   funargs = insert(funargs, list(id = NULL, export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
@@ -657,10 +665,10 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       debug.name = .cpo.name,                      # [character(1)] Readable representation of of name and ID
       par.set = .par.set,                          # [ParamSet] exported parameters
       par.vals = present.pars,                     # [named list] values of exported parameters
-      properties = properties.list                 # properties$properties: [character] properties handled by this CPO
+      properties = properties.list,                # properties$properties: [character] properties handled by this CPO
                                                    # properties$adding [character] capabilities that this CPO adds to the next processor
                                                    # properties$needed [character] capabilities needed by the next processor
-      properties.raw  = properties.list$properties # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
+      properties.raw  = properties.list$properties,# [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       operating.type = .cpotype,                   # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
       predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
@@ -768,14 +776,15 @@ prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set) {
   list(.par.set = .par.set, .par.vals = .par.vals, .export.params = .export.params)
 }
 
-constructTrafoFunctions = function(funargs, trafo.expr, retrafo.expr, eval.env, .cpotype, .dataformat, .data.dependent, .stateless) {
+constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .cpotype, .dataformat, .trafo.type, .data.dependent, .stateless) {
   required.arglist.trafo = funargs
-  if (.data.dependent) {
+  if (!.data.dependent) {
     assert(.cpotype == "target")
+  } else {
     required.arglist.trafo$data = substitute()
   }
   required.arglist.trafo$target = substitute()
-  if (is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env)) {
+  if ((is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env))) {
     cpo.trafo = makeFunction(cpo.trafo, required.arglist.trafo, env = eval.env)
   } else {
     stop("cpo.trafo must be provided.")

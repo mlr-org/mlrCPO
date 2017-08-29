@@ -1,3 +1,4 @@
+#' @include callCPO.R
 
 ##################################
 ### CPO Trafo Composition      ###
@@ -129,7 +130,7 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
     newclass = "CPOInverter"
   }
 
-  class(cpo2) = setdiff(class(cpo2), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter")))
+  class(cpo2) = setdiff(class(cpo2), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter"))
 
   addClasses(cpo2, newclass)
 }
@@ -162,7 +163,7 @@ as.list.CPOTrained = function(x, ...) {
   assert(length(list(...)) == 0)
   prev = if (!is.null(x$prev.retrafo)) as.list(x$prev.retrafo)
   x$prev.retrafo = NULL
-  class(x) = setdiff(class(x), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter")))
+  class(x) = setdiff(class(x), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter"))
   if ("properties.needed" %in% names(x)) {
     # was a CPORetrafo before
     x$properties.needed = x$cpo$properties$properties.needed
@@ -306,7 +307,7 @@ setCPOId.CPOPrimitive = function(cpo, id) {
   }
   cpo$id = id
   cpo$debug.name = if (id == cpo$name) cpo$name else sprintf("%s<%s>", cpo$id, cpo$name)
-  cpo$par.vals = getBareHyperPars(cpo)
+  cpo$par.vals = getBareHyperPars(cpo, FALSE)
   cpo$par.set = cpo$bare.par.set
   pars = cpo$par.set$pars
   if (length(pars)) {

@@ -9,11 +9,6 @@
 # makeCPO.
 
 
-cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
-cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
-cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
-cpo.predict.properties = c("prob", "se")
-
 ##################################
 ### Externals                  ###
 ##################################
@@ -856,7 +851,7 @@ checkDFBasics = function(task, newdata, targetbound, name) {
 # perform basic checks that a retrafoless cpo returned the kind of task / data.frame that it should;
 # then convert, if necessary.
 recombineRetrafolessResult = function(olddata, newdata, datasplit, subset.index, name) {
-  assert(identical(subset.index,_along(subset.index)))
+  assert(identical(subset.index, seq_along(subset.index)))
   assertSubset(datasplit, c("df.all", "task"))
   if (is.data.frame(olddata)) {
     if (datasplit == "df.all") {

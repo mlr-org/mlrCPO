@@ -2,7 +2,7 @@
 # They handle input checks, call the relevant CPO functions, and construct
 # relevant Retrafo / Inverter objects.
 
-#' @include CPOFormatCheck.R
+#' @include FormatCheck.R
 ##################################
 ### Creators                   ###
 ##################################
@@ -97,7 +97,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties.raw, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
   if (!cpo$data.dependent) {
-    assert(cpo$operating.type = "target")
+    assert(cpo$operating.type == "target")
     tin$indata$data = NULL
   }
   if (is.null(cpo$retrafo)) {
@@ -283,12 +283,12 @@ applyCPO.CPO = function(cpo, task) {
 applyCPO.CPORetrafo = applyCPO.CPO
 
 # get par.vals with bare par.set names, i.e. the param names without the ID
-getBareHyperPars = function(cpo) {
+getBareHyperPars = function(cpo, include.unexported = TRUE) {
   assertClass(cpo, "CPOPrimitive")
   args = cpo$par.vals
   namestranslation = setNames(names2(cpo$bare.par.set$pars),
     names(cpo$par.set$pars))
-  c(setNames(args, namestranslation[names(args)]), cpo$unexported.args)
+  c(setNames(args, namestranslation[names(args)]), if (include.unexported) cpo$unexported.args)
 }
 
 checkAllParams = function(par.vals, par.set, name) {

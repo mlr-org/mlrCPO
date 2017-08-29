@@ -56,8 +56,7 @@ invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
   invdata = inverted$new.prediction
   assert(all(grepl("^se$|^(prob|response)(\\..*)?$", names(invdata))))
   if (is.null(inverted$new.td)) {
-    assert(
-    assert("retrafo" %in% getCPOKind(inverter))  # only hybrid retrafos should return a NULL td
+#    TODO assert("retrafo" %in% getCPOKind(inverter))  # only hybrid retrafos should return a NULL td
 
     outputtype = intersect(getCPOProperties(inverter)$properties, cpo.tasktypes)
     assert(length(outputtype) == 1)  # hybrid retrafos should always have one, otherwise it is a bug.

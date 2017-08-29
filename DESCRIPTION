@@ -34,14 +34,24 @@ ByteCompile: yes
 Version: 0.1
 VignetteBuilder: knitr
 Collate: 
-    'CPOFormatCheck.R'
-    'CPO.R'
     'CPOAuxiliary.R'
+    'FormatCheck.R'
+    'callCPO.R'
+    'CPO_operators.R'
+    'generics.R'
+    'parameters.R'
+    'listCPO.R'
+    'makeCPO.R'
     'CPO_meta.R'
     'CPOCbind.R'
-    'CPOTarget.R'
+    'CPOLearner.R'
     'CPO_concrete.R'
     'CPO_filterFeatures.R'
     'CPO_impute.R'
+    'NULLCPO.R'
+    'RetrafoState.R'
+    'doublecaret.R'
+    'inverter.R'
+    'print.R'
     'zzz.R'
 RoxygenNote: 6.0.1

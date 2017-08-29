@@ -1,4 +1,6 @@
 
+#' @include makeCPO.R
+
 #' @title CPO Multiplexer
 #'
 #' @template cpo_description
