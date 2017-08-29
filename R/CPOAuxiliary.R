@@ -309,6 +309,11 @@ isPropertyStrict = function() {
   TRUE
 }
 
+getMlrOption = function(name, default = NULL) {
+  getOption(stri_paste("mlr.", name), default)
+}
+
+
 
 # TO-DO:
 
