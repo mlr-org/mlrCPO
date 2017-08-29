@@ -143,7 +143,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$properties.needed)
-  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
+  tout = handleTrafoOutput(result, if (cpo$operating.type != "traindata") data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
     cpo$bound == "targetbound", cpo$convertto, tin$subset.index, cpo$debug.name)
 
   retrafo = if (build.retrafo && cpo$operating.type != "traindata") {

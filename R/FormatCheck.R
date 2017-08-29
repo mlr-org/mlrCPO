@@ -11,7 +11,7 @@
 
 cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
-cpo.targetproperties = c("oneclass", "twoclass", "multiclass", "lcens", "rcens", "icens")
+cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
 cpo.predict.properties = c("prob", "se")
 
 ##################################
@@ -95,17 +95,13 @@ prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.
 #  - check properties are allowed
 #  - get a shape info object
 #  --> return list(outdata, shapeinfo)
-handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.properties, properties.adding, targetbound, convertto, subset.index, name) {
+handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.properties, properties.adding, operating.type, convertto, subset.index, name) {
   outdata = rebuildOutdata(outdata, tempdata, datasplit)
   datasplit = getLLDatasplit(datasplit)
-  if (targetbound) {
-    if (convertto == "surv") {
-      censstyle = intersect(allowed.properties, c("lcens", "rcens", "icens"))
-      assert(length(censstyle) == 1)
-    }
-    recombined = recombinetask(olddata, outdata, datasplit, subset.index, TRUE, convertto, censstyle, name)
-    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), TRUE, convertto, censstyle, name)
-  } else {
+  if (operating.type == "target") {
+    recombined = recombinetask(olddata, outdata, datasplit, subset.index, TRUE, convertto, name)
+    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), TRUE, convertto, name)
+  } else if (operating.type == "feature") {
     if (is.data.frame(olddata)) {
       recombined = recombinedf(olddata, outdata, datasplit, subset.index, character(0), name)
       small.recombined = recombinedf(olddata[subset.index], outdata, datasplit, seq_along(subset.index), character(0), name)
@@ -114,6 +110,8 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
       recombined = recombinetask(olddata, outdata, datasplit, subset.index, FALSE, name = name)
       small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), FALSE, name = name)
     }
+  } else {  # operating.type == "traindata"
+
   }
 
   present.properties = getTaskProperties(small.recombined)
@@ -276,8 +274,6 @@ getTaskProperties = function(data) {
     if (td$type == "classif") {
       others = switch(as.character(length(td$class.levels)),
         `1` = "oneclass", `2` = "twoclass", "multiclass")
-    } else if (td$type == "surv") {
-      others = td$censoring
     } else {
       others = NULL
     }
@@ -666,9 +662,8 @@ recombineLL = function(olddata, newdata, targetnames, datasplit, subset.index, n
 # (if datasplit == "task"), and that the number of rows is the same.
 # targetbound: TRUE or FALSE
 # newtasktype: only if targetbound, type of new task. Give even if no task conversion happens.
-# censtype only needed if newtasktype == surv
 recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.features", "most", "all"),
-                         subset.index, targetbound, newtasktype, censtype, name) {
+                         subset.index, targetbound, newtasktype, name) {
   datasplit = match.arg(datasplit)
 
   if (is.data.frame(task)) {
@@ -698,7 +693,7 @@ recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.feat
       } else {
         newdata = cbind(dropNamed(olddata, oldtnames), newdata)
       }
-      return(constructTask(task, newdata, newtnames, newtasktype, getTaskId(task), censtype))
+      return(constructTask(task, newdata, newtnames, newtasktype, getTaskId(task)))
     } else {
       return(changeData(task, recombinedf(getTaskData(task), newdata, datasplit, subset.index, getTaskTargetNames(task), name)))
     }
@@ -709,7 +704,7 @@ recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.feat
     if (!targetbound) {
       newdata = changeData(task, newdata)
     } else {
-      newdata = constructTask(task, newdata, getTaskTargetNames(task), newtasktype, getTaskId(task), censtype)
+      newdata = constructTask(task, newdata, getTaskTargetNames(task), newtasktype, getTaskId(task))
     }
   }
   checkTaskBasics(task, newdata, name)
@@ -798,12 +793,9 @@ checkColumnsEqual = function(old.relevants, new.relevants, relevant.name, name) 
   }
 }
 
-constructTask = function(oldtask, data, target, type, id, censtype) {
+constructTask = function(oldtask, data, target, type, id) {
   if (type == "cluster") {
     return(makeClusterTask(id = id, data = data))
-  }
-  if (type == "surv") {
-    return(makeSurvTask(id = id, data = data, censoring = censtype))
   }
   if (type == "classif" && getTaskType(oldtask) == "classif") {
     assert(length(target) == 1)
