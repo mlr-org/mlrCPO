@@ -4,7 +4,7 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## What is CPO?
 
-"Composable Preprocessing Operators" are an extension for the [mlr](https://github.com/mlr-org/mlr) ("Machine Learning in R") project which represent preprocessing operations (e.g. imputation or PCA) in the form of R objects. These CPO objects can be composed to form more complex operations, they can be applied to data sets, and they can be attached to mlr "`Learner`" objects to generate complex machine learning pipelines that contain both preprocessing and model fitting.
+"Composable Preprocessing Operators" are an extension for the [mlr](https://github.com/mlr-org/mlr) ("Machine Learning in R") project which represent preprocessing operations (e.g. imputation or PCA) in the form of R objects. These CPO objects can be composed to form more complex operations, they can be applied to data sets, and they can be attached to mlr `Learner` objects to generate complex machine learning pipelines that perform both preprocessing and model fitting.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 * [Documentation](#documentation)
 * [Project Status](#project-status)
 * [Similar Projects](#similar-projects)
-* [License](@license)
+* [License](#license)
 
 ## Installation
 
@@ -84,9 +84,9 @@ Hyperparameters: model=FALSE,scale.center=TRUE,scale.scale=TRUE
 
 ## Documentation
 
-To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial]((https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on [`mlr`'s GitHub page](https://github.com/mlr-org/mlr).
+To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
 
-A thorough reference of `mlrCPO`' capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette_compact.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
+A thorough reference of `mlrCPO`'s capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette_compact.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
 
 ## Project Status
 
