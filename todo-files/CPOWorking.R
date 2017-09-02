@@ -5,40 +5,33 @@ library("roxygen2")
 roxygenise("../../mlr")
 
 devtools::load_all("../../ParamHelpers")
-devtools::test(pkg = "../../ParamHelpers")
-
-roxygenise("../../mlr")
-
 devtools::load_all("../../mlr")
 
-devtools::load_all("..", export_all = FALSE)
+
 
 devtools::load_all("..", export_all = FALSE)
 
- constFeatRem = makeCPO("constFeatRem",
-   dataformat = "df.features",
-   cpo.trafo = function(data, target) {
-     cols.keep = names(Filter(function(x) {
-         length(unique(x)) > 1
-       }, data))
-     # the following function will do both the trafo and retrafo
-     result = function(data) {
-       data[cols.keep]
-     }
-     result
-   })
+devtools::load_all("..", export_all = FALSE)
 
-head(iris) %>>% constFeatRem()
 
-debugger()
+devtools::load_all("..")
+
+
+
+
 options(error = dump.frames)
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 
-listCPO()
-
 library("testthat")
 
+
+
+
+
 devtools::test(pkg = "..")
+
+
+
 
 devtools::test(pkg = "..", filter = "cpo")
 
@@ -58,15 +51,18 @@ makeLogicalVectorLearnerParam("test",
   default = c(TRUE, TRUE, FALSE))
 
 
-devtools::test(pkg = "..", filter = "cpo_basic")
-devtools::test(pkg = "..", filter = "cpo_properties")
-devtools::test(pkg = "..", filter = "cpo_datasplit")
-devtools::test(pkg = "..", filter = "cpo_quick")
-devtools::test(pkg = "..", filter = "cpo_cbind")
-devtools::test(pkg = "..", filter = "cpo_concrete")
-devtools::test(pkg = "..", filter = "cpo_meta")
-devtools::test(pkg = "..", filter = "cpo_impute")
-devtools::test(pkg = "..", filter = "cpo_filter")
+devtools::test(pkg = "..", filter = "basic")
+devtools::test(pkg = "..", filter = "affect")
+devtools::test(pkg = "..", filter = "properties")
+devtools::test(pkg = "..", filter = "datasplit")
+devtools::test(pkg = "..", filter = "quick")
+devtools::test(pkg = "..", filter = "cbind")
+devtools::test(pkg = "..", filter = "concrete")
+devtools::test(pkg = "..", filter = "meta")
+devtools::test(pkg = "..", filter = "impute")
+devtools::test(pkg = "..", filter = "filter")
+devtools::test(pkg = "..", filter = "quick")
+devtools::test(pkg = "..", filter = "tuning")
 
 system.time(devtools::test(pkg = "..", filter = "cpo_dataformat"), gcFirst = FALSE)
 
