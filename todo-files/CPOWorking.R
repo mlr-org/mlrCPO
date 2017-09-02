@@ -1,25 +1,6 @@
 
 library("roxygen2")
 
-changeData
-* checkLearner
-
-
-#' Exported for internal use.
-#' @param id [\code{character}]\cr
-#'   task id
-#' @param data [\code{data.frame}]\cr
-#'   data
-#' @param target [\code{character}]\cr
-#'   target columns
-#' @param weights [\code{numeric}]\cr
-#'   weights
-#' @param blocking [\code{numeric}\cr
-#'   task data blocking
-#' @name makeTaskDesc
-
-#' @export
-#' @rdname makeTaskDesc
 
 roxygenise("../../mlr")
 
