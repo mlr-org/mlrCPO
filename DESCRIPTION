@@ -27,6 +27,7 @@ Imports:
     stats
 Suggests:
     party,
+    mlbench
 LazyData: yes
 ByteCompile: yes
 Version: 0.1

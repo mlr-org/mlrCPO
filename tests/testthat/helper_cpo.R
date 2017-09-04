@@ -447,7 +447,7 @@ cpoPcaLegacy = makeCPOExtended("pca", center = TRUE: logical, scale = FALSE: log
 })
 
 # from mlr
-
+data(Sonar, package = "mlbench", envir = environment())
 binaryclass.df = Sonar
 binaryclass.formula = Class~.
 binaryclass.target = "Class"
