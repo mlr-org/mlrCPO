@@ -570,7 +570,7 @@ splittask = function(task, datasplit = c("df.features", "most", "all", "df.all",
 splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "task")) {
   datasplit = match.arg(datasplit)
   switch(datasplit,
-    task = list(data = makeClusterTask(data = df, fixup.data = "df.all"), target = character(0)),
+    task = list(data = makeClusterTask(data = df, fixup.data = "no"), target = character(0)),
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
     most = list(data = splitColsByType(c("numeric", "factor", "other"), df),

@@ -22,47 +22,30 @@ devtools::load_all("..")
 options(error = dump.frames)
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 
-library("testthat")
-
-
-
-
-
-devtools::test(pkg = "..")
-
-
-
-
-devtools::test(pkg = "..", filter = "cpo")
-
-
-makeDiscreteVectorLearnerParam("test",
-  default = list("a", "b"), values = c("a", "b", "c"), len = NA)
-makeDiscreteVectorLearnerParam("test",
-  default = list(), values = c("a", "b", "c"), len = NA)
-x
-makeDiscreteVectorLearnerParam("test",
-  values = c("a", "b", "c"), len = NA)
-
-devtools::load_all("../../ParamHelpers")
-devtools::test(pkg = "../../ParamHelpers")
-
-makeLogicalVectorLearnerParam("test",
-  default = c(TRUE, TRUE, FALSE))
-
+devtools::load_all("..")
 
 devtools::test(pkg = "..", filter = "basic")
 devtools::test(pkg = "..", filter = "affect")
 devtools::test(pkg = "..", filter = "properties")
+devtools::test(pkg = "..", filter = "tuning")
 devtools::test(pkg = "..", filter = "datasplit")
 devtools::test(pkg = "..", filter = "quick")
-devtools::test(pkg = "..", filter = "cbind")
-devtools::test(pkg = "..", filter = "concrete")
-devtools::test(pkg = "..", filter = "meta")
-devtools::test(pkg = "..", filter = "impute")
 devtools::test(pkg = "..", filter = "filter")
-devtools::test(pkg = "..", filter = "quick")
-devtools::test(pkg = "..", filter = "tuning")
+devtools::test(pkg = "..", filter = "impute")
+
+devtools::test(pkg = "..", filter = "cbind")
+
+devtools::test(pkg = "..", filter = "concrete")
+
+devtools::test(pkg = "..", filter = "meta")
+
+
+
+
+
+
+
+
 
 system.time(devtools::test(pkg = "..", filter = "cpo_dataformat"), gcFirst = FALSE)
 

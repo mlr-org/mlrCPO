@@ -210,7 +210,7 @@ getParamSet.CPO = function(x) {
 
 #' @export
 getParamSet.CPOTrainedPrimitive = function(x) {
-  x$cpo$par.set
+  c(x$cpo$bare.par.set, x$cpo$unexported.par.set)
 }
 
 #' @export
@@ -220,7 +220,7 @@ getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
 
 #' @export
 getHyperPars.CPOTrainedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
-  learner$cpo$par.vals
+  getBareHyperPars(learner$cpo)
 }
 
 #' @export
@@ -293,7 +293,7 @@ getCPOId.CPO = function(cpo) {
 }
 
 #' @export
-setCPOId.CPO = function(cpo) {
+setCPOId.CPO = function(cpo, id) {
   stop("Cannot set ID of compound CPO.")
 }
 

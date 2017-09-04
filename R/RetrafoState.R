@@ -6,9 +6,13 @@
 # We also keep the shapeinfo.input and shapeinfo.output information
 #' @export
 getRetrafoState.CPOTrainedPrimitive = function(retrafo.object) {
+  if (is.nullcpo(retrafo.object)) {
+    return(NULL)
+  }
   cpo = retrafo.object$cpo
-  if (!"retrafo" %in% retrafo.object$kind) {
-    stop("Cannot get state of inverter")
+  otype = getCPOObjectType(retrafo.object)
+  if (otype != "CPORetrafo") {
+    stopf("Cannot get state of %s", otype)
   }
   assertChoice(cpo$control.type, c("functional", "object"))
   if (cpo$control.type == "functional") {
@@ -71,5 +75,5 @@ makeRetrafoFromState.CPOConstructor = function(constructor, state) {
     }
   }
 
-  makeCPOTrained(bare, newstate, NULL, data$shapeinfo.input, data$shapeinfo.output)
+  makeCPORetrafo(bare, newstate, NULL, data$shapeinfo.input, data$shapeinfo.output)
 }

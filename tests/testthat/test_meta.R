@@ -23,9 +23,9 @@ test_that("cpo multiplexer", {
   expect_error(cpoMultiplex(list(cpoScale(id = "pca"), cpoPca)), "duplicates found: pca")
 
 
-  testa = makeCPO("testa", .properties = c("numerics", "missings"),
+  testa = makeCPOExtended("testa", .properties = c("numerics", "missings"),
     .properties.adding = "missings", .properties.needed = "ordered", cpo.trafo = { }, cpo.retrafo = NULL)
-  testb = makeCPO("testb", .properties = c("numerics", "factors"),
+  testb = makeCPOExtended("testb", .properties = c("numerics", "factors"),
     .properties.adding = "factors", .properties.needed = c("missings", "ordered"), cpo.trafo = { }, cpo.retrafo = NULL)
 
 
@@ -39,8 +39,8 @@ test_that("cpo multiplexer", {
   expect_set_equal(newprops$properties.needed, "ordered")
 
 
-  ta = makeCPO("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
-  tb = makeCPO("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
 
   expect_set_equal(getCPOProperties(cpoMultiplex(list(ta, tb)))$properties, c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
 
@@ -68,9 +68,9 @@ test_that("cpoMeta", {
 
 
   # properties
-  testa = makeCPO("testa", .properties = c("numerics", "missings"),
+  testa = makeCPOExtended("testa", .properties = c("numerics", "missings"),
     .properties.adding = "missings", .properties.needed = "ordered", cpo.trafo = { }, cpo.retrafo = NULL)
-  testb = makeCPO("testb", .properties = c("numerics", "factors"),
+  testb = makeCPOExtended("testb", .properties = c("numerics", "factors"),
     .properties.adding = "factors", .properties.needed = c("missings", "ordered"), cpo.trafo = { }, cpo.retrafo = NULL)
 
 
@@ -83,8 +83,8 @@ test_that("cpoMeta", {
   expect_set_equal(newprops$properties.needed, "ordered")
 
 
-  ta = makeCPO("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
-  tb = makeCPO("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
 
   expect_set_equal(getCPOProperties(cpoMeta(.export = list(a = ta, b = tb), cpo.build = { a })())$properties,
     c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))

@@ -100,9 +100,8 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     assert(cpo$operating.type == "target")
     tin$indata$data = NULL
   }
-  if (is.null(cpo$retrafo)) {
+  if (cpo$control.type == "stateless" && is.null(cpo$retrafo)) {
     # stateless trafo-less CPO
-    assert(cpo$control.type == "stateless")
     tin$indata$target = NULL
   }
 

@@ -4,7 +4,7 @@
 # emulate makeCPOObject, makeFunctionalObject
 
 makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                             .datasplit = "no",
+                             .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
                              .properties = c("numerics", "factors", "ordered", "missings"),
                              .properties.adding = character(0), .properties.needed = character(0),
                              cpo.trafo, cpo.retrafo) {
@@ -12,14 +12,15 @@ makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPO(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .datasplit = .datasplit, .properties = .properties, .properties.adding = .properties.adding,
+  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
+    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
 }
 
 
 makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
-                             .datasplit = "no",
+                             .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
                              .properties = c("numerics", "factors", "ordered", "missings"),
                              .properties.adding = character(0), .properties.needed = character(0),
                              cpo.trafo) {
@@ -27,12 +28,16 @@ makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list()
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPO(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .datasplit = .datasplit, .properties = .properties, .properties.adding = .properties.adding,
+  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
+    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
 }
 
 
+dummylearnercpo = makeRLearnerClassif("dummylearnercpo", package = character(0), par.set = makeParamSet(makeIntegerLearnerParam("dummy.model")),
+  properties = c("twoclass", "multiclass", "numerics", "factors", "ordered"))
+dummylearnercpo$fix.factors.prediction = TRUE
 
 
 
@@ -262,16 +267,31 @@ cpoadder.nt.o = makeCPOObject("adderO", summand = 1: integer[, ], cpo.trafo = {
 
 pss = pSSLrn
 
+datasplitToDataformat = function(datasplit) {
+  # legacy "datasplit" to dataformat conversion
+  # returns list dataformat, dataformat.factor.with.ordered
+
+  list(dataformat = switch(datasplit,
+    no = "df.all",
+    all = "split",
+    most = "split",
+    onlyfactor = "factor",
+    target = "df.features",
+    datasplit),
+    dataformat.factor.with.ordered = datasplit %in% c("most", "factor"))
+}
+
 cpogen = function(name, type = c("o", "f"), ps, trafo, retrafo, datasplit,
                   properties = c("numerics", "factors", "ordered", "missings"),
                   properties.adding = character(0), properties.needed = character(0)) {
+  dstrans = datasplitToDataformat(datasplit)
   type = match.arg(type)
   if (type == "o") {
-    makeCPOObject(name, .par.set = ps, .datasplit = datasplit,
+    makeCPOObject(name, .par.set = ps, .dataformat = dstrans$dataformat, .dataformat.factor.with.ordered = dstrans$dataformat.factor.with.ordered,
       .properties = properties, .properties.adding = properties.adding, .properties.needed = properties.needed,
       cpo.trafo = trafo, cpo.retrafo = retrafo)
   } else {
-    makeCPOFunctional(name, .par.set = ps, .datasplit = datasplit,
+    makeCPOFunctional(name, .par.set = ps, .dataformat = dstrans$dataformat, .dataformat.factor.with.ordered = dstrans$dataformat.factor.with.ordered,
       .properties = properties, .properties.adding = properties.adding, .properties.needed = properties.needed,
       cpo.trafo = function(data, target, ...) {
         cpo.retrafo = function(data) {

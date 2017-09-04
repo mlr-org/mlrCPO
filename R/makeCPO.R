@@ -541,6 +541,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   assertFlag(.data.dependent)
   assertString(.cpo.name)
   assertList(.par.vals, names = "unique")
+  assertFlag(.dataformat.factor.with.ordered)
   if (.cpotype == "traindata") assert(.trafo.type != "stateless")
 
   # we encode the information in .dataformat.factor.with.ordered into .dataformat:
@@ -654,8 +655,9 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
         ifelse(singular, "", "s"), collapse(missing, sep = "', '"), ifelse(singular, "has", "have"), are, are)
     }
 
-    unexported.args = dropNamed(present.pars, export)
-    unexported.pars = dropNamed(.par.set$pars, export)
+    unexported.pars = dropNamed(present.pars, export)
+    unexported.par.set = .par.set
+    unexported.par.set$pars = dropNamed(.par.set$pars, export)
     .par.set$pars = .par.set$pars[export]
     present.pars = present.pars[intersect(names2(present.pars), export)]
 
@@ -680,6 +682,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
       packages = .packages,                        # [character] package(s) to load when constructing the CPO
       affect.args = affect.args,                   # [named list] values of the "affect.*" arguments
       unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
+      unexported.par.set = unexported.par.set,     # [ParamSet] unexported parameter set
       bare.par.set = .par.set,                     # [ParamSet] exported parameters with names not containing the ID prefix
       datasplit = .dataformat,                     # [character(1)] data format as received by trafo / retrafo
       fix.factors = .fix.factors,                  # [logical(1)] whether to clean up factor levels in retrafo
@@ -813,7 +816,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
     if (is.null(cpo.trafo) && .stateless) {
       cpo.trafo = function(target, ...) cpo.retrafo(...)
     }
-  } else if (!.stateless) {
+  } else if (.stateless) {
     if (.cpotype == "target") {
       # stateless, no cpo.trafo, type is 'target'
       stop("A Target Operating CPO must have a cpo.retrafo function, even if stateless.")

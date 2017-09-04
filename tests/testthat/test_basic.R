@@ -119,29 +119,39 @@ test_that("CPO parameters behave as expected", {
       data
     })
 
+  # add id prefix to list names
+  addid = function(id, l) {
+    names(l) = paste(id, names(l), sep = ".")
+    l
+  }
+
   testCPO = function(cpo, cpo2, cpo3) {
+
+    id1 = getCPOId(cpo())
+    id2 = getCPOId(cpo2())
+    id3 = getCPOId(cpo3())
 
     # normal parameters
     expect_class(cpo, "CPOConstructor")
 
-    expect_identical(getHyperPars(cpo()), list(a = 1, b = 2, c = 1, d = 1))
+    expect_identical(getHyperPars(cpo()), addid(id1, list(a = 1, b = 2, c = 1, d = 1)))
 
-    expect_identical(getHyperPars(cpo(b = 3)), list(a = 1, b = 3, c = 1, d = 1))
+    expect_identical(getHyperPars(cpo(b = 3)), addid(id1, list(a = 1, b = 3, c = 1, d = 1)))
 
-    expect_identical(getHyperPars(cpo(3)), list(a = 3, b = 2, c = 1, d = 1))
+    expect_identical(getHyperPars(cpo(3)), addid(id1, list(a = 3, b = 2, c = 1, d = 1)))
 
-    cpo.obj = setHyperPars(cpo(3, 4), b = 0, c = -1)
+    cpo.obj = setHyperPars(cpo(3, 4), par.vals = addid(id1, list(b = 0, c = -1)))
 
-    expect_identical(getHyperPars(cpo.obj), list(a = 3, b = 0, c = -1, d = 1))
+    expect_identical(getHyperPars(cpo.obj), addid(id1, list(a = 3, b = 0, c = -1, d = 1)))
 
     cpo.learner = cpo.obj %>>% makeLearner("classif.logreg", model = FALSE)
 
-    expect_identical(getHyperPars(cpo.learner), list(model = FALSE, a = 3, b = 0, c = -1, d = 1))
+    expect_identical(getHyperPars(cpo.learner), c(list(model = FALSE), addid(id1, list(a = 3, b = 0, c = -1, d = 1))))
 
-    expect_error(train(cpo.learner, pid.task), "Parameter e.*missing")
+    expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
 
     cpotest.parvals <<- list()  # nolint
-    train(setHyperPars(cpo.learner, e = 900), pid.task)
+    train(setHyperPars(cpo.learner, par.vals = addid(id1, list(e = 900))), pid.task)
     expect_identical(cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
     # parameters of cpo with id
@@ -170,24 +180,24 @@ test_that("CPO parameters behave as expected", {
     expect_error(setCPOId(cpo.obj %>>% cpo3(), "testx"), "Cannot set ID of compound CPO")
 
     # parameters of coupled CPOs
-    expect_error(cpo(3) %>>% cpo2(4) %>>% cpo3(), 'Parameter "a" occurs in both')
+    expect_error(cpo(3, id = "x") %>>% cpo2(4, id = "x") %>>% cpo3(id = "x"), 'Parameter "x\\.a" occurs in both')
 
     expect_class(cpo(3) %>>% cpo2(4, id = "2nd") %>>% cpo3(), "CPO")
 
-    expect_error(cpo2(4) %>>% cpo3() %>>% makeLearner("classif.logreg"), 'Parameter "model" occurs in both')
+    expect_error(cpo2(4, id = "dummy") %>>% cpo3() %>>% dummylearnercpo, 'Parameter "dummy.model" occurs in both')
 
-    lrn = cpo(3) %>>% cpo2(4, id = "2nd") %>>% cpo3() %>>% makeLearner("classif.logreg", model = TRUE)
+    lrn = cpo(3, id = "fst") %>>% cpo2(4, id = "2nd") %>>% cpo3(id = "thrd") %>>% makeLearner("classif.logreg", model = TRUE)
 
-    expect_identical(getHyperPars(lrn), list(model = TRUE, a = 3, b = 2, c = 1, d = 1, `2nd.a` = 4, `2nd.model` = TRUE))
+    expect_identical(getHyperPars(lrn), list(model = TRUE, fst.a = 3, fst.b = 2, fst.c = 1, fst.d = 1, `2nd.a` = 4, `2nd.model` = TRUE))
 
-    expect_error(train(lrn, pid.task), "Parameters? e.*missing")
+    expect_error(train(lrn, pid.task), "Parameters? fst\\.e.*missing")
 
-    expect_error(train(setHyperPars(lrn, e = 90), pid.task), "Parameters? (2nd\\.)?z.*missing")
+    expect_error(train(setHyperPars(lrn, fst.e = 90), pid.task), "Parameters? (2nd\\.)?z.*missing")
 
     cpotest.parvals <<- list()  # nolint
     cpotest.parvals2 <<- list()  # nolint
     cpotest.parvals3 <<- list()  # nolint
-    train(setHyperPars(lrn, e = 90, `2nd.a` = 9000, `2nd.z` = -10, f = 222), pid.task)
+    train(setHyperPars(lrn, fst.e = 90, `2nd.a` = 9000, `2nd.z` = -10, thrd.f = 222), pid.task)
     expect_identical(cpotest.parvals, list(a = 3, b = 2, c = 1, d = 1, e = 90))
     expect_identical(cpotest.parvals2, list(a = 9000, z = -10))
     expect_identical(cpotest.parvals3, list(222))
@@ -198,8 +208,8 @@ test_that("CPO parameters behave as expected", {
     expect_identical(cpotest.parvals3, list(100, 10, 20))
 
     cpotest.parvals3 <<- list()  # nolint
-    lrn = cpo3(id = "a") %>>% cpo3(id = "b", 10) %>>% cpo3() %>>% makeLearner("classif.logreg")
-    train(setHyperPars(lrn, a.f = 1000, f = 99), pid.task)
+    lrn = cpo3(id = "a") %>>% cpo3(id = "b", 10) %>>% cpo3(id = "x") %>>% makeLearner("classif.logreg")
+    train(setHyperPars(lrn, a.f = 1000, x.f = 99), pid.task)
     expect_identical(cpotest.parvals3, list(1000, 10, 99))
   }
 
@@ -226,8 +236,8 @@ test_that("Functional CPO Parameter feasibility is checked", {
 
   cpoo = cpo(1, 2)
   expect_class(cpoo, "CPO")
-  expect_class(setHyperPars(cpoo, a = 10), "CPO")
-  expect_error(setHyperPars(cpoo, a = 0.4), "is not feasible for parameter 'a'")
+  expect_class(setHyperPars(cpoo, testCPOF.a = 10), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOF.a = 0.4), "is not feasible for parameter 'testCPOF.a'")
 
   expect_error(makeCPOFunctional("testCPOF",
     a: integer[, ], b: integer[0, 1],
@@ -240,8 +250,8 @@ test_that("Functional CPO Parameter feasibility is checked", {
 
   expect_error(cpo(1, 2), "2 is not feasible for parameter 'b'")
   cpoo = cpo(0, 0)
-  expect_class(setHyperPars(cpoo, b = 1), "CPO")
-  expect_error(setHyperPars(cpoo, b = 3), "is not feasible for parameter 'b'")
+  expect_class(setHyperPars(cpoo, testCPOF.b = 1), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOF.b = 3), "is not feasible for parameter 'testCPOF.b'")
 
   expect_error(makeCPOFunctional("testCPOF",
     a: integer[, ], b = 2: integer[0, 1],
@@ -263,8 +273,8 @@ test_that("Functional CPO Parameter feasibility is checked", {
   expect_error(cpo(function() 3), "<function> is not feasible for parameter 'a'")
   cpoo = cpo(function() 1)
   expect_class(cpoo, "CPO")
-  expect_class(setHyperPars(cpoo, a = function() 1), "CPO")
-  expect_error(setHyperPars(cpoo, a = function() 3), "not feasible for parameter 'a'")
+  expect_class(setHyperPars(cpoo, testCPOF.a = function() 1), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOF.a = function() 3), "not feasible for parameter 'testCPOF.a'")
 
   expect_error(makeCPOFunctional("testCPOF",
     a: discrete[a = function() 1, b = function() 2],
@@ -289,8 +299,8 @@ test_that("Object based CPO Parameter feasibility is checked", {
 
   cpoo = cpo(1, 2)
   expect_class(cpoo, "CPO")
-  expect_class(setHyperPars(cpoo, a = 10), "CPO")
-  expect_error(setHyperPars(cpoo, a = 0.4), "is not feasible for parameter 'a'")
+  expect_class(setHyperPars(cpoo, testCPOO.a = 10), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOO.a = 0.4), "is not feasible for parameter 'testCPOO.a'")
 
   expect_error(makeCPOObject("testCPOO",
     a: integer[, ], b: integer[0, 1],
@@ -303,8 +313,8 @@ test_that("Object based CPO Parameter feasibility is checked", {
 
   expect_error(cpo(1, 2), "2 is not feasible for parameter 'b'")
   cpoo = cpo(0, 0)
-  expect_class(setHyperPars(cpoo, b = 1), "CPO")
-  expect_error(setHyperPars(cpoo, b = 3), "is not feasible for parameter 'b'")
+  expect_class(setHyperPars(cpoo, testCPOO.b = 1), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOO.b = 3), "is not feasible for parameter 'testCPOO.b'")
 
   expect_error(makeCPOObject("testCPOO",
     a: integer[, ], b = 2: integer[0, 1],
@@ -326,8 +336,8 @@ test_that("Object based CPO Parameter feasibility is checked", {
   expect_error(cpo(function() 3), "<function> is not feasible for parameter 'a'")
   cpoo = cpo(function() 1)
   expect_class(cpoo, "CPO")
-  expect_class(setHyperPars(cpoo, a = function() 1), "CPO")
-  expect_error(setHyperPars(cpoo, a = function() 3), "not feasible for parameter 'a'")
+  expect_class(setHyperPars(cpoo, testCPOO.a = function() 1), "CPO")
+  expect_error(setHyperPars(cpoo, testCPOO.a = function() 3), "not feasible for parameter 'testCPOO.a'")
 
   expect_error(makeCPOObject("testCPOO",
     a: discrete[a = function() 1, b = function() 2],
@@ -494,7 +504,7 @@ test_that("CPO arguments may be missing if requirements allow", {
 
   t = train(cpoc() %>>% makeLearner("classif.logreg"), pid.task)
   predict(t, pid.task)
-  expect_error(train(cpoc(a = TRUE) %>>% makeLearner("classif.logreg"), pid.task), "Parameter b .*missing")
+  expect_error(train(cpoc(a = TRUE) %>>% makeLearner("classif.logreg"), pid.task), "Parameter .*b .*missing")
   t = train(cpoc(a = TRUE, b = 1L) %>>% makeLearner("classif.logreg"), pid.task)
   predict(t, pid.task)
 
@@ -520,7 +530,7 @@ test_that("CPO arguments may be missing if requirements allow", {
     })
 
   train(cpoc() %>>% makeLearner("classif.logreg"), pid.task)
-  expect_error(train(cpoc(a = TRUE) %>>% makeLearner("classif.logreg"), pid.task), "Parameter b .*missing")
+  expect_error(train(cpoc(a = TRUE) %>>% makeLearner("classif.logreg"), pid.task), "Parameter .*b .*missing")
   train(cpoc(a = TRUE, b = 1L) %>>% makeLearner("classif.logreg"), pid.task)
 
   train(cpoc(id = "test") %>>% makeLearner("classif.logreg"), pid.task)
@@ -564,10 +574,10 @@ test_that("retrafo accessor does what it is supposed to do", {
 
   expect_identical(retrafo(pid.task), NULLCPO)
 
-  expect_warning(expect_null(retrafo(10)), "not a Task or data.frame")
+  expect_warning(expect_identical(retrafo(10), NULLCPO), "not a Task or data.frame")
 
   x = 10
-  expect_warning(expect_null(retrafo(x)), "not a Task or data.frame")
+  expect_warning(expect_identical(retrafo(x), NULLCPO), "not a Task or data.frame")
 
   tmpret = retrafo(pid.task %>>% cpoScale())
   expect_warning({retrafo(x) = tmpret}, "Task nor data.frame")
@@ -802,7 +812,7 @@ test_that("object based trafo and retrafo return values are checked", {
   expect_error(predict(res, pid.task), "badretrafo .*must return a data.frame")
 })
 
-test_that("to.list and chainCPO work", {
+test_that("to.list and pipeCPO work", {
 
   testCPO = function(cpoadder, cpomultiplier) {
 
@@ -821,17 +831,17 @@ test_that("to.list and chainCPO work", {
     expect_equal(cpolist[[3]], cpoadder(-10, id = "thd"))
     expect_equal(cpolist[[4]], cpomultiplier(2, id = "frth"))
 
-    result = testdfcpo %>>% chainCPO(cpolist)
+    result = testdfcpo %>>% pipeCPO(cpolist)
     expect_equal(result$A, c(24, 28))
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
 
-    expect_equal(cpolist, as.list(chainCPO(cpolist)))
+    expect_equal(cpolist, as.list(pipeCPO(cpolist)))
 
     cpolist.chg = as.list(setHyperPars(cpochain, fst.summand = 20))
     expect_equal(cpolist.chg[[1]], cpoadder(20, id = "fst"))
 
     cpolist.chg[[2]] = setHyperPars(cpolist.chg[[2]], snd.factor = 10)
-    result = testdfcpo %>>% chainCPO(cpolist.chg)
+    result = testdfcpo %>>% pipeCPO(cpolist.chg)
     expect_equal(result$A, ((c(1, 2) + 20) * 10 - 10) * 2)
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 20 - 1.5) / 10 + 10 - 215) / 2)
 
@@ -878,29 +888,29 @@ test_that("retrafo catabolization and anabolization work", {
     constructors = list(cpomultiplier, cpomultiplier, cpoadder, cpomultiplier, cpoadder, cpomultiplier, cpoadder, cpomultiplier)
     rfclist2 = lapply(seq_along(constructors), function(idx) makeRetrafoFromState(constructors[[idx]], rfclist.states[[idx]]))
 
-    expect_equal(predict(chainCPO(rfclist), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
-    expect_equal(predict(chainCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
+    expect_equal(predict(pipeCPO(rfclist), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
+    expect_equal(predict(pipeCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
-    expect_equal(predict(chainCPO(rfclist[c(1:5)]) %>>% chainCPO(rfclist[c(6:8)]), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
-    expect_equal(predict(chainCPO(rfclist2[c(1:5)]) %>>% chainCPO(rfclist2[c(6:8)]), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
+    expect_equal(predict(pipeCPO(rfclist[c(1:5)]) %>>% pipeCPO(rfclist[c(6:8)]), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
+    expect_equal(predict(pipeCPO(rfclist2[c(1:5)]) %>>% pipeCPO(rfclist2[c(6:8)]), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
     rfclist.states2 = rfclist.states
     rfclist.states2[[1]]$factor = 4
     rfclist2 = lapply(seq_along(constructors), function(idx) makeRetrafoFromState(constructors[[idx]], rfclist.states2[[idx]]))
-    expect_equal(predict(chainCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) / 2 - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
+    expect_equal(predict(pipeCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) / 2 - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
-    chain2 = chainCPO(rfclist[c(1, 2, 3)]) %>>% chainCPO(rfclist[c(4, 5, 6, 7, 8)])
+    chain2 = pipeCPO(rfclist[c(1, 2, 3)]) %>>% pipeCPO(rfclist[c(4, 5, 6, 7, 8)])
 
     expect_equal(predict(chain2, testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
-    chain3 = chainCPO(rfclist[3:4]) %>>% chainCPO(rfclist[c(5:6, 1:2)]) %>>% chainCPO(rfclist[7:8])
+    chain3 = pipeCPO(rfclist[3:4]) %>>% pipeCPO(rfclist[c(5:6, 1:2)]) %>>% pipeCPO(rfclist[7:8])
 
     expect_equal(predict(chain3, testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
-    expect_equal((testdfcpo2 %>>% chainCPO(rfclist[7:8]) %>>% chainCPO(rfclist[5:6]) %>>% chainCPO(rfclist[1:2]) %>>% chainCPO(rfclist[3:4]))[[1]],
+    expect_equal((testdfcpo2 %>>% pipeCPO(rfclist[7:8]) %>>% pipeCPO(rfclist[5:6]) %>>% pipeCPO(rfclist[1:2]) %>>% pipeCPO(rfclist[3:4]))[[1]],
       (((c(3, 4) - 10 + 26) / 2 + 10 - 23) / -2 - 10 - 1.5) / 2)
-    expect_equal((testdfcpo2 %>>% chainCPO(rfclist[c(7, 8, 5, 6, 3, 4, 1, 2)]))[[1]], (((c(3, 4) - 10 + 26) / 2 + 10 - 23) / -2 - 10 - 1.5) / 2)
-    chained.again = chainCPO(rfclist[7:8]) %>>% (chainCPO(rfclist[5:6]) %>>% chainCPO(rfclist[1:4]))
+    expect_equal((testdfcpo2 %>>% pipeCPO(rfclist[c(7, 8, 5, 6, 3, 4, 1, 2)]))[[1]], (((c(3, 4) - 10 + 26) / 2 + 10 - 23) / -2 - 10 - 1.5) / 2)
+    chained.again = pipeCPO(rfclist[7:8]) %>>% (pipeCPO(rfclist[5:6]) %>>% pipeCPO(rfclist[1:4]))
     expect_equal((testdfcpo2 %>>% chained.again)[[1]], (((c(3, 4) - 10 + 26) / 2 + 10 - 23) / -2 - 10 - 1.5) / 2)
 
     expect_error(setHyperPars(as.list(chained.again)[[1]], summand = 10), "Cannot change parameter values")
@@ -917,9 +927,9 @@ test_that("retrafo catabolization and anabolization work", {
     expect_identical(getParamSet(as.list(chained.again)[[7]]), pSSLrn(summand = 1: integer[, ]))
     expect_identical(getParamSet(as.list(chained.again)[[4]]), pSSLrn(factor = 1: numeric[~., ~.]))
 
-    testdfcpo %>>% chainCPO(as.list(cpochain)[1:3])
-    firsthalf = retrafo(testdfcpo %>>% chainCPO(as.list(cpochain)[1:3]))
-    secondhalf = retrafo(testdfcpo %>>% chainCPO(as.list(cpochain)[4:6]))
+    testdfcpo %>>% pipeCPO(as.list(cpochain)[1:3])
+    firsthalf = retrafo(testdfcpo %>>% pipeCPO(as.list(cpochain)[1:3]))
+    secondhalf = retrafo(testdfcpo %>>% pipeCPO(as.list(cpochain)[4:6]))
 
     expect_equal((testdfcpo2 %>>% firsthalf)[[1]], (c(3, 4) - 20 - 1.5) / 2 + 10 - 43)
     expect_equal((testdfcpo2 %>>% secondhalf)[[1]], (c(3, 4) / -2 - 10 + 3) / 2)
@@ -943,7 +953,7 @@ test_that("retrafo catabolization and anabolization work", {
       expect_equal((testdfcpo2 %>>% ret)[[1]], (c(3, 4) - 10 - 1.5) / 2)
       expect_equal((testdfcpo2 %>>% as.list(ret)[[1]])[[1]], c(3, 4) - 10 - 1.5)
       expect_equal((testdfcpo2 %>>% as.list(ret)[[2]])[[1]], c(3, 4) / 2)
-      expect_equal((testdfcpo2 %>>% chainCPO(as.list(ret)[c(2, 1)]))[[1]], c(3, 4) / 2 - 10 - 1.5)
+      expect_equal((testdfcpo2 %>>% pipeCPO(as.list(ret)[c(2, 1)]))[[1]], c(3, 4) / 2 - 10 - 1.5)
     }
   }
 

@@ -722,7 +722,7 @@ type = "o"
 
 test_that("factor fixing works", {
 
-  factormemcpo = makeCPO("dummyencode", .datasplit = "target", .fix.factors = FALSE,
+  factormemcpo = makeCPOExtended("dummyencode", .dataformat = "df.features", .fix.factors = FALSE,
     cpo.trafo = {
       control = lapply(data, levels)
       data
