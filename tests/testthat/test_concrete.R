@@ -13,15 +13,12 @@ test_that("cpoPca test", {
   hip = head(ip)
   expect_equal(head(iris) %>>% ret, hip)
 
-  prc = prcomp(iris[1:4])
+  prc = prcomp(iris[1:4], center = FALSE)
 
   expect_equal(getRetrafoState(ret)$control$rotation, prc$rotation)
 
-  expect_equal(getTaskData(iris.task %>>% cpoPca(center = FALSE, scale = TRUE), target.extra = TRUE)$data,
-               as.data.frame(prcomp(iris[1:4], center = FALSE, scale. = TRUE)$x))
-
-  expect_equal(getTaskData(iris.task %>>% cpoScale() %>>% cpoPca(center = FALSE, scale = FALSE)),
-               getTaskData(iris.task %>>% cpoPca(center = TRUE, scale = TRUE)))
+  expect_equal(getTaskData(iris.task %>>% cpoPca(), target.extra = TRUE)$data,
+               as.data.frame(prcomp(iris[1:4], center = FALSE, scale. = FALSE)$x))
 
 })
 
@@ -56,7 +53,7 @@ test_that("cpoScale test", {
 test_that("cpo applicator", {
 
 
-  ip = iris %>>% cpoApply(cpoPca())
+  ip = iris %>>% cpoWrap(cpoPca())
 
   ret = retrafo(ip)
   retrafo(ip) = NULL
@@ -69,7 +66,7 @@ test_that("cpo applicator", {
   expect_equal(getTaskData(iris.task %>>% cpoPca()), iris %>>% ret)
 
 
-  ip = iris %>>% cpoApply(cpoScale(center = FALSE))
+  ip = iris %>>% cpoWrap(cpoScale(center = FALSE))
   ret = retrafo(ip)
   retrafo(ip) = NULL
 

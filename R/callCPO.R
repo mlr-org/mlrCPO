@@ -279,7 +279,7 @@ applyCPO.CPO = function(cpo, task) {
 
 # User-facing cpo retrafo application to a data object.
 #' @export
-applyCPO.CPORetrafo = applyCPO.CPO
+applyCPO.CPORetrafo = applyCPO.CPO  # nolint
 
 # get par.vals with bare par.set names, i.e. the param names without the ID
 getBareHyperPars = function(cpo, include.unexported = TRUE) {

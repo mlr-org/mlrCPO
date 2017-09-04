@@ -70,7 +70,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
 
   pr = collectProperties(constructed)
 
-  makeCPOExtended("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
+  rl = makeCPOExtended("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
           .properties.needed = pr$properties.needed, .properties.target = pr$properties.target, cpo.trafo = function(data, target, selected.cpo, ...) {
             cpo = constructed[[selected.cpo]]
             cpo = setHyperPars(cpo, par.vals = list(...)[names(getParamSet(cpo)$pars)])
@@ -78,7 +78,8 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
             control = retrafo(res)
             retrafo(res) = NULL
             res
-          }, cpo.retrafo = function(data, control, ...) { data %>>% control })(id = id)
+          }, cpo.retrafo = function(data, control, ...) { data %>>% control })
+  setCPOId(rl(), id = id)  # allow NULL id for multiplexer
 }
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
@@ -96,7 +97,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoWrap = makeCPOExtended("apply", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
+cpoWrap = makeCPOExtended("wrap", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
                    cpo.trafo = { control = retrafo({res = data %>>% cpo}) ; res }, cpo.retrafo = { data %>>% control })
 # FIXME: require databound
 registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
@@ -110,7 +111,7 @@ registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exportin
 #' a provided function
 #'
 #' @export
-cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(), .export = list(),
+cpoCase = function(..., .cpo.name = "case", .par.set = NULL, .par.vals = list(), .export = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
                    .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
@@ -186,7 +187,7 @@ cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
     .dataformat = "onlyfactor"
   }
 
-  makeCPOExtended(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
+  rl = makeCPOExtended(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
     .dataformat = "task", .dataformat.factor.with.ordered = FALSE, .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, .properties.target = .properties.target,
     cpo.trafo = function(data, target, ...) {
@@ -204,6 +205,7 @@ cpoCase = function(..., .cpo.name = "meta", .par.set = NULL, .par.vals = list(),
     cpo.retrafo = function(data, control, ...) {
       data %>>% control
     })
+  setCPOId(rl(), id = NULL)
 }
 
 # intersect: properties get intersected instead of union'd

@@ -1,4 +1,4 @@
-.FilterRegister = get(".FilterRegister", envir = getNamespace("mlr"))
+.FilterRegister = get(".FilterRegister", envir = getNamespace("mlr"))  # nolint
 
 #' @title Filter features by thresholding filter values.
 #'

@@ -3,24 +3,27 @@ context("cpo meta")
 
 test_that("cpo multiplexer", {
 
+
+
+
   expect_error(cpoMultiplex(list(cpoScale, cpoScale)), "duplicates found")
 
-  expect_equal(getTaskData(iris.task %>>% cpoMultiplex(list(cpoScale, cpoPca))),
+  expect_equal(getTaskData(iris.task %>>% cpoMultiplex(list(cpoScale, cpoPcaLegacy))),
     getTaskData(iris.task %>>% cpoScale()))
-  expect_equal(getTaskData(iris.task %>>% cpoMultiplex(list(cpoScale(center = FALSE), cpoPca))),
+  expect_equal(getTaskData(iris.task %>>% cpoMultiplex(list(cpoScale(center = FALSE), cpoPcaLegacy))),
     getTaskData(iris.task %>>% cpoScale(center = FALSE)))
 
-  expect_equal(getTaskData(iris.task %>>% setHyperPars(cpoMultiplex(list(cpoScale(center = FALSE), cpoPca(center = FALSE, scale = FALSE, id = "pcaX"))),
+  expect_equal(getTaskData(iris.task %>>% setHyperPars(cpoMultiplex(list(cpoScale(center = FALSE), cpoPcaLegacy(center = FALSE, scale = FALSE, id = "pcaX"))),
     selected.cpo = "pcaX", pcaX.scale = TRUE)),
-    getTaskData(iris.task %>>% cpoPca(center = FALSE, scale = TRUE)))
+    getTaskData(iris.task %>>% cpoPcaLegacy(center = FALSE, scale = TRUE)))
 
-  expect_equal(getParamSet(cpoMultiplex(list(a = cpoScale, b = cpoPca)))$pars$selected.cpo$values, list(a = "a", b = "b"))
+  expect_equal(getParamSet(cpoMultiplex(list(a = cpoScale, b = cpoPcaLegacy)))$pars$selected.cpo$values, list(a = "a", b = "b"))
 
-  expect_equal(getHyperPars(cpoMultiplex(list(a = cpoScale, b = cpoPca)))$selected.cpo, "a")
+  expect_equal(getHyperPars(cpoMultiplex(list(a = cpoScale, b = cpoPcaLegacy)))$selected.cpo, "a")
 
-  expect_error(setHyperPars(cpoMultiplex(list(a = cpoScale, b = cpoPca)), selected.cpo = "c"), "c is not feasible for parameter 'selected.cpo'")
+  expect_error(setHyperPars(cpoMultiplex(list(a = cpoScale, b = cpoPcaLegacy)), selected.cpo = "c"), "c is not feasible for parameter 'selected.cpo'")
 
-  expect_error(cpoMultiplex(list(cpoScale(id = "pca"), cpoPca)), "duplicates found: pca")
+  expect_error(cpoMultiplex(list(cpoScale(id = "pca"), cpoPcaLegacy)), "duplicates found: pca")
 
 
   testa = makeCPOExtended("testa", .properties = c("numerics", "missings"),
@@ -39,32 +42,32 @@ test_that("cpo multiplexer", {
   expect_set_equal(newprops$properties.needed, "ordered")
 
 
-  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
-  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
 
   expect_set_equal(getCPOProperties(cpoMultiplex(list(ta, tb)))$properties, c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
 
 })
 
-test_that("cpoMeta", {
+test_that("cpoCase", {
 
-  expect_set_equal(names(getParamSet(cpoMeta(.export = list(cpoScale(id = "a"), cpoPca(id = "b")), cpo.build = { a })())$pars),
+  expect_set_equal(names(getParamSet(cpoCase(.export = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a }))$pars),
     c("a.center", "a.scale", "b.center", "b.scale"))
-  expect_class(cpoMeta(.export = list(a = cpoScale, b = cpoScale), cpo.build = { a }), "CPOConstructor")
-  expect_error(cpoMeta(.export = list(a = cpoScale(id = "a"), a = cpoScale(id = "b")), cpo.build = { a }), "uniquely named")
+  expect_class(cpoCase(.export = list(a = cpoScale, b = cpoScale), cpo.build = { a }), "CPO")
+  expect_error(cpoCase(.export = list(a = cpoScale(id = "a"), a = cpoScale(id = "b")), cpo.build = { a }), "uniquely named")
 
 
-  expect_equal(getTaskData(iris.task %>>% cpoMeta(.export = list(cpoScale(id = "a"), cpoPca(id = "b")), cpo.build = { a })()),
+  expect_equal(getTaskData(iris.task %>>% cpoCase(.export = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a })),
     getTaskData(iris.task %>>% cpoScale()))
-  expect_equal(getTaskData(iris.task %>>% cpoMeta(.export = list(cpoScale(id = "a", center = FALSE), cpoPca(id = "b")), cpo.build = { a })()),
+  expect_equal(getTaskData(iris.task %>>% cpoCase(.export = list(cpoScale(id = "a", center = FALSE), cpoPcaLegacy(id = "b")), cpo.build = { a })),
     getTaskData(iris.task %>>% cpoScale(center = FALSE)))
 
 
-  multiplex.emu = cpoMeta(selected.cpo = "a": discrete[a, b], .export = list(a = cpoScale(center = FALSE), b = cpoPca(center = FALSE, scale = FALSE, id = "pcaX")),
+  multiplex.emu = cpoCase(selected.cpo = "a": discrete[a, b], .export = list(a = cpoScale(center = FALSE), b = cpoPcaLegacy(center = FALSE, scale = FALSE, id = "pcaX")),
     cpo.build = { switch(selected.cpo, a = a, b = b) })
 
-  expect_equal(getTaskData(iris.task %>>% setHyperPars(multiplex.emu(), selected.cpo = "b", pcaX.scale = TRUE)),
-    getTaskData(iris.task %>>% cpoPca(center = FALSE, scale = TRUE)))
+  expect_equal(getTaskData(iris.task %>>% setHyperPars(multiplex.emu, selected.cpo = "b", pcaX.scale = TRUE)),
+    getTaskData(iris.task %>>% cpoPcaLegacy(center = FALSE, scale = TRUE)))
 
 
   # properties
@@ -74,7 +77,7 @@ test_that("cpoMeta", {
     .properties.adding = "factors", .properties.needed = c("missings", "ordered"), cpo.trafo = { }, cpo.retrafo = NULL)
 
 
-  newprops = getCPOProperties(cpoMeta(.export = list(a = testa, b = testb), cpo.build = { a })())
+  newprops = getCPOProperties(cpoCase(.export = list(a = testa, b = testb), cpo.build = { a }))
 
   expect_set_equal(intersect(newprops$properties, cpo.dataproperties), c("numerics", "factors", "missings"))
 
@@ -83,17 +86,18 @@ test_that("cpoMeta", {
   expect_set_equal(newprops$properties.needed, "ordered")
 
 
-  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
-  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .stateless = TRUE, cpo.trafo = NULL, cpo.retrafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
 
-  expect_set_equal(getCPOProperties(cpoMeta(.export = list(a = ta, b = tb), cpo.build = { a })())$properties,
+  expect_set_equal(getCPOProperties(cpoCase(.export = list(a = ta, b = tb), cpo.build = { a }))$properties,
     c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
 
 
   # data split
   for (split in c("task", "no", "target", "most", "all", "factor", "numeric", "ordered", "onlyfactor")) {
-
-    checking.cpo = cpoMeta(hastarget: logical, .cpo.name = "checkingcpo", .datasplit = split, cpo.build = function(data, target, hastarget) {
+    strans = datasplitToDataformat(split)
+    checking.cpo = cpoCase(hastarget: logical, .cpo.name = "checkingcpo", .dataformat = strans$dataformat,
+    .dataformat.factor.with.ordered = strans$dataformat.factor.with.ordered, cpo.build = function(data, target, hastarget) {
       switch(split,
         task = {
           if (hastarget) {
@@ -143,14 +147,14 @@ test_that("cpoMeta", {
       NULLCPO
     })
 
-    cpo.df5c %>>% checking.cpo(TRUE)
-    cpo.df5 %>>% checking.cpo(FALSE)
+    cpo.df5c %>>% setHyperPars(checking.cpo, hastarget = TRUE)
+    cpo.df5 %>>% setHyperPars(checking.cpo, hastarget = FALSE)
 
   }
 
   # data dependent cpo
-  cpo = cpoMeta(logical.param: logical,
-  .export = list(a = cpoScale(id = "scale"), b = cpoPca(id = "pca", scale = FALSE, center = FALSE)),
+  cpo = cpoCase(logical.param: logical,
+  .export = list(a = cpoScale(id = "scale"), b = cpoPcaLegacy(id = "pca", scale = FALSE, center = FALSE)),
   cpo.build = function(data, target, logical.param, a, b) {
     assert(is.nullcpo(retrafo(data)))
     if (logical.param || mean(data[[1]]) > 10) {
@@ -160,38 +164,38 @@ test_that("cpoMeta", {
     }
   })
 
-  iris.scale.pca = iris %>>% cpoScale() %>>% cpoPca(scale = FALSE, center = FALSE)
-  iris.pca.scale = iris %>>% cpoPca(scale = FALSE, center = FALSE) %>>% cpoScale()
+  iris.scale.pca = iris %>>% cpoScale() %>>% cpoPcaLegacy(scale = FALSE, center = FALSE)
+  iris.pca.scale = iris %>>% cpoPcaLegacy(scale = FALSE, center = FALSE) %>>% cpoScale()
   retrafo(iris.scale.pca) = NULL
   retrafo(iris.pca.scale) = NULL
 
   bigiris = iris %>>% cpomultiplier.nt.o(factor = 1000)
   retrafo(bigiris) = NULL
 
-  bigiris.scale.pca = bigiris %>>% cpoScale() %>>% cpoPca(scale = FALSE, center = FALSE)
-  bigiris.pca.scale = bigiris %>>% cpoPca(scale = FALSE, center = FALSE) %>>% cpoScale()
+  bigiris.scale.pca = bigiris %>>% cpoScale() %>>% cpoPcaLegacy(scale = FALSE, center = FALSE)
+  bigiris.pca.scale = bigiris %>>% cpoPcaLegacy(scale = FALSE, center = FALSE) %>>% cpoScale()
   retrafo(bigiris.scale.pca) = NULL
   retrafo(bigiris.pca.scale) = NULL
 
-  ip = iris %>>% cpo(TRUE)  # scale, then pca
+  ip = iris %>>% setHyperPars(cpo, logical.param = TRUE)  # scale, then pca
   rip = iris %>>% retrafo(ip)
   retrafo(ip) = NULL
   expect_equal(ip, iris.scale.pca)
   expect_equal(rip, iris.scale.pca)
 
-  ip = iris %>>% cpo(FALSE)  # pca, then scale
+  ip = iris %>>% setHyperPars(cpo, logical.param = FALSE)  # pca, then scale
   rip = iris %>>% retrafo(ip)
   retrafo(ip) = NULL
   expect_equal(ip, iris.pca.scale)
   expect_equal(rip, iris.pca.scale)
 
-  ip = bigiris %>>% cpo(FALSE)  # scale, then pca
+  ip = bigiris %>>% setHyperPars(cpo, logical.param = FALSE)  # scale, then pca
   rip = bigiris %>>% retrafo(ip)
   retrafo(ip) = NULL
   expect_equal(ip, bigiris.scale.pca)
   expect_equal(rip, bigiris.scale.pca)
 
-  ip = bigiris %>>% cpo(FALSE)  # scale, then pca, since mean(data[[1]]) is large
+  ip = bigiris %>>% setHyperPars(cpo, logical.param = FALSE)  # scale, then pca, since mean(data[[1]]) is large
   rip = bigiris %>>% retrafo(ip)
   retrafo(ip) = NULL
   expect_equal(ip, bigiris.scale.pca)

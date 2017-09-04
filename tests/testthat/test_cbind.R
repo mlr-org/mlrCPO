@@ -20,7 +20,7 @@ test_that("cbind building works", {
 
   route2 = cpoCbind(route1, previ %>>% cpoadder.nt.o(id = "frthrow")) %>>% cpomultiplier.nt.o(id = "sxthrow")
 
-  expect_error(cpoCbind(setHyperPars(previ, factor = 10) %>>% cpomultiplier.nt.o(id = "thrdrow"), previ, NAME = NULLCPO),
+  expect_error(cpoCbind(setHyperPars(previ, multiplierO.factor = 10) %>>% cpomultiplier.nt.o(id = "thrdrow"), previ, NAME = NULLCPO),
                "multiplier.*ambiguously identical")
 
   route3error = cpoCbind(previ %>>% cpomultiplier.nt.o(id = "thrdrow", factor = -1), previ, NAME = NULLCPO)
@@ -77,7 +77,7 @@ test_that("cbind does what it is supposed to do", {
 
   cpo.clist = numeric(0)
 
-  mul = makeCPOObject("multiplierO", factor = 1: numeric[~., ~.], .datasplit = "target", cpo.trafo = {
+  mul = makeCPOObject("multiplierO", factor = 1: numeric[~., ~.], .dataformat = "df.features", cpo.trafo = {
     cpo.clist <<- c(cpo.clist, data[[1]][1])  # nolint
     data[[1]] = data[[1]] * factor
     data[[2]] = data[[2]] * factor
@@ -90,7 +90,7 @@ test_that("cbind does what it is supposed to do", {
   })
 
 
-  add = makeCPOObject("adderO", summand = 1: integer[, ], .datasplit = "target", cpo.trafo = {
+  add = makeCPOObject("adderO", summand = 1: integer[, ], .dataformat = "df.features", cpo.trafo = {
     cpo.clist <<- c(cpo.clist, data[[1]][1])  # nolint
     control = mean(data[[1]])
     data[[1]] = data[[1]] + summand
@@ -167,7 +167,7 @@ test_that("cbind does what it is supposed to do", {
   expect_equal(checkroute2retrafo, route2df.rt)
 
 
-  route3 = cpoCbind(mul4 = pre %>>% mul(id = "ffthrow", factor = 1.2), cpoSelect(index = c(2, 1), id = "select2") %>>%  cpoApply(pre), copy2 = NULLCPO)
+  route3 = cpoCbind(mul4 = pre %>>% mul(id = "ffthrow", factor = 1.2), cpoSelect(index = c(2, 1), id = "select2") %>>%  cpoWrap(pre), copy2 = NULLCPO)
   result = setHyperPars(cpoCbind(r1 = route1, r2 = route2, r3 = route3), lvl1.summand = 20)
 
   cpo.clist = numeric(0)

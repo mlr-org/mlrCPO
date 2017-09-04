@@ -32,12 +32,12 @@ devtools::test(pkg = "..", filter = "datasplit")
 devtools::test(pkg = "..", filter = "quick")
 devtools::test(pkg = "..", filter = "filter")
 devtools::test(pkg = "..", filter = "impute")
+devtools::test(pkg = "..", filter = "concrete")
+devtools::test(pkg = "..", filter = "meta")
 
 devtools::test(pkg = "..", filter = "cbind")
 
-devtools::test(pkg = "..", filter = "concrete")
 
-devtools::test(pkg = "..", filter = "meta")
 
 
 

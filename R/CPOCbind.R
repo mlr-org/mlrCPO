@@ -104,7 +104,7 @@ cpoCbind = function(..., .cpos = list()) {
 
   control = NULL  # pacify static code analyser
 
-  addClasses(makeCPOExtended("cbind", .par.set = par.set, .par.vals = par.vals, .dataformat = "task",
+  addClasses(setCPOId(makeCPOExtended("cbind", .par.set = par.set, .par.vals = par.vals, .dataformat = "task",
     .properties = collectedprops$properties,
     .properties.adding = collectedprops$properties.adding,
     .properties.needed = collectedprops$properties.needed,
@@ -116,7 +116,7 @@ cpoCbind = function(..., .cpos = list()) {
       ag$data
     }, cpo.retrafo = {
       applyGraph(control, data, FALSE, NULL)$data
-    })(), "CPOCbind")
+    })(), NULL), "CPOCbind")
 }
 
 # Iterate through the graph objects in order of dependency, apply each CPO to the data.
@@ -421,13 +421,12 @@ synchronizeGraph = function(cpograph) {
       }
       assertChoice(sib$type, c("CPO", "CBIND"))
       if (sib$type == "CPO") {
-        if (getCPOName(sib$content) != getCPOName(graphitem$content)) {
+        if (getCPOName(sib$content) != getCPOName(graphitem$content) || !identical(getCPOId(sib$content), getCPOId(graphitem$content))) {
           next
         }
-        assert(identical(getCPOId(sib$content), getCPOId(graphitem$content)))
         if (!identical(getHyperPars(sib$content), getHyperPars(graphitem$content))) {
           stopf("Error: Two CPOS %s are ambiguously identical but have different hyperparameter settings.",
-                getCPOName(sib$content), getCPOName(graphitem$content))
+                sib$content$debug.name)
         }
         # FIXME: whenever more distinguishing hidden state comes along, it needs to be checked here.
         assert(identical(sib$content, graphitem$content))

@@ -87,7 +87,7 @@ invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
 }
 
 #' @export
-invert.CPORetrafoHybrid = invert.CPOInverter
+invert.CPORetrafoHybrid = invert.CPOInverter  # nolint
 
 #' @export
 invert.CPORetrafoOnly = function(inverter, prediction, predict.type = "response") {

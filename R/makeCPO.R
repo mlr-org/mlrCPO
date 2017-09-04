@@ -597,6 +597,9 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
     nondefault.args = args
     args = insert(funargs, args)
     id = args$id
+    if (is.null(id)) {
+      id = .cpo.name
+    }
     args$id = NULL
     export = args$export
     args$export = NULL
@@ -663,33 +666,33 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
 
     cpo = makeS3Obj(c("CPOPrimitive", "CPO"),
       # --- CPO part
-      name = .cpo.name,                            # [character(1)] the name of the operation performed by this CPO
-      debug.name = .cpo.name,                      # [character(1)] Readable representation of of name and ID
-      par.set = .par.set,                          # [ParamSet] exported parameters
-      par.vals = present.pars,                     # [named list] values of exported parameters
-      properties = properties.list,                # properties$properties: [character] properties handled by this CPO
-                                                   # properties$adding [character] capabilities that this CPO adds to the next processor
-                                                   # properties$needed [character] capabilities needed by the next processor
-      properties.raw  = properties.list$properties,# [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
-      operating.type = .cpotype,                   # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
-      predict.type = .predict.type,                # [named character] translation of predict.type of underlying learner. Only for operating = "target"
+      name = .cpo.name,                              # [character(1)] the name of the operation performed by this CPO
+      debug.name = .cpo.name,                        # [character(1)] Readable representation of of name and ID
+      par.set = .par.set,                            # [ParamSet] exported parameters
+      par.vals = present.pars,                       # [named list] values of exported parameters
+      properties = properties.list,                  # properties$properties: [character] properties handled by this CPO
+                                                     # properties$adding [character] capabilities that this CPO adds to the next processor
+                                                     # properties$needed [character] capabilities needed by the next processor
+      properties.raw  = properties.list$properties,  # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
+      operating.type = .cpotype,                     # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
+      predict.type = .predict.type,                  # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
-      id = NULL,                                   # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
-      trafo = trafo.funs$cpo.trafo,                # [function] trafo function
-      retrafo = trafo.funs$cpo.retrafo,            # [function] retrafo function
-      control.type = control.type,                 # [character(1)] whether retrafo is taken from trafo environment ("functional"),
-                                                   #                uses 'control' object ("object"), or is stateless ("stateless")
-      packages = .packages,                        # [character] package(s) to load when constructing the CPO
-      affect.args = affect.args,                   # [named list] values of the "affect.*" arguments
-      unexported.pars = unexported.pars,           # [named list] values of parameters that are not exported
-      unexported.par.set = unexported.par.set,     # [ParamSet] unexported parameter set
-      bare.par.set = .par.set,                     # [ParamSet] exported parameters with names not containing the ID prefix
-      datasplit = .dataformat,                     # [character(1)] data format as received by trafo / retrafo
-      fix.factors = .fix.factors,                  # [logical(1)] whether to clean up factor levels in retrafo
+      id = NULL,                                     # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
+      trafo = trafo.funs$cpo.trafo,                  # [function] trafo function
+      retrafo = trafo.funs$cpo.retrafo,              # [function] retrafo function
+      control.type = control.type,                   # [character(1)] whether retrafo is taken from trafo environment ("functional"),
+                                                     #                uses 'control' object ("object"), or is stateless ("stateless")
+      packages = .packages,                          # [character] package(s) to load when constructing the CPO
+      affect.args = affect.args,                     # [named list] values of the "affect.*" arguments
+      unexported.pars = unexported.pars,             # [named list] values of parameters that are not exported
+      unexported.par.set = unexported.par.set,       # [ParamSet] unexported parameter set
+      bare.par.set = .par.set,                       # [ParamSet] exported parameters with names not containing the ID prefix
+      datasplit = .dataformat,                       # [character(1)] data format as received by trafo / retrafo
+      fix.factors = .fix.factors,                    # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things
-      convertfrom = .type.from,                    # [character(1)] task type to convert from.
-      convertto = .type.to,                        # [character(1)] task type to convert to.
-      data.dependent = .data.dependent)            # [logical(1)] whether trafo uses data at all.
+      convertfrom = .type.from,                      # [character(1)] task type to convert from.
+      convertto = .type.to,                          # [character(1)] task type to convert to.
+      data.dependent = .data.dependent)              # [logical(1)] whether trafo uses data at all.
     if (length(getCPOAffect(cpo))) {
       # data is subset, so the overall 'properties' is the maximal set
       cpo$properties$properties = union(cpo$properties$properties,  c("numerics", "factors", "ordered", "missings"))

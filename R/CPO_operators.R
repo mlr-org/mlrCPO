@@ -302,15 +302,13 @@ setCPOId.CPO = function(cpo, id) {
 # This means we need to modify $par.set AND $par.vals
 #' @export
 setCPOId.CPOPrimitive = function(cpo, id) {
-  if (is.null(id)) {
-    id = cpo$name
-  }
+
   cpo$id = id
-  cpo$debug.name = if (id == cpo$name) cpo$name else sprintf("%s<%s>", cpo$id, cpo$name)
+  cpo$debug.name = if (is.null(id) || id == cpo$name) cpo$name else sprintf("%s<%s>", cpo$id, cpo$name)
   cpo$par.vals = getBareHyperPars(cpo, FALSE)
   cpo$par.set = cpo$bare.par.set
   pars = cpo$par.set$pars
-  if (length(pars)) {
+  if (!is.null(id) && length(pars)) {
     trans = setNames(paste(id, names(pars), sep = "."), names(pars))
     names(pars) = trans
     pars = lapply(pars, function(x) {

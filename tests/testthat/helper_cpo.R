@@ -432,3 +432,16 @@ cpo.df5cc = makeClusterTask(data = cpo.df5)
 cpo.df4l2 = makeMultilabelTask(data = cbind(cpo.df4, cpo.df.logical3), target = c("T1", "T2", "T3", "T4"))
 
 cpo.df5r = makeRegrTask(data = cpo.df5, target = "N1")
+
+
+
+# some old test functions were using cpoPca with center and scale
+
+cpoPcaLegacy = makeCPOExtended("pca", center = TRUE: logical, scale = FALSE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
+  pcr = prcomp(as.matrix(data), center = center, scale. = scale)
+  data = as.data.frame(pcr$x)
+  control = list(rotation = pcr$rotation, center = pcr$center, scale = pcr$scale)
+  data
+}, cpo.retrafo = {
+  as.data.frame(scale(as.matrix(data), center = control$center, scale = control$scale) %*% control$rotation)
+})
