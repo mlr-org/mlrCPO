@@ -110,6 +110,7 @@ registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exportin
 #' The meta CPO which determines what CPO to apply to a data depending on
 #' a provided function
 #'
+#'
 #' @export
 cpoCase = function(..., .cpo.name = "case", .par.set = NULL, .par.vals = list(), .export = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),

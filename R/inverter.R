@@ -7,7 +7,7 @@
 #'
 #' Use either a retrafo object, or an inverter retrieved with
 #' \code{\link{inverter}} from a data object that was fed through a retrafo
-#' chain with \code{\link{tagInvert}} set to \code{TRUE}.
+#' chain.
 #'
 #' If the retrafo object used had no target-bound transformations,
 #' this is mostly a no-op, except that it possibly changes the task description
@@ -73,7 +73,7 @@ invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
       cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL),
       regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
       multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
-      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL, "rcens"),
+      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL),
       # assuming rcens since nothing else ever gets used.
       stop("unknown outputtype"))
   }

@@ -105,12 +105,12 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     tin$indata$target = NULL
   }
 
+  .ENV = NULL
   result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
 
   assertChoice(cpo$control.type, c("functional", "object", "stateless"))
-  if (cpo$control.type != "stateless") {
-    trafoenv = .ENV
-  }
+  trafoenv = .ENV
+
   if (cpo$control.type == "functional") {
     state = trafoenv$cpo.retrafo
     if (cpo$operating.type == "target") {

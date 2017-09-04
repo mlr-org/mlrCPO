@@ -2,7 +2,7 @@
 library("roxygen2")
 
 
-roxygenise("../../mlr")
+roxygenise("..")
 
 devtools::load_all("../../ParamHelpers")
 devtools::load_all("../../mlr")
@@ -38,7 +38,7 @@ devtools::test(pkg = "..", filter = "meta")
 devtools::test(pkg = "..", filter = "cbind")
 
 
-
+devtools::test(pkg = "..", filter = "lint")
 
 
 

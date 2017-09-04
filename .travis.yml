@@ -16,7 +16,6 @@ r_check_args: "--as-cran --run-donttest"
 
 r_github_packages:
   - berndbischl/BBmisc
-  - berndbischl/parallelMap
   - berndbischl/ParamHelpers
   - jimhester/lintr
   - jimhester/covr

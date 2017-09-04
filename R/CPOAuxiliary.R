@@ -313,6 +313,9 @@ getMlrOption = function(name, default = NULL) {
   getOption(stri_paste("mlr.", name), default)
 }
 
+getTaskWeights = function(task) {
+  task$weights
+}
 
 
 # TO-DO:

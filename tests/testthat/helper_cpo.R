@@ -445,3 +445,16 @@ cpoPcaLegacy = makeCPOExtended("pca", center = TRUE: logical, scale = FALSE: log
 }, cpo.retrafo = {
   as.data.frame(scale(as.matrix(data), center = control$center, scale = control$scale) %*% control$rotation)
 })
+
+# from mlr
+
+binaryclass.df = Sonar
+binaryclass.formula = Class~.
+binaryclass.target = "Class"
+binaryclass.train.inds = c(1:50, 100:150)
+binaryclass.test.inds  = setdiff(seq_len(nrow(binaryclass.df)), binaryclass.train.inds)
+binaryclass.train = binaryclass.df[binaryclass.train.inds, ]
+binaryclass.test  = binaryclass.df[binaryclass.test.inds, ]
+binaryclass.class.col = 61
+binaryclass.class.levs = levels(binaryclass.df[, binaryclass.class.col])
+binaryclass.task = makeClassifTask("binary", data = binaryclass.df, target = binaryclass.target)

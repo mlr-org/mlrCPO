@@ -12933,7 +12933,7 @@ log.prediction <span class="o">=</span> predict<span class="p">(</span>train<spa
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># attaching the cpo applicator to a learner gives this learner a &quot;cpo&quot; hyperparameter</span>
 <span class="c1"># that can be set to any CPO.</span>
-getParamSet<span class="p">(</span>cpoApply<span class="p">()</span> <span class="o">%&gt;&gt;%</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.logreg&quot;</span><span class="p">))</span>
+getParamSet<span class="p">(</span>cpoWrap<span class="p">()</span> <span class="o">%&gt;&gt;%</span> makeLearner<span class="p">(</span><span class="s">&quot;classif.logreg&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -13133,7 +13133,7 @@ cbinder.select
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-r"><pre><span></span><span class="c1"># alternatively, we apply the cbinder only to numerical data</span>
-<span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoApply<span class="p">(</span>cbinder<span class="p">,</span> affect.type <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">))</span>
+<span class="kp">head</span><span class="p">(</span>iris <span class="o">%&gt;&gt;%</span> cpoWrap<span class="p">(</span>cbinder<span class="p">,</span> affect.type <span class="o">=</span> <span class="s">&quot;numeric&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>

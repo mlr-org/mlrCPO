@@ -193,7 +193,7 @@ makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataform
 #'   The name of the resulting CPO constructor / CPO. This is used for identification in output,
 #'   and as the default \code{id}.
 #' @param ...
-#'   Parameters of the CPO, in the format of \code{\link[mlr]{pSSLrn}}.
+#'   Parameters of the CPO, in the format of \code{\link[ParamHelpers]{pSS}}.
 #' @param .par.set [\code{ParamSet}]\cr
 #'   Optional parameter set. If this is not \code{NULL}, the \dQuote{...} parameters are ignored.
 #'   Default is \code{NULL}.
@@ -570,7 +570,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   funargs = insert(funargs, .par.vals)
 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, parent.frame(2),
-    .cpotype, .dataformat, .trafo.type, .data.dependent, .trafo.type == "stateless")
+    .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent, .trafo.type == "stateless")
 
   funargs = insert(funargs, list(id = NULL, export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
@@ -782,7 +782,7 @@ prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set) {
   list(.par.set = .par.set, .par.vals = .par.vals, .export.params = .export.params)
 }
 
-constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .cpotype, .dataformat, .trafo.type, .data.dependent, .stateless) {
+constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent, .stateless) {
   required.arglist.trafo = funargs
   if (!.data.dependent) {
     assert(.cpotype == "target")
@@ -790,7 +790,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
     required.arglist.trafo$data = substitute()
   }
   required.arglist.trafo$target = substitute()
-  if ((is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, env = eval.env))) {
+  if ((is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, envir = eval.env))) {
     cpo.trafo = makeFunction(cpo.trafo, required.arglist.trafo, env = eval.env)
   } else {
     stop("cpo.trafo must be provided.")
@@ -800,7 +800,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
     .dataformat = "df.features"
   }
 
-  if ((is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, env = eval.env))) {
+  if ((is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, envir = eval.env))) {
     if (.cpotype == "traindata") {
       stop("traindata cpo must have cpo.retrafo = NULL")
     }
