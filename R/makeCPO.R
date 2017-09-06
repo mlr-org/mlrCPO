@@ -856,3 +856,74 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
 
   list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)
 }
+
+# create a function with expressions 'expr' in the environment 'env'.
+# the function gets the argument list 'required.arglist.
+# if 'expr' is actually a function, we just check that it has at least all the
+# arguments in 'required.arglist' (or that is has ellipses), that all
+# arguments have the same default values as required.arglist, and that
+# arguments of the function that are not 'required' have a default value so
+# there won't be an error when the function gets called later.
+makeFunction = function(expr, required.arglist, env = parent.frame()) {
+  if (is.recursive(expr) && identical(expr[[1]], quote(`{`))) {
+    # we have a headless list of expressions
+    # so we build our own function
+    args = as.pairlist(required.arglist)
+    newfun = eval(call("function", args, expr), envir = env)
+  } else {
+    newfun = eval(expr, envir = env)
+    assertFunction(newfun)
+    if (!"..." %in% names(formals(newfun))) {
+      # with a vararg function we tentatively trust the function
+      # handles its arguments
+
+      assertFunction(newfun, args = names(required.arglist))
+    }
+    for (arg in names(formals(newfun))) {
+      if (arg == "...") {
+        # can't say anything about ellipses
+        next
+      }
+      if (identical(formals(newfun)[[arg]], substitute())) {
+        # the argument has no default, so we only care that this it will always be given
+        if (!arg %in% names(required.arglist)) {
+          stopf("Bad argument %s.\nNeed a function with arguments %s.", arg, collapse(names(required.arglist)), sep = ", ")
+        }
+        next
+      }
+      if (!arg %in% names(required.arglist)) {
+        # the argument is not required, but it has a default; that is fine.
+        next
+      }
+      if (!identical(formals(newfun)[[arg]], required.arglist[[arg]])) {
+        if (identical(formals(newfun)[[arg]], substitute())) {
+          funargstr = "no default"
+          funarg = "no default"
+        } else {
+          funarg = eval(formals(newfun)[[arg]], envir = env)
+          funargstr = sprintf("default %s", collapse(funarg))
+        }
+        if (identical(required.arglist[[arg]], substitute())) {
+          reqarg = "no default"
+        } else {
+          reqarg = required.arglist[[arg]]
+        }
+        # there is a chance that they evaluate to the same value, so we check again
+        if (!identical(funarg, reqarg) && (!length(funarg) == 1 || !length(reqarg) == 1 || !is.na(funarg) || !is.na(reqarg))) {
+          stopf("Given function parameter %s has %s, but required default is %s.",
+                arg, funargstr, collapse(reqarg))
+        }
+      }
+    }
+  }
+  newfun
+}
+
+# capture the environment of the call to 'fun'
+captureEnvWrapper = function(fun) {
+  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })
+  envcapture[[3]] = body(fun)
+  body(fun) = envcapture
+  environment(fun) = new.env(parent = environment(fun))
+  fun
+}

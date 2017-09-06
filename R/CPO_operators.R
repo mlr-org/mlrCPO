@@ -214,6 +214,11 @@ getParamSet.CPOTrainedPrimitive = function(x) {
 }
 
 #' @export
+getParamSet.CPOTrained = function(x) {
+  stop("Cannot get param set of compound retrafo. Use as.list to get individual elements")
+}
+
+#' @export
 getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
   learner$par.vals
 }
@@ -221,6 +226,11 @@ getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
 #' @export
 getHyperPars.CPOTrainedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
   getBareHyperPars(learner$cpo)
+}
+
+#' @export
+getHyperPars.CPOTrained = function(learner, for.fun = c("train", "predict", "both")) {
+  stop("Cannot get parameters of compound retrafo. Use as.list to get individual elements")
 }
 
 #' @export
@@ -232,6 +242,23 @@ setHyperPars2.CPO = function(learner, par.vals = list()) {
   }
   checkParamsFeasible(learner$par.set, par.vals)
   learner$par.vals = insert(learner$par.vals, par.vals)
+  learner
+}
+
+#' @export
+setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
+  stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
+    "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
+    "Get the state of an existing retrafo / inverter using getRetrafoState.")
+}
+
+#' @export
+removeHyperPars.CPOLearner = function(learner, ids) {
+  i = intersect(names(learner$par.vals), ids)
+  if (length(i) > 0) {
+    stopf("CPO Parameters (%s) can not be removed", collapse(i, sep = ", "))
+  }
+  learner$next.learner = removeHyperPars(learner$next.learner, ids)
   learner
 }
 

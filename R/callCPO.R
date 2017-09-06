@@ -38,9 +38,9 @@ makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.o
 # serves as basis for both "Inverter" and "Retrafo" objects.
 makeCPOTrainedBasic = function(cpo, state, prev.retrafo, subclass) {
   retrafo = makeS3Obj(c("CPOTrainedPrimitive", subclass, "CPOTrained"),
-    cpo = setCPOId(cpo, NULL),
-    state = state,
-    prev.retrafo = NULL,
+    cpo = setCPOId(cpo, NULL),  # the CPOPrimitive that was used to create this object
+    state = state,              # whatever control object or retrafo function was given
+    prev.retrafo = NULL,        # Point to the "previous" CPOTrained, since CPOTrained are a linked list
     # --- Target Bound things
     predict.type = cpo$predict.type)  # named list type to predict --> needed type
 }
@@ -252,7 +252,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
 # This is also called for CPOTrained; there it calls 'callCPOTrained'
 #' @export
 applyCPO.CPO = function(cpo, task) {
-  if ("Task" %in% class(task) && !is.null(getTaskWeights(task))) {
+  if ("Task" %in% class(task) && hasTaskWeights(task)) {
     stop("CPO can not handle tasks with weights!")
   }
 
@@ -280,6 +280,12 @@ applyCPO.CPO = function(cpo, task) {
 # User-facing cpo retrafo application to a data object.
 #' @export
 applyCPO.CPORetrafo = applyCPO.CPO  # nolint
+
+#' @export
+predict.CPORetrafo = function(object, data, ...) {
+  assert(length(list(...)) == 0)
+  applyCPO(object, data)
+}
 
 # get par.vals with bare par.set names, i.e. the param names without the ID
 getBareHyperPars = function(cpo, include.unexported = TRUE) {

@@ -269,6 +269,12 @@ setCPOId = function(cpo, id) {
   UseMethod("setCPOId")
 }
 
+#' @export
+setCPOId.default = function(cpo, id) {
+  stop("setCPOId for object not defined.")
+}
+
+
 #' @title Get the ID of a CPO object.
 #'
 #' @description

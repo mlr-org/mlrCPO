@@ -42,6 +42,11 @@ invert = function(inverter, prediction, predict.type = "response") {
 }
 
 #' @export
+invertCPO.CPO = function(inverter, prediction, predict.type) {
+  stop("Cannot invert prediction with a CPO object; need a CPOTrained object.")
+}
+
+#' @export
 invert.CPORetrafo = function(inverter, prediction, predict.type = "response") {
   message("(Inversion was a no-op.)")
   # we check this here and not earlier because the user might rely on inverter()
