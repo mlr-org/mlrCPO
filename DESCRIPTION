@@ -36,7 +36,9 @@ Suggests:
     randomForestSRC,
     randomForest,
     Rfast,
-    FSelector
+    FSelector,
+    survival,
+    igraph
 LazyData: yes
 ByteCompile: yes
 Version: 0.1
