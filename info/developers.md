@@ -76,8 +76,8 @@ As of writing of this document, there are 21 `.R` files in the `R` directory tha
 
 These files are the core of `CPO` inner workings.
 
-| File Name               | Description |
-| ----------------------- | ------------- |
+| File Name               | Description   |
+|:----------------------|:-------------|
 | `makeCPO.R`             | `makeCPO()*` and related functions, for definition of `CPOConstructor`s |
 | `callCPO.R`             | Invocation of `CPO` trafo and retrafo functions, and creation of `CPOTrained` |
 | `FormatCheck.R`         | Checking of input and output data conformity to `CPO` "properties", and uniformity of data between trafo and retrafo |
@@ -90,8 +90,8 @@ These files are the core of `CPO` inner workings.
 
 These files give auxiliary functions and boilerplate.
 
-| File Name               | Description |
-| ----------------------- | ------------- |
+| File Name               | Description   |
+| :---------------------- | :------------- |
 | `doublecaret.R`         | `%>>%`-operator |
 | `attributes.R`          | `retrafo()*` and `inverter()*` functions that access object attributes |
 | `print.R`               | Printing of `CPO` objects |
@@ -106,8 +106,8 @@ These files give auxiliary functions and boilerplate.
 
 These files contain concrete `CPO` implementations.
 
-| File Name               | Description |
-| ----------------------- | ------------- |
+| File Name               | Description   |
+| :---------------------- | :------------- |
 | `CPO_meta.R`            | `cpoMultiplex` and `cpoCase` |
 | `CPOCbind.R`            | `cpoCbind` and its special printing function |
 | `CPO_concrete.R`        | General data manipulation `CPO`s |
