@@ -26,8 +26,7 @@
 #'
 #' @export
 invert = function(inverter, prediction, predict.type = "response") {
-  have.prediction = "Prediction" %in% class(prediction)
-  if (have.prediction) {
+  if ("Prediction" %in% class(prediction)) {
     preddf = prediction$data
     probs = grepl("^prob(\\..*)$", names(preddf))
     if (length(probs)) {
@@ -42,11 +41,11 @@ invert = function(inverter, prediction, predict.type = "response") {
     preddf = prediction
   }
   prediction = sanitizePrediction(preddf)
-  UseMethod("invert", inverter, prediction = prediction)
+  UseMethod("invert", inverter)
 }
 
 #' @export
-invertCPO.CPO = function(inverter, prediction, predict.type) {
+invertCPO.CPO = function(inverter, prediction, predict.type = "response") {
   stop("Cannot invert prediction with a CPO object; need a CPOTrained object.")
 }
 
@@ -86,7 +85,7 @@ invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
       # assuming rcens since nothing else ever gets used.
       stop("unknown outputtype"))
   }
-  if (have.prediction) {
+  if ("Prediction" %in% class(prediction)) {
     makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
       truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
       error = prediction$error, dump = prediction$dump)
@@ -109,7 +108,7 @@ invert.CPORetrafoOnly = function(inverter, prediction, predict.type = "response"
 #' @description
 #' Check whether the given object is a \code{CPOInverter} object.
 #'
-#' @param x \cr
+#' @param x [any]\cr
 #'   The object to check.
 #'
 #' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.

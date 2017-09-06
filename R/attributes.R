@@ -47,7 +47,7 @@ retrafo.WrappedModel = function(data) {
 #' @description
 #' Check whether the given object is a \code{CPORetrafo} object.
 #'
-#' @param x\cr
+#' @param x [any]\cr
 #'   The object to check.
 #'
 #' @return \code{TRUE} if \code{x} has class \code{CPORetrafo}, \code{FALSE} otherwise.

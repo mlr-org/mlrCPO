@@ -495,7 +495,7 @@ makeCPOTargetOpExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = 
     if (.dataformat %in% c("df.all", "task")) {
       stop("When .data.dependent is FALSE, .dataformat must not be 'no' or 'task'")
     }
-    if (!setequal(.properties, c("numerics", "factors", "ordered", "missings"))) {
+    if (!setequal(.properties.data, c("numerics", "factors", "ordered", "missings"))) {
       stop("When .data.dependent is FALSE, .properties must have the default value.")
     }
   }

@@ -114,7 +114,7 @@ cpoCbind = function(..., .cpos = list()) {
       ag = applyGraph(.CPO, data, TRUE, args)
       control = ag$graph
       ag$data
-    }, cpo.retrafo = {
+    }, cpo.retrafo = function(data, control, ...) {
       applyGraph(control, data, FALSE, NULL)$data
     })(), NULL), "CPOCbind")
 }
@@ -208,7 +208,7 @@ print.CPOCbind = function(x, ...) {
       CPO = {
         cpo = x$content
         cpo = setHyperPars(cpo, par.vals = par.vals[intersect(names(par.vals), names(getParamSet(cpo)$pars))])
-        capture.output(print(x$content))
+        utils::capture.output(print(x$content))
       }, "INVALID")
   })
   offset = length(graph) + 1

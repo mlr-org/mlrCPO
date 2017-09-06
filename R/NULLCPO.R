@@ -21,13 +21,13 @@ NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "C
 #'
 #' Check whether the given object is a \code{NULLCPO}.
 #'
-#' @param cpo \cr
+#' @param x [any]\cr
 #'   The object to check
 #' @return \code{TRUE} if \code{cpo} is a \code{NULLCPO}, \code{FALSE} otherwise.
 #' @family NULLCPO
 #' @export
-is.nullcpo = function(cpo) {  # nolint
-  "NULLCPO" %in% class(cpo)
+is.nullcpo = function(x) {  # nolint
+  "NULLCPO" %in% class(x)
 }
 
 

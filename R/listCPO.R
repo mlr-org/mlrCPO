@@ -10,6 +10,10 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
     name = cpo$name
     cponame = cpo$cponame
   } else {
+    # don't load packages when we only want to inspect CPO
+    # TODO: there has to be a better way
+    environment(cpo) = new.env(parent = environment(cpo))
+    environment(cpo)$.packages = character(0)
     cpo = cpo()
     assertClass(cpo, "CPO")
     cponame = getCPOName(cpo)

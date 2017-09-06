@@ -24,7 +24,8 @@ Imports:
     stringi,
     checkmate (>= 1.8.2),
     methods,
-    stats
+    stats,
+    utils
 Suggests:
     party,
     rpart,
@@ -37,8 +38,7 @@ Suggests:
     randomForest,
     Rfast,
     FSelector,
-    survival,
-    igraph
+    e1071
 LazyData: yes
 ByteCompile: yes
 Version: 0.1
