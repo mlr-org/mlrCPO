@@ -34,10 +34,10 @@
 #' @family CPO
 #' @examples
 #' # PCA-rotate pid.task
-#' rotated.pid.task = pid.task %>>% cpoPca()
+#' rotated.pid.task = pid.task %>>% cpoScale() %>>% cpoPca()
 #'
 #' # Centering / Scaling *after* PCA
-#' neoPCA = cpoPca(center = FALSE, scale = FALSE, id = "pca") %>>% cpoScale()
+#' neoPCA = cpoPca() %>>% cpoScale()
 #'
 #' # Attach the above to learner
 #' pcaLogreg = neoPCA %>>% makeLearner("classif.logreg")

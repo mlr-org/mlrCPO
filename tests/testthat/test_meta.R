@@ -96,7 +96,7 @@ test_that("cpoCase", {
   # data split
   for (split in c("task", "no", "target", "most", "all", "factor", "numeric", "ordered", "onlyfactor")) {
     strans = datasplitToDataformat(split)
-    checking.cpo = cpoCase(hastarget: logical, .cpo.name = "checkingcpo", .dataformat = strans$dataformat,
+    checking.cpo = cpoCase(hastarget: logical, .dataformat = strans$dataformat,
     .dataformat.factor.with.ordered = strans$dataformat.factor.with.ordered, cpo.build = function(data, target, hastarget) {
       switch(split,
         task = {

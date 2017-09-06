@@ -105,7 +105,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     tin$indata$target = NULL
   }
 
-  .ENV = NULL
+  .ENV = NULL  # nolint
   result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
 
   assertChoice(cpo$control.type, c("functional", "object", "stateless"))

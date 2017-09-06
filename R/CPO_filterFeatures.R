@@ -313,7 +313,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 #'   Aggregation: takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean).
 #' @param measure [\code{\link[mlr]{Measure}}]\cr
 #'   Measure to use. Defaults to the default measure of the task.
-#' @param nmc [\code{\code{integer(1)}}]\cr
+#' @param nmc [\code{integer(1)}]\cr
 #' @param replace [\code{logical(1)}]\cr
 #'   Determines whether the feature being
 #'   permuted is sampled with or without replacement.

@@ -238,6 +238,7 @@ test_that("changing some columns leaves the others in order", {
 })
 
 test_that("changing the target gives an error", {
+  library("checkmate")
 
   for (type in c("o", "f")) {
     for (split in c("no", "task")) {

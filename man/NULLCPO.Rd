@@ -10,7 +10,7 @@ NULLCPO
 }
 \description{
 \code{NULLCPO} is the neutral element of \code{CPO} and \code{CPOTrained} composition. It is returned
-when \code{\link{trafo}} and \code{\link{retrafo}} are applied to an object that has no retrafo or inverter
+when \code{\link{retrafo}} and \code{\link{inverter}} are applied to an object that has no retrafo or inverter
 associated with it.
 }
 \seealso{

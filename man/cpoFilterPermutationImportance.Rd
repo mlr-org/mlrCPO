@@ -41,7 +41,7 @@ Measure to use. Defaults to the default measure of the task.}
 \item{aggregation}{[\code{function}]\cr
 Aggregation: takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean).}
 
-\item{nmc}{[\code{\code{integer(1)}}]\cr}
+\item{nmc}{[\code{integer(1)}]\cr}
 
 \item{replace}{[\code{logical(1)}]\cr
 Determines whether the feature being

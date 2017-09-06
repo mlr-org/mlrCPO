@@ -102,12 +102,29 @@ cpo.predict.properties = c("prob", "se")
 #'   the function may have a dotdotdot argument). This is a constructor function which must return a \dQuote{retrafo} function which
 #'   modifies data. This retrafo function must have exactly one argument--the (new) data--and return the modified data. The format
 #'   of the argument, and of the return value of the retrafo function, depends on the value of the \code{dataformat} parameter.
-#'
+#' @param cpo.retrafo [\code{language} | \code{function}]\cr
+#'   Similarly to \dQuote{cpo.trafo}, this is either a function, the function body in curly braces (preferred), or \code{NULL}.
+#'   If this is not \code{NULL}, this function must have the same arguments as \code{cpo.trafo}, with the exception that
+#'   the \dQuote{target} argument is replaced by a \dQuote{control} argument, which will be
+#'   the value created in the \dQuote{cpo.trafo} run. It gets its input data in the same format as
+#'   \dQuote{cpo.trafo}, with the exception that if \dQuote{.dataformat} is \dQuote{task}, it gets a
+#'   \dQuote{data.frame} as if \dQuote{.dataformat} were \dQuote{df.all}. This function must similarly return an
+#'   object in the same format as it received as input.
 #' @family CPO
 #' @export
 #'
 #' @examples
 #' # an example constant feature remover CPO
+#' constFeatRem = makeCPO("constFeatRem",
+#'  dataformat = "df.features",
+#'  cpo.trafo = function(data, target) {
+#'    names(Filter(function(x) {  # names of columns to keep
+#'        length(unique(x)) > 1
+#'      }, data))
+#'    }, cpo.retrafo = function(data, control) {
+#'    data[control]
+#'  })
+#' # alternatively:
 #' constFeatRem = makeCPO("constFeatRem",
 #'   dataformat = "df.features",
 #'   cpo.trafo = function(data, target) {
@@ -119,7 +136,7 @@ cpo.predict.properties = c("prob", "se")
 #'       data[cols.keep]
 #'     }
 #'     result
-#'   })
+#'   }, cpo.retrafo = NULL)
 #
 # Developer Notes: Like all CPO defining functions, this one just calls makeCPOGeneral, with certain parameters already set.
 makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
@@ -401,10 +418,9 @@ makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataform
 #' square = makeCPOExtended("scale",
 #'   .dataformat = "numeric",
 #'   .trafo.type = "stateless",
-#'   cpo.trafo = NULL, # optional, we don't need it since trafo & retrafo same
-#'   cpo.retrafo = function(data) {
+#'   cpo.trafo = function(data) {
 #'     as.matrix(data) * 2
-#'   })
+#'   }, cpo.retrafo = NULL) # optional, we don't need it since trafo & retrafo same
 #'
 #
 # Developer Notes: Like all CPO defining functions, this one just calls makeCPOGeneral
@@ -796,7 +812,9 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
   } else {
     required.arglist.trafo$data = substitute()
   }
-  required.arglist.trafo$target = substitute()
+  if (!.stateless || !is.null(cpo.retrafo) || .cpotype == "target") {
+    required.arglist.trafo$target = substitute()
+  }
   if ((is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`))) || !is.null(eval(cpo.trafo, envir = eval.env))) {
     cpo.trafo = makeFunction(cpo.trafo, required.arglist.trafo, env = eval.env)
   } else {

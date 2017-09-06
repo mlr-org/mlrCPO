@@ -28,7 +28,8 @@ Imports:
 Suggests:
     party,
     mlbench,
-    knitr
+    knitr,
+    testthat
 LazyData: yes
 ByteCompile: yes
 Version: 0.1

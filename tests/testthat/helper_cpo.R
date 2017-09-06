@@ -468,3 +468,25 @@ multiclass.train = multiclass.df[multiclass.train.inds, ]
 multiclass.test  = multiclass.df[multiclass.test.inds, ]
 multiclass.class.col = 5
 multiclass.task = makeClassifTask("multiclass", data = multiclass.df, target = multiclass.target)
+
+data(BostonHousing, package = "mlbench", envir = environment())
+regr.df = BostonHousing
+regr.formula = medv ~ .
+regr.target = "medv"
+regr.train.inds = seq(1, 506, 7)
+regr.test.inds  = setdiff(seq_len(nrow(regr.df)), regr.train.inds)
+regr.train = regr.df[regr.train.inds, ]
+regr.test  = regr.df[regr.test.inds, ]
+regr.class.col = 14
+regr.task = makeRegrTask("regrtask", data = regr.df, target = regr.target)
+
+
+regr.num.df = regr.df[, sapply(regr.df, is.numeric)]
+regr.num.formula = regr.formula
+regr.num.target = regr.target
+regr.num.train.inds = regr.train.inds
+regr.num.test.inds  = regr.test.inds
+regr.num.train = regr.num.df[regr.num.train.inds, ]
+regr.num.test  = regr.num.df[regr.num.test.inds, ]
+regr.num.class.col = 13
+regr.num.task = makeRegrTask("regrnumtask", data = regr.num.df, target = regr.num.target)

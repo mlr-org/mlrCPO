@@ -279,7 +279,7 @@ cpoCase = function(..., .par.set = NULL, .par.vals = list(), .export = list(),
       args = list(...)
       buildfunargs = c(args[names(paramset.pass.on$pars)], lapply(.export, function(cpo)
         setHyperPars(cpo, par.vals = args[names(getParamSet(cpo)$pars)])))
-      tin = prepareTrafoInput(data, .dataformat, c(.properties, .properties.target, cpo.predict.properties), fullaffect, FALSE, .cpo.name)
+      tin = prepareTrafoInput(data, .dataformat, c(.properties, .properties.target, cpo.predict.properties), fullaffect, FALSE, "case")
 
       cpo = do.call(buildfun, insert(buildfunargs, tin$indata))
       result = data %>>% cpo
