@@ -97,18 +97,3 @@ inverter.WrappedModel = function(data) {
 `inverter<-.WrappedModel` = function(data, value) {
   stop("Cannot change inverter of a model!")
 }
-
-#' @title Check CPOInverter
-#'
-#' @description
-#' Check whether the given object is a \code{CPOInverter} object.
-#'
-#' @param x\cr
-#'   The object to check.
-#'
-#' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.
-#'
-#' @export
-is.inverter = function(x) {  # nolint
-  "CPOInverter" %in% class(x)
-}

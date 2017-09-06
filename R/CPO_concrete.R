@@ -88,7 +88,7 @@ registerCPO(cpoPca, "data", "general data preprocessing", "Apply an arbitrary fu
 #' @param lower [\code{numeric(1)}]\cr
 #'   Target value of smallest item of input data.
 #'   Default is 0.
-#' @param scale [\code{numeric(1)}]\cr
+#' @param upper [\code{numeric(1)}]\cr
 #'   Target value of greatest item of input data.
 #'   Default is 1.
 #' @template arg_cpo_id
@@ -351,7 +351,7 @@ registerCPO(cpoCollapseFact, "data", "factor data preprocessing", "Combine rare 
 #'
 #' @template cpo_description
 #'
-#' @param num.bins [\code{numeric(1)}]\cr
+#' @param numsplits [\code{numeric(1)}]\cr
 #'   Number of bins to create. Default is \code{2}.
 #'
 #' @template arg_cpo_id

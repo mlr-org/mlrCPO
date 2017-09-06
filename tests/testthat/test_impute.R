@@ -184,7 +184,7 @@ test_that("CPO Impute works on non missing data", { # we had issues here: 848,89
     imputeUniform(),
     imputeNormal(),
     imputeHist(),
-    imputeLearner(learner = makeLearner("regr.fnn"))
+    imputeLearner(learner = makeLearner("regr.rpart"))
   )
   for (impute.method in impute.methods) {
     imputed = data %>>% cpoImpute(cols = list(a = impute.method))

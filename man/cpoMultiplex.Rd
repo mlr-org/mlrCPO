@@ -6,7 +6,7 @@
 \usage{
 cpoMultiplex(cpos, selected.cpo = NULL, id = NULL,
   export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.name = character(0),
+  affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
   affect.pattern.fixed = FALSE)
@@ -45,6 +45,9 @@ to not match by column type. Default is \code{NULL}.}
 \item{affect.index}{[\code{numeric}]\cr
 Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
 
+\item{affect.names}{[\code{character}]\cr
+Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
+
 \item{affect.pattern}{[\code{character(1)} | \code{NULL}]\cr
 \code{\link[base]{grep}} pattern to match feature names by. Default is \code{NULL} (no pattern matching)}
 
@@ -59,9 +62,6 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
-
-\item{affect.names}{[\code{character}]\cr
-Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
 }
 \description{
 This function creates a CPO object, which can be applied to

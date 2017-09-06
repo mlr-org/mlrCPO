@@ -21,7 +21,7 @@ NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "C
 #'
 #' Check whether the given object is a \code{NULLCPO}.
 #'
-#' @param cpo\cr
+#' @param cpo \cr
 #'   The object to check
 #' @return \code{TRUE} if \code{cpo} is a \code{NULLCPO}, \code{FALSE} otherwise.
 #' @family NULLCPO

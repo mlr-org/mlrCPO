@@ -6,6 +6,10 @@
 \usage{
 getCPOId(cpo)
 }
+\arguments{
+\item{cpo}{[\code{CPO}]\cr
+The object to query.}
+}
 \description{
 The ID of a CPO to a value will prefix all its
 parameter names with this ID.

@@ -16,7 +16,7 @@
 #' @family CPO
 #' @export
 cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.default",
-    affect.type = NULL, affect.index = integer(0), affect.name = character(0), affect.pattern = NULL,
+    affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
     affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
   assertList(cpos, c("CPO", "CPOConstructor"), min.len = 1)  # FIXME: require databound
   has.names = !is.null(names(cpos))
@@ -81,23 +81,20 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.d
             retrafo(res) = NULL
             res
           }, cpo.retrafo = function(data, control, ...) { data %>>% control })
-  setCPOId(rl(export = export, affect.type = affect.type, affect.index = affect.index, affect.name = affect.name, affect.pattern = affect.pattern,
+  setCPOId(rl(export = export, affect.type = affect.type, affect.index = affect.index, affect.names = affect.names, affect.pattern = affect.pattern,
     affect.invert = affect.invert, affect.pattern.ignore.case = affect.pattern.ignore.case, affect.pattern.perl = affect.pattern.perl,
     affect.pattern.fixed = affect.pattern.fixed), id = id)  # allow NULL id for multiplexer
 }
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
-#' @title CPO Applicator
+#' @title CPO Wrapper
+#'
+#' Applies the \code{CPO} that is given to the \code{CPO} hyperparameter.
 #'
 #' @template cpo_description
 #'
-#' @param cpos [\code{list} of (\code{CPO} | \code{CPOConstructor})]\cr
-#'   The CPOs to multiplex. If this is a named list, the
-#'   names must be unique and represent the IDs that will
-#'   be given to the CPOs upon construction.
-#' @param selected.cpo [\code{character(1)}]\cr
-#'   Selected CPO. Will default to the first item of \code{cpos}
-#'   if \code{NULL}. Default is \code{NULL}.
+#' @param cpo [\code{CPO}]\cr
+#'   The CPO to wrap.
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
@@ -123,7 +120,7 @@ registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exportin
 #'   Named list of default parameter values for the CPO. These are used additionally to the
 #'   parameter default values in \dQuote{...} and \code{.par.set}. It is preferred to use
 #'   these default values, and not \code{.par.vals}. Default is \code{list()}.
-#' @param export [\code{list} of \code{CPO}]\cr
+#' @param .export [\code{list} of \code{CPO}]\cr
 #'   List of \code{CPO} objects that have their hyperparameters exported. If this is not a named list, the item's \code{\link{getCPOId}}
 #'   is used for names. The \code{cpo.build} function needs to have an argument for each of the names in the list. The \code{CPO} objects
 #'   are pre-configured by the framework to have the hyperparameter settings as set by the ones exported by \code{cpoCase}.

@@ -309,6 +309,8 @@ makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataform
 #'
 #'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
 #'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
+#' @param .properties.data [\code{character}]\cr
+#'   For Target operating CPOs: Properties of feature columns that can be handled.
 #' @param .type [\code{character(1)}]\cr
 #'   For Target Operation CPOs, the type of task that it operates on. Must be one of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr},
 #'   or \dQuote{surv}. If input data is a data.frame, it will be treated as a cluster task. Default is \dQuote{cluster}.
@@ -325,6 +327,9 @@ makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataform
 #'   se = "prob")}. The names are the prediction types that are requested from this CPO, the
 #'   values are types that this CPO will request from an underlying learner. If a name is not
 #'   present, the \code{predict.type} is assumed not supported. Default is \code{c(response = "response")}.
+#' @param .data.dependent [\code{logical(1)}]\cr
+#'   Whether to make a data-dependent inverter CPO. If this is \code{FALSE}, the \code{cpo.trafo} function does not have
+#'   a \code{data} parameter.
 #' @param .packages [\code{character}]\cr
 #'   Package(s) that should be loaded when the CPO is constructed. This gives the user an early error if
 #'   a package required for the CPO is not available on his system, or can not be loaded. Default is \code{character(0)}.

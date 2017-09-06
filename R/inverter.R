@@ -17,6 +17,10 @@
 #'   The retrafo or inverter to apply
 #' @param prediction [\code{\link{Prediction}} | \code{matrix} | \code{data.frame}]\cr
 #'   The prediction to invert
+#' @param predict.type [\code{character(1)}]\cr
+#'   The equivalent to the \code{predict.type} property of a \code{\link[mlr]{Learner}] object,
+#'   control what kind of prediction to perform. One of \dQuote{response}, \dQuote{se},
+#'   \dQuote{prob}. Default is \dQuote{response}.
 #' @return A transformed \code{\link{Prediction}} if a prediction was given,
 #'   or a \code{data.frame}. The 'truth' column(s) of the prediction will be dropped.
 #'
@@ -99,6 +103,22 @@ invert.CPORetrafoOnly = function(inverter, prediction, predict.type = "response"
   stopf("Inverting with CPO %s not possible, since it contains data-dependent inverters\nUse a CPOInverter object instead\n%s",
     getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
 }
+
+#' @title Check CPOInverter
+#'
+#' @description
+#' Check whether the given object is a \code{CPOInverter} object.
+#'
+#' @param x \cr
+#'   The object to check.
+#'
+#' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.
+#'
+#' @export
+is.inverter = function(x) {  # nolint
+  "CPOInverter" %in% class(x)
+}
+
 
 # data is either a data.frame or a matrix, and will be turned into
 # a uniform format.

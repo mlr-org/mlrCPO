@@ -57,6 +57,7 @@ declareFilterCPO = function(method, ..., .par.set = NULL) {
   methodobj = get(method, envir = .FilterRegister)
 
   makeCPOExtended(method, .par.set = .par.set, .dataformat = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
+    .packages = methodobj$pkg,
     cpo.trafo = function(data, target, perc, abs, threshold, ...) {
       filter.args = list(...)
       td = getTaskData(data, target.extra = TRUE)$data

@@ -256,10 +256,12 @@ getCPOName = function(cpo) {
 #' parameter names with this ID. This makes it possible to
 #' compose CPOs that have clashing parameter names.
 #'
+#' @param cpo [\code{CPO}]\cr
+#'   The \code{CPO} object to modify.
 #' @param id [\code{character(1)} | \code{NULL}]\cr
 #'   The ID. If this is \code{NULL}, the ID is set to the
 #'   default for the CPO at hand.
-#'
+#' @return [\code{CPO}] the CPO with modified id.
 #' @family CPO
 #' @export
 setCPOId = function(cpo, id) {
@@ -280,6 +282,9 @@ setCPOId.default = function(cpo, id) {
 #' @description
 #' The ID of a CPO to a value will prefix all its
 #' parameter names with this ID.
+#'
+#' @param cpo [\code{CPO}]\cr
+#'   The object to query.
 #'
 #' @family CPO
 #' @export

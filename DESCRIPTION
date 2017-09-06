@@ -27,9 +27,16 @@ Imports:
     stats
 Suggests:
     party,
+    rpart,
     mlbench,
     knitr,
-    testthat
+    testthat,
+    mRMRe,
+    care,
+    randomForestSRC,
+    randomForest,
+    Rfast,
+    FSelector
 LazyData: yes
 ByteCompile: yes
 Version: 0.1
