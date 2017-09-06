@@ -24,7 +24,7 @@ CPOConstructor ---------------> CPO ---------------> CPOTrained
 The `CPOConstructor` is a function that is called to create a `CPO`, examples are `cpoPca` and `cpoScale`. `CPO` is the object representing a specific operation, completely with hyperparameters. `CPOTrained` represents the "retafo" operation that can be retrieved with `retrafo()*` or `inverter()*` from a preprocessed data object, or from a trained model.
 
 ```
-CPOLearner -----> CPOModel
+CPO ---------------> CPOLearner ---------------> CPOModel
 ```
 
 When a `CPO` gets attached to an `mlr` `Learner`, a `CPOLearner` object is created. The trained model of this learner has the class `CPOModel`.

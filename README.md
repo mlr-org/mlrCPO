@@ -93,6 +93,8 @@ To effectively use `mlrCPO`, you should first familiarize yourself a little with
 
 A thorough reference of `mlrCPO`'s capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette_compact.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
 
+A small intro guide for developers into the code base can be found in [info/developers.md](info/developers.md).
+
 ## Project Status
 
 `mlrCPO` is not yet a mature project and may be unstable at times; setting up a CI system is in progress, which should make things much smoother soon. Furthermore, even though it provides extensive functionality already, it is still lacking many concrete implementations of preprocessing operators.
