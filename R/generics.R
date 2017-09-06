@@ -110,13 +110,13 @@ applyCPO = function(cpo, task) {
 #' predicted = reFun(preddat)
 #'
 #' # chaining works
-#' trained = traindat %>>% cpoPca(FALSE, FALSE) %>>% cpoScale()
+#' trained = traindat %>>% cpoPca() %>>% cpoScale()
 #' reFun = retrafo(trained)
 #' predicted = reFun(preddat)
 #'
 #' # reset the retrafo when doing other steps!
 #'
-#' trained.tmp = traindat %>>% cpoPca(FALSE, FALSE)
+#' trained.tmp = traindat %>>% cpoPca()
 #' reFun1 = retrafo(trained.tmp)
 #'
 #' imp = impute(trained.tmp)

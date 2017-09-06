@@ -82,7 +82,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.d
             res
           }, cpo.retrafo = function(data, control, ...) { data %>>% control })
   setCPOId(rl(export = export, affect.type = affect.type, affect.index = affect.index, affect.name = affect.name, affect.pattern = affect.pattern,
-    affect.invert = affect.invert, affect.pattern.ignore.case = affect.ignore.case, affect.pattern.perl = affect.pattern.perl,
+    affect.invert = affect.invert, affect.pattern.ignore.case = affect.pattern.ignore.case, affect.pattern.perl = affect.pattern.perl,
     affect.pattern.fixed = affect.pattern.fixed), id = id)  # allow NULL id for multiplexer
 }
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
@@ -189,8 +189,12 @@ registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exportin
 #'
 #'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
 #'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
-#'
-#'
+#' @param cpo.build [\code{function}]\cr
+#'   This function works similar to \code{cpo.trafo} in \code{\link{makeCPO}}: It has the arguments \code{data}, \code{target}, one argument for each
+#'   hyperparameter declared in \code{.par.set} or \code{...}. However, it also has one parameter for each entry in \code{.export}, named as each item
+#'   name in that list. The \code{cpoCase} framework supplies the pre-configured \code{CPO}s (pre-configured as the exported hyperparameters of \code{cpoCase}
+#'   demand) to the \code{cpo.build} code via these parameters. The return value of \code{cpo.build} must be a \code{CPO}, which will then be used on the data.
+#' @family CPO
 #' @export
 cpoCase = function(..., .par.set = NULL, .par.vals = list(), .export = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
