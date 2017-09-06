@@ -553,7 +553,14 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
     .dataformat = "onlyfactor"
   }
 
-  params = prepareParams(.par.set, .par.vals, .export.params, pSSLrn(..., .pss.env = parent.frame(2)))
+  # Reserved parameter names:
+  # these parameters are either special parameters given to the constructor function (id, affect.*),
+  # the possible special values of 'export' that should not clash with param names,
+  # special parameters given to the cpo.trafo function (data, target), special parameters given to the
+  # cpo.retrafo function (predict.type, control),
+  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
+
+  params = prepareParams(.par.set, .par.vals, .export.params, pSSLrn(..., .pss.env = parent.frame(2)), reserved.params)
   .par.set = params$.par.set
   .par.vals = params$.par.vals
   .export.params = params$.export.params
@@ -750,19 +757,13 @@ export.possibilities = c("export.default", "export.set", "export.default.set", "
 # check the given parameter set and parameters for validity.
 # addnl.par.set are the params given as `...` and are added to the already present
 # .par.set.
-prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set) {
+prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set, reserved.params) {
   if (is.null(.par.set)) {
     .par.set = addnl.par.set
   } else {
     .par.set = c(.par.set, addnl.par.set)
   }
 
-  # Reserved parameter names:
-  # these parameters are either special parameters given to the constructor function (id, affect.*),
-  # the possible special values of 'export' that should not clash with param names,
-  # special parameters given to the cpo.trafo function (data, target), special parameters given to the
-  # cpo.retrafo function (predict.type, control),
-  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
   if (any(names(.par.set$pars) %in% reserved.params)) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
@@ -830,13 +831,12 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
   } else {
     cpo.retrafo = NULL
   }
-
+  cpo.trafo.orig = cpo.trafo
   if (.trafo.type == "trafo.returns.control") {
-    retrafo.gen = cpo.trafo
     if (is.null(cpo.retrafo)) {
       # functional
       cpo.trafo = function(data, target, ...) {
-        cpo.retrafo = retrafo.gen(data = data, target = target, ...)
+        cpo.retrafo = cpo.trafo.orig(data = data, target = target, ...)
         if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
           stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
         }
@@ -845,8 +845,8 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
     } else {
       # object based
       cpo.trafo = function(data, target, ...) {
-        control = retrafo.gen(data = data, target = target, ...)
-        cpo.retrafo(data = data, target = target, control = control, ...)
+        control = cpo.trafo.orig(data = data, target = target, ...)
+        cpo.retrafo(data = data, control = control, ...)
       }
     }
   }
@@ -854,7 +854,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
     cpo.trafo = captureEnvWrapper(cpo.trafo)
   }
 
-  list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)
+  list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo, cpo.trafo.orig = cpo.trafo.orig)
 }
 
 # create a function with expressions 'expr' in the environment 'env'.

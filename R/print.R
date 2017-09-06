@@ -4,43 +4,55 @@
 ##################################
 
 #' @export
-print.CPOConstructor = function(x, ...) {
+print.CPOConstructor = function(x, verbose = FALSE, ...) {
+  assertFlag(verbose)
   args = dropNamed(formals(x), environment(x)$reserved.params)
   argvals = sapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)
+  if (verbose) {
+    catf("CPO Trafo:")
+    print(environment(x)$trafo.funs$cpo.trafo.orig)
+    retrafo.fun = environment(x)$trafo.funs$cpo.retrafo
+    if (!is.null(retrafo.fun)) {
+      catf("\nCPO Retrafo:")
+      print(retrafo.fun)
+    }
+  }
+}
+
+vprint = function(x) {
+  chain = as.list(x)
+  catf("Trafo chain of %d elements:", length(chain))
+  is.first = TRUE
+  for (retrafo in chain) {
+    if (!is.first) {
+      cat("  ====>\n")
+    }
+    is.first = FALSE
+    print(retrafo)
+    cat("\n")
+    print(getParamSet(retrafo))
+  }
 }
 
 #' @export
 print.CPO = function(x, verbose = FALSE, ...) {
   if (verbose) {
-    chain = as.list(x)
-    catf("Retrafo chain of %d elements:", length(chain))
-    is.first = TRUE
-    for (retrafo in chain) {
-      if (!is.first) {
-        cat("  ====>\n")
-      }
-      is.first = FALSE
-      class(retrafo) = setdiff(class(retrafo), "DetailedCPO")
-      print(retrafo)
-      cat("\n")
-      print(getParamSet(retrafo))
-    }
+    return(vprint(x))
+  }
+  isprim = "CPOPrimitive" %in% class(x)
+  pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
+  argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
+  template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
+  catf(template, x$debug.name, argstring, newline = FALSE)
+  if (isprim && length({unexport = x$unexported.pars})) {
+      catf("[not exp'd: %s]", paste(names(unexport), sapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
+  }
+  if (isprim && length({affect = getCPOAffect(x)})) {
+    catf(" [%s]", paste(names(affect), sapply(affect, convertToShortString), sep = " = ", collapse = ", "))
   } else {
-    isprim = "CPOPrimitive" %in% class(x)
-    pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
-    argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
-    template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
-    catf(template, getCPOName(x), argstring, newline = FALSE)
-    if (isprim && length({unexport = x$unexported.args})) {
-        catf("[not exp'd: %s]", paste(names(unexport), sapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
-    }
-    if (isprim && length({affect = getCPOAffect(x)})) {
-      catf(" [%s]", paste(names(affect), sapply(affect, convertToShortString), sep = " = ", collapse = ", "))
-    } else {
-      cat("\n")
-    }
+    cat("\n")
   }
 }
 
