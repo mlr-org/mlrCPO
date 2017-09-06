@@ -91,7 +91,7 @@ Hyperparameters: model=FALSE,scale.center=TRUE,scale.scale=TRUE
 
 To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
 
-A thorough reference of `mlrCPO`'s capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/todo-files/CPO%20Vignette_compact.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
+A thorough reference of `mlrCPO`'s capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/mlrCPO.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/mlrCPO_terse.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
 
 A small intro guide for developers into the code base can be found in [info/developers.md](info/developers.md).
 
