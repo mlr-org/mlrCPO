@@ -20,7 +20,7 @@
 #'   \dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
 #'   \dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
 #'   \dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
-#'   Default is \dQuote{export.all}.
+#'   Default is \dQuote{export.default}.
 #' @param affect.type [\code{character} | \code{NULL}]\cr
 #'   Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
 #'   to not match by column type. Default is \code{NULL}.

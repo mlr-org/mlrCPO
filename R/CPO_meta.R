@@ -15,7 +15,9 @@
 #' @template arg_cpo_id
 #' @family CPO
 #' @export
-cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
+cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.default",
+    affect.type = NULL, affect.index = integer(0), affect.name = character(0), affect.pattern = NULL,
+    affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
   assertList(cpos, c("CPO", "CPOConstructor"), min.len = 1)  # FIXME: require databound
   has.names = !is.null(names(cpos))
   if (!has.names) {
@@ -79,7 +81,9 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL) {
             retrafo(res) = NULL
             res
           }, cpo.retrafo = function(data, control, ...) { data %>>% control })
-  setCPOId(rl(), id = id)  # allow NULL id for multiplexer
+  setCPOId(rl(export = export, affect.type = affect.type, affect.index = affect.index, affect.name = affect.name, affect.pattern = affect.pattern,
+    affect.invert = affect.invert, affect.pattern.ignore.case = affect.ignore.case, affect.pattern.perl = affect.pattern.perl,
+    affect.pattern.fixed = affect.pattern.fixed), id = id)  # allow NULL id for multiplexer
 }
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
@@ -110,9 +114,85 @@ registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exportin
 #' The meta CPO which determines what CPO to apply to a data depending on
 #' a provided function
 #'
+#' @param ...
+#'   Parameters of the CPO, in the format of \code{\link[ParamHelpers]{pSS}}.
+#' @param .par.set [\code{ParamSet}]\cr
+#'   Optional parameter set. If this is not \code{NULL}, the \dQuote{...} parameters are ignored.
+#'   Default is \code{NULL}.
+#' @param .par.vals [\code{list}]\cr
+#'   Named list of default parameter values for the CPO. These are used additionally to the
+#'   parameter default values in \dQuote{...} and \code{.par.set}. It is preferred to use
+#'   these default values, and not \code{.par.vals}. Default is \code{list()}.
+#' @param export [\code{list} of \code{CPO}]\cr
+#'   List of \code{CPO} objects that have their hyperparameters exported. If this is not a named list, the item's \code{\link{getCPOId}}
+#'   is used for names. The \code{cpo.build} function needs to have an argument for each of the names in the list. The \code{CPO} objects
+#'   are pre-configured by the framework to have the hyperparameter settings as set by the ones exported by \code{cpoCase}.
+#' @param .dataformat [\code{character(1)}]\cr
+#'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
+#'   \tabular{lll}{
+#'     \bold{dataformat} \tab \bold{data}               \tab \bold{target}         \cr
+#'     df.all      \tab data.frame with target cols     \tab target colnames       \cr
+#'     df.features \tab data.frame without target       \tab data.frame of target  \cr
+#'     task        \tab full task                       \tab target colnames       \cr
+#'     split       \tab list of data.frames by type     \tab data.frame of target  \cr
+#'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
+#'   }
+#'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
+#'   For \code{.dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
+#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{.dataformat.factor.with.ordered}
+#'   is \code{FALSE}.
+#'
+#'   If the CPO is a Target Operation CPO, the return value of both \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}
+#'   must be either a task if \code{.dataformat} is \dQuote{task}, the complete (modified) data.frame
+#'   if \code{.dataformat} is \dQuote{df.all}, and a data.frame containing only the target column(s) otherwise.
+#'   Default is \dQuote{df.features}.
+#'
+#'   If the CPO is a Feature Operation CPO, then the return value must be in the same format as the one requested.
+#'   E.g. if \code{.dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
+#'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
+#'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
+#'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
+#'
+#'   If \code{.dataformat} is either \dQuote{df.all} or \dQuote{task}, the
+#'   target column(s) in the returned value must be identical with the target column(s) given as input.
+#'
+#'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the returned
+#'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
+#'   matrix.
+#' @param .dataformat.factor.with.ordered [\code{logical(1)}]\cr
+#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{.dataformat} is handled, and only
+#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}.
+#' @param .properties [\code{character}]\cr
+#'   The kind if data that the CPO will be able to handle. This can be one or many of: \dQuote{numerics},
+#'   \dQuote{factors}, \dQuote{ordered}, \dQuote{missings}.
+#'   There should be a bias towards including properties. If a property is absent, the preproc
+#'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
+#'   missings (like PCA), it is recommended to give all properties, ignore the columns that
+#'   are not numeric (using \dQuote{.dataformat} = \dQuote{split}), and giving an error when
+#'   there are missings in the numeric columns (since missings in factorial features are not a problem).
+#'   Defaults to the maximal set.
+#' @param .properties.adding [\code{character}]\cr
+#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs, and one or many of the same values as \dQuote{.properties.target}
+#'   for Target Operation CPOs. These properties get added to a Learner (or CPO) coming after / behind this CPO. When a CPO imputes missing values, for example,
+#'   this should be \dQuote{missings}. This must be a subset of \dQuote{.properties} or \dQuote{.properties.target}. Default is
+#'   \code{character(0)}.
+#' @param .properties.needed [\code{character}]\cr
+#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs,
+#'   and one or many of the same values as \dQuote{.properties.target}. These properties are required
+#'   from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
+#'   numerics, this should be \dQuote{numerics} (and \dQuote{.properties.adding} should be \dQuote{factors}).
+#'   Default is \code{character(0)}.
+#' @param .properties.target [\code{character}]\cr
+#'   For Feature Operation CPOs, this can be one or many of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr}, \dQuote{surv},
+#'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{.properties}, it
+#'   indicates what kind of data a CPO can work with. Data given as data.frame needs the \dQuote{cluster} property. Default is the maximal set.
+#'
+#'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
+#'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
+#'
 #'
 #' @export
-cpoCase = function(..., .cpo.name = "case", .par.set = NULL, .par.vals = list(), .export = list(),
+cpoCase = function(..., .par.set = NULL, .par.vals = list(), .export = list(),
                    .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    .dataformat.factor.with.ordered = TRUE,
                    .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
@@ -188,7 +268,7 @@ cpoCase = function(..., .cpo.name = "case", .par.set = NULL, .par.vals = list(),
     .dataformat = "onlyfactor"
   }
 
-  rl = makeCPOExtended(.cpo.name, .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
+  rl = makeCPOExtended("case", .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
     .dataformat = "task", .dataformat.factor.with.ordered = FALSE, .properties = .properties, .properties.adding = .properties.adding,
     .properties.needed = .properties.needed, .properties.target = .properties.target,
     cpo.trafo = function(data, target, ...) {

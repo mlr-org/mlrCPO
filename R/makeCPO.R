@@ -55,6 +55,9 @@ cpo.predict.properties = c("prob", "se")
 #'   If \dQuote{dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the value returned by the retrafo function
 #'   object may also be a \code{matrix}. If \dQuote{dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
+#' @param dataformat.factor.with.ordered [\code{logical(1)}]\cr
+#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, and only
+#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}.
 #' @param export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
 #'   but exporting too many parameters may lead to messy parameter sets if many CPOs are combined. This can be overridden on construction.
@@ -233,6 +236,9 @@ makeCPOTargetOp = function(cpo.name, par.set = NULL, par.vals = list(), dataform
 #'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the returned
 #'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
 #'   matrix.
+#' @param .dataformat.factor.with.ordered [\code{logical(1)}]\cr
+#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{.dataformat} is handled, and only
+#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}.
 #' @param .trafo.type [\code{character(1)}]\cr
 #'   Indicates what API is used for \code{cpo.trafo} and \code{cpo.retrafo}, and how state information is transferred
 #'   between them. Possibilities are:
