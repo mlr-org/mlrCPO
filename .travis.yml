@@ -17,8 +17,8 @@ r_check_args: "--as-cran --run-donttest"
 
 r_github_packages:
   - berndbischl/BBmisc
-  - berndbischl/ParamHelpers
-  - mlr-org/mlr
+#  - berndbischl/ParamHelpers
+#  - mlr-org/mlr
   - jimhester/lintr
   - jimhester/covr
 
@@ -26,12 +26,11 @@ before_install:
   # we want to see libpaths and installed packages from cache
   - Rscript -e 'message("LIBPATHS:"); .libPaths()'
   - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
-  - Rscript -e 'install.packages("roxygen2")'
-  - Rscript -e 'install.packages("devtools")'
-  - Rscript -e 'devtools::install_github("mb706/ParamHelpers", ref = "paramSetSugar")'
-  - Rscript -e 'devtools::install_github("mlr-org/mlr", ref = "ComposablePreprocOperators")'
 
 before_script:
+  - Rscript -e 'install.packages("roxygen2")'
+  - Rscript -e 'devtools::install_github("mb706/ParamHelpers", ref = "paramSetSugar")'
+  - Rscript -e 'devtools::install_github("mlr-org/mlr", ref = "ComposablePreprocOperators")'
   - R --no-save <<< 'library("devtools"); document()'
 
 script:

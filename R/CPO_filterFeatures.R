@@ -335,7 +335,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 cpoFilterPermutationImportance = declareFilterCPO("permutation.importance",  # nolint
   .par.set = makeParamSet(
       makeUntypedLearnerParam("imp.learner"),
-      makeUntypedLearnerParam("contrast", default = function(x, y) {x - y}),
+      makeUntypedLearnerParam("contrast", default = function (x, y) {x - y}),  # nolint
       makeUntypedLearnerParam("measure", default = NULL),
       makeFunctionLearnerParam("aggregation", default = mean),
       makeIntegerLearnerParam("nmc", lower = 0, default = 50),
