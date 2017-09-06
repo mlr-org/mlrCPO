@@ -8,7 +8,7 @@ src/*.o
 src/*.dll
 tests/testthat/Rplots.pdf
 testinfo.RData
-inst/doc/
+/inst/doc/
 .directory
 .gdb_history
 .DS_Store
@@ -19,7 +19,9 @@ Thumbs.db
 .#*
 *~
 \#*#
+*.swp
 .project
 .settings
 .ipynb_checkpoints
 man/*.Rd
+!/inst/doc/mlrCPO.html
