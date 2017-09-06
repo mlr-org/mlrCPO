@@ -32,6 +32,7 @@ Suggests:
     rpart,
     mlbench,
     knitr,
+    rmarkdown,
     testthat,
     mRMRe,
     care,
