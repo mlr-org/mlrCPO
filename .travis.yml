@@ -5,6 +5,10 @@ dist: trusty
 r:
   - release
 
+addons:
+  apt:
+    packages:
+      - libgsl0-dev
 
 env:
   global:
