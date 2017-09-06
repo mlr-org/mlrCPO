@@ -589,8 +589,8 @@ tuneParams(clrn, pid.task, cv5, par.set = ps,
            control = makeTuneControlGrid(),
            show.info=TRUE)
 ```
-Tuning of CPOs and tuning of Learners can happen at the same time.
-```{r}
+Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.
+```{r, eval = FALSE}
 tlrn = cpoModelMatrix() %>>%
        cpoWrap() %>>%
        cpoFilterGainRatio() %>>%

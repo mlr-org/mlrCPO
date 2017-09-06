@@ -24,9 +24,8 @@ r_github_packages:
 before_install:
   # we want to see libpaths and installed packages from cache
   - Rscript -e 'message("LIBPATHS:"); .libPaths()'
-  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'  # we need a very fresh version of survival for Hmisc, needs be done early in the script
-  # we need a very fresh version of survival for Hmisc, needs be done early in the script
-  - Rscript -e 'install.packages("survival")'
+  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
+  - Rscript -e 'install.packages("roxygen2")'
 
 before_script:
   - R --no-save <<< 'library("devtools"); document()'

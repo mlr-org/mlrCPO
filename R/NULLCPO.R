@@ -6,12 +6,25 @@
 #' @title CPO composition neutral element
 #'
 #' @description
-#' FIXME to come
+#' \code{NULLCPO} is the neutral element of \code{CPO} and \code{CPOTrained} composition. It is returned
+#' when \code{\link{trafo}} and \code{\link{retrafo}} are applied to an object that has no retrafo or inverter
+#' associated with it.
 #'
-#' @family CPO
+#' @family NULLCPO
 #' @export
 NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "CPOTrained", "CPO"))  # nolint
 
+
+#' @title Check for NULLCPO
+#'
+#' @description
+#'
+#' Check whether the given object is a \code{NULLCPO}.
+#'
+#' @param cpo\cr
+#'   The object to check
+#' @return \code{TRUE} if \code{cpo} is a \code{NULLCPO}, \code{FALSE} otherwise.
+#' @family NULLCPO
 #' @export
 is.nullcpo = function(cpo) {  # nolint
   "NULLCPO" %in% class(cpo)
@@ -26,6 +39,7 @@ is.nullcpo = function(cpo) {  # nolint
 #' @param cpo [\code{CPO}]\cr
 #'   The CPO.
 #' @return \code{NULL} if \code{cpo} is \code{NULLCPO}, \code{cpo} otherwise.
+#' @family NULLCPO
 #' @export
 nullcpoToNull = function(cpo) {
   if (is.nullcpo(cpo)) {
@@ -44,6 +58,7 @@ nullcpoToNull = function(cpo) {
 #' @param cpo [\code{CPO} | \code{NULL}]\cr
 #'   The CPO.
 #' @return \code{NULLCPO} if \code{cpo} is \code{NULL}, \code{cpo} otherwise.
+#' @family NULLCPO
 #' @export
 nullToNullcpo = function(cpo) {
   if (is.null(cpo)) {

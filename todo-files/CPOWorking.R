@@ -13,8 +13,10 @@ devtools::load_all("..", export_all = FALSE)
 
 devtools::load_all("..", export_all = FALSE)
 
-
+devtools::build_vignettes("..")
 devtools::load_all("..")
+
+
 
 
 

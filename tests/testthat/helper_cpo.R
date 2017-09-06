@@ -458,3 +458,13 @@ binaryclass.test  = binaryclass.df[binaryclass.test.inds, ]
 binaryclass.class.col = 61
 binaryclass.class.levs = levels(binaryclass.df[, binaryclass.class.col])
 binaryclass.task = makeClassifTask("binary", data = binaryclass.df, target = binaryclass.target)
+
+multiclass.df = iris
+multiclass.formula = Species~.
+multiclass.target = "Species"
+multiclass.train.inds = c(1:30, 51:80, 101:130)
+multiclass.test.inds  = setdiff(1:150, multiclass.train.inds)
+multiclass.train = multiclass.df[multiclass.train.inds, ]
+multiclass.test  = multiclass.df[multiclass.test.inds, ]
+multiclass.class.col = 5
+multiclass.task = makeClassifTask("multiclass", data = multiclass.df, target = multiclass.target)
