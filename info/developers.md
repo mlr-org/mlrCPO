@@ -15,16 +15,16 @@ To fit in with the rest of *mlr-org*, it follows the same [code style guide](htt
 The central object of `mlrCPO` is the `CPO` with the following lifecycle and subclasses:
 
 ```
-CPOConstructor ---------------> CPO ---------------> CPOTrained
-                               /   \                    /   \
-                              /     \                  /     \
-                    CPOPrimitive   CPOPipeline  CPORetrafo  CPOInverter
+CPOConstructor ---------> CPO ---------------> CPOTrained
+                         /   \                    /   \
+                        /     \                  /     \
+              CPOPrimitive   CPOPipeline  CPORetrafo  CPOInverter
 ```
 
 The `CPOConstructor` is a function that is called to create a `CPO`, examples are `cpoPca` and `cpoScale`. `CPO` is the object representing a specific operation, completely with hyperparameters. `CPOTrained` represents the "retafo" operation that can be retrieved with `retrafo()*` or `inverter()*` from a preprocessed data object, or from a trained model.
 
 ```
-CPO ---------------> CPOLearner ---------------> CPOModel
+CPO -------------------> CPOLearner -------------------> CPOModel
 ```
 
 When a `CPO` gets attached to an `mlr` `Learner`, a `CPOLearner` object is created. The trained model of this learner has the class `CPOModel`.
@@ -76,43 +76,43 @@ As of writing of this document, there are 21 `.R` files in the `R` directory tha
 
 These files are the core of `CPO` inner workings.
 
-| File Name               | Description   |
-|:----------------------|:-------------|
-| `makeCPO.R`             | `makeCPO()*` and related functions, for definition of `CPOConstructor`s |
-| `callCPO.R`             | Invocation of `CPO` trafo and retrafo functions, and creation of `CPOTrained` |
-| `FormatCheck.R`         | Checking of input and output data conformity to `CPO` "properties", and uniformity of data between trafo and retrafo |
-| `CPO_operators.R`       | Composition and splitting of `CPO` and `CPOTrained` objects, as well as getters and setters |
-| `CPOLearner.R`          | Everything `CPOLearner`-related: Attachment of `CPO` to `Learner`, training and prediction |
-| `RetrafoState.R`        | Retrieval of the retrafo state, and re-creation of a `CPORetrafo` from it |
-| `inverter.R`            | Framework for of `CPO` inverter functionality |
+| File Name            | Description                                                |
+|:---------------------|:-----------------------------------------------------------|
+| `makeCPO.R`          | `makeCPO()*` and related functions, for definition of `CPOConstructor`s |
+| `callCPO.R`          | Invocation of `CPO` trafo and retrafo functions, and creation of `CPOTrained` |
+| `FormatCheck.R`      | Checking of input and output data conformity to `CPO` "properties", and uniformity of data between trafo and retrafo |
+| `CPO_operators.R`    | Composition and splitting of `CPO` and `CPOTrained` objects, as well as getters and setters |
+| `CPOLearner.R`       | Everything `CPOLearner`-related: Attachment of `CPO` to `Learner`, training and prediction |
+| `RetrafoState.R`     | Retrieval of the retrafo state, and re-creation of a `CPORetrafo` from it |
+| `inverter.R`         | Framework for of `CPO` inverter functionality |
 
 ### Auxiliary Files
 
 These files give auxiliary functions and boilerplate.
 
-| File Name               | Description   |
-| :---------------------- | :------------- |
-| `doublecaret.R`         | `%>>%`-operator |
-| `attributes.R`          | `retrafo()*` and `inverter()*` functions that access object attributes |
-| `print.R`               | Printing of `CPO` objects |
-| `parameters.R`          | Auxiliary functions that check parameter feasibility and overlap |
-| `generics.R`            | Definition of generic functions and their `.default` implementations. |
-| `NULLCPO.R`             | `NULLCPO` object and all related functions |
-| `listCPO.R`             | Listing of present `CPO`s |
-| `CPOAuxiliary.R`        | Helper functions |
-| `zzz.R`                 | Package initialization and import of external packages |
+| File Name            | Description                                                |
+|:---------------------|:-----------------------------------------------------------|
+| `doublecaret.R`      | `%>>%`-operator |
+| `attributes.R`       | `retrafo()*` and `inverter()*` functions that access object attributes |
+| `print.R`            | Printing of `CPO` objects |
+| `parameters.R`       | Auxiliary functions that check parameter feasibility and overlap |
+| `generics.R`         | Definition of generic functions and their `.default` implementations. |
+| `NULLCPO.R`          | `NULLCPO` object and all related functions |
+| `listCPO.R`          | Listing of present `CPO`s |
+| `CPOAuxiliary.R`     | Helper functions |
+| `zzz.R`              | Package initialization and import of external packages |
 
 ### CPO Definition Files
 
 These files contain concrete `CPO` implementations.
 
-| File Name               | Description   |
-| :---------------------- | :------------- |
-| `CPO_meta.R`            | `cpoMultiplex` and `cpoCase` |
-| `CPOCbind.R`            | `cpoCbind` and its special printing function |
-| `CPO_concrete.R`        | General data manipulation `CPO`s |
-| `CPO_filterFeatures.R`  | Feature filter `CPO`s |
-| `CPO_impute.R`          | Imputation `CPO`s |
+| File Name            | Description                                                |
+|:---------------------|:-----------------------------------------------------------|
+| `CPO_meta.R`         | `cpoMultiplex` and `cpoCase` |
+| `CPOCbind.R`         | `cpoCbind` and its special printing function |
+| `CPO_concrete.R`     | General data manipulation `CPO`s |
+| `CPO_filterFeatures.R` | Feature filter `CPO`s |
+| `CPO_impute.R`       | Imputation `CPO`s |
 
 ## Functionality
 
