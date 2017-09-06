@@ -31,6 +31,18 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
+\item{perf.learner}{[\code{\link[mlr]{Learner}} | \code{NULL}]\cr
+Learner to resample. If this is \code{NULL}, \code{regr.randomForest} is used.
+Default is \code{NULL}.}
+
+\item{perf.measure}{[\code{\link[mlr]{Measure}} | \code{NULL}]\cr
+Measure to use for resampling. If this is \code{NULL}, the Task's default Measure is used.
+Default is \code{NULL}.}
+
+\item{perf.resampling}{[\code{ResampleDesc} or \code{ResampleInstance}]\cr
+Resampling strategy to use. If this is \code{NULL}, 2/3 holdout resampling is used.
+Default is \code{NULL}.}
+
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
 must be used to avoid name clashes when composing two

@@ -29,6 +29,9 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
+\item{mtry}{[\code{integer(1)}]\cr
+Number of features to draw during feature bagging}
+
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
 must be used to avoid name clashes when composing two

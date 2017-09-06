@@ -549,9 +549,9 @@ makeCPOTargetOpExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = 
     .cpo.name = .cpo.name, .par.set = .par.set, .par.vals = .par.vals,
     .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
     .fix.factors = FALSE, .data.dependent = .data.dependent,
-    .trafo.type = .trafo.type, .export.params = .export.params, .properties = .properties.target,
+    .trafo.type = .trafo.type, .export.params = .export.params, .properties = .properties.data,
     .properties.adding = .properties.adding, .properties.needed = .properties.needed,
-    .properties.target = .properties, .type.from = .type, .type.to = .type.out,
+    .properties.target = .properties.target, .type.from = .type, .type.to = .type.out,
     .predict.type = .predict.type, .packages = .packages,
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), ...)
 }
@@ -860,12 +860,12 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
   } else {
     cpo.retrafo = NULL
   }
-  cpo.trafo.orig = cpo.trafo
+  cpo.trafo.new = cpo.trafo
   if (.trafo.type == "trafo.returns.control") {
     if (is.null(cpo.retrafo)) {
       # functional
-      cpo.trafo = function(data, target, ...) {
-        cpo.retrafo = cpo.trafo.orig(data = data, target = target, ...)
+      cpo.trafo.new = function(data, target, ...) {
+        cpo.retrafo = cpo.trafo(data = data, target = target, ...)
         if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
           stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", .cpo.name)
         }
@@ -873,17 +873,17 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
       }
     } else {
       # object based
-      cpo.trafo = function(data, target, ...) {
-        control = cpo.trafo.orig(data = data, target = target, ...)
+      cpo.trafo.new = function(data, target, ...) {
+        control = cpo.trafo(data = data, target = target, ...)
         cpo.retrafo(data = data, control = control, ...)
       }
     }
   }
   if (!.stateless) {
-    cpo.trafo = captureEnvWrapper(cpo.trafo)
+    cpo.trafo.new = captureEnvWrapper(cpo.trafo.new)
   }
 
-  list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo, cpo.trafo.orig = cpo.trafo.orig)
+  list(cpo.trafo = cpo.trafo.new, cpo.retrafo = cpo.retrafo, cpo.trafo.orig = cpo.trafo)
 }
 
 # create a function with expressions 'expr' in the environment 'env'.

@@ -25,7 +25,8 @@ Imports:
     checkmate (>= 1.8.2),
     methods,
     stats,
-    utils
+    utils,
+    backports (>= 1.1.0)
 Suggests:
     party,
     rpart,

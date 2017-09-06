@@ -130,6 +130,8 @@ registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter feat
 #' The implementation follows the principle of mean decrese in accuracy used
 #' by the \pkg{randomForest} package (see description of \dQuote{randomForest.importance})
 #' filter.
+#' @param mtry [\code{integer(1)}]\cr
+#'   Number of features to draw during feature bagging
 #' @template arg_filter
 #' @template arg_cpo_id
 #' @export
@@ -256,6 +258,15 @@ registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features usin
 #' with randomForest from package \pkg{rpart} being the default learner.
 #' Further parameter are the resamling strategey \code{perf.resampling} and
 #' the performance measure \code{perf.measure}.
+#' @param perf.learner [\code{\link[mlr]{Learner}} | \code{NULL}]\cr
+#'   Learner to resample. If this is \code{NULL}, \code{regr.randomForest} is used.
+#'   Default is \code{NULL}.
+#' @param perf.measure [\code{\link[mlr]{Measure}} | \code{NULL}]\cr
+#'   Measure to use for resampling. If this is \code{NULL}, the Task's default Measure is used.
+#'   Default is \code{NULL}.
+#' @param perf.resampling [\code{ResampleDesc} or \code{ResampleInstance}]\cr
+#'   Resampling strategy to use. If this is \code{NULL}, 2/3 holdout resampling is used.
+#'   Default is \code{NULL}.
 #' @template arg_filter
 #' @template arg_cpo_id
 #' @export
@@ -324,7 +335,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 cpoFilterPermutationImportance = declareFilterCPO("permutation.importance",  # nolint
   .par.set = makeParamSet(
       makeUntypedLearnerParam("imp.learner"),
-      makeUntypedLearnerParam("contrast", default = function(x, y) x - y),
+      makeUntypedLearnerParam("contrast", default = function(x, y) {x - y}),
       makeUntypedLearnerParam("measure", default = NULL),
       makeFunctionLearnerParam("aggregation", default = mean),
       makeIntegerLearnerParam("nmc", lower = 0, default = 50),

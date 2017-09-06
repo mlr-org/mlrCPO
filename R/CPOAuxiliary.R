@@ -64,7 +64,7 @@ firstNonNull = function(...) {
 
 # check global flag whether to strictly check property compliance
 isPropertyStrict = function() {
-  TRUE
+  getMlrOption("cpo.property.strict", TRUE)
 }
 
 # get an option set for mlr. E.g. whether hyperparameter bounds checking is on or off.

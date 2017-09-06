@@ -8,7 +8,7 @@ Filter \dQuote{permutation.importance} computes a loss function between predicti
 learner before and after a feature is permuted.}
 \usage{
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
-  imp.learner, contrast = function (x, y)  x - y, measure = NULL,
+  imp.learner, contrast = function (x, y)  {     x - y }, measure = NULL,
   aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
   replace = FALSE, id = NULL, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
