@@ -41,7 +41,7 @@ Suggests:
     Rfast,
     FSelector,
     e1071,
-    DiscriMinder
+    DiscriMiner
 LazyData: yes
 ByteCompile: yes
 Version: 0.1
