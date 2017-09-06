@@ -40,7 +40,8 @@ Suggests:
     randomForest,
     Rfast,
     FSelector,
-    e1071
+    e1071,
+    DiscriMinder
 LazyData: yes
 ByteCompile: yes
 Version: 0.1
