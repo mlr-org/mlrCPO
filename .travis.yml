@@ -17,6 +17,7 @@ r_check_args: "--as-cran --run-donttest"
 
 r_github_packages:
   - berndbischl/BBmisc
+## The following will return when my PRs are merged
 #  - berndbischl/ParamHelpers
 #  - mlr-org/mlr
   - jimhester/lintr
@@ -34,13 +35,12 @@ before_script:
   - R --no-save <<< 'library("devtools"); document()'
 
 script:
-   - echo OK
-#  - R CMD build .
-#  - R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-#  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+  - R CMD build .
+  - R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
 
 after_success:
-  - travis_wait 100 Rscript -e 'library(BBmisc);covr::coveralls(quiet=FALSE)'
+#  - travis_wait 100 Rscript -e 'library(BBmisc);covr::coveralls(quiet=FALSE)'
   - git checkout master
   - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
   - R --no-save <<< 'library("devtools"); document()'
