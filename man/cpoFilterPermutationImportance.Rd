@@ -5,16 +5,10 @@
 \title{Filter features: permutation.importance
 
 Filter \dQuote{permutation.importance} computes a loss function between predictions made by a
-learner before and after a feature is permuted. Special arguments to the filter function are
-\code{imp.learner}, a [\code{\link{Learner}} or \code{character(1)}] which specifies the learner
-to use when computing the permutation importance, \code{contrast}, a \code{function} which takes two
-numeric vectors and returns one (default is the difference), \code{aggregation}, a \code{function} which
-takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean), \code{nmc},
-an \code{integer(1)}, and \code{replace}, a \code{logical(1)} which determines whether the feature being
-permuted is sampled with or without replacement.}
+learner before and after a feature is permuted.}
 \usage{
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
-  imp.learner, measure = NULL, contrast = function (x, y)  x - y,
+  imp.learner, contrast = function (x, y)  x - y, measure = NULL,
   aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
   replace = FALSE, id = NULL, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
@@ -35,6 +29,24 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
+\item{imp.learner}{[\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
+Specifies the learner to use when computing the permutation importance.}
+
+\item{contrast}{[\code{function}]\cr
+Contrast: takes two numeric vectors and returns one (default is the difference).}
+
+\item{measure}{[\code{\link[mlr]{Measure}}]\cr
+Measure to use. Defaults to the default measure of the task.}
+
+\item{aggregation}{[\code{function}]\cr
+Aggregation: takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean).}
+
+\item{nmc}{[\code{\code{integer(1)}}]\cr}
+
+\item{replace}{[\code{logical(1)}]\cr
+Determines whether the feature being
+permuted is sampled with or without replacement.}
+
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
 must be used to avoid name clashes when composing two
@@ -50,7 +62,7 @@ export as hyperparameters, or one of the special values
 \dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
 \dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
 \dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
-Default is \dQuote{export.all}.}
+Default is \dQuote{export.default}.}
 
 \item{affect.type}{[\code{character} | \code{NULL}]\cr
 Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}

@@ -53,7 +53,7 @@ export as hyperparameters, or one of the special values
 \dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
 \dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
 \dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
-Default is \dQuote{export.all}.}
+Default is \dQuote{export.default}.}
 
 \item{affect.type}{[\code{character} | \code{NULL}]\cr
 Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
@@ -79,9 +79,6 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
-
-\item{task}{[\code{\link{Task}}]\cr
-The task.}
 }
 \description{
 First, calls \code{\link{generateFilterValuesData}}.
@@ -98,9 +95,9 @@ NA
 
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},

@@ -20,10 +20,9 @@ See the preferred \code{\link{\%>>\%}} for more info.
 }
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCollapseFact}},
+  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
+  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterFeatures}},

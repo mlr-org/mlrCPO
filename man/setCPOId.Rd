@@ -18,9 +18,9 @@ compose CPOs that have clashing parameter names.
 }
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},

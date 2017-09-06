@@ -305,7 +305,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 #'
 #' Filter \dQuote{permutation.importance} computes a loss function between predictions made by a
 #' learner before and after a feature is permuted.
-#' @param imp.learner [\code{\link[mlr]{Learner}} | \code{character(1)]\cr
+#' @param imp.learner [\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
 #'   Specifies the learner to use when computing the permutation importance.
 #' @param contrast [\code{function}]\cr
 #'   Contrast: takes two numeric vectors and returns one (default is the difference).
@@ -314,7 +314,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 #' @param measure [\code{\link[mlr]{Measure}}]\cr
 #'   Measure to use. Defaults to the default measure of the task.
 #' @param nmc [\code{\code{integer(1)}}]\cr
-#' @param replace [\code{logical(1)]]\cr
+#' @param replace [\code{logical(1)}]\cr
 #'   Determines whether the feature being
 #'   permuted is sampled with or without replacement.
 #' @template arg_filter

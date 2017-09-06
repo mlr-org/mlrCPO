@@ -28,6 +28,9 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
+\item{diagonal}{[\code{logical(1)}]\cr
+See the \code{carscore} help.}
+
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
 must be used to avoid name clashes when composing two
@@ -43,7 +46,7 @@ export as hyperparameters, or one of the special values
 \dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
 \dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
 \dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
-Default is \dQuote{export.all}.}
+Default is \dQuote{export.default}.}
 
 \item{affect.type}{[\code{character} | \code{NULL}]\cr
 Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}

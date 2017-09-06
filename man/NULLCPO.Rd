@@ -9,35 +9,12 @@
 NULLCPO
 }
 \description{
-FIXME to come
+\code{NULLCPO} is the neutral element of \code{CPO} and \code{CPOTrained} composition. It is returned
+when \code{\link{trafo}} and \code{\link{retrafo}} are applied to an object that has no retrafo or inverter
+associated with it.
 }
 \seealso{
-Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
-  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCollapseFact}},
-  \code{\link{cpoDropConstants}},
-  \code{\link{cpoDummyEncode}},
-  \code{\link{cpoFilterFeatures}},
-  \code{\link{cpoFixFactors}},
-  \code{\link{cpoImpactEncodeClassif}},
-  \code{\link{cpoImpactEncodeRegr}},
-  \code{\link{cpoImpute}},
-  \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
-  \code{\link{cpoQuantileBinNumerics}},
-  \code{\link{cpoScaleMaxAbs}},
-  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
-  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}}, \code{\link{getCPOName}},
-  \code{\link{getRetrafoState}}, \code{\link{inverter<-}},
-  \code{\link{inverter}}, \code{\link{makeCPOExtended}},
-  \code{\link{makeCPO}},
-  \code{\link{makeRetrafoFromState}},
-  \code{\link{pipeCPO}}, \code{\link{retrafo<-}},
-  \code{\link{retrafo}}, \code{\link{setCPOId}}
+Other NULLCPO: \code{\link{is.nullcpo}},
+  \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}
 }
 \keyword{datasets}

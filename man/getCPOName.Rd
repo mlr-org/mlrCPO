@@ -16,9 +16,9 @@ CPO creator. If the CPO object has an ID, it will be appended.
 }
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},

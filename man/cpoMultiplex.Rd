@@ -4,7 +4,12 @@
 \alias{cpoMultiplex}
 \title{CPO Multiplexer}
 \usage{
-cpoMultiplex(cpos, selected.cpo = NULL, id = NULL)
+cpoMultiplex(cpos, selected.cpo = NULL, id = NULL,
+  export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.name = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{cpos}{[\code{list} of (\code{CPO} | \code{CPOConstructor})]\cr
@@ -31,7 +36,7 @@ export as hyperparameters, or one of the special values
 \dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
 \dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
 \dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
-Default is \dQuote{export.all}.}
+Default is \dQuote{export.default}.}
 
 \item{affect.type}{[\code{character} | \code{NULL}]\cr
 Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
@@ -39,9 +44,6 @@ to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
 Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
-
-\item{affect.names}{[\code{character}]\cr
-Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
 
 \item{affect.pattern}{[\code{character(1)} | \code{NULL}]\cr
 \code{\link[base]{grep}} pattern to match feature names by. Default is \code{NULL} (no pattern matching)}
@@ -57,6 +59,9 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
+
+\item{affect.names}{[\code{character}]\cr
+Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
 }
 \description{
 This function creates a CPO object, which can be applied to
@@ -83,9 +88,9 @@ NA
 
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},

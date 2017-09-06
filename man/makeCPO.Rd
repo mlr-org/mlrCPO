@@ -55,6 +55,10 @@ these default values, and not \code{par.vals}. Default is \code{list()}.}
   object may also be a \code{matrix}. If \dQuote{dataformat} is \dQuote{numeric}, the returned object may also be a
   matrix.}
 
+\item{dataformat.factor.with.ordered}{[\code{logical(1)}]\cr
+Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, and only
+has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}.}
+
 \item{export.params}{[\code{logical(1)} | \code{character}]\cr
 Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link{setHyperPars}},
 but exporting too many parameters may lead to messy parameter sets if many CPOs are combined. This can be overridden on construction.
@@ -132,9 +136,9 @@ constFeatRem = makeCPO("constFeatRem",
 }
 \seealso{
 Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
