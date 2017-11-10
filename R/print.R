@@ -21,6 +21,9 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
   }
 }
 
+# verbose print function for CPOs:
+# calls nonverbose-print in return for all included primitive CPOs.
+# @param x [CPO] the CPO to print
 vprint = function(x) {
   chain = as.list(x)
   catf("Trafo chain of %d elements:", length(chain))
@@ -85,7 +88,8 @@ print.CPOTrained = function(x, ...) {
 
 # ShapeInfo printing
 
-# print single shapeinfo row
+# helper function for printing single shapeinfo row
+# @param x [ShapeInfo] the ShapeInfo to print
 catSI = function(x) {
   if (length(x$colnames)) {
     cat(collapse(sprintf("%s: %s", x$colnames, substr(x$coltypes, 1, 3)), sep = ", "))
@@ -94,7 +98,9 @@ catSI = function(x) {
   }
 }
 
-# pretty-print shapeinfo
+# pretty-print shapeinfo; mostly useful for debugging, the user
+# hardly ever gets to see this, except possibly when inspecting
+# retrafo state.
 #' @export
 print.OutputShapeInfo = function(x, ...) {
   cat("<ShapeInfo (output)")

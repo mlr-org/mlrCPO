@@ -10,6 +10,9 @@
 # on in a learner with a long pipeline, relatively complicated.
 # Therefore, if the learner is already a CPOLearner, we just change the
 # attached CPO to a compound CPO.
+# @param cpo [CPO] a cpo to attach
+# @param learner [Learner] the learner to attach the CPO to
+# @return [CPOLearner] a learner with attached CPO
 #' @export
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
@@ -48,6 +51,9 @@ attachCPO.CPO = function(cpo, learner) {
 # the learner has only one 'properties' slot, the CPO has more than one. Also, the CPOs
 # don't concern all properties a learner may have, so absence of a property in a CPO doesn't
 # necessarily mean that it needs to be removed from the learner.
+# @param cpo [CPO] a cpo to attach
+# @param learner [Learner] the learner to attach the CPO to
+# @return [character] properties calculated for the new learner when the cpo is attached
 compositeCPOLearnerProps = function(cpo, learner) {
   props = setdiff(getLearnerProperties(learner), "weights")
   props = union(props, getLearnerType(learner))
@@ -136,6 +142,8 @@ getLearnerProperties.CPOLearner = function(learner) {
 }
 
 # Shorthand function to get a name for a learner that can be printed in debug messages
+# @param learner [Learner] the learner to query
+# @return [character(1)] a shorthand identifier, e.g. for debug output
 getLearnerName = function(learner) {
   firstNonNull(learner$name, learner$shortname, learner$id)
 }
@@ -208,8 +216,10 @@ getLearnerBare = function(learner) {
   learner
 }
 
-# get CPO from learner
+# get CPO from learner, without recursing into deeper levels.
 # Care needs to be taken that the learner's parameter values that concern the CPO are kept.
+# @param learner [CPOLearner] the learner to get the CPO from
+# @return [CPO] the cpo of the given CPOLearner
 singleLearnerCPO = function(learner) {
   cpo = learner$cpo
   cpo$par.vals = subsetParams(learner$par.vals, cpo$par.set)
@@ -254,8 +264,11 @@ retrafo.CPOModel = function(data) {
   recurseRetrafo(data, NULL)
 }
 
-# get RETRAFO from mlr model
+# get RETRAFO from mlr model, without recursing into deeper levels.
 # possibly concatenate with another retrafo 'prev'
+# @param model [CPOModel] the model to query
+# @param prev [CPORetrafo | NULL] the retrafo to prepend, if any
+# @return [CPORetrafo] the CPORetrafo from `model`, concatenated with `prev` if available
 singleModelRetrafo = function(model, prev) {
   retrafo = model$learner.model$retrafo
   if (!is.null(prev)) {

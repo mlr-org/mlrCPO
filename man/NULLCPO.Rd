@@ -17,4 +17,5 @@ associated with it.
 Other NULLCPO: \code{\link{is.nullcpo}},
   \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}
 }
+\concept{NULLCPO}
 \keyword{datasets}

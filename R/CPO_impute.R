@@ -125,9 +125,13 @@ cpoImputeAll = makeCPOExtended("impute", # nolint
   })
 registerCPO(cpoImputeAll, "imputation", "general", "General imputation CPO that uses mlr::impute and checks that all columns were imputed.")
 
-# 'types':
-#   types == NULL: all types
-#   otherwise: subset of "numerics", "factors", "ordered"
+# Create the CPOConstructor for the given imputation method. The CPO performs the given imputation method
+# and has logical parameters 'impute.new.levels' and 'recode.factor.levels', besides additionally supplied parameters.
+# @param name [character(1)] the CPO name (default ID) of the CPO
+# @param method [function] imputation method
+# @param additional.params [ParamSet | NULL] additional parameter set to add to CPO
+# @param types [character | NULL] which types the CPO can operate on. NULL: all types, otherwise: subset of "numerics", "factors", "ordered"
+# @return [CPOConstructor] constructs a CPO that performs the given imputation operation.
 declareImputeFunction = function(name, method, additional.params, types = NULL) {
   makeCPOExtended(paste0("impute.", name),
     .par.set = c(additional.params,

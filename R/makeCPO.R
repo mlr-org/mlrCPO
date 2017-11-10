@@ -559,6 +559,7 @@ makeCPOTargetOpExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = 
 # This is the central CPO defining function, for Feature Operating CPOs and Target Operating CPOs.
 # It checks that the given parameters are valid, creates functions and ParamSet from nonstandardevaluation
 # arguments, and then returns the CPO creator function.
+# For parameters, see docu of `makeCPO`, `makeCPOExtended`, `makeCPOTargetOpExtended`.
 makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,
                           .properties, .properties.adding, .properties.needed,
@@ -604,7 +605,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   funargs = insert(funargs, .par.vals)
 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, parent.frame(2),
-    .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent, .trafo.type == "stateless")
+    .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent)
 
   funargs = insert(funargs, list(id = NULL, export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
@@ -739,6 +740,14 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
 
 # check the validity of .properties, .properties.needed, .properties.adding, .properties.target and assemble
 # the 'properties' list that will be part of the CPO
+# @param .properties [character] properties a CPO can handle
+# @param .properties.needed [character] properties that a unit coming after the current CPO must be able to handle
+# @param .properties.adding [character] properties that this CPO adds to a learner / another CPO when attached / prepended to it.
+# @param .properties.target [character] target properties (e.g. prediction type, task types)
+# @param .cpotype [character(1)] one of "feature", "target", or "traindata" -- the type of CPO being built
+# @param .type.from [character(1)] only for target operating CPO: specify what type of task the CPO operates on
+# @param .type.to [character(1)] only for target operating CPO: specify what type of task results when the CPO is applied
+# @return [list] list(properties, properties.adding, properties.needed) to be used as the `$properties` slot of a CPO object.
 assembleProperties = function(.properties, .properties.needed, .properties.adding, .properties.target, .cpotype, .type.from, .type.to) {
   assertCharacter(.properties, unique = TRUE)
   assertCharacter(.properties.needed, unique = TRUE)
@@ -782,8 +791,14 @@ export.possibilities = c("export.default", "export.set", "export.default.set", "
   "export.all", "export.none", "export.all.plus")
 
 # check the given parameter set and parameters for validity.
-# addnl.par.set are the params given as `...` and are added to the already present
 # .par.set.
+# @param .par.set [ParamSet | NULL] parameter set given to CPOConstructor to create, or NULL if none given
+# @param .par.vals [list] named list of default parameter values
+# @param .export.params [logical(1) | character] TRUE if all parameters are to be exported, FALSE if none are to be
+#   exported, a character vector of parameter names that are to be exported otherwise.
+# @param addnl.par.set [ParamSet] (addnl = "additional") are the params given as `...` and are added to the already present parameters
+# @param reserved.params [character] parameter names that are reserved and may not be used for CPOs.
+# @return [list] list(.par.set, .par.vals, .export.params)
 prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set, reserved.params) {
   if (is.null(.par.set)) {
     .par.set = addnl.par.set
@@ -810,13 +825,34 @@ prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set, res
   list(.par.set = .par.set, .par.vals = .par.vals, .export.params = .export.params)
 }
 
-constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent, .stateless) {
+# Create cpo.trafo and cpo.retrafo from provided expressions and put them into canonical form
+#
+# Internally, cpo.trafo and cpo.retrafo must be either function- or object-based, and must furthermore
+# be split up
+# @param funargs [list] named list of function arguments for cpo.trafo and cpo.retrafo. The names are
+#   treated as parameter names, the values as default parameter values. This list must contain the
+#   CPO parameters, as well as id, and export, and affect.* parameters. Only `data`, `control`, `predict.type`
+#   must be absent and will be added here.
+# @param cpo.trafo [language | function] the CPO trafo function, in a format as used by `makeFunction`
+# @param cpo.retrafo [language | function] the CPO retrafo function, in a format as used by `makeFunction`
+# @param eval.env [environment] the environment in which to evaluate `cpo.trafo` and `cpo.retrafo`
+# @param .cpo.name [character(1)] name of the CPO, for error messages
+# @param .cpotype [character(1)] whether CPO is target or data operating; must be either "target" or "traindata"
+# @param .dataformat [character(1)] data format used by cpo.trafo and cpo.retrafo, in its internally used semantics. Must
+#   be one of "most", "all", "factor", "onlyfactor", "numeric", "ordered", "df.features", "split", "task"
+# @param .trafo.type [character(1)] one of "trafo.returns.control", "trafo.returns.data", "stateless": How and whether trafo returns a control object
+# @param .data.dependent [logical(1)] whether training is (feature) data dependent. Must be TRUE if `.cpotype` is not "target".
+# @return [list] list(cpo.trafo, cpo.retrafo, cpo.trafo.orig) trafo and retrafo as used internally when handling CPO. "cpo.trafo.orig"
+#   is needed by print.CPOConstructor for pretty printing of the trafo function, since the internal representation of `cpo.trafo` returned
+#   otherwise is not informative.
+constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .cpo.name, .cpotype, .dataformat, .trafo.type, .data.dependent) {
   required.arglist.trafo = funargs
   if (!.data.dependent) {
     assert(.cpotype == "target")
   } else {
     required.arglist.trafo$data = substitute()
   }
+  .stateless = .trafo.type == "stateless"
   if (!.stateless || !is.null(cpo.retrafo) || .cpotype == "target") {
     required.arglist.trafo$target = substitute()
   }
@@ -887,12 +923,28 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
 }
 
 # create a function with expressions 'expr' in the environment 'env'.
+#
 # the function gets the argument list 'required.arglist.
 # if 'expr' is actually a function, we just check that it has at least all the
 # arguments in 'required.arglist' (or that is has ellipses), that all
 # arguments have the same default values as required.arglist, and that
 # arguments of the function that are not 'required' have a default value so
 # there won't be an error when the function gets called later.
+# @param expr [language | function] if this is an expression starting with `{`, the created function will have
+#   this expression as its body. Otherwise `expr` is interpreted as a function name or definition, the returned
+#   function will just be the function given.
+# @param required.arglist [list] named list of arguments that will be used as function parameters
+#   for the newly created function. If `expr` is an expression starting with `{`, the names correspond to parameter
+#   names, the values are the default parameter values, use `substitute()` for parameters without default.
+#   If `expr` is a function or function definition, it is checked that `do.call(expr, required.arglist, quote = TRUE)` would not
+#   give an error for missing values or unused arguments. For this, only the names of `required.arglist`
+#   are used: the function parameters of `expr` are checked that they (1a) either contain `...` or (1b)
+#   contain all parameter names in the list. It is also checked that (2) all function parameters of `expr`
+#   that do not have a default value, occur in `required.arglist`.
+# @parem env [environment] the environment that will be the parent.env of the function created, or in which
+#   `expr` is evaluated.
+# @return [function] a function which can handle arguments as requested by `required.arglist` and either has the function
+#   body or is the function defined by `expr`.
 makeFunction = function(expr, required.arglist, env = parent.frame()) {
   if (is.recursive(expr) && identical(expr[[1]], quote(`{`))) {
     # we have a headless list of expressions
@@ -949,6 +1001,20 @@ makeFunction = function(expr, required.arglist, env = parent.frame()) {
 }
 
 # capture the environment of the call to 'fun'
+#
+# This puts a wrapper around a function so when it is called, the call environment
+# will be assigned to a variable `.ENV`.
+#
+# Example:
+# ```
+# f = function(x) x
+# fw = captureEnvWrapper(f)
+# fw(10)
+# ls(.ENV)  # .ENV variable was created, contains "x"
+# .ENV$x    # == 10, since fw(10) assigned 10 to x
+# @param fun [function] the function to wrap
+# @return [function] a function that behaves the same, as `fun`, but also creates
+#   the variable `.ENV` when called.
 captureEnvWrapper = function(fun) {
   envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })
   envcapture[[3]] = body(fun)

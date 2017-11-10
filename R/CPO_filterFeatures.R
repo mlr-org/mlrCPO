@@ -43,7 +43,11 @@ cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
   })
 registerCPO(cpoFilterFeatures, "featurefilter", "general", "Filter features using a provided method.")
 
-
+# Creates a CPOConstructor for the given filter method
+# @param method [character(1)] the method name, as found in mlr:::.FilterRegister
+# @param ... parameters to use for the CPO, as used by ParamSet::pSSLrn
+# @param .par.set [ParamSet | NULL] additional parameter set to use
+# @return [CPOConstructor] A CPOConstructor that creates the CPO performing the `method`.
 declareFilterCPO = function(method, ..., .par.set = NULL) {
   if (is.null(.par.set)) {
     .par.set = pSSLrn(..., .pss.env = parent.frame())

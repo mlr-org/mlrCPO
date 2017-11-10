@@ -138,6 +138,10 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
 # chain CPOs with predict.type pt1 %>>% pt2
 # the 'predict.type' slot is a map (i.e. a named vector of character that maps a -> predict.type[a])
 # when chaining CPOs, the predict.types need to be chained as well.
+# @param pt1 predict.type of first CPO
+# @param pt2 predict.type of second CPO
+# @param name1 debug name of first CPO
+# @param name2 debug name of second CPO
 chainPredictType = function(pt1, pt2, name1, name2) {
   result = sapply(pt1, function(x) unname(pt2[x]))
   result = result[!is.na(result)]

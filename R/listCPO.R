@@ -1,9 +1,16 @@
 # listCPO.R -- functionality for listing all included CPOs.
 
-# registerCPO should be called for all internally defined CPOs. For clarity,
-# that should happen right after the definition of the CPO Constructor.
+# Register a CPO in the database of installed CPOs.
+#
+# registerCPO should be called for all internally defined CPOs. This
+# should happen right after the definition of the CPO Constructor for clarity.
 # For possible caregories and subcategories, consult (and possibly extend!)
 # the listCPO roxygen help.
+# @param cpo [CPOConstructor | CPO] the CPO constructor, or an example cpo, to register
+# @param category [character(1)] the category to register the CPO under
+# @param subcategory [character(1) | NULL] an optional subcategory
+# @param description [character(1)] a short description of the CPO. #TODO: possibly mine roxygen docu instead?
+# @return [invisible(NULL)]
 registerCPO = function(cpo, category, subcategory = NULL, description) {
   name = deparse(substitute(cpo))
   if (!is.function(cpo)) {
@@ -30,6 +37,7 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
     list(list(name = name, cponame = cponame, category = category,
       subcategory = subcategory, description = description))),
     envir = parent.env(environment()))
+  invisible(NULL)
 }
 
 #' @title List all built-in CPOs

@@ -421,12 +421,3 @@ getCPOPredictType = function(cpo) {
 getCPOOperatingType = function(cpo) {
   UseMethod("getCPOOperatingType")
 }
-
-# 'prediction' is whatever type the prediction usually has (depending on type). must return
-# a list (new.prediction, new.td, new.truth)
-#
-# new.td & new.truth may be NULL if no target change occurred.
-invertCPO = function(inverter, prediction, predict.type) {
-  UseMethod("invertCPO")
-}
-

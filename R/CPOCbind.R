@@ -360,7 +360,13 @@ printGraph = function(children, descriptions, width = getOption("width")) {
 # If CBIND_1 is a graph (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK)
 # and CBIND_2 is a graph (SOURCE -> CPOC -> SINK) and (SOURCE -> CBIND_1 (!!!) -> SINK)
 # then we here we incorporate the graph of CBIND_1 into CBIND_2 to get
-# (SOURCE -> CPOC -> SINK), (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK)
+# (SOURCE -> CPOC -> SINK), (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK).
+# Graphs that have been 'united' also need to be 'synchronized' (see `synchronizeGraph`) to remove duplicate entries.
+# @param cpograph [list of CPOGraphItem] the "parent" graph where the `childgraph` should be included
+# @param sourceIdx [numeric(1)] the index into `cpograph` of the element that will be the data source for `childgraph`
+# @param childgraph [list of CPOGraphItem] the "child" graph to add to `cpograph`
+# @param par.vals [list] list of parameter values to set `childgraph` elements to
+# @return [list of CPOGraphItem] the updated graph.
 uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
   idxoffset = length(cpograph) - 1
 
@@ -398,6 +404,8 @@ uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
 # SOURCE -> CPOA -+-> CPOB -.
 #                  \         \
 #                   `-> CPOC -+-> SINK
+# @param cpograph [list of CPOGraphItem] the graph to simplify
+# @return [list of CPOGraphItem] the simplified graph
 synchronizeGraph = function(cpograph) {
   newgraph = list()
   for (oldgraph.index in seq_along(cpograph)) {

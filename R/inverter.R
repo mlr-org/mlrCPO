@@ -45,7 +45,7 @@ invert = function(inverter, prediction, predict.type = "response") {
 }
 
 #' @export
-invertCPO.CPO = function(inverter, prediction, predict.type = "response") {
+invert.CPO = function(inverter, prediction, predict.type = "response") {
   stop("Cannot invert prediction with a CPO object; need a CPOTrained object.")
 }
 
@@ -205,6 +205,13 @@ getPredResponseType = function(data, typepossibilities) {
   c("response", if (any(c("classif", "cluster") %in% typepossibilities)) "prob")
 }
 
+# 'prediction' is whatever type the prediction usually has (depending on type). must return
+# a list (new.prediction, new.td, new.truth)
+#
+# new.td & new.truth may be NULL if no target change occurred.
+invertCPO = function(inverter, prediction, predict.type) {
+  UseMethod("invertCPO")
+}
 
 
 # INVERTER main function

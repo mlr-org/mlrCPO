@@ -1,11 +1,20 @@
 
+
 # get the defaults of a param.set as a list
+# @param ps [ParamSet] parameter set to query
+# @return [list] named list of default parameter values
 getParamSetDefaults = function(ps) {
   lapply(ps$pars[vlapply(ps$pars, function(x) x$has.default)], function(x) x$default)
 }
 
 # check that ParamSets  ps1 and ps2 have distinct names; if not, give meaningful
 # error message, referring to the objects by name1 and name2.
+# This is used when CPOs are composed, or when a CPO is attached to a learner.
+# @param obj1 [CPO | Learner] an object for which `getParamSet` is implemented. This object's `ParamSet` is checked for name collision.
+# @param obj2 [CPO | Learner] an object for which `getParamSet` is implemented. This object's `ParamSet` is checked for name collision.
+# @param name1 [character(1)] the name of `obj1`, used in error messages.
+# @param name2 [character(1)] the name of `obj2`, used in error messages.
+# @return [invisible(NULL)]
 parameterClashAssert = function(obj1, obj2, name1, name2) {
   ps1 = getParamSet(obj1)
   ps2 = getParamSet(obj2)
@@ -17,15 +26,23 @@ parameterClashAssert = function(obj1, obj2, name1, name2) {
       "Use the id parameter when constructing, or setCPOId, to prevent name collisions.")
   }
 }
+
 # get the subset of par.vals described by par set.
-# check furthermore that this subset is complete,
-# i.e. all parameters that have no unfulfilled requirements are there
+# @param par.vals [list] named list of parameter values
+# @param par.set [ParamSet] parameter set to subset by
+# @return [list] subset of `par.vals`
 subsetParams = function(par.vals, par.set) {
   par.vals[intersect(names(par.vals), names(par.set$pars))]
 }
 
 # check that all parameters are feasible according to their limits
-# 'infeasible' parameters according to requirements are allowed
+# 'infeasible' parameters according to requirements are allowed.
+# Behaves according to the mlr soption `on.par.out.of.bounds`:
+# if it is "stop" it throws an error, if it is "quiet" it ignores it,
+# otherwise it gives a warning.
+# @param par.set [ParamSet] the parameter set to check by
+# @param par.vals [list] named list of parameter values
+# @return [invisible(NULL)]
 checkParamsFeasible = function(par.set, par.vals) {
   # names(par.vals) must be a subset of names(par.set$pars)
   oobreaction = firstNonNull(getMlrOption("on.par.out.of.bounds"), "stop")
@@ -45,7 +62,22 @@ checkParamsFeasible = function(par.set, par.vals) {
 }
 
 # convert from character vectors to  lists for discrete vector params
+#
+# ParamHelpers has a "discrete vector" parameter, which accepts lists as values.
+# However, it may be useful to accept a *vector* of character values instead of list
+# values.
+#
+# For example, consider `makeDiscreteParam("test", list(a = c(1, 2, 3), b = c(4, 5, 6)))`. We may want
+# to treat it as a parameter that accepts the values `"a"`, `"b"`, `c("a", "b")`, `character(0)`, etc.
+#
+# If `par.vals` is a named list of parameter values that, for a discrete vector param, contains the
+# names of its possible values, this function will convert it to a named list of parameters that instead
+# contains proper lists of values for discrete vector parameters.
+#
 # ("DVP" = Discrete Vector Param)
+# @param par.vals [list] named list of parameters, containing character vector values for discrete vector parameters.
+# @param par.set [ParamSet] the parameter set for which parameters are present.
+# @return [list] named list of parameters, containing named list values for discrete vector parameters.
 convertNamesToItemsDVP = function(par.vals, par.set) {
   oobreaction = firstNonNull(getMlrOption("on.par.out.of.bounds"), "stop")
   reactionFn = switch(oobreaction, stop = stopf, warn = warningf, quiet = list)  # nolint
@@ -77,6 +109,10 @@ convertNamesToItemsDVP = function(par.vals, par.set) {
 }
 
 # convert back from list to character vector for discrete vector params
+# This inverts `convertNamesToItemsDVP`, see documentation there.
+# @param par.vals [list] named list of parameters, containing named list values for discrete vector parameters.
+# @param par.set [ParamSet] the parameter set for which parameters are present.
+# @return [list] named list of parameters, containing character vector values for discrete vector parameters.
 convertItemsToNamesDVP = function(par.vals, par.set) {
   for (n in names(par.set$pars)) {
     par = par.set$pars[[n]]
@@ -93,11 +129,16 @@ convertItemsToNamesDVP = function(par.vals, par.set) {
   par.vals
 }
 
-# Manipulate requirement expressions: rename all variables from
-# one name to another. This gets problematic when e.g. one variable
-# is named 'c', because then c(1, 2, 3) gets broken. Therefore we
+# Manipulate requirement expressions: rename all variables that are not function calls from
+# one name to another.
+#
+# This is important e.g. when changing requirement expressions. and a parameter in the paramset
+# is named e.g. 'c', because then c(1, 2, 3) would break. Therefore we
 # go through the expressions and change only those requirements that
 # are not function calls.
+# @param expr [language] the expression to manipulate
+# @param translate [list] named list of variable names to change
+# @return [language] the expression `expr`, with the variables renamed according to `translate`.
 renameNonfunctionNames = function(expr, translate) {
   startfrom = 1
   if (is.call(expr)) {

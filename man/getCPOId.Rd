@@ -42,3 +42,4 @@ Other CPO: \code{\link{CPOImputer}}, \code{\link{CPO}},
   \code{\link{pipeCPO}}, \code{\link{retrafo<-}},
   \code{\link{retrafo}}, \code{\link{setCPOId}}
 }
+\concept{CPO}
