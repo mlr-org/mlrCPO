@@ -1,6 +1,76 @@
 #' @include callCPO.R
 
 ##################################
+### Generics                   ###
+##################################
+
+
+#' @title CPO Composition
+#'
+#' @description
+#' The arguments will be composed. A new object,
+#' representing the operation of performing both object's operations in succession,
+#' will be created, which can be handled like a new \link{CPO} object.
+#'
+#' See the preferred \code{\link{\%>>\%}} for more info.
+#'
+#' @param cpo1 [\code{\link{CPO}}]\cr
+#'   The operation to perform first.
+#' @param cpo2 [\code{\link{CPO}}]\cr
+#'   The operation to perform second.
+#' @export
+composeCPO = function(cpo1, cpo2) {
+  assert(checkClass(cpo2, "CPO"),
+    checkClass(cpo2, "CPOTrained"))
+  if (is.nullcpo(cpo2)) {
+    cpo1
+  }
+  UseMethod("composeCPO")
+}
+
+#' @title CPO Attachment
+#'
+#' @description
+#' The second argument is a \code{\link{Learner}} and the CPO will be attached to
+#' this learner. The same operation will be performed during the \dQuote{train} and
+#' \dQuote{predict} phase; the behaviour during the predict phase may furthermore
+#' be depend on the training data.
+#'
+#' See the preferred \code{\link{\%>>\%}} for more info.
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The CPO object
+#' @param learner [\code{\link{Learner}}]\cr
+#'   The learner.
+#'
+#' @family CPO
+#' @export
+attachCPO = function(cpo, learner) {
+  checkLearner(learner)
+  UseMethod("attachCPO")
+}
+
+#' @title CPO Apply
+#'
+#' @description
+#' The given transformation will be applied to the data in the given \code{link{Task}}.
+#'
+#' See the preferred \code{\link{\%>>\%}} for more info.
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The CPO representing the operation to perform.
+#' @param task [\code{\link{Task}}]\cr
+#'   The task to operate on.
+#' @export
+#' @family CPO
+applyCPO = function(cpo, task) {
+  assert(checkClass(task, "Task"),
+    checkClass(task, "data.frame"))
+  UseMethod("applyCPO")
+}
+
+
+##################################
 ### CPO Trafo Composition      ###
 ##################################
 # (as opposed to retrafo, inverter ops)
@@ -200,256 +270,3 @@ pipeCPO = function(pplist) {
     checkList(pplist, types = "CPOTrained"))
   Reduce(composeCPO, c(list(NULLCPO), pplist))
 }
-
-##################################
-### Getters and Setters        ###
-##################################
-
-# Param Sets and related
-
-#' @export
-getParamSet.CPO = function(x) {
-  x$par.set
-}
-
-#' @export
-getParamSet.CPOTrainedPrimitive = function(x) {
-  c(x$cpo$bare.par.set, x$cpo$unexported.par.set)
-}
-
-#' @export
-getParamSet.CPOTrained = function(x) {
-  stop("Cannot get param set of compound retrafo. Use as.list to get individual elements")
-}
-
-#' @export
-getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
-  learner$par.vals
-}
-
-#' @export
-getHyperPars.CPOTrainedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
-  getBareHyperPars(learner$cpo)
-}
-
-#' @export
-getHyperPars.CPOTrained = function(learner, for.fun = c("train", "predict", "both")) {
-  stop("Cannot get parameters of compound retrafo. Use as.list to get individual elements")
-}
-
-#' @export
-setHyperPars2.CPO = function(learner, par.vals = list()) {
-  badpars = setdiff(names(par.vals), names(learner$par.set$pars))
-  if (length(badpars)) {
-    stopf("CPO %s does not have parameter%s %s", getLearnerName(learner),
-          ifelse(length(badpars) > 1, "s", ""), collapse(badpars, ", "))
-  }
-  checkParamsFeasible(learner$par.set, par.vals)
-  learner$par.vals = insert(learner$par.vals, par.vals)
-  learner
-}
-
-#' @export
-setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
-  stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
-    "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
-    "Get the state of an existing retrafo / inverter using getRetrafoState.")
-}
-
-#' @export
-removeHyperPars.CPOLearner = function(learner, ids) {
-  i = intersect(names(learner$par.vals), ids)
-  if (length(i) > 0) {
-    stopf("CPO Parameters (%s) can not be removed", collapse(i, sep = ", "))
-  }
-  learner$next.learner = removeHyperPars(learner$next.learner, ids)
-  learner
-}
-
-# Properties
-
-#' @export
-getCPOProperties.CPO = function(cpo, only.data = FALSE) {
-  if (only.data) {
-    lapply(cpo$properties, intersect, y = cpo.dataproperties)
-  } else {
-    cpo$properties
-  }
-}
-
-#' @export
-getCPOProperties.CPOTrained = function(cpo, only.data = FALSE) {
-  if (!is.null(cpo$prev.retrafo)) {
-    props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
-  } else {
-    props = cpo$cpo$properties
-  }
-  if (only.data) {
-    lapply(props, intersect, y = cpo.dataproperties)
-  } else {
-    props
-  }
-}
-
-# CPO ID, NAME
-
-#' @export
-getCPOName.CPO = function(cpo) {
-  cpo$name
-}
-
-#' @export
-getCPOName.CPOTrainedPrimitive = function(cpo) {
-  cpo$cpo$name
-}
-
-#' @export
-getCPOName.CPOTrained = function(cpo) {
-  paste(getCPOName(cpo$prev.retrafo), cpo$cpo$name, sep = ".")
-}
-
-#' @export
-getCPOName.CPOConstructor = function(cpo) {
-  environment(cpo)$.cpo.name
-}
-
-#' @export
-getCPOId.CPOPrimitive = function(cpo) {
-  cpo$id
-}
-
-#' @export
-getCPOId.CPO = function(cpo) {
-  stop("Compound CPOs have no IDs.")
-}
-
-#' @export
-setCPOId.CPO = function(cpo, id) {
-  stop("Cannot set ID of compound CPO.")
-}
-
-# When changing the ID, we need to change each parameter's name, which
-# should have the form <ID>.<bare.par.name>
-# This means we need to modify $par.set AND $par.vals
-#' @export
-setCPOId.CPOPrimitive = function(cpo, id) {
-
-  cpo$id = id
-  cpo$debug.name = if (is.null(id) || id == cpo$name) cpo$name else sprintf("%s<%s>", cpo$id, cpo$name)
-  cpo$par.vals = getBareHyperPars(cpo, FALSE)
-  cpo$par.set = cpo$bare.par.set
-  pars = cpo$par.set$pars
-  if (!is.null(id) && length(pars)) {
-    trans = setNames(paste(id, names(pars), sep = "."), names(pars))
-    names(pars) = trans
-    pars = lapply(pars, function(x) {
-      x$id = trans[x$id]
-      if (!is.null(x$requires)) {
-        x$requires = renameNonfunctionNames(x$requires, trans)
-      }
-      x
-    })
-    cpo$par.set$pars = pars
-    names(cpo$par.vals) = trans[names(cpo$par.vals)]
-  }
-  cpo
-}
-
-# CPO Type
-
-#' @export
-getCPOObjectType.CPO = function(cpo) {
-  "CPO"
-}
-
-#' @export
-getCPOObjectType.CPORetrafo = function(cpo) {
-  "CPORetrafo"
-}
-
-#' @export
-getCPOObjectType.CPOInverter = function(cpo) {
-  "CPOInverter"
-}
-
-#' @export
-getCPOInvertCapability.CPOInverter = function(cpo) {
-  "inverter"
-}
-
-#' @export
-getCPOInvertCapability.CPORetrafo = function(cpo) {
-  "retrafo"
-}
-
-#' @export
-getCPOInvertCapability.CPORetrafoOnly = function(cpo) {
-  "retrafo.only"
-}
-
-#' @export
-getCPOInvertCapability.CPORetrafoHybrid = function(cpo) {
-  "hybrid"
-}
-
-# Operating Type
-
-#' @export
-getCPOOperatingType.CPO = function(cpo) {
-  cpo$operating.type
-}
-
-#' @export
-getCPOOperatingType.CPOTrained = function(cpo) {
-  switch(getCPOInvertCapability(cpo),
-    inverter = "target",
-    retrafo = "feature",
-    retrafo.only = "feature",
-    hybrid = c("target", "feature"))
-}
-
-# Predict Type
-
-#' @export
-getCPOPredictType.CPO = function(cpo) {
-  names(cpo$predict.type)
-}
-
-#' @export
-getCPOPredictType.CPOTrained = function(cpo) {
-  names(cpo$predict.type)
-}
-
-# Normalize "affect.*" arguments of CPOs
-
-#' @export
-getCPOAffect.CPOPrimitive = function(cpo, drop.defaults = TRUE) {
-  affect.args = cpo$affect.args
-  if (!drop.defaults) {
-    if (!length(getCPOAffect(cpo))) {
-      affect.args$type = c("numeric", "factor", "ordered", "other")
-    }
-    return(affect.args)
-  }
-  if (setequal(affect.args$type, c("numeric", "factor", "ordered", "other"))) {
-    affect.args$type = NULL
-  }
-  if (!length(affect.args$index)) {
-    affect.args$index = NULL
-  }
-  if (!length(affect.args$names)) {
-    affect.args$names = NULL
-  }
-  if (is.null(affect.args$pattern)) {
-    affect.args$pattern.ignore.case = NULL
-    affect.args$pattern.perl = NULL
-    affect.args$pattern.fixed = NULL
-  }
-  Filter(function(x) !is.null(x) && !identical(x, FALSE), affect.args)
-}
-
-#' @export
-getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
-  stop("Compound CPOs have no affect arguments.")
-}
-
