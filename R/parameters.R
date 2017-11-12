@@ -1,5 +1,4 @@
 
-
 # get the defaults of a param.set as a list
 # @param ps [ParamSet] parameter set to query
 # @return [list] named list of default parameter values

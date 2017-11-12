@@ -1,5 +1,5 @@
 # properties.R contains getXXX and setXXX functions that apply to CPO objects.
-
+#' @include callCPO.R
 
 #' @title Get the CPO object's Name
 #'
@@ -59,23 +59,6 @@ getCPOId = function(cpo) {
   UseMethod("getCPOId")
 }
 
-#' @title Get the Selection Arguments for affected CPOs
-#'
-#' @description
-#' Get the \code{affected.*} arguments from when the CPO was constructed.
-#'
-#' @param cpo [\code{CPO}]\cr
-#'   The CPO.
-#' @param drop.defaults [\code{logical(1)}]\cr
-#'   Whether to only return the arguments that deviate from the default.
-#'   Default is \code{TRUE}.
-#'
-#' @family CPO
-#' @export
-getCPOAffect = function(cpo, drop.defaults = TRUE) {
-  UseMethod("getCPOAffect")
-}
-
 #' @title Get the Properties of the given CPO object
 #'
 #' @description
@@ -107,6 +90,23 @@ getCPOAffect = function(cpo, drop.defaults = TRUE) {
 getCPOProperties = function(cpo, only.data = FALSE) {
   assertFlag(only.data)
   UseMethod("getCPOProperties")
+}
+
+#' @title Get the Selection Arguments for affected CPOs
+#'
+#' @description
+#' Get the \code{affected.*} arguments from when the CPO was constructed.
+#'
+#' @param cpo [\code{CPO}]\cr
+#'   The CPO.
+#' @param drop.defaults [\code{logical(1)}]\cr
+#'   Whether to only return the arguments that deviate from the default.
+#'   Default is \code{TRUE}.
+#'
+#' @family CPO
+#' @export
+getCPOAffect = function(cpo, drop.defaults = TRUE) {
+  UseMethod("getCPOAffect")
 }
 
 #' @title Get the CPO Object Type
@@ -238,16 +238,6 @@ setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
   stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
     "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
     "Get the state of an existing retrafo / inverter using getRetrafoState.")
-}
-
-#' @export
-removeHyperPars.CPOLearner = function(learner, ids) {
-  i = intersect(names(learner$par.vals), ids)
-  if (length(i) > 0) {
-    stopf("CPO Parameters (%s) can not be removed", collapse(i, sep = ", "))
-  }
-  learner$next.learner = removeHyperPars(learner$next.learner, ids)
-  learner
 }
 
 # Properties

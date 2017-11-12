@@ -1,15 +1,3 @@
-#' @title CPO: Composable Preprocessing Operators
-#'
-#' @description
-#' FIXME to come
-#'
-#' @family CPO
-#' @name CPO
-NULL
-
-##################################
-### Auxiliaries                ###
-##################################
 
 # deparseJoin: deparse, but work with longer than 500 char expressions, mostly.
 # Note that this is a heuristic for user messages only, the result can not be

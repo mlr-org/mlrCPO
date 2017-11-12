@@ -1,3 +1,4 @@
+#' @include makeCPO.R auxiliary.R
 
 #' @title Apply a Function Element-Wise
 #'
@@ -50,5 +51,5 @@ cpoApplyFun = makeCPOExtended("fun.apply",  # nolint
     }
     cpo.retrafo(data)
   }, cpo.retrafo = NULL)
-registerCPO(cpoPca, "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
+registerCPO(cpoApplyFun, "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
 

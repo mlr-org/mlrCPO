@@ -223,10 +223,10 @@ NA
 \seealso{
 Other impute: \code{\link{cpoImpute}}
 
-Other CPO: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
+Other CPO: \code{\link{\%>>\%}}, \code{\link{applyCPO}},
+  \code{\link{attachCPO}}, \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterFeatures}},
@@ -250,5 +250,3 @@ Other CPO: \code{\link{CPO}}, \code{\link{\%>>\%}},
   \code{\link{pipeCPO}}, \code{\link{retrafo<-}},
   \code{\link{retrafo}}, \code{\link{setCPOId}}
 }
-\concept{CPO}
-\concept{impute}

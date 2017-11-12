@@ -148,6 +148,16 @@ getLearnerName = function(learner) {
   firstNonNull(learner$name, learner$shortname, learner$id)
 }
 
+#' @export
+removeHyperPars.CPOLearner = function(learner, ids) {
+  i = intersect(names(learner$par.vals), ids)
+  if (length(i) > 0) {
+    stopf("CPO Parameters (%s) can not be removed", collapse(i, sep = ", "))
+  }
+  learner$next.learner = removeHyperPars(learner$next.learner, ids)
+  learner
+}
+
 ##################################
 ### CPO-Learner Disassembly    ###
 ##################################

@@ -19,5 +19,5 @@ cpoModelMatrix = makeCPOExtended("model.matrix", .fix.factors = TRUE, .trafo.typ
   cpo.trafo = {
     as.data.frame(model.matrix(formula, data = data))
   }, cpo.retrafo = NULL)
-registerCPO(cpoSelect, "data", "general", ".")
+registerCPO(cpoModelMatrix, "data", "general", "TODO")  # TODO
 
