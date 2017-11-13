@@ -86,6 +86,7 @@ getCPOId = function(cpo) {
 #' @param only.data [\code{logical(1)}]\cr
 #'   Only get the CPO properties relevant for data (not target or task types). Default is \code{FALSE}.
 #'
+#' @aliases CPOProperties
 #' @export
 getCPOProperties = function(cpo, only.data = FALSE) {
   assertFlag(only.data)

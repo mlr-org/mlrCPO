@@ -4,9 +4,61 @@
 \alias{CPO}
 \title{Composable Preprocessing Operators.}
 \description{
-CPO
+Composable Preprocessing Operators, or \code{CPO}, are the central entity provided by the \code{mlrCPO} package.
+CPOs can perform operations on a \code{\link[base]{data.frame}} or a \code{\link[mlr]{Task}}, for the latter even
+modifying target values and converting between different \code{\link[mlr]{Task}} types.
+
+CPOs can be \dQuote{composed} using the \code{\link{\%>>\%}} operator, the \code{\link{composeCPO}} function, or
+the \code{\link{pipeCPO}} function, to create new (\dQuote{compound}) operators that perform multiple operations
+in a pipeline. While all CPOs have the class \dQuote{CPO}, primitive (i.e. not compound) CPOs have the additional class
+\dQuote{CPOPrimitive}, and compound CPOs have the class \dQuote{CPOPipeline}. It is possible to split a compound CPOs
+into its primitive constituents using \code{\link[base]{as.list}}.
+
+CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr]{Learner}} objects to create \code{\link{CPOLearner}}s,
+using the \code{\link{\%>>\%}} operator, or the \code{\link{attachCPO}} function. These \code{\link{CPOLearner}}s
+fit the model specified by the \code{\link[mlr]{Learner}} to the data after applying the attached CPO. Many CPOs can
+be attached to a \code{\link[mlr]{Learner}} sequentially, or in form of a compound CPO.
+
+CPOs can be \dQuote{applied} to a \code{\link[base]{data.frame}} or a \code{\link[mlr]{Task}} using the
+\code{\link{\%>>\%}} operator, or the \code{\link{applyCPO}} function. Applying a CPO performs the operations specified
+by the (possibly compound) CPO, and returns the modified data. This data also contains a \dQuote{retrafo} and and
+\dQuote{inverter} tag, which can be accessed using the \code{\link{retrafo}} and \code{\link{inverter}} functions to
+get \code{\link{CPORetrafo}} and \code{\link{CPOInverter}} objects, respectively. These objects represent the \dQuote{trained}
+CPOs that can be used when performing validation or predictions with new data.
+}
+\section{Hyperparameters}{
+
+CPOs can have hyperparameters that determine how they operate on data. These hyperparameters can be set during
+construction, as function parameters of the \code{\link{CPOConstructor}}, or they can potentially be modified
+later as exported hyperparameters. Which hyperparameters are exported is controlled using the \code{export} parameter
+of the \code{\link{CPOConstructor}} when the CPO was created. Hyperparameters can be listed using \code{\link[mlr]{getParamSet}},
+queried using \code{\link[mlr]{getHyperPars}} and set using \code{\link[mlr]{setHyperPars}}.
+}
+
+\section{S3 properties}{
+
+A CPO object should be treated as an opaque object and should only be queried / modified using the given \code{set*} and
+\code{get*} functions. A list of them is given below in the section \dQuote{See Also}--\dQuote{cpo-operations}.
+}
+
+\section{Special CPO}{
+
+A special CPO is \code{\link{NULLCPO}}, which functions as the neutral element of the \code{\link{\%>>\%}} operator
+and represents the identity operation on data.
+}
+
+\examples{
+class(cpoPca())  # c("CPOPrimitive", "CPO")
+class(cpoPca() \%>>\% cpoScale())  # c("CPOPipeline", "CPO")
+print(cpoPca() \%>>\% cpoScale(), verbose = TRUE)
+
+getHyperPars(cpoScale(center = FALSE))
+
+head(getTaskData(iris.task \%>>\% cpoScale()))
 }
 \seealso{
+\code{\link{print.CPO}} for possibly verbose printing.
+
 Other cpo-lifecycle: \code{\link{CPOConstructor}},
-  \code{\link{CPOInverter}}, \code{\link{CPORetrafo}}
+  \code{\link{CPOInverter}}, \code{\link{CPOLearner}}
 }

@@ -2,6 +2,7 @@
 % Please edit documentation in R/properties.R
 \name{getCPOProperties}
 \alias{getCPOProperties}
+\alias{CPOProperties}
 \title{Get the Properties of the given CPO object}
 \usage{
 getCPOProperties(cpo, only.data = FALSE)
