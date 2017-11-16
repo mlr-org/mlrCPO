@@ -169,7 +169,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
     cpo$operating.type, cpo$convertto, tin$subset.index, cpo$debug.name)
 
-  retrafo = if (build.retrafo && cpo$operating.type != "traindata") {
+  retrafo = if (build.retrafo && cpo$operating.type != "retrafoless") {
       makeCPORetrafo(cpo, state, prev.retrafo, tin$shapeinfo, tout$shapeinfo)
     } else {
       prev.retrafo
@@ -250,7 +250,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
   if (cpo$operating.type == "target") {
     return(callCPO(cpo, data, FALSE, NULL, build.inverter, prev.inverter))
   }
-  assert(cpo$operating.type == "feature")  # "traindata" has no retrafo!
+  assert(cpo$operating.type == "feature")  # "retrafoless" has no retrafo!
 
   tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties.raw, retrafo$shapeinfo.input, cpo$name)
 

@@ -25,6 +25,8 @@ configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = 
 
 devtools::load_all("..")
 
+
+
 devtools::test(pkg = "..", filter = "basic")
 devtools::test(pkg = "..", filter = "affect")
 devtools::test(pkg = "..", filter = "properties")

@@ -22,11 +22,14 @@
 #' on, and which columns it will ignore. This is done using the \code{affect.*} parameters. It is possible to
 #' choose columns by types, indices, names, or a regular expression matching names.
 #'
-#' @param id [\code{character(1)} | \code{NULL}] ID to use for the CPO. if \code{NULL} is given, this defaults to
-#'   a name describing the action performed by the CPO. The ID is used to identify the CPO in print messages,
+#' @param id [\code{character(1)} | \code{NULL}]\cr
+#'   ID to use for the CPO. if \code{NULL} is given, this defaults to
+#'   a name describing the action performed by the CPO, which can be retrieved using \code{\link{getCPOName}}.
+#'   The ID is used to identify the CPO in print messages,
 #'   and is prefixed to the CPO's hyperparameter names. This is can be used to avoid name clashes when composing
 #'   a CPO with another CPO or \code{\link[mlr]{Learner}} with hyperparameters with clashing names. Default is \code{NULL}.
-#' @param export [\code{character}] Which hyperparameters to export. This can be a character vector naming the
+#' @param export [\code{character}]\cr
+#'   Which hyperparameters to export. This can be a character vector naming the
 #'   hyperparameters to export (\emph{excluding} the ID), or a \code{character(1)} with one of the special values:
 #'   \tabular{ll}{
 #'     \dQuote{export.all}            \tab  export all parameters                             \cr
@@ -115,8 +118,7 @@ NULL
 #'
 #' @seealso \code{\link{print.CPO}} for possibly verbose printing.
 #'
-#' @family cpo-lifecycle
-#' @family cpo-operations
+#' @family cpo-lifecycle cpo-operations properties cpo-types
 #' @examples
 #' class(cpoPca())  # c("CPOPrimitive", "CPO")
 #' class(cpoPca() %>>% cpoScale())  # c("CPOPipeline", "CPO")
@@ -165,17 +167,6 @@ NULL
 #'
 #' @name CPOLearner
 NULL
-
-
-#' @title CPO Inverter Object
-#'
-#' @description
-#' CPO
-#'
-#' @family cpo-lifecycle
-#' @name CPOInverter
-NULL
-
 
 
 

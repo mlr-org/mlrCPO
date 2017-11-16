@@ -64,7 +64,7 @@ print.CPOTrained = function(x, ...) {
   first = TRUE
   object.type = getCPOObjectType(x)
   invcap = getCPOInvertCapability(x)
-  pt = getCPOPredictType(x)
+  pt = names(getCPOPredictType(x))
   if (length(pt) == 3) {
     assert(object.type == "CPORetrafo")
   }

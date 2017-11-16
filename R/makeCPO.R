@@ -560,7 +560,7 @@ makeCPOTargetOpExtended = function(.cpo.name, ..., .par.set = NULL, .par.vals = 
 # It checks that the given parameters are valid, creates functions and ParamSet from nonstandardevaluation
 # arguments, and then returns the CPO creator function.
 # For parameters, see docu of `makeCPO`, `makeCPOExtended`, `makeCPOTargetOpExtended`.
-makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.name, .par.set, .par.vals,
+makeCPOGeneral = function(.cpotype = c("feature", "target", "retrafoless"), .cpo.name, .par.set, .par.vals,
                           .dataformat, .dataformat.factor.with.ordered, .fix.factors, .data.dependent, .trafo.type, .export.params,
                           .properties, .properties.adding, .properties.needed,
                           .properties.target, .type.from, .type.to, .predict.type, .packages, cpo.trafo, cpo.retrafo, ...) {
@@ -570,7 +570,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   assertString(.cpo.name)
   assertList(.par.vals, names = "unique")
   assertFlag(.dataformat.factor.with.ordered)
-  if (.cpotype == "traindata") assert(.trafo.type != "stateless")
+  if (.cpotype == "retrafoless") assert(.trafo.type != "stateless")
 
   # we encode the information in .dataformat.factor.with.ordered into .dataformat:
   # split  --> most   | all
@@ -611,8 +611,8 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
     affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
     affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
-  if (.cpotype != "traindata") {
-    # "traindata" CPOs have no affect.* arguments
+  if (.cpotype != "retrafoless") {
+    # "retrafoless" CPOs have no affect.* arguments
     funargs = insert(funargs, default.affect.args)
   }
 
@@ -641,8 +641,8 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
     if (!is.null(id)) {
       assertString(id)
     }
-    if (.cpotype == "traindata") {
-      # "traindata" CPOs must always take all data.
+    if (.cpotype == "retrafoless") {
+      # "retrafoless" CPOs must always take all data.
       affect.args = default.affect.args
     } else {
       affect.args = args[affect.params]
@@ -709,7 +709,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
                                                      # properties$adding [character] capabilities that this CPO adds to the next processor
                                                      # properties$needed [character] capabilities needed by the next processor
       properties.raw  = properties.list$properties,  # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
-      operating.type = .cpotype,                     # [character(1)] one of "feature", "target", "traindata": what the CPO operates on
+      operating.type = .cpotype,                     # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
       predict.type = .predict.type,                  # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
       id = NULL,                                     # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
@@ -744,7 +744,7 @@ makeCPOGeneral = function(.cpotype = c("feature", "target", "traindata"), .cpo.n
 # @param .properties.needed [character] properties that a unit coming after the current CPO must be able to handle
 # @param .properties.adding [character] properties that this CPO adds to a learner / another CPO when attached / prepended to it.
 # @param .properties.target [character] target properties (e.g. prediction type, task types)
-# @param .cpotype [character(1)] one of "feature", "target", or "traindata" -- the type of CPO being built
+# @param .cpotype [character(1)] one of "feature", "target", or "retrafoless" -- the type of CPO being built
 # @param .type.from [character(1)] only for target operating CPO: specify what type of task the CPO operates on
 # @param .type.to [character(1)] only for target operating CPO: specify what type of task results when the CPO is applied
 # @return [list] list(properties, properties.adding, properties.needed) to be used as the `$properties` slot of a CPO object.
@@ -837,7 +837,7 @@ prepareParams = function(.par.set, .par.vals, .export.params, addnl.par.set, res
 # @param cpo.retrafo [language | function] the CPO retrafo function, in a format as used by `makeFunction`
 # @param eval.env [environment] the environment in which to evaluate `cpo.trafo` and `cpo.retrafo`
 # @param .cpo.name [character(1)] name of the CPO, for error messages
-# @param .cpotype [character(1)] whether CPO is target or data operating; must be either "target" or "traindata"
+# @param .cpotype [character(1)] whether CPO is target or data operating; must be either "target" or "retrafoless"
 # @param .dataformat [character(1)] data format used by cpo.trafo and cpo.retrafo, in its internally used semantics. Must
 #   be one of "most", "all", "factor", "onlyfactor", "numeric", "ordered", "df.features", "split", "task"
 # @param .trafo.type [character(1)] one of "trafo.returns.control", "trafo.returns.data", "stateless": How and whether trafo returns a control object
@@ -867,8 +867,8 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, eval.env, .c
   }
 
   if ((is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`))) || !is.null(eval(cpo.retrafo, envir = eval.env))) {
-    if (.cpotype == "traindata") {
-      stop("traindata cpo must have cpo.retrafo = NULL")
+    if (.cpotype == "retrafoless") {
+      stop("retrafoless cpo must have cpo.retrafo = NULL")
     }
 
     required.arglist.retrafo = funargs

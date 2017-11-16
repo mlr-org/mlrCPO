@@ -47,6 +47,26 @@
 #' (Primitive) \code{CPORetrafo} objects can be inspected using \code{\link{getRetrafoState}}, and it is possible to create new \code{CPORetrafo}
 #' objects from (possibly modified) retrafo state using \code{\link{makeRetrafoFromState}}.
 #'
+#' @section Difference between \code{CPORetrafo} and \code{CPOInverter}:
+#' The fundamental difference between \code{CPORetrafo} and \code{CPOInverter} is that a \code{CPORetrafo} is
+#' created only when a \code{\link{CPO}} is applied to a data set, and is used to perform the same transformation on new
+#' (prediction) data. The \code{CPOInverter} is created whenever a \code{\link{CPO}} \emph{or} \code{CPORetrafo} is
+#' applied to data (whether training or prediction data). It is in fact used to invert the transformation done to the target
+#' column of a \code{\link[mlr]{Task}}. Since this operation may depend on the new prediction data, and not only on the training
+#' data fed to the \code{\link{CPO}} when the \code{CPORetrafo} was created, the \code{CPOInverter} object is more
+#' closely bound to the particular data set used to create it.
+#'
+#' In some cases a target transformation is independent of the data used to create it (e.g. log-transform of a regression target
+#' column); in that case the \code{CPORetrafo} can be used with \code{\link{invert}}. This is the concept of
+#' \code{\link{InvertCapability}}, which can be queried using \code{\link{getCPOInvertCapability}}.
+#'
+#' @section Using \code{CPORetrafo}:
+#' \code{CPORetrafo} objects can be applied to new data sets using the \code{\link{\%>>\%}} operator, the
+#' \code{\link{applyCPO}} generic, or the \code{\link[stats]{predict}} generic, all of which perform the same action.
+#'
+#' @section Using \code{CPOInverter}:
+#' To use a \code{CPOInverter}, use the \code{\link{invert}} function.
+#'
 #' @param data [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr]{WrappedModel}}]\cr
 #'   The result of a \code{\link{CPO}} applied to a data set.
 #'
@@ -203,13 +223,13 @@ retrafo.WrappedModel = function(data) {
 #' @title Check CPORetrafo
 #'
 #' @description
-#' Check whether the given object is a \code{CPORetrafo} object.
+#' Check whether the given object is a \code{\link{CPORetrafo}} object.
 #'
 #' @param x [any]\cr
 #'   The object to check.
 #'
-#' @return \code{TRUE} if \code{x} has class \code{CPORetrafo}, \code{FALSE} otherwise.
-#'
+#' @return \code{TRUE} if \code{x} has class \code{\link{CPORetrafo}}, \code{FALSE} otherwise.
+#' @family retrafo
 #' @export
 is.retrafo = function(x) {  # nolint
   "CPORetrafo" %in% class(x)
@@ -255,3 +275,19 @@ inverter.WrappedModel = function(data) {
 `inverter<-.WrappedModel` = function(data, value) {
   stop("Cannot change inverter of a model!")
 }
+
+#' @title Check CPOInverter
+#'
+#' @description
+#' Check whether the given object is a \code{\link{CPOInverter}} object.
+#'
+#' @param x [any]\cr
+#'   The object to check.
+#'
+#' @return \code{TRUE} if \code{x} has class \code{\link{CPOInverter}}, \code{FALSE} otherwise.
+#' @family inverter
+#' @export
+is.retrafo = function(x) {  # nolint
+  "CPOInverter" %in% class(x)
+}
+

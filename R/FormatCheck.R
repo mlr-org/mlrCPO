@@ -107,7 +107,7 @@ prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.
 # @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
 # @param allowed.properties [character] allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
 # @param properties.adding [character] which properties are supposed to be 'added' to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
-# @param operating.type [character(1)] one of 'target', 'feature', 'traindata': whether target data, feature data, or both (but only during trafo) may be changed
+# @param operating.type [character(1)] one of 'target', 'feature', 'retrafoless': whether target data, feature data, or both (but only during trafo) may be changed
 # @param convertto [character(1)] only if `operating.type` is 'target': type of the new task
 # @param subset.index [numeric] index into olddata columns: the columns actually selected by 'affect.*' parameters
 # @param name [character(1)] name of the CPO to print for debug information
@@ -127,7 +127,7 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
       recombined = recombinetask(olddata, outdata, datasplit, subset.index, FALSE, name = name)
       small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), FALSE, name = name)
     }
-  } else {  # operating.type == "traindata"
+  } else {  # operating.type == "retrafoless"
     recombined = recombineRetrafolessResult(olddata, outdata, datasplit, subset.index, name)
     small.recombined = recombined
   }

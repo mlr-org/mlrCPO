@@ -14,6 +14,7 @@
 # @param learner [Learner] the learner to attach the CPO to
 # @return [CPOLearner] a learner with attached CPO
 #' @export
+# TODO: throw error when predict.type "response" cannot be guarranteed
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
   if (!learner$type %in% union(cpo$properties$properties.needed, setdiff(cpo$properties$properties, cpo$properties$properties.adding))) {
