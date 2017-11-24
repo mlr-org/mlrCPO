@@ -3,9 +3,12 @@
 \name{getCPOPredictType}
 \alias{getCPOPredictType}
 \alias{PredictType}
+\alias{getCPOPredictType.CPOTrained}
 \title{Get the CPO \code{predict.type}.}
 \usage{
 getCPOPredictType(cpo)
+
+\method{getCPOPredictType}{CPOTrained}(cpo)
 }
 \arguments{
 \item{cpo}{[\code{\link{CPO}}]\cr
@@ -65,4 +68,26 @@ Other getters and setters: \code{\link{getCPOAffect}},
 Other CPO classifications: \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}}
+
+Other retrafo related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOProperties}},
+  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{makeRetrafoFromState}},
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+
+Other inverter related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOProperties}},
+  \code{\link{getRetrafoState}}, \code{\link{is.inverter}},
+  \code{\link{makeRetrafoFromState}},
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

@@ -9,7 +9,7 @@
 #' and always return a \code{\link{CPO}} object. The mlrCPO package provides many \code{CPOConstructor}
 #' functions, which can be listed using \code{\link{listCPO}}. It is also possible to
 #' create custom \code{\link{CPOConstructor}}s using \code{\link{makeCPO}}, \code{\link{makeCPORetrafoless}},
-#' \code{link{\makeCPOTargetOp}}, \code{\link{makeCPOExtended}}, and \code{\link{makeCPOTargetOpExtended}}.
+#' \code{link{makeCPOTargetOp}}, \code{\link{makeCPOExtended}}, and \code{\link{makeCPOTargetOpExtended}}.
 #'
 #' @section CPO creation:
 #' CPOConstructors can be called like any R function, with any parameters given. Besides parameters that are

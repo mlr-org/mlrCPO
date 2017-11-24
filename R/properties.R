@@ -83,7 +83,7 @@ getCPOId = function(cpo) {
 #' \code{$properties.needed}.
 #'
 #' The \code{$properties} determines what data the CPO handles. If a CPO is applied to a data set
-#' (using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\learner{CPOLearner}} is trained)
+#' (using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\link{CPOLearner}} is trained)
 #' that has a property not listed in \code{$properties}, an error will be given.
 #'
 #' \code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
@@ -182,7 +182,7 @@ getCPOObjectType = function(cpo) {
 #'
 #' Every \code{\link{CPO}} can be a
 #' \dQuote{Feature Operation} CPO, a \dQuote{Target Operation} CPO, or a \dQuote{Retrafoless} CPO, or a composition
-#' of these.
+#' of these (see \link{OperatingTypes}).
 #'
 #' If a (possibly compound) CPO contains only Feature Operation CPOs and Retrafoless CPOs, then it does not perform any operation
 #' on the target column of a data set; hence there is no inversion to be performed, the resulting \code{\link{CPORetrafo}}
@@ -324,6 +324,7 @@ getCPOPredictType = function(cpo) {
 #' @family retrafo related
 #' @family inverter related
 #' @family CPO classifications
+#' @aliases OperatingType
 #' @export
 getCPOOperatingType = function(cpo) {
   UseMethod("getCPOOperatingType")
@@ -537,6 +538,15 @@ getCPOOperatingType.CPOTrained = function(cpo) {
 getCPOPredictType.CPO = function(cpo) {
   cpo$predict.type
 }
+
+#' @family retrafo related
+#' @family inverter related
+#' @rdname getCPOPredictType
+#' @export
+getCPOPredictType.CPOTrained = function(cpo) {
+  cpo$cpo$predict.type
+}
+
 
 # Normalize "affect.*" arguments of CPOs
 

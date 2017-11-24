@@ -121,13 +121,112 @@ the value created in the \dQuote{cpo.trafo} run. It gets its input data in the s
 object in the same format as it received as input.}
 }
 \description{
-\code{makeCPO} creates a Feature Operation CPO constructor, i.e. a constructor for a CPO that will
-operate on feature columns. \code{makeCPOTargetOp} creates a Target Operation CPO constructor, which
-creates CPOs that operate on the target column.
-
-\code{makeCPO} has a comparatively easy user-interface; for more advanced use-cases and interesting shortcuts,
-use \code{\link{makeCPOExtended}}.
+\code{makeCPO} creates a \emph{Feature Operation} \code{\link{CPOConstructor}}, i.e. a constructor for a \code{\link{CPO}} that will
+operate on feature columns. \code{makeCPOTargetOp} creates a \emph{Target Operation} \code{\link{CPOConstructor}}, which
+creates \code{\link{CPO}}s that operate on the target column. \code{makeCPORetrafoless} creates a \emph{Retrafoless} \code{\link{CPOConstructor}},
+which creates \code{\link{CPO}}s that may operate on both feature and target columns, but have no retrafo operation. See \link{OperatingTypes} for further
+details on the distinction of these.
 }
+\section{CPO Internals}{
+
+The mlrCPO package offers a powerful framework for handling the tasks necessary for preprocessing, so that the user, when creating custom CPOs,
+can focus on the actual data transformations to perform. It is, however, useful to understand \emph{what} it is that the framework does, and how
+the process can be influenced by the user during CPO definition or application. Aspects of preprocessing that the user needs to influence are:
+\describe{
+  \item{\strong{Operating Type}}{
+    The core of preprocessing is the actual transformation being performed. In the most general sense, there are three points in a machine
+    learning pipeline that preprocessing can influence.
+    \enumerate{
+      \item Transformation of training data \emph{before model fitting}, done in mlr using \code{\link[mlr]{train}}. In the CPO framework
+        (\emph{when not using a \code{\link{CPOLearner}} which makes all of these steps transparent to the user}), this is
+        done by a \code{\link{CPO}}.
+      \item transformation of new validation or prediction data that is given to the fitted model for \emph{prediction}, done using
+        \code{\link[stats]{predict}}. This is done by a \code{\link{CPORetrafo}} retrieved using \code{\link{retrafo}} from the result of step 1.
+      \item transformation of the predictions made to invert the transformation of the target values done in step 1, which is done using
+        the \code{\link{CPOInverter}} retrieved using \code{\link{inverter}} from the result of step 2.
+    }
+    The framework poses restrictions on primitive (i.e. not compound using \code{\link{composeCPO}}) \code{\link{CPO}}s to simplify internal
+    operation: A \code{\link{CPO}} may be one of three \link{OperatingTypes} (see there). The \emph{Feature Operation} \code{\link{CPO}} does not
+    transform target columns and hence only needs to be involved in steps 1 and 2. The \emph{Target Operation} \code{\link{CPO}} only transforms
+    target columns, and therefore only concerns itself with steps 1 and 3. A \emph{Retrafoless} \code{\link{CPO}} may change both feature and
+    target columns, but may not perform a retrafo \emph{or} inverter operation (and is therefore only concerned with step 1). Note that this
+    is effectively a restriction on what kind of transformation a Retrafoless CPO may perform: it must not be a transformation of the data
+    or target \emph{space}, it may only act or subtract points within this space.
+
+    The Operating Type of a \code{\link{CPO}} is ultimately dependent on the function that was used to create the \code{\link{CPOConstructor}}:
+    \code{makeCPO}, \code{makeCPOTargetOp}, or \code{makeCPORetrafoless}.}
+  \item{\strong{Data Transformation}}{
+    At the core of a CPO is the modification of data it performs. The transformation of each row, during training \emph{and} prediction, should
+    happen in the same way, and it may only depend on the entirety of the \emph{training} data--i.e. the value of a data row in a prediction
+    data set may not influence the transformation of a different prediction data row. This property is ensured by splitting the transformation
+    into two functions: One function that collects all relevant information from the training data (called \code{train}), and one that transforms
+    given data, using this collected information and (\emph{potentially new, unseen}) data to be transformed (called \code{retrafo}). The \code{retrafo}
+    function should handle all data as if it were prediction data and unrelated to the data given to \code{train}.
+
+    Internally, when a \code{\link{CPO}} gets applied to a data set using \code{\link{applyCPO}}, the \code{train} function is called, and the
+    resulting control object is used for a subsequent \code{retrafo} call which transforms the data. Before the result is given back from the
+    \code{\link{applyCPO}} call, the control object is used to create a \code{\link{CPORetrafo}} object and a \code{\link{CPOInverter}} object,
+    which are attached to the result as attributes.
+
+    When a \code{\link{CPORetrafo}} is then applied to new prediction data, the control object previously returned by \code{train} is given,
+    combined with this \emph{new} data, to another \code{retrafo} call that performs the new transformation.
+
+    Note that the \code{*Extended} functions optionally offer different semantics for the given functions.}
+  \item{\strong{\code{train}-\code{retrafo} information transfer}}{
+    One possibility to transfer information from \code{train} to \code{retrafo} is to have \code{train} return a control object (a \code{\link[base]{list}})
+    that is then given to \code{retrafo}. The CPO is then called an \emph{object based} CPO.
+
+    Another possibility is to not give a \code{retrafo}
+    function (set it to \code{NULL} in the \code{makeCPO} call) and have \code{train} instead return a \emph{function} instead. This function is then
+    used as the \code{retrafo} function, and should have access to all relevant information about the training data as a closure. This is called
+    \emph{functional} CPO. To save memory, the actual data given to \code{train} is removed from the environment of its return value in this case
+    (i.e. the environment of the retrafo function). This means the retrafo function may not reference a \dQuote{\code{data}} variable.}
+  \item{\strong{Hyperparameters}}{
+    The action performed by a CPO may be influenced using \emph{hyperparameters}, during its construction as well as afterwards (then using
+    \code{\link[mlr]{setHyperPars}}). Hyperparameters must be specified as a \code{\link[ParamHelpers]{ParamSet}} and given as argument \code{par.set}.
+    Default values for each parameter may be specified in this \code{\link[ParamHelpers]{ParamSet}} or optionally as another argument \code{par.vals}.
+
+    Hyperparameters given are made part of the \code{\link{CPOConstructor}} function and can thus be given during construction.
+    Parameter default values function as the default values for the \code{\link{CPOConstructor}} function parameters (which are thus made optional function
+    parameters of the \code{\link{CPOConstructor}} function). The CPO framework handles storage and changing of hyperparameter values.
+    When the \code{train} and \code{retrafo} functions are called to transform data, the hyperparameter values are given to them as arguments, so
+    \code{train} and \code{retrafo} functions must be able to accept these parameters, either directly, or with a \code{...} argument.
+
+    Note that with \emph{functional} \code{\link{CPO}}s, the \code{retrafo} function does not take hyperparameter arguments (and instead can usually
+    refer to them by its environment).
+
+    Hyperparameters may be \emph{exported} (or not), thus making them available for \code{\link[mlr]{setHyperPars}}. Not exporting a parameter
+    has advantage that it does not clutter the \code{\link[ParamHelpers]{ParamSet}} of a big \code{\link{CPO}} or \code{\link{CPOLearner}} pipeline with
+    many hyperparameters. Which hyperparameters are exported is chosen during the constructing call of a \code{\link{CPOConstructor}}, but the default
+    exported hyperparameters can be chosen with the \code{export.params} parameter.}
+  \item{\strong{Properties}}{
+    Similarly to \code{\link[mlr]{Learner}}s, \code{\link{CPO}}s may specify what kind of data they are and are not able to handle. This is done by
+    specifying \code{properties.*} arguments. The names of possible properties are the same as possible \code{\link[mlr]{LearnerProperties}}, but since
+    \code{\link{CPO}}s mostly concern themselves with data, only the properties indicating column and task types are relevant.
+
+    For each \code{\link{CPO}} one must specify
+    \enumerate{
+      \item which kind of data does the \code{\link{CPO}} handle,
+      \item which kind of data must the \code{\link{CPO}} or \code{\link[mlr]{Learner}} be able to handle that comes \emph{after}
+        the given \code{\link{CPO}}, and
+      \item which kind of data handling capability does the given \code{\link{CPO}} \emph{add} to a following
+        \code{\link{CPO}} or \code{\link[mlr]{Learner}} if coming before it in a pipeline.
+    }
+    The specification of (1) is done with \code{properties.data} and \code{properties.target}, (2) is specified using \code{properties.needed}, and
+    (3) is specified using \code{properties.adding}. Internally, \code{properties.data} and \code{properties.target} are concatenated and treated as
+    one vector, they are specified separately in \code{makeCPO} etc. for convenience reasons. See \code{\link{CPOProperties}} for details.}
+  \item{\strong{Data Format}}{
+    EXPLANATION # TODO}
+  \item{\strong{ID}}{
+    EXPLANATION # TODO}
+  \item{\strong{Packages}}{
+    EXPLANATION # TODO}
+}
+
+\code{makeCPO}, \code{makeCPOTargetOp} and \code{\link{makeCPORetrafoless}} have a comparatively easy user-interface; for more advanced use-cases and
+interesting shortcuts, use \code{\link{makeCPOExtended}}, \code{\link{makeCPOTargetOpExtended}}, \code{\link{makeCPORetrafolessExtended}}.
+}
+
 \examples{
 # an example constant feature remover CPO
 constFeatRem = makeCPO("constFeatRem",

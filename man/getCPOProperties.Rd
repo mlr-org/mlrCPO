@@ -28,7 +28,7 @@ This function returns a list of three values: \code{$properties}, \code{$propert
 \code{$properties.needed}.
 
 The \code{$properties} determines what data the CPO handles. If a CPO is applied to a data set
-(using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\learner{CPOLearner}} is trained)
+(using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\link{CPOLearner}} is trained)
 that has a property not listed in \code{$properties}, an error will be given.
 
 \code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
@@ -66,6 +66,7 @@ Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}},
   \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
@@ -76,7 +77,8 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
-  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{getCPOPredictType}},
+  \code{\link{getRetrafoState}}, \code{\link{is.inverter}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }
