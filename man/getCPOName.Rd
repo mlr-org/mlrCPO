@@ -2,40 +2,58 @@
 % Please edit documentation in R/properties.R
 \name{getCPOName}
 \alias{getCPOName}
+\alias{getCPOName.CPOTrainedPrimitive}
+\alias{getCPOName.CPOConstructor}
 \title{Get the CPO object's Name}
 \usage{
 getCPOName(cpo)
+
+\method{getCPOName}{CPOTrainedPrimitive}(cpo)
+
+\method{getCPOName}{CPOConstructor}(cpo)
 }
 \arguments{
 \item{cpo}{[\code{\link{CPO}}]\cr
-The CPO object.}
+The cpo.}
+}
+\value{
+[\code{character(1)}] the CPO's name.
 }
 \description{
-Return the name given at creation as \dQuote{.cpo.name} to the
-CPO creator. If the CPO object has an ID, it will be appended.
+Return the name associated with a \code{\link{CPO}} operation. This name
+is set when creating a \code{\link{CPOConstructor}}, e.g. using
+\code{\link{makeCPO}}, by the \dQuote{.cpo.name} parameter.
+It is also the default \code{id}, as retrieved by \code{\link{getCPOId}},
+of a CPO.
 }
 \seealso{
-Other CPO: \code{\link{CPOImputer}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
-  \code{\link{cpoDropConstants}},
-  \code{\link{cpoDummyEncode}},
-  \code{\link{cpoFilterFeatures}},
-  \code{\link{cpoFixFactors}},
-  \code{\link{cpoImpactEncodeClassif}},
-  \code{\link{cpoImpactEncodeRegr}},
-  \code{\link{cpoImpute}},
-  \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
-  \code{\link{cpoQuantileBinNumerics}},
-  \code{\link{cpoScaleMaxAbs}},
-  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
-  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}}, \code{\link{getRetrafoState}},
-  \code{\link{makeCPOExtended}}, \code{\link{makeCPO}},
+Other getters and setters: \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}},
+  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
+
+Other retrafo related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOProperties}},
+  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
   \code{\link{makeRetrafoFromState}},
-  \code{\link{pipeCPO}}, \code{\link{setCPOId}}
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+
+Other inverter related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOProperties}},
+  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{makeRetrafoFromState}},
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

@@ -3,33 +3,80 @@
 \name{getCPOProperties}
 \alias{getCPOProperties}
 \alias{CPOProperties}
-\title{Get the Properties of the given CPO object}
+\alias{getCPOProperties.CPOTrained}
+\title{Get the Properties of the Given CPO Object.}
 \usage{
 getCPOProperties(cpo, only.data = FALSE)
+
+\method{getCPOProperties}{CPOTrained}(cpo, only.data = FALSE)
 }
 \arguments{
-\item{cpo}{[\code{CPO}]\cr
-The CPO to query.}
+\item{cpo}{[\code{\link{CPO}}]\cr
+The cpo.}
 
 \item{only.data}{[\code{logical(1)}]\cr
-Only get the CPO properties relevant for data (not target or task types). Default is \code{FALSE}.}
+Only get the CPO \emph{data properties} (not target or task type properties). Default is \code{FALSE}.}
+}
+\value{
+[\code{list}]. A \code{list} with slots \code{$properties}, \code{$properties.adding}, and \code{$properties.needed}.
 }
 \description{
-The properties of a CPO object determine the kind of data the CPO will be able to handle, and how
-it transforms data. Each entry can be one of: \dQuote{numerics}, \dQuote{factors}, \dQuote{ordered},
-\dQuote{missings}.
+The properties of a \code{\link{CPO}} object determine the kind of data the CPO will be able to handle, and how
+it transforms data. Properties describe what kind of data a CPO can work with.
 
-This function returns a list of three values: \dQuote{properties}, \dQuote{properties.adding}, and
-\dQuote{properties.needed}.
+This function returns a list of three values: \code{$properties}, \code{$properties.adding}, and
+\code{$properties.needed}.
 
-The \dQuote{properties} determines what data the CPO handles. If a property of a given data set is absent,
-the preproc operator will reject the data.
+The \code{$properties} determines what data the CPO handles. If a CPO is applied to a data set
+(using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\learner{CPOLearner}} is trained)
+that has a property not listed in \code{$properties}, an error will be given.
 
-\dQuote{properties.adding} can be one or many of the same values as \dQuote{properties}. These properties
-get added to a Learner (or CPO) coming after / behind this CPO. When a CPO imputes missing values, for example,
-this is \dQuote{missings}. This is always a subset of \dQuote{properties}.
+\code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
+get added to a \code{\link[mlr]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
+this is \dQuote{missings}. This is always a subset of \code{$properties}.
 
-\dQuote{properties.needed} can be one or many of the same values as \dQuote{properties}. These properties
+\code{$properties.needed} can be one or many of the same values as \code{$properties}. These properties
 are required from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
-numerics, this is \dQuote{numerics} (and \dQuote{properties.adding} is \dQuote{factors}).
+numerics, this is \dQuote{numerics} (and \code{$properties.adding} would be \dQuote{factors} in this case).
+\code{$properties.adding} and \code{$properties.needed} never have any value in common.
+}
+\section{Possible properties}{
+
+\describe{
+  \item{data properties}{\dQuote{numerics}, \dQuote{factors}, \dQuote{ordered}, \dQuote{missings}:
+    Whether any data column contains the type in question, or has missings.}
+  \item{task type properties}{\dQuote{cluster} \dQuote{classif} \dQuote{multilabel} \dQuote{regr} \dQuote{surv}:
+    The type of the task. \code{\link[base]{data.frame}} data objects have the implicit property \dQuote{cluster}.}
+  \item{target properties}{\dQuote{oneclass} \dQuote{twoclass} \dQuote{multiclass}:
+    Whether the target column of a \code{classif} task has one, two, or more classes.}
+}
+}
+
+\seealso{
+Other getters and setters: \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}}, \code{\link{setCPOId}}
+
+Other retrafo related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{makeRetrafoFromState}},
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+
+Other inverter related: \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{clearRI}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{makeRetrafoFromState}},
+  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

@@ -2,43 +2,32 @@
 % Please edit documentation in R/properties.R
 \name{getCPOAffect}
 \alias{getCPOAffect}
-\title{Get the Selection Arguments for affected CPOs}
+\title{Get the Selection Arguments for Affected CPOs.}
 \usage{
 getCPOAffect(cpo, drop.defaults = TRUE)
 }
 \arguments{
-\item{cpo}{[\code{CPO}]\cr
-The CPO.}
+\item{cpo}{[\code{\link{CPO}}]\cr
+The cpo.}
 
 \item{drop.defaults}{[\code{logical(1)}]\cr
 Whether to only return the arguments that deviate from the default.
 Default is \code{TRUE}.}
 }
+\value{
+[\code{list}]. A named \code{list} of the \code{affect.*} arguments given to the \code{\link{CPOConstructor}}.
+  The names are stripped of the \dQuote{affect.}-prefix.
+}
 \description{
-Get the \code{affected.*} arguments from when the CPO was constructed.
+Get the \code{affect.*} arguments from when the \code{\link{CPO}} was constructed. These
+are in one-to-one correspondence to the \code{affect.*} parameters given to the \code{\link{CPOConstructor}},
+see the parameter documentation there.
 }
 \seealso{
-Other CPO: \code{\link{CPOImputer}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
-  \code{\link{cpoDropConstants}},
-  \code{\link{cpoDummyEncode}},
-  \code{\link{cpoFilterFeatures}},
-  \code{\link{cpoFixFactors}},
-  \code{\link{cpoImpactEncodeClassif}},
-  \code{\link{cpoImpactEncodeRegr}},
-  \code{\link{cpoImpute}},
-  \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
-  \code{\link{cpoQuantileBinNumerics}},
-  \code{\link{cpoScaleMaxAbs}},
-  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
-  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}}, \code{\link{getRetrafoState}},
-  \code{\link{makeCPOExtended}}, \code{\link{makeCPO}},
-  \code{\link{makeRetrafoFromState}},
-  \code{\link{pipeCPO}}, \code{\link{setCPOId}}
+Other getters and setters: \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}},
+  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
 }

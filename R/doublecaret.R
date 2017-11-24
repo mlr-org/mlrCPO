@@ -4,40 +4,46 @@
 ### %>>% Operator              ###
 ##################################
 
-#' @title CPO Composition / Attachment operator
+#' @title CPO Composition / Attachment / Application Operator.
 #'
 #' @description
 #' This operator \dQuote{pipes} data from the source into the target object.
 #'
-#' If both objects are a \link{CPO} object, they will be composed. A new object,
-#' representing the operation of performing both object's operations in succession,
-#' will be created, which can be handled like a new \link{CPO} object.
+#' If both objects are a \code{\link{CPO}} object, or both are a \code{\link{CPOTrained}} object,
+#' they will be composed. A new object, representing the operation of performing both object's operations in succession,
+#' will be created, which can be handled like a new CPO or CPOTrained object. See \code{\link{composeCPO}}.
 #'
-#' If the left object is a \code{data.frame} or a \code{link{Task}}, the
+#' If the source object is a \code{\link[base]{data.frame}} or a \code{link[mlr]{Task}}, the
 #' transformation operation will be applied to this data, and the same resulting
-#' data will be returned.
+#' data will be returned. See \code{\link{applyCPO}}.
 #'
-#' If the right object is a \code{\link{Learner}}, the CPO will be attached to
-#' this learner. The same operation will be performed during the \dQuote{train} and
-#' \dQuote{predict} phase; the behaviour during the predict phase may furthermore
-#' be depend on the training data.
+#' If the target object is a \code{\link[mlr]{Learner}}, the CPO will be attached to
+#' this learner. The same operation will be performed during the \code{\link[mlr]{train}} and
+#' \code{\link[stats]{predict}} phase; the behaviour during the predict phase may furthermore
+#' be depend on the training data. See \code{\link{attachCPO}}.
 #'
-#' Note that you can not link a \code{data.frame} or \code{\link{Task}} directly
-#' to a \code{\link{Learner}}, since this operation is not algebraically associative
-#' with the composition of CPOs. Use \code{\link{train}} for this.
+#' Note that you can not link a \code{data.frame} or \code{\link[mlr]{Task}} directly
+#' to a \code{\link[mlr]{Learner}}, since this operation is not algebraically associative
+#' with the composition of CPOs. Use \code{\link[mlr]{train}} for this.
 #'
-#' @param cpo1 [\code{data.frame} | \code{\link{Task}} | \code{\link{CPO}}]\cr
+#' The \code{\%<<\%} operator is synonymous with \code{\%>>\%} with source and target argument swapped.
+#'
+#' @param cpo1 [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The source object.
-#' @param cpo2 [\code{\link{CPO}} | \code{\link{Learner}}]\cr
+#' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}} | \code{\link[mlr]{Learner}}]\cr
 #'   The target object.
 #'
-#' @family CPO
+#' @family operators
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO lifecycle related
+#'
 #' @examples
 #' # PCA-rotate pid.task
 #' rotated.pid.task = pid.task %>>% cpoScale() %>>% cpoPca()
 #'
 #' # Centering / Scaling *after* PCA
-#' neoPCA = cpoPca() %>>% cpoScale()
+#' newPCA = cpoPca() %>>% cpoScale()
 #'
 #' # Attach the above to learner
 #' pcaLogreg = neoPCA %>>% makeLearner("classif.logreg")
@@ -47,8 +53,6 @@
   UseMethod("%>>%")
 }
 
-#' @title CPO Composition / Attachment operator
-#'
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%<<%` = function(cpo2, cpo1) {

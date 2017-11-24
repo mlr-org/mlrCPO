@@ -13,7 +13,7 @@
 #' @template arg_cpo
 #' @return [\code{character(1)}] the CPO's name.
 #'
-#' @family properties cpo-name
+#' @family getters and setters
 #' @export
 getCPOName = function(cpo) {
   UseMethod("getCPOName")
@@ -36,7 +36,8 @@ getCPOName = function(cpo) {
 #'   default for the CPO at hand, which is the CPO \dQuote{name}, see \code{\link{getCPOName}}.
 #' @return [\code{CPO}] the CPO with modified id.
 #'
-#' @family properties cpo-id
+#' @family getters and setters
+#' @family CPO ID related
 #' @export
 setCPOId = function(cpo, id) {
   if (!is.null(id)) {
@@ -65,7 +66,8 @@ setCPOId.default = function(cpo, id) {
 #' @template arg_cpo
 #' @return [\code{character(1)}] the CPO's id.
 #'
-#' @family properties cpo-id
+#' @family getters and setters
+#' @family CPO ID related
 #' @export
 getCPOId = function(cpo) {
   UseMethod("getCPOId")
@@ -109,7 +111,7 @@ getCPOId = function(cpo) {
 #' @return [\code{list}]. A \code{list} with slots \code{$properties}, \code{$properties.adding}, and \code{$properties.needed}.
 #'
 #' @aliases CPOProperties
-#' @family properties cpo-properties
+#' @family getters and setters
 #' @export
 getCPOProperties = function(cpo, only.data = FALSE) {
   assertFlag(only.data)
@@ -130,7 +132,7 @@ getCPOProperties = function(cpo, only.data = FALSE) {
 #' @return [\code{list}]. A named \code{list} of the \code{affect.*} arguments given to the \code{\link{CPOConstructor}}.
 #'   The names are stripped of the \dQuote{affect.}-prefix.
 #'
-#' @family properties
+#' @family getters and setters
 #' @export
 getCPOAffect = function(cpo, drop.defaults = TRUE) {
   UseMethod("getCPOAffect")
@@ -155,7 +157,10 @@ getCPOAffect = function(cpo, drop.defaults = TRUE) {
 #'   \dQuote{CPORetrafo} if the object is a \code{\link{CPORetrafo}} object (which may have inverter capabilities, see
 #'   \code{link{getCPOInvertCapability}}),
 #'   \dQuote{NULLCPO} if the object is \code{\link{NULLCPO}}.
-#' @family properties retrafo inverter cpo-types
+#' @family getters and setters
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO classifications
 #' @export
 getCPOObjectType = function(cpo) {
   UseMethod("getCPOObjectType")
@@ -205,7 +210,10 @@ getCPOObjectType = function(cpo) {
 #'   \dQuote{hybrid} if given object is retrafo and inverter,
 #'   \dQuote{retrafo.only} if given object is retrafo only,
 #'   \dQuote{retrafo} if given object is a retrafo that is a NO-OP if used with \code{\link{invert}}.
-#' @family properties retrafo inverter cpo-types
+#' @family getters and setters
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO classifications
 #' @aliases InvertCapability
 #' @export
 getCPOInvertCapability = function(cpo) {
@@ -256,7 +264,8 @@ getCPOInvertCapability = function(cpo) {
 #' @template arg_cpo
 #' @return [\code{character}]. A named \code{character} that maps potential predict types that a CPO may provide to the required
 #' predict type of an underlying learner.
-#' @family properties cpo-types
+#' @family getters and setters
+#' @family CPO classifications
 #' @aliases PredictType
 #' @export
 getCPOPredictType = function(cpo) {
@@ -311,7 +320,10 @@ getCPOPredictType = function(cpo) {
 #' @param cpo [\code{CPO} | \code{CPOTrained}]\cr
 #'   The CPO, Retrafo, or Inverter to inspect.
 #' @return [\code{character(1)}]. Zero or more of \dQuote{target}, \dQuote{feature}, \dQuote{retrafoless}.
-#' @family properties cpo-types
+#' @family getters and setters
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO classifications
 #' @export
 getCPOOperatingType = function(cpo) {
   UseMethod("getCPOOperatingType")
@@ -379,6 +391,9 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE) {
   }
 }
 
+#' @family retrafo related
+#' @family inverter related
+#' @rdname getCPOProperties
 #' @export
 getCPOProperties.CPOTrained = function(cpo, only.data = FALSE) {
   if (!is.null(cpo$prev.retrafo)) {
@@ -400,6 +415,9 @@ getCPOName.CPO = function(cpo) {
   cpo$name
 }
 
+#' @family retrafo related
+#' @family inverter related
+#' @rdname getCPOName
 #' @export
 getCPOName.CPOTrainedPrimitive = function(cpo) {
   cpo$cpo$name
@@ -410,6 +428,8 @@ getCPOName.CPOTrained = function(cpo) {
   paste(getCPOName(cpo$prev.retrafo), cpo$cpo$name, sep = ".")
 }
 
+#' @family CPOConstructor
+#' @rdname getCPOName
 #' @export
 getCPOName.CPOConstructor = function(cpo) {
   environment(cpo)$.cpo.name
@@ -503,11 +523,12 @@ getCPOOperatingType.CPO = function(cpo) {
 
 #' @export
 getCPOOperatingType.CPOTrained = function(cpo) {
-  switch(getCPOInvertCapability(cpo),
+  res = switch(getCPOInvertCapability(cpo),
     inverter = "target",
     retrafo = "feature",
     retrafo.only = "feature",
-    hybrid = c("target", "feature"))
+    hybrid = return(c("target", "feature")))  # if it is both 'target' and 'feature', we're done: no recursion
+  unique(res, getCPOOperatingType(nullToNullcpo(cpo$prev.retrafo)))
 }
 
 # Predict Type

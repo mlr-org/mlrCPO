@@ -2,14 +2,67 @@
 % Please edit documentation in R/properties.R
 \name{getCPOPredictType}
 \alias{getCPOPredictType}
-\title{Get the CPO predict.type}
+\alias{PredictType}
+\title{Get the CPO \code{predict.type}.}
 \usage{
 getCPOPredictType(cpo)
 }
 \arguments{
-\item{cpo}{[\code{CPO}]\cr
-The CPO.}
+\item{cpo}{[\code{\link{CPO}}]\cr
+The cpo.}
+}
+\value{
+[\code{character}]. A named \code{character} that maps potential predict types that a CPO may provide to the required
+predict type of an underlying learner.
 }
 \description{
-Get the possible predict.types this CPO is able to handle.
+Get the possible predict.types a \code{\link{CPO}} is able to handle.
+
+The concept of a \code{predict.type} originates from \code{\link[mlr]{predict.WrappedModel}}, which
+allows the estimation of different aspects of a prediction. This is, currently:
+\describe{
+  \item{\dQuote{response}}{A best estimate of the actual target value}
+  \item{\dQuote{prob}}{An estimate of probabilities of different target values}
+  \item{\dQuote{se}}{An estimate of the target value, together with an estimate of the standard error of this first estimation}
+}
+
+A Target Operation CPO is able to change the type of a \code{\link[mlr]{Task}}, but it can also enhance the type of predictions
+that a \code{\link[mlr]{Learner}} can make for it. Thus a CPO that converts a binary classification into a regression task can
+use a regression learner to not only predict the \dQuote{response} class, but also the estimated probability (\dQuote{prob})
+distribution over the two classes. For this, the CPO declares
+\enumerate{
+  \item what \code{predict.type}s a \code{\link[mlr]{Learner}}, when attached to it, can provide, and
+  \item what \code{predict.type} the \code{\link[mlr]{Learner}}, in each case, must be capable of.
+}
+This information is provided in the form of a named \code{character}, where the names are the provided predict type capabilities,
+and the values are the predict type that the underlying \code{\link[mlr]{Learner}} must provide for this.
+
+The CPO converting classification to regression mentioned above would thus have the \code{predict.type} of:
+
+\code{c(response = "response", prob = "response")}
+
+Another example would be a CPO that converts a multiclass classification problem into an ordinary classification problem, but
+uses the \dQuote{prob} prediction of the underlying learner to make both the \dQuote{response} and \dQuote{prob} predictions.
+It would have the \code{predict.type} of:
+
+\code{c(response = "prob", prob = "prob")}
+
+If this second CPO is attached to a \code{\link[mlr]{Learner}} that does not have the \dQuote{prob} property (see
+\code{\link[mlr]{LearnerProperties}}), an error is given.
+
+CPOs that are not Target Operating always have the \code{predict.type} of:
+
+\code{c(response = "response", prob = "prob", se = "se")}
+}
+\seealso{
+Other getters and setters: \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
+
+Other CPO classifications: \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}}
 }

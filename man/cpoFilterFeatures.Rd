@@ -94,8 +94,7 @@ NA
 }
 
 \seealso{
-Other CPO: \code{\link{CPOImputer}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
+Other CPO: \code{\link{CPOImputer}},
   \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
   \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
@@ -111,10 +110,6 @@ Other CPO: \code{\link{CPOImputer}}, \code{\link{\%>>\%}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}}, \code{\link{getCPOName}},
-  \code{\link{getRetrafoState}},
-  \code{\link{makeCPOExtended}}, \code{\link{makeCPO}},
-  \code{\link{makeRetrafoFromState}},
-  \code{\link{pipeCPO}}, \code{\link{setCPOId}}
+  \code{\link{cpoWrap}}, \code{\link{makeCPOExtended}},
+  \code{\link{makeCPO}}
 }

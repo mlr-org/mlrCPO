@@ -59,6 +59,8 @@ head(getTaskData(iris.task \%>>\% cpoScale()))
 \seealso{
 \code{\link{print.CPO}} for possibly verbose printing.
 
-Other cpo-lifecycle: \code{\link{CPOConstructor}},
-  \code{\link{CPOInverter}}, \code{\link{CPOLearner}}
+Other CPO lifecycle related: \code{\link{CPOConstructor}},
+  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
+  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
+  \code{\link{attachCPO}}, \code{\link{composeCPO}}
 }

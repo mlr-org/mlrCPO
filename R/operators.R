@@ -8,16 +8,34 @@
 #' @title CPO Composition
 #'
 #' @description
-#' The arguments will be composed. A new object,
-#' representing the operation of performing both object's operations in succession,
-#' will be created, which can be handled like a new \link{CPO} object.
+#' Composes \code{\link{CPO}} or \code{\link{CPOTrained}} objects. The \code{\link{\%>>\%}} operator can be used
+#' synonymously to compose CPO objects.
 #'
-#' See the preferred \code{\link{\%>>\%}} for more info.
+#' Composition of operators is one of the main features they provide: this makes it possible for
+#' complex operations to be represented by single objects. Compound operators represent the operation
+#' of applying both its constituent operations in succession. Compound operators can themselves be
+#' composed to form arbitrarily long chains of operators.
 #'
-#' @param cpo1 [\code{\link{CPO}}]\cr
+#' Compound objects behave, in most ways, like primitive objects. Some exceptions are:
+#' \itemize{
+#'   \item Compound CPOs do not have an ID, so \code{\link{getCPOId}} and \code{\link{setCPOId}} will not work on them.
+#'   \item Compound CPOs have no 'affect' property, so \code{\link{getCPOAffect}} will not work.
+#' }
+#'
+#' While \code{\link{CPOTrained}} operators can be composed just as \code{\link{CPO}} operators, this
+#' is only recommended in cases where the same primitive CPOTrained objects where retrieved using
+#' \code{\link{as.list.CPOTrained}}. This is because CPOTrained are closely related to the data
+#' that was used to create it, and therefore on their original position in the CPO pipeline during
+#' training.
+#'
+#' @param cpo1 [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The operation to perform first.
-#' @param cpo2 [\code{\link{CPO}}]\cr
-#'   The operation to perform second.
+#' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+#'   The operation to perform second, must have the same class as \code{cpo1}.
+#' @return [\code{\link{CPO}} | \code{\link{CPOTrained}}]. The operation representing the application
+#'   of \code{cpo1} followed by the application of \code{cpo2}.
+#' @family operators
+#' @family CPO lifecycle related
 #' @export
 composeCPO = function(cpo1, cpo2) {
   assert(checkClass(cpo2, "CPO"),
@@ -28,41 +46,74 @@ composeCPO = function(cpo1, cpo2) {
   UseMethod("composeCPO")
 }
 
-#' @title CPO Attachment
+#' @title Attach a CPO to a Learner.
 #'
 #' @description
-#' The second argument is a \code{\link{Learner}} and the CPO will be attached to
-#' this learner. The same operation will be performed during the \dQuote{train} and
-#' \dQuote{predict} phase; the behaviour during the predict phase may furthermore
-#' be depend on the training data.
+#' A \code{\link{CPO}} object can be attached to a \code{\link[mlr]{Learner}} object to create a
+#' pipeline combining preprocessing and model fitting. When the resulting \code{\link{CPOLearner}}
+#' is used to create a model using \code{\link[mlr]{train}}, the attached CPO will be applied to the
+#' data before the internal model is trained. The resulting model will also contain the required
+#' \code{\link{CPOTrained}} elements, and apply the necessary \code{\link{CPORetrafo}} objects to new prediction
+#' data, and the \code{\link{CPOInverter}} objects to predictions made by the internal model.
 #'
-#' See the preferred \code{\link{\%>>\%}} for more info.
+#' The \code{\link{\%>>\%}} operator can be used synonymously to attach CPO objects to Learners.
 #'
-#' @param cpo [\code{\link{CPO}}]\cr
-#'   The CPO object
-#' @param learner [\code{\link{Learner}}]\cr
+#' @template arg_cpo
+#' @param learner [\code{\link[mlr]{Learner}}]\cr
 #'   The learner.
 #'
-#' @family CPO
+#' @family operators
+#' @family CPO lifecycle related
+#' @family CPOLearner related
 #' @export
 attachCPO = function(cpo, learner) {
   checkLearner(learner)
   UseMethod("attachCPO")
 }
 
-#' @title CPO Apply
+#' @title Apply a CPO to Data.
 #'
 #' @description
-#' The given transformation will be applied to the data in the given \code{link{Task}}.
+#' The given transformation will be applied to the data in the given \code{\link[mlr]{Task}} or \code{\link[base]{data.frame}}.
 #'
-#' See the preferred \code{\link{\%>>\%}} for more info.
+#' If the input data is a \code{data.frame}, the returned object will in most cases also be a \code{data.frame}, with exceptions
+#' if the applied \code{\link{CPO}} performs a conversion to a \code{\link[mlr]{Task}}. If the input data is a Task, its type
+#' will only be changed to a different type of Task if the applied CPO performs such a conversion.
 #'
-#' @param cpo [\code{\link{CPO}}]\cr
-#'   The CPO representing the operation to perform.
-#' @param task [\code{\link{Task}}]\cr
-#'   The task to operate on.
+#' The \code{\link{\%>>\%}} operator can be used synonymously to apply CPO objects to data. In case of \code{\link{CPORetrafo}},
+#' \code{\link[stats]{predict}} can be used synonymously.
+#'
+#' @section Application of \code{CPO}:
+#' Application of a \code{\link{CPO}} is supposed to perform \emph{preprocessing} on a given data set, to prepare it e.g. for model
+#' fitting with a \code{\link[mlr]{Learner}}, or for other data handling tasks. When this preprocessing is performed, care is taken
+#' to make the transformation repeatable on later prediction or validation data. For this,
+#' the returned data set will have a \code{\link{CPORetrafo}} and
+#' \code{\link{CPOInverter}} object attached to it, which can be retrieved using \code{\link{retrafo}} and \code{\link{inverter}}.
+#' These can be used to perform the same transformation on new data, or to invert a prediction made with the transformed data.
+#'
+#' An applied \code{\link{CPO}} can change the content of feature columns, target columns of Tasks,
+#' and may even change the number of rows of a given data set.
+#'
+#' @section Application of \code{CPORetrafo}:
+#' Application of a \code{\link{CPORetrafo}} is supposed to perform a transformation that mirrors the transformation done before
+#' on a training data set. It should be used when trying to make predictions from new data, using a model that was trained with
+#' data preprocessed using a \code{\link{CPO}}. The predictions made may then need to be inverted. For this,
+#' the returned data set will have a \code{\link{CPOInverter}} object attached to it,
+#' which can be retrieved using \code{\link{inverter}}.
+#'
+#' An applied \code{\link{CPORetrafo}} may change the content of feature columns and target columns of Tasks, but will never
+#' change the number or order of rows of a given data set.
+#'
+#' @param cpo [\code{\link{CPO}} | \code{\link{CPORetrafo}}]\cr
+#'   The CPO or CPORetrafo representing the operation to perform.
+#' @param task [\code{\link[mlr]{Task}} | \code{\link[base]{data.frame}}]\cr
+#'   The data to operate on.
+#' @return [\code{\link[mlr]{Task}} | \code{\link[base]{data.frame}}]. The transformed data, augmented with a \code{\link{inverter}}
+#' and possibly a \code{\link{retrafo}} tag.
 #' @export
-#' @family CPO
+#' @family operators
+#' @family retrafo related
+#' @family inverter related
 applyCPO = function(cpo, task) {
   assert(checkClass(task, "Task"),
     checkClass(task, "data.frame"))
@@ -253,17 +304,23 @@ as.list.CPOTrained = function(x, ...) {
 ### Chaining                   ###
 ##################################
 
-#' @title Turn a list of preprocessing operators into a single chained one
+#' @title Turn a \code{list} of CPOs Into a Single Chained One.
 #'
 #' @description
 #' Chain a list of preprocessing operators, or retrafo objects, turning \code{list(a, b, c)} into
 #' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
 #' applied on a \code{CPO} chain.
 #'
-#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
-#'   A list of \code{CPO} or \code{CPOTrained} objects.
+#' This is the inverse of \code{\link[base]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
 #'
-#' @family CPO
+#' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
+#'   A list of \code{\link{CPO}} or \code{\link{CPOTrained}} objects.
+#' @return [\code{\link{CPO}} | \code{\link{CPOTrained}}]. The compound CPO(Trained) obtained when chaining the elements
+#'   of the input list.
+#'
+#' @family operators
+#' @family retrafo related
+#' @family inverter related
 #' @export
 pipeCPO = function(pplist) {
   assert(checkList(pplist, types = "CPO"),

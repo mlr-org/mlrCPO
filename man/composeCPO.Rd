@@ -7,16 +7,44 @@
 composeCPO(cpo1, cpo2)
 }
 \arguments{
-\item{cpo1}{[\code{\link{CPO}}]\cr
+\item{cpo1}{[\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 The operation to perform first.}
 
-\item{cpo2}{[\code{\link{CPO}}]\cr
-The operation to perform second.}
+\item{cpo2}{[\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+The operation to perform second, must have the same class as \code{cpo1}.}
+}
+\value{
+[\code{\link{CPO}} | \code{\link{CPOTrained}}]. The operation representing the application
+  of \code{cpo1} followed by the application of \code{cpo2}.
 }
 \description{
-The arguments will be composed. A new object,
-representing the operation of performing both object's operations in succession,
-will be created, which can be handled like a new \link{CPO} object.
+Composes \code{\link{CPO}} or \code{\link{CPOTrained}} objects. The \code{\link{\%>>\%}} operator can be used
+synonymously to compose CPO objects.
 
-See the preferred \code{\link{\%>>\%}} for more info.
+Composition of operators is one of the main features they provide: this makes it possible for
+complex operations to be represented by single objects. Compound operators represent the operation
+of applying both its constituent operations in succession. Compound operators can themselves be
+composed to form arbitrarily long chains of operators.
+
+Compound objects behave, in most ways, like primitive objects. Some exceptions are:
+\itemize{
+  \item Compound CPOs do not have an ID, so \code{\link{getCPOId}} and \code{\link{setCPOId}} will not work on them.
+  \item Compound CPOs have no 'affect' property, so \code{\link{getCPOAffect}} will not work.
+}
+
+While \code{\link{CPOTrained}} operators can be composed just as \code{\link{CPO}} operators, this
+is only recommended in cases where the same primitive CPOTrained objects where retrieved using
+\code{\link{as.list.CPOTrained}}. This is because CPOTrained are closely related to the data
+that was used to create it, and therefore on their original position in the CPO pipeline during
+training.
+}
+\seealso{
+Other operators: \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{attachCPO}},
+  \code{\link{pipeCPO}}
+
+Other CPO lifecycle related: \code{\link{CPOConstructor}},
+  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
+  \code{\link{CPO}}, \code{\link{NULLCPO}},
+  \code{\link{\%>>\%}}, \code{\link{attachCPO}}
 }

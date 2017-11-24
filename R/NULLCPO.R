@@ -3,43 +3,52 @@
 # If a generic concerns itself mostly with NULLCPO, it should probably
 # go here, and *not* in other files that it might also touch (e.g. printing).
 
-#' @title CPO composition neutral element
+#' @title CPO Composition Neutral Element.
 #'
 #' @description
-#' \code{NULLCPO} is the neutral element of \code{CPO} and \code{CPOTrained} composition. It is returned
-#' when \code{\link{retrafo}} and \code{\link{inverter}} are applied to an object that has no retrafo or inverter
-#' associated with it.
+#' \code{NULLCPO} is the neutral element of \code{\link{CPO}} and \code{\link{CPOTrained}} composition when using
+#' \code{\link{\%>>\%}} or \code{\link{composeCPO}}. It is furthermore no effect when attached to a \code{\link[mlr]{Learner}}
+#' using \code{\link{attachCPO}} (or \code{\link{\%>>\%}}), or when applied to data using \code{\link{applyCPO}}, \code{\link{invertCPO}},
+#' or \code{\link[stats]{predict}} (or, again, \code{\link{\%>>\%}}).
 #'
-#' @family NULLCPO
+#' \code{NULLCPO} works as a stand-in for certain operations that have an "empty" return value:
+#' It is returned when \code{\link{retrafo}} and \code{\link{inverter}} are applied to an object that has no retrafo or inverter
+#' associated with it, and by \code{\link{pipeCPO}} when applied to an empty list.
+#'
+#' \code{NULLCPO} can be checked using \code{\link{is.nullcpo}}, and converted from or to \code{NULL} using \code{\link{nullToNullcpo}} and
+#' \code{\link{nullcpoToNull}}. Otherwise it behaves very similarly to other \code{\link{CPO}} or \code{\link{CPOTrained}} objects.
+#'
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO lifecycle related
+#' @family NULLCPO related
 #' @export
 NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "CPOTrained", "CPO"))  # nolint
 
 
-#' @title Check for NULLCPO
+#' @title Check for NULLCPO.
 #'
 #' @description
-#'
-#' Check whether the given object is a \code{NULLCPO}.
+#' Check whether the given object is a \code{\link{NULLCPO}}.
 #'
 #' @param x [any]\cr
 #'   The object to check
-#' @return \code{TRUE} if \code{cpo} is a \code{NULLCPO}, \code{FALSE} otherwise.
-#' @family NULLCPO
+#' @return [\code{logical(1)}]. \code{TRUE} if \code{x} is a \code{NULLCPO}, \code{FALSE} otherwise.
+#' @family NULLCPO related
 #' @export
 is.nullcpo = function(x) {  # nolint
   "NULLCPO" %in% class(x)
 }
 
 
-#' @title NULLCPO to NULL
+#' @title NULLCPO to NULL.
 #'
 #' @description
-#' Convert NULLCPO to NULL, leave other values intact.
+#' Convert \code{\link{NULLCPO}} to \code{NULL}, leave other values intact.
 #'
-#' @param cpo [\code{CPO}]\cr
-#'   The CPO.
-#' @return \code{NULL} if \code{cpo} is \code{NULLCPO}, \code{cpo} otherwise.
-#' @family NULLCPO
+#' @template arg_cpo
+#' @return [\code{\link{CPO}} | \code{NULL}]. \code{NULL} if \code{cpo} is \code{NULLCPO}, \code{cpo} otherwise.
+#' @family NULLCPO related
 #' @export
 nullcpoToNull = function(cpo) {
   if (is.nullcpo(cpo)) {
@@ -50,15 +59,15 @@ nullcpoToNull = function(cpo) {
 }
 
 
-#' @title NULL to NULLCPO
+#' @title NULL to NULLCPO.
 #'
 #' @description
-#' Convert NULL to NULLCPO, leave other values intact.
+#' Convert \code{NULL} to \code{\link{NULLCPO}}, leave other values intact.
 #'
-#' @param cpo [\code{CPO} | \code{NULL}]\cr
+#' @param cpo [\code{\link{CPO}} | \code{NULL}]\cr
 #'   The CPO.
-#' @return \code{NULLCPO} if \code{cpo} is \code{NULL}, \code{cpo} otherwise.
-#' @family NULLCPO
+#' @return [\code{\link{CPO}}]. \code{\link{NULLCPO}} if \code{cpo} is \code{NULL}, \code{cpo} otherwise.
+#' @family NULLCPO related
 #' @export
 nullToNullcpo = function(cpo) {
   if (is.null(cpo)) {
@@ -127,6 +136,11 @@ getCPOObjectType.NULLCPO = function(cpo) {
 #' @export
 getCPOInvertCapability.NULLCPO = function(cpo) {
   "retrafo"
+}
+
+#' @export
+getCPOOperatingType.NULLCPO = function(cpo) {
+  character(0)
 }
 
 #' @export

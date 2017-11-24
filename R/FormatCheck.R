@@ -78,8 +78,8 @@ prepareTrafoInput = function(indata, datasplit, allowed.properties, subset.selec
 # @param allowed.properties [character] allowed properties of `indata`
 # @param shapeinfo.input [InputShapeInfo] information about the data shape used to train the CPO
 # @param name [character(1)] name of the CPO to print for debug information
-# @return [list] the data to feed to the CPO retrafo function, as well as meta-information: list(indata = data in a shape fit to be fed into retrafo, properties, tempdata, subset.index)
-
+# @return [list] the data to feed to the CPO retrafo function, as well as meta-information:
+#   list(indata = data in a shape fit to be fed into retrafo, properties, tempdata, subset.index)
 prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.input, name) {
 
   prepared = prepareRetrafoData(indata, datasplit, allowed.properties, shapeinfo.input, name)

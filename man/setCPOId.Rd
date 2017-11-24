@@ -7,43 +7,33 @@
 setCPOId(cpo, id)
 }
 \arguments{
-\item{cpo}{[\code{CPO}]\cr
-The \code{CPO} object to modify.}
+\item{cpo}{[\code{\link{CPO}}]\cr
+The cpo.}
 
 \item{id}{[\code{character(1)} | \code{NULL}]\cr
 The ID. If this is \code{NULL}, the ID is set to the
-default for the CPO at hand.}
+default for the CPO at hand, which is the CPO \dQuote{name}, see \code{\link{getCPOName}}.}
 }
 \value{
 [\code{CPO}] the CPO with modified id.
 }
 \description{
-Setting the ID of a CPO to a value will prefix all its
-parameter names with this ID. This makes it possible to
+Sets the \emph{id} of a \code{\link{CPO}}. Setting the id
+is also possible during construction by a \code{\link{CPOConstructor}}
+using the \code{id} parameter.
+
+The exported hyperparameters of a CPO will all have the
+id as prefix. This makes it possible to
 compose CPOs that have clashing parameter names.
 }
 \seealso{
-Other CPO: \code{\link{CPOImputer}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
-  \code{\link{cpoDropConstants}},
-  \code{\link{cpoDummyEncode}},
-  \code{\link{cpoFilterFeatures}},
-  \code{\link{cpoFixFactors}},
-  \code{\link{cpoImpactEncodeClassif}},
-  \code{\link{cpoImpactEncodeRegr}},
-  \code{\link{cpoImpute}},
-  \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
-  \code{\link{cpoQuantileBinNumerics}},
-  \code{\link{cpoScaleMaxAbs}},
-  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
-  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}}, \code{\link{getCPOName}},
-  \code{\link{getRetrafoState}},
-  \code{\link{makeCPOExtended}}, \code{\link{makeCPO}},
-  \code{\link{makeRetrafoFromState}}, \code{\link{pipeCPO}}
+Other getters and setters: \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}},
+  \code{\link{getCPOProperties}}
+
+Other CPO ID related: \code{\link{getCPOId}}
 }

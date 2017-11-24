@@ -80,7 +80,9 @@
 #'   or a \code{CPOInverter} object for \code{inverter}.
 #'
 #' @seealso \code{\link{clearRI}} about the problem of needing to reset \code{retrafo} and \code{inverter} attributes sometimes.
-#' @family cpo-lifecycle retrafo inverter
+#' @family CPO lifecycle related
+#' @family retrafo related
+#' @family inverter related
 #' @aliases CPORetrafo CPOInverter
 #' @examples
 #' traindat = subsetTask(pid.task, 1:400)
@@ -160,7 +162,8 @@ inverter = function(data) {
 #' @return [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr]{WrappedModel}}] the
 #'   \code{data} after stripping all \code{retrafo} and \code{inverter} attributes.
 #'
-#' @family retrafo inverter
+#' @family retrafo related
+#' @family inverter related
 #' @examples
 #' # without clearRI
 #' transformed = iris.task %>>% cpoPca()
@@ -229,7 +232,7 @@ retrafo.WrappedModel = function(data) {
 #'   The object to check.
 #'
 #' @return \code{TRUE} if \code{x} has class \code{\link{CPORetrafo}}, \code{FALSE} otherwise.
-#' @family retrafo
+#' @family retrafo related
 #' @export
 is.retrafo = function(x) {  # nolint
   "CPORetrafo" %in% class(x)
@@ -285,7 +288,7 @@ inverter.WrappedModel = function(data) {
 #'   The object to check.
 #'
 #' @return \code{TRUE} if \code{x} has class \code{\link{CPOInverter}}, \code{FALSE} otherwise.
-#' @family inverter
+#' @family inverter related
 #' @export
 is.retrafo = function(x) {  # nolint
   "CPOInverter" %in% class(x)

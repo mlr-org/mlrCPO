@@ -3,6 +3,22 @@
 ### Printing                   ###
 ##################################
 
+#' @title Print CPO objects.
+#'
+#' @description
+#' Prints a simple representation of a \code{\link{CPOConstructor}},
+#' \code{\link{CPO}} or \code{\link{CPOTrained}}. If
+#' \code{verbose} is \code{TRUE}, more information about the given objects
+#' will be given. For \code{\link{CPOConstructor}}, that is the trafo and retrafo
+#' functions, for \code{\link{CPO}}, the individual constituents of a compound
+#' CPO will be printed.
+#'
+#' @param x [\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+#'   The \code{\link{CPOConstructor}} to print.
+#' @param verbose [\code{logical(1)}]\cr
+#'   Whether to print further information. Default is \code{FALSE}.
+#' @return [\code{invisible(NULL)}].
+#' @family CPOConstructor related
 #' @export
 print.CPOConstructor = function(x, verbose = FALSE, ...) {
   assertFlag(verbose)
@@ -39,6 +55,7 @@ vprint = function(x) {
   }
 }
 
+#' @rdname print.CPOConstructor
 #' @export
 print.CPO = function(x, verbose = FALSE, ...) {
   if (verbose) {
@@ -59,6 +76,9 @@ print.CPO = function(x, verbose = FALSE, ...) {
   }
 }
 
+#' @rdname print.CPOConstructor
+#' @family retrafo related
+#' @family inverter related
 #' @export
 print.CPOTrained = function(x, ...) {
   first = TRUE

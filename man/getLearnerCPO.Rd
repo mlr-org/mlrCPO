@@ -2,21 +2,32 @@
 % Please edit documentation in R/learner.R
 \name{getLearnerCPO}
 \alias{getLearnerCPO}
-\title{Get the CPO associated with a learner}
+\title{Get the CPO Associated with a Learner.}
 \usage{
 getLearnerCPO(learner, warn.buried = TRUE)
 }
 \arguments{
-\item{learner}{[\code{\link{Learner}}]\cr
+\item{learner}{[\code{\link[mlr]{Learner}}]\cr
 The learner to query}
 
 \item{warn.buried}{[\code{logical(1)}]\cr
 Whether to warn about CPOs that could not be retrieved.}
 }
+\value{
+[\code{\link{CPO}}]. The (possibly composite) CPO found attached to \code{learner}.
+}
 \description{
-Returns the (outermost) chain of CPOs that are part of a learner. This is useful to inspect the
+Returns the (outermost) chain of \code{\link{CPO}}s that are part of a \code{\link[mlr]{Learner}}. This is useful to inspect the
 preprocessing done by a learner object.
 
-If there are hidden CPOs (e.g. if \dQuote{learner} has CPOs, but is wrapped by a \code{TuneWrapper}),
-this function can not retrieve these CPOs, but it will emit a warning if \dQuote{warn.buried} is \dQuote{TRUE}.
+If there are hidden CPOs (e.g. if a learner has CPOs, but is then wrapped by a \code{TuneWrapper}),
+this function can not retrieve these CPOs, but it will emit a warning if \code{warn.buried} is \code{TRUE}.
+
+The retrieved CPOs will have the hyperparameter set according to the hyperparameter settings of the Learner.
+
+This function is complementary to \code{\link{getLearnerBare}}.
+}
+\seealso{
+Other CPOLearner related: \code{\link{CPOLearner}},
+  \code{\link{attachCPO}}, \code{\link{getLearnerBare}}
 }

@@ -64,7 +64,8 @@
 #' @return [\code{\link{CPO}}] the constructed CPO.
 #'
 #' @seealso \code{\link{print.CPOConstructor}} for possibly verbose printing.
-#' @family cpo-lifecycle
+#' @family CPO lifecycle related
+#' @family CPOConstructor related
 #' @examples
 #' class(cpoPca)  # c("CPOConstructor", "function")
 #' print(cpoPca)  # default printer
@@ -118,7 +119,10 @@ NULL
 #'
 #' @seealso \code{\link{print.CPO}} for possibly verbose printing.
 #'
-#' @family cpo-lifecycle cpo-operations properties cpo-types
+#' @family CPO lifecycle related
+#' @family CPO operations
+#' @family CPO properties
+#' @family CPO types
 #' @examples
 #' class(cpoPca())  # c("CPOPrimitive", "CPO")
 #' class(cpoPca() %>>% cpoScale())  # c("CPOPipeline", "CPO")
@@ -140,8 +144,9 @@ NULL
 #' learner and can be queried and set using functions such as \code{\link[mlr]{getParamSet}}, \code{\link[mlr]{getHyperPars}},
 #' and \code{\link[mlr]{setHyperPars}}.
 #'
-#' The model created when training a \code{CPOLearner} also contains the relevant \code{\link{CPORetrafo}} and \code{\link{CPOInverter}}
-#' information to be applied to prediction data.
+#' The model created when training a \code{CPOLearner} also contains the relevant \code{\link{CPORetrafo}} information to be applied
+#' to prediction data; this can be retrieved using \code{\link{retrafo}}. The \code{\link{CPOInverter}} functionality is handled
+#' equally transparently by the model.
 #'
 #' A CPOLearner can possibly have different \code{\link[mlr]{LearnerProperties}} than the base \code{\link[mlr]{Learner}} to which
 #' it is attached. This depends on the \code{\link{CPO}}'s properties, see \code{\link{CPOProperties}}.
@@ -149,7 +154,9 @@ NULL
 #' It is possible to retrieve the \code{CPOLearner}'s base learner using \code{\link{getLearnerBare}}, and to get the attached CPOs
 #' using \code{\link{getLearnerCPO}}.
 #'
-#' @family cpo-lifecycle
+#'
+#' @family CPO lifecycle related
+#' @family CPOLearner related
 #' @examples
 #' lrn = makeLearner("classif.logreg")
 #' cpolrn = cpoScale() %>>% lrn
