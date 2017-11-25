@@ -18,7 +18,7 @@
 #' @param prediction [\code{\link{Prediction}} | \code{matrix} | \code{data.frame}]\cr
 #'   The prediction to invert
 #' @param predict.type [\code{character(1)}]\cr
-#'   The equivalent to the \code{predict.type} property of a \code{\link[mlr]{Learner}}] object,
+#'   The equivalent to the \code{predict.type} property of a \code{\link[mlr:makeLearner]{Learner}}] object,
 #'   control what kind of prediction to perform. One of \dQuote{response}, \dQuote{se},
 #'   \dQuote{prob}. Default is \dQuote{response}.
 #' @return A transformed \code{\link{Prediction}} if a prediction was given,

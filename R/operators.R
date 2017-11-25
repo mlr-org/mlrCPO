@@ -49,7 +49,7 @@ composeCPO = function(cpo1, cpo2) {
 #' @title Attach a CPO to a Learner.
 #'
 #' @description
-#' A \code{\link{CPO}} object can be attached to a \code{\link[mlr]{Learner}} object to create a
+#' A \code{\link{CPO}} object can be attached to a \code{\link[mlr:makeLearner]{Learner}} object to create a
 #' pipeline combining preprocessing and model fitting. When the resulting \code{\link{CPOLearner}}
 #' is used to create a model using \code{\link[mlr]{train}}, the attached CPO will be applied to the
 #' data before the internal model is trained. The resulting model will also contain the required
@@ -59,7 +59,7 @@ composeCPO = function(cpo1, cpo2) {
 #' The \code{\link{\%>>\%}} operator can be used synonymously to attach CPO objects to Learners.
 #'
 #' @template arg_cpo
-#' @param learner [\code{\link[mlr]{Learner}}]\cr
+#' @param learner [\code{\link[mlr:makeLearner]{Learner}}]\cr
 #'   The learner.
 #'
 #' @family operators
@@ -85,7 +85,7 @@ attachCPO = function(cpo, learner) {
 #'
 #' @section Application of \code{CPO}:
 #' Application of a \code{\link{CPO}} is supposed to perform \emph{preprocessing} on a given data set, to prepare it e.g. for model
-#' fitting with a \code{\link[mlr]{Learner}}, or for other data handling tasks. When this preprocessing is performed, care is taken
+#' fitting with a \code{\link[mlr:makeLearner]{Learner}}, or for other data handling tasks. When this preprocessing is performed, care is taken
 #' to make the transformation repeatable on later prediction or validation data. For this,
 #' the returned data set will have a \code{\link{CPORetrafo}} and
 #' \code{\link{CPOInverter}} object attached to it, which can be retrieved using \code{\link{retrafo}} and \code{\link{inverter}}.
@@ -311,7 +311,7 @@ as.list.CPOTrained = function(x, ...) {
 #' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
 #' applied on a \code{CPO} chain.
 #'
-#' This is the inverse of \code{\link[base]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
+#' This is the inverse of \code{\link[base:list]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
 #'
 #' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
 #'   A list of \code{\link{CPO}} or \code{\link{CPOTrained}} objects.

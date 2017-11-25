@@ -27,7 +27,7 @@
 #'   a name describing the action performed by the CPO, which can be retrieved using \code{\link{getCPOName}}.
 #'   The ID is used to identify the CPO in print messages,
 #'   and is prefixed to the CPO's hyperparameter names. This is can be used to avoid name clashes when composing
-#'   a CPO with another CPO or \code{\link[mlr]{Learner}} with hyperparameters with clashing names. Default is \code{NULL}.
+#'   a CPO with another CPO or \code{\link[mlr:makeLearner]{Learner}} with hyperparameters with clashing names. Default is \code{NULL}.
 #' @param export [\code{character}]\cr
 #'   Which hyperparameters to export. This can be a character vector naming the
 #'   hyperparameters to export (\emph{excluding} the ID), or a \code{character(1)} with one of the special values:
@@ -53,13 +53,13 @@
 #' @param affect.invert [\code{logical(1)}]\cr
 #'   Whether to affect all features \emph{not} matched by other \code{affect.*} parameters. Default is \code{FALSE}.
 #' @param affect.pattern.ignore.case [\code{logical(1)}]\cr
-#'   Ignore case when matching features with \code{affect.pattern}; see \code{\link[base]{grepl}}. Has no effect when
+#'   Ignore case when matching features with \code{affect.pattern}; see \code{\link[base:grep]{grepl}}. Has no effect when
 #'   \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.
 #' @param affect.pattern.perl [\code{logical(1)}]\cr
-#'   Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base]{grepl}}. Has no effect when
+#'   Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base:grep]{grepl}}. Has no effect when
 #'   \code{affect.pattern} is \code{NULL}, or when \code{affect.pattern.fixed} is \code{TRUE}. Default is \code{FALSE}.
 #' @param affect.pattern.fixed [\code{logical(1)}]\cr
-#'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grepl}}.
+#'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base:grep]{grepl}}.
 #'   Has no effect when \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.
 #' @return [\code{\link{CPO}}] the constructed CPO.
 #'
@@ -88,12 +88,12 @@ NULL
 #' the \code{\link{pipeCPO}} function, to create new (\dQuote{compound}) operators that perform multiple operations
 #' in a pipeline. While all CPOs have the class \dQuote{CPO}, primitive (i.e. not compound) CPOs have the additional class
 #' \dQuote{CPOPrimitive}, and compound CPOs have the class \dQuote{CPOPipeline}. It is possible to split a compound CPOs
-#' into its primitive constituents using \code{\link[base]{as.list}}.
+#' into its primitive constituents using \code{\link[base:list]{as.list}}.
 #'
-#' CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr]{Learner}} objects to create \code{\link{CPOLearner}}s,
+#' CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr:makeLearner]{Learner}} objects to create \code{\link{CPOLearner}}s,
 #' using the \code{\link{\%>>\%}} operator, or the \code{\link{attachCPO}} function. These \code{\link{CPOLearner}}s
-#' fit the model specified by the \code{\link[mlr]{Learner}} to the data after applying the attached CPO. Many CPOs can
-#' be attached to a \code{\link[mlr]{Learner}} sequentially, or in form of a compound CPO.
+#' fit the model specified by the \code{\link[mlr:makeLearner]{Learner}} to the data after applying the attached CPO. Many CPOs can
+#' be attached to a \code{\link[mlr:makeLearner]{Learner}} sequentially, or in form of a compound CPO.
 #'
 #' CPOs can be \dQuote{applied} to a \code{\link[base]{data.frame}} or a \code{\link[mlr]{Task}} using the
 #' \code{\link{\%>>\%}} operator, or the \code{\link{applyCPO}} function. Applying a CPO performs the operations specified
@@ -137,9 +137,9 @@ NULL
 #' @title CPO Learner Object.
 #'
 #' @description
-#' CPO Learners are created when a \code{\link{CPO}} gets attached to an mlr-\code{\link[mlr]{Learner}} object. The resulting
+#' CPO Learners are created when a \code{\link{CPO}} gets attached to an mlr-\code{\link[mlr:makeLearner]{Learner}} object. The resulting
 #' learner performs the operation described by the attached \code{\link{CPO}} before fitting the model specified by the
-#' \code{\link[mlr]{Learner}}. It is possible to attach compound CPOs, and it is possible to attach more CPOs to a learner
+#' \code{\link[mlr:makeLearner]{Learner}}. It is possible to attach compound CPOs, and it is possible to attach more CPOs to a learner
 #' that is already a \code{CPOLearner}. If the attached CPO exports hyperparameters, these become part of the newly created
 #' learner and can be queried and set using functions such as \code{\link[mlr]{getParamSet}}, \code{\link[mlr]{getHyperPars}},
 #' and \code{\link[mlr]{setHyperPars}}.
@@ -148,7 +148,7 @@ NULL
 #' to prediction data; this can be retrieved using \code{\link{retrafo}}. The \code{\link{CPOInverter}} functionality is handled
 #' equally transparently by the model.
 #'
-#' A CPOLearner can possibly have different \code{\link[mlr]{LearnerProperties}} than the base \code{\link[mlr]{Learner}} to which
+#' A CPOLearner can possibly have different \code{\link[mlr]{LearnerProperties}} than the base \code{\link[mlr:makeLearner]{Learner}} to which
 #' it is attached. This depends on the \code{\link{CPO}}'s properties, see \code{\link{CPOProperties}}.
 #'
 #' It is possible to retrieve the \code{CPOLearner}'s base learner using \code{\link{getLearnerBare}}, and to get the attached CPOs

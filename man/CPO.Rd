@@ -12,12 +12,12 @@ CPOs can be \dQuote{composed} using the \code{\link{\%>>\%}} operator, the \code
 the \code{\link{pipeCPO}} function, to create new (\dQuote{compound}) operators that perform multiple operations
 in a pipeline. While all CPOs have the class \dQuote{CPO}, primitive (i.e. not compound) CPOs have the additional class
 \dQuote{CPOPrimitive}, and compound CPOs have the class \dQuote{CPOPipeline}. It is possible to split a compound CPOs
-into its primitive constituents using \code{\link[base]{as.list}}.
+into its primitive constituents using \code{\link[base:list]{as.list}}.
 
-CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr]{Learner}} objects to create \code{\link{CPOLearner}}s,
+CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr:makeLearner]{Learner}} objects to create \code{\link{CPOLearner}}s,
 using the \code{\link{\%>>\%}} operator, or the \code{\link{attachCPO}} function. These \code{\link{CPOLearner}}s
-fit the model specified by the \code{\link[mlr]{Learner}} to the data after applying the attached CPO. Many CPOs can
-be attached to a \code{\link[mlr]{Learner}} sequentially, or in form of a compound CPO.
+fit the model specified by the \code{\link[mlr:makeLearner]{Learner}} to the data after applying the attached CPO. Many CPOs can
+be attached to a \code{\link[mlr:makeLearner]{Learner}} sequentially, or in form of a compound CPO.
 
 CPOs can be \dQuote{applied} to a \code{\link[base]{data.frame}} or a \code{\link[mlr]{Task}} using the
 \code{\link{\%>>\%}} operator, or the \code{\link{applyCPO}} function. Applying a CPO performs the operations specified

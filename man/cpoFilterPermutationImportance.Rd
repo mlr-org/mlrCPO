@@ -29,13 +29,13 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
-\item{imp.learner}{[\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
+\item{imp.learner}{[\code{\link[mlr:makeLearner]{Learner}} | \code{character(1)}]\cr
 Specifies the learner to use when computing the permutation importance.}
 
 \item{contrast}{[\code{function}]\cr
 Contrast: takes two numeric vectors and returns one (default is the difference).}
 
-\item{measure}{[\code{\link[mlr]{Measure}}]\cr
+\item{measure}{[\code{\link[mlr:makeMeasure]{Measure}}]\cr
 Measure to use. Defaults to the default measure of the task.}
 
 \item{aggregation}{[\code{function}]\cr

@@ -87,7 +87,7 @@ getCPOId = function(cpo) {
 #' that has a property not listed in \code{$properties}, an error will be given.
 #'
 #' \code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
-#' get added to a \code{\link[mlr]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
+#' get added to a \code{\link[mlr:makeLearner]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
 #' this is \dQuote{missings}. This is always a subset of \code{$properties}.
 #'
 #' \code{$properties.needed} can be one or many of the same values as \code{$properties}. These properties
@@ -234,15 +234,15 @@ getCPOInvertCapability = function(cpo) {
 #' }
 #'
 #' A Target Operation CPO is able to change the type of a \code{\link[mlr]{Task}}, but it can also enhance the type of predictions
-#' that a \code{\link[mlr]{Learner}} can make for it. Thus a CPO that converts a binary classification into a regression task can
+#' that a \code{\link[mlr:makeLearner]{Learner}} can make for it. Thus a CPO that converts a binary classification into a regression task can
 #' use a regression learner to not only predict the \dQuote{response} class, but also the estimated probability (\dQuote{prob})
 #' distribution over the two classes. For this, the CPO declares
 #' \enumerate{
-#'   \item what \code{predict.type}s a \code{\link[mlr]{Learner}}, when attached to it, can provide, and
-#'   \item what \code{predict.type} the \code{\link[mlr]{Learner}}, in each case, must be capable of.
+#'   \item what \code{predict.type}s a \code{\link[mlr:makeLearner]{Learner}}, when attached to it, can provide, and
+#'   \item what \code{predict.type} the \code{\link[mlr:makeLearner]{Learner}}, in each case, must be capable of.
 #' }
 #' This information is provided in the form of a named \code{character}, where the names are the provided predict type capabilities,
-#' and the values are the predict type that the underlying \code{\link[mlr]{Learner}} must provide for this.
+#' and the values are the predict type that the underlying \code{\link[mlr:makeLearner]{Learner}} must provide for this.
 #'
 #' The CPO converting classification to regression mentioned above would thus have the \code{predict.type} of:
 #'
@@ -254,7 +254,7 @@ getCPOInvertCapability = function(cpo) {
 #'
 #' \code{c(response = "prob", prob = "prob")}
 #'
-#' If this second CPO is attached to a \code{\link[mlr]{Learner}} that does not have the \dQuote{prob} property (see
+#' If this second CPO is attached to a \code{\link[mlr:makeLearner]{Learner}} that does not have the \dQuote{prob} property (see
 #' \code{\link[mlr]{LearnerProperties}}), an error is given.
 #'
 #' CPOs that are not Target Operating always have the \code{predict.type} of:
@@ -297,14 +297,14 @@ getCPOPredictType = function(cpo) {
 #'
 #' Target Operation CPOs (\bold{TOCPO}) only change the target column(s) of a data set, not the feature columns. They can thus
 #' also change the type
-#' of a \code{\link[mlr]{Task}}, and the \link{PredictType}s admitted by a \code{\link[mlr]{Learner}}. They are thus a powerful
+#' of a \code{\link[mlr]{Task}}, and the \link{PredictType}s admitted by a \code{\link[mlr:makeLearner]{Learner}}. They are thus a powerful
 #' instrument, but they are harder to handle, since predictions made with data sets processed with this kind of CPO need to be
 #' \emph{inverted} using the \code{\link{invert}} function and possibly an \code{\link{CPOInverter}} object (see documentation there).
-#' (Note that attaching a Target Operation CPO to a \code{\link[mlr]{Learner}} will hide this complexity from the user and is the
+#' (Note that attaching a Target Operation CPO to a \code{\link[mlr:makeLearner]{Learner}} will hide this complexity from the user and is the
 #' recommended way of handling it.)
 #' Examples of Target Operation CPOs are the log-transformation of the target column of a regression task, the conversion of a
 #' binary classification task into a 0-1-regression task, or the substitution of the target values into the residuals after a
-#' \code{\link[mlr]{Learner}} was applied to the task. Note that the last of these examples distinguishes itself by the fact that
+#' \code{\link[mlr:makeLearner]{Learner}} was applied to the task. Note that the last of these examples distinguishes itself by the fact that
 #' the inversion operation is dependent on the \emph{prediction} data used. While for the first two examples, the
 #' \code{\link{CPORetrafo}} object can be used for inversionk, the last one requires the \code{\link{CPOInverter}} object. See
 #' \code{\link{InvertCapability}} for more on this.

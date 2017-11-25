@@ -39,7 +39,7 @@
 #' \code{\link{print.CPOTrained}} is used for (possibly verbose) printing. To apply the retrafo or inverter transformation represented by the
 #' object to data, use the \code{\link{applyCPO}} or \code{\link{\%>>\%}} function.
 #'
-#' \code{CPOTrained} objects can be chained using \code{\link{\%>>\%}} or \code{\link{pipeCPO}}, and broken into primitives using \code{\link[base]{as.list}}.
+#' \code{CPOTrained} objects can be chained using \code{\link{\%>>\%}} or \code{\link{pipeCPO}}, and broken into primitives using \code{\link[base:list]{as.list}}.
 #' However, since the \code{CPOTrained} objects represent transformations that relate closely to the data used to train it (and therefore
 #' to the position within a CPO pipeline), it is only advisable to chain or break apart \code{CPOTrained} pipes for inspection, or
 #' if you really know what you are doing.
@@ -67,7 +67,7 @@
 #' @section Using \code{CPOInverter}:
 #' To use a \code{CPOInverter}, use the \code{\link{invert}} function.
 #'
-#' @param data [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr]{WrappedModel}}]\cr
+#' @param data [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr:makeWrappedModel]{WrappedModel}}]\cr
 #'   The result of a \code{\link{CPO}} applied to a data set.
 #'
 #' @param value [\code{CPOTrained} | NULL]\cr
@@ -157,9 +157,9 @@ inverter = function(data) {
 #' \code{clearRI}. \code{clearRI} clears both \code{retrafo} \emph{and}
 #' \code{inverter} attributes.
 #'
-#' @param data [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr]{WrappedModel}}]\cr
+#' @param data [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr:makeWrappedModel]{WrappedModel}}]\cr
 #'   The result of a \code{\link{CPO}} applied to a data set.
-#' @return [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr]{WrappedModel}}] the
+#' @return [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link[mlr:makeWrappedModel]{WrappedModel}}] the
 #'   \code{data} after stripping all \code{retrafo} and \code{inverter} attributes.
 #'
 #' @family retrafo related

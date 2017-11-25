@@ -7,7 +7,7 @@
 getLearnerCPO(learner, warn.buried = TRUE)
 }
 \arguments{
-\item{learner}{[\code{\link[mlr]{Learner}}]\cr
+\item{learner}{[\code{\link[mlr:makeLearner]{Learner}}]\cr
 The learner to query}
 
 \item{warn.buried}{[\code{logical(1)}]\cr
@@ -17,7 +17,7 @@ Whether to warn about CPOs that could not be retrieved.}
 [\code{\link{CPO}}]. The (possibly composite) CPO found attached to \code{learner}.
 }
 \description{
-Returns the (outermost) chain of \code{\link{CPO}}s that are part of a \code{\link[mlr]{Learner}}. This is useful to inspect the
+Returns the (outermost) chain of \code{\link{CPO}}s that are part of a \code{\link[mlr:makeLearner]{Learner}}. This is useful to inspect the
 preprocessing done by a learner object.
 
 If there are hidden CPOs (e.g. if a learner has CPOs, but is then wrapped by a \code{TuneWrapper}),

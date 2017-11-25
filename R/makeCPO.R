@@ -72,8 +72,8 @@ cpo.predict.properties = c("prob", "se")
 #'     (i.e. the environment of the retrafo function). This means the retrafo function may not reference a \dQuote{\code{data}} variable.}
 #'   \item{\strong{Hyperparameters}}{
 #'     The action performed by a CPO may be influenced using \emph{hyperparameters}, during its construction as well as afterwards (then using
-#'     \code{\link[mlr]{setHyperPars}}). Hyperparameters must be specified as a \code{\link[ParamHelpers]{ParamSet}} and given as argument \code{par.set}.
-#'     Default values for each parameter may be specified in this \code{\link[ParamHelpers]{ParamSet}} or optionally as another argument \code{par.vals}.
+#'     \code{\link[mlr]{setHyperPars}}). Hyperparameters must be specified as a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and given as argument \code{par.set}.
+#'     Default values for each parameter may be specified in this \code{\link[ParamHelpers:makeParamSet]{ParamSet}} or optionally as another argument \code{par.vals}.
 #'
 #'     Hyperparameters given are made part of the \code{\link{CPOConstructor}} function and can thus be given during construction.
 #'     Parameter default values function as the default values for the \code{\link{CPOConstructor}} function parameters (which are thus made optional function
@@ -85,21 +85,21 @@ cpo.predict.properties = c("prob", "se")
 #'     refer to them by its environment).
 #'
 #'     Hyperparameters may be \emph{exported} (or not), thus making them available for \code{\link[mlr]{setHyperPars}}. Not exporting a parameter
-#'     has advantage that it does not clutter the \code{\link[ParamHelpers]{ParamSet}} of a big \code{\link{CPO}} or \code{\link{CPOLearner}} pipeline with
+#'     has advantage that it does not clutter the \code{\link[ParamHelpers:makeParamSet]{ParamSet}} of a big \code{\link{CPO}} or \code{\link{CPOLearner}} pipeline with
 #'     many hyperparameters. Which hyperparameters are exported is chosen during the constructing call of a \code{\link{CPOConstructor}}, but the default
 #'     exported hyperparameters can be chosen with the \code{export.params} parameter.}
 #'   \item{\strong{Properties}}{
-#'     Similarly to \code{\link[mlr]{Learner}}s, \code{\link{CPO}}s may specify what kind of data they are and are not able to handle. This is done by
+#'     Similarly to \code{\link[mlr:makeLearner]{Learner}}s, \code{\link{CPO}}s may specify what kind of data they are and are not able to handle. This is done by
 #'     specifying \code{properties.*} arguments. The names of possible properties are the same as possible \code{\link[mlr]{LearnerProperties}}, but since
 #'     \code{\link{CPO}}s mostly concern themselves with data, only the properties indicating column and task types are relevant.
 #'
 #'     For each \code{\link{CPO}} one must specify
 #'     \enumerate{
 #'       \item which kind of data does the \code{\link{CPO}} handle,
-#'       \item which kind of data must the \code{\link{CPO}} or \code{\link[mlr]{Learner}} be able to handle that comes \emph{after}
+#'       \item which kind of data must the \code{\link{CPO}} or \code{\link[mlr:makeLearner]{Learner}} be able to handle that comes \emph{after}
 #'         the given \code{\link{CPO}}, and
 #'       \item which kind of data handling capability does the given \code{\link{CPO}} \emph{add} to a following
-#'         \code{\link{CPO}} or \code{\link[mlr]{Learner}} if coming before it in a pipeline.
+#'         \code{\link{CPO}} or \code{\link[mlr:makeLearner]{Learner}} if coming before it in a pipeline.
 #'     }
 #'     The specification of (1) is done with \code{properties.data} and \code{properties.target}, (2) is specified using \code{properties.needed}, and
 #'     (3) is specified using \code{properties.adding}. Internally, \code{properties.data} and \code{properties.target} are concatenated and treated as

@@ -32,7 +32,7 @@ The \code{$properties} determines what data the CPO handles. If a CPO is applied
 that has a property not listed in \code{$properties}, an error will be given.
 
 \code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
-get added to a \code{\link[mlr]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
+get added to a \code{\link[mlr:makeLearner]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
 this is \dQuote{missings}. This is always a subset of \code{$properties}.
 
 \code{$properties.needed} can be one or many of the same values as \code{$properties}. These properties

@@ -17,20 +17,20 @@
 #' transformation operation will be applied to this data, and the same resulting
 #' data will be returned. See \code{\link{applyCPO}}.
 #'
-#' If the target object is a \code{\link[mlr]{Learner}}, the CPO will be attached to
+#' If the target object is a \code{\link[mlr:makeLearner]{Learner}}, the CPO will be attached to
 #' this learner. The same operation will be performed during the \code{\link[mlr]{train}} and
 #' \code{\link[stats]{predict}} phase; the behaviour during the predict phase may furthermore
 #' be depend on the training data. See \code{\link{attachCPO}}.
 #'
 #' Note that you can not link a \code{data.frame} or \code{\link[mlr]{Task}} directly
-#' to a \code{\link[mlr]{Learner}}, since this operation is not algebraically associative
+#' to a \code{\link[mlr:makeLearner]{Learner}}, since this operation is not algebraically associative
 #' with the composition of CPOs. Use \code{\link[mlr]{train}} for this.
 #'
 #' The \code{\%<<\%} operator is synonymous with \code{\%>>\%} with source and target argument swapped.
 #'
 #' @param cpo1 [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The source object.
-#' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}} | \code{\link[mlr]{Learner}}]\cr
+#' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}} | \code{\link[mlr:makeLearner]{Learner}}]\cr
 #'   The target object.
 #'
 #' @family operators

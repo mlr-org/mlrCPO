@@ -30,7 +30,7 @@ The \code{\link{\%>>\%}} operator can be used synonymously to apply CPO objects 
 \section{Application of \code{CPO}}{
 
 Application of a \code{\link{CPO}} is supposed to perform \emph{preprocessing} on a given data set, to prepare it e.g. for model
-fitting with a \code{\link[mlr]{Learner}}, or for other data handling tasks. When this preprocessing is performed, care is taken
+fitting with a \code{\link[mlr:makeLearner]{Learner}}, or for other data handling tasks. When this preprocessing is performed, care is taken
 to make the transformation repeatable on later prediction or validation data. For this,
 the returned data set will have a \code{\link{CPORetrafo}} and
 \code{\link{CPOInverter}} object attached to it, which can be retrieved using \code{\link{retrafo}} and \code{\link{inverter}}.

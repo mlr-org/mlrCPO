@@ -10,11 +10,11 @@ attachCPO(cpo, learner)
 \item{cpo}{[\code{\link{CPO}}]\cr
 The cpo.}
 
-\item{learner}{[\code{\link[mlr]{Learner}}]\cr
+\item{learner}{[\code{\link[mlr:makeLearner]{Learner}}]\cr
 The learner.}
 }
 \description{
-A \code{\link{CPO}} object can be attached to a \code{\link[mlr]{Learner}} object to create a
+A \code{\link{CPO}} object can be attached to a \code{\link[mlr:makeLearner]{Learner}} object to create a
 pipeline combining preprocessing and model fitting. When the resulting \code{\link{CPOLearner}}
 is used to create a model using \code{\link[mlr]{train}}, the attached CPO will be applied to the
 data before the internal model is trained. The resulting model will also contain the required

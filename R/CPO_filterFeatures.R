@@ -262,10 +262,10 @@ registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features usin
 #' with randomForest from package \pkg{rpart} being the default learner.
 #' Further parameter are the resamling strategey \code{perf.resampling} and
 #' the performance measure \code{perf.measure}.
-#' @param perf.learner [\code{\link[mlr]{Learner}} | \code{NULL}]\cr
+#' @param perf.learner [\code{\link[mlr:makeLearner]{Learner}} | \code{NULL}]\cr
 #'   Learner to resample. If this is \code{NULL}, \code{regr.randomForest} is used.
 #'   Default is \code{NULL}.
-#' @param perf.measure [\code{\link[mlr]{Measure}} | \code{NULL}]\cr
+#' @param perf.measure [\code{\link[mlr:makeMeasure]{Measure}} | \code{NULL}]\cr
 #'   Measure to use for resampling. If this is \code{NULL}, the Task's default Measure is used.
 #'   Default is \code{NULL}.
 #' @param perf.resampling [\code{ResampleDesc} or \code{ResampleInstance}]\cr
@@ -321,13 +321,13 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 #'
 #' Filter \dQuote{permutation.importance} computes a loss function between predictions made by a
 #' learner before and after a feature is permuted.
-#' @param imp.learner [\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
+#' @param imp.learner [\code{\link[mlr:makeLearner]{Learner}} | \code{character(1)}]\cr
 #'   Specifies the learner to use when computing the permutation importance.
 #' @param contrast [\code{function}]\cr
 #'   Contrast: takes two numeric vectors and returns one (default is the difference).
 #' @param aggregation [\code{function}]\cr
 #'   Aggregation: takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean).
-#' @param measure [\code{\link[mlr]{Measure}}]\cr
+#' @param measure [\code{\link[mlr:makeMeasure]{Measure}}]\cr
 #'   Measure to use. Defaults to the default measure of the task.
 #' @param nmc [\code{integer(1)}]\cr
 #' @param replace [\code{logical(1)}]\cr

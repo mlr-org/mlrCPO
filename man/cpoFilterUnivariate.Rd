@@ -31,11 +31,11 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
 
-\item{perf.learner}{[\code{\link[mlr]{Learner}} | \code{NULL}]\cr
+\item{perf.learner}{[\code{\link[mlr:makeLearner]{Learner}} | \code{NULL}]\cr
 Learner to resample. If this is \code{NULL}, \code{regr.randomForest} is used.
 Default is \code{NULL}.}
 
-\item{perf.measure}{[\code{\link[mlr]{Measure}} | \code{NULL}]\cr
+\item{perf.measure}{[\code{\link[mlr:makeMeasure]{Measure}} | \code{NULL}]\cr
 Measure to use for resampling. If this is \code{NULL}, the Task's default Measure is used.
 Default is \code{NULL}.}
 
