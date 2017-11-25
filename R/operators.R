@@ -153,8 +153,23 @@ composeCPO.CPO = function(cpo1, cpo2) {
 ### CPO Trafo Splitting        ###
 ##################################
 
-# Splitting a primitive object gives a list of that object
+#' @title Split a Pipeline Into Its Constituents.
+#'
+#' @description
+#' Split a compound \code{\link{CPO}} or \code{\link{CPOTrained}} into a list of its constituent parts.
+#'
+#' This is useful for inspection of pipelines, or for possible rearrangements or changes of pipelines. The
+#' resulting \code{list} can be changed and rebuilt using \code{\link{pipeCPO}}.
+#'
+#' @param x [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+#'   The \code{\link{CPO}} or \code{\link{CPOTrained}} chain to split apart.
+#' @param ... [\code{any}]\cr
+#'   Ignored.
+#' @return [\code{list} of \code{\link{CPO}} | \code{list} of \code{\link{CPOTrained}}]. The primitive constituents of \code{x}.
+#'
+#' @name as.list.CPO
 #' @export
+# Splitting a primitive object gives a list of that object
 as.list.CPOPrimitive = function(x, ...) {
   assert(length(list(...)) == 0)
   list(x)
@@ -283,6 +298,7 @@ chainPredictType = function(pt1, pt2, name1, name2) {
 # retrafos are a linked list, so on a basic level what happens is
 # c(as.list(x$prev.retrafo), list({x$prev.retrafo = NULL ; x}))
 # However, some other things that happen in composeCPO.CPOTrained need to be undone.
+#' @rdname as.list.CPO
 #' @export
 as.list.CPOTrained = function(x, ...) {
   assert(length(list(...)) == 0)
