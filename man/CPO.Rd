@@ -12,7 +12,7 @@ CPOs can be \dQuote{composed} using the \code{\link{\%>>\%}} operator, the \code
 the \code{\link{pipeCPO}} function, to create new (\dQuote{compound}) operators that perform multiple operations
 in a pipeline. While all CPOs have the class \dQuote{CPO}, primitive (i.e. not compound) CPOs have the additional class
 \dQuote{CPOPrimitive}, and compound CPOs have the class \dQuote{CPOPipeline}. It is possible to split a compound CPOs
-into its primitive constituents using \code{\link[=as.list.CPO]{as.list}}.
+into its primitive constituents using \code{\link{as.list.CPO}}.
 
 CPOs can be \dQuote{attached} to a mlr-\code{\link[mlr:makeLearner]{Learner}} objects to create \code{\link{CPOLearner}}s,
 using the \code{\link{\%>>\%}} operator, or the \code{\link{attachCPO}} function. These \code{\link{CPOLearner}}s

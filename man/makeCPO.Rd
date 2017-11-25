@@ -124,7 +124,7 @@ object in the same format as it received as input.}
 \code{makeCPO} creates a \emph{Feature Operation} \code{\link{CPOConstructor}}, i.e. a constructor for a \code{\link{CPO}} that will
 operate on feature columns. \code{makeCPOTargetOp} creates a \emph{Target Operation} \code{\link{CPOConstructor}}, which
 creates \code{\link{CPO}}s that operate on the target column. \code{makeCPORetrafoless} creates a \emph{Retrafoless} \code{\link{CPOConstructor}},
-which creates \code{\link{CPO}}s that may operate on both feature and target columns, but have no retrafo operation. See \link{OperatingTypes} for further
+which creates \code{\link{CPO}}s that may operate on both feature and target columns, but have no retrafo operation. See \link{OperatingType} for further
 details on the distinction of these.
 }
 \section{CPO Internals}{
@@ -146,7 +146,7 @@ the process can be influenced by the user during CPO definition or application. 
         the \code{\link{CPOInverter}} retrieved using \code{\link{inverter}} from the result of step 2.
     }
     The framework poses restrictions on primitive (i.e. not compound using \code{\link{composeCPO}}) \code{\link{CPO}}s to simplify internal
-    operation: A \code{\link{CPO}} may be one of three \link{OperatingTypes} (see there). The \emph{Feature Operation} \code{\link{CPO}} does not
+    operation: A \code{\link{CPO}} may be one of three \link{OperatingType} (see there). The \emph{Feature Operation} \code{\link{CPO}} does not
     transform target columns and hence only needs to be involved in steps 1 and 2. The \emph{Target Operation} \code{\link{CPO}} only transforms
     target columns, and therefore only concerns itself with steps 1 and 3. A \emph{Retrafoless} \code{\link{CPO}} may change both feature and
     target columns, but may not perform a retrafo \emph{or} inverter operation (and is therefore only concerned with step 1). Note that this

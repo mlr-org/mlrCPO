@@ -182,7 +182,7 @@ getCPOObjectType = function(cpo) {
 #'
 #' Every \code{\link{CPO}} can be a
 #' \dQuote{Feature Operation} CPO, a \dQuote{Target Operation} CPO, or a \dQuote{Retrafoless} CPO, or a composition
-#' of these (see \link{OperatingTypes}).
+#' of these (see \link{OperatingType}).
 #'
 #' If a (possibly compound) CPO contains only Feature Operation CPOs and Retrafoless CPOs, then it does not perform any operation
 #' on the target column of a data set; hence there is no inversion to be performed, the resulting \code{\link{CPORetrafo}}
@@ -190,7 +190,7 @@ getCPOObjectType = function(cpo) {
 #' \code{\link{NULLCPO}}).
 #'
 #' If a (possibly compound) CPO also contains Target Operation CPOs, but they are data independent--e.g. a CPO that
-#' takes the logarithm of the target column in a regression task--then the \code{\link{CPOretrafo}} object has enough information
+#' takes the logarithm of the target column in a regression task--then the \code{\link{CPORetrafo}} object has enough information
 #' to perform inversion and hence can also meaningfully be used with \code{\link{invert}}. In this case the invert capability
 #' of the \code{\link{CPORetrafo}} will be \dQuote{hybrid}. The \code{\link{CPOInverter}}
 #' object retrieved using the \code{\link{inverter}} function can be used for the same task, but the benefit of the

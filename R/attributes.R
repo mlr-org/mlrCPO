@@ -39,7 +39,7 @@
 #' \code{\link{print.CPOTrained}} is used for (possibly verbose) printing. To apply the retrafo or inverter transformation represented by the
 #' object to data, use the \code{\link{applyCPO}} or \code{\link{\%>>\%}} function.
 #'
-#' \code{CPOTrained} objects can be chained using \code{\link{\%>>\%}} or \code{\link{pipeCPO}}, and broken into primitives using \code{\link[=as.list.CPO]{as.list}}.
+#' \code{CPOTrained} objects can be chained using \code{\link{\%>>\%}} or \code{\link{pipeCPO}}, and broken into primitives using \code{\link{as.list.CPOTrained}}.
 #' However, since the \code{CPOTrained} objects represent transformations that relate closely to the data used to train it (and therefore
 #' to the position within a CPO pipeline), it is only advisable to chain or break apart \code{CPOTrained} pipes for inspection, or
 #' if you really know what you are doing.

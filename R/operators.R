@@ -324,10 +324,9 @@ as.list.CPOTrained = function(x, ...) {
 #'
 #' @description
 #' Chain a list of preprocessing operators, or retrafo objects, turning \code{list(a, b, c)} into
-#' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
-#' applied on a \code{CPO} chain.
+#' \code{a \%>>\% b \%>>\% c}.
 #'
-#' This is the inverse of \code{\link[=as.list.CPO]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
+#' This is the inverse of \code{\link{as.list.CPO}} / \code{\link{as.list.CPOTrained}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
 #'
 #' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
 #'   A list of \code{\link{CPO}} or \code{\link{CPOTrained}} objects.
