@@ -260,6 +260,7 @@ makeCPO = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("
     cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo))
 }
 
+
 makeCPORetrafoless = function(cpo.name, par.set = NULL, par.vals = list(), dataformat = c("df.all", "task"),
                    dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties = c("numerics", "factors", "ordered", "missings"),

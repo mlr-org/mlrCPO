@@ -11,7 +11,7 @@ NULLCPO
 \description{
 \code{NULLCPO} is the neutral element of \code{\link{CPO}} and \code{\link{CPOTrained}} composition when using
 \code{\link{\%>>\%}} or \code{\link{composeCPO}}. It is furthermore no effect when attached to a \code{\link[mlr:makeLearner]{Learner}}
-using \code{\link{attachCPO}} (or \code{\link{\%>>\%}}), or when applied to data using \code{\link{applyCPO}}, \code{\link{invertCPO}},
+using \code{\link{attachCPO}} (or \code{\link{\%>>\%}}), or when applied to data using \code{\link{applyCPO}}, \code{\link{invert}},
 or \code{\link[stats]{predict}} (or, again, \code{\link{\%>>\%}}).
 
 \code{NULLCPO} works as a stand-in for certain operations that have an "empty" return value:

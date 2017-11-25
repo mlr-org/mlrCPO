@@ -311,7 +311,7 @@ as.list.CPOTrained = function(x, ...) {
 #' \code{a \%>>\% b \%>>\% c}. This is the inverse operation of \code{as.list},
 #' applied on a \code{CPO} chain.
 #'
-#' This is the inverse of \code{\link[base:list]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
+#' This is the inverse of \code{\link[=as.list.CPO]{as.list}} when applied to \code{\link{CPO}} or \code{\link{CPOTrained}}.
 #'
 #' @param pplist [\code{list} of \code{CPO} | \code{list} of \code{CPOTrained}]\cr
 #'   A list of \code{\link{CPO}} or \code{\link{CPOTrained}} objects.

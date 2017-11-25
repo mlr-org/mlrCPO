@@ -10,7 +10,7 @@
 #'
 #' Only primitive \code{\link{CPORetrafo}} objects can be inspected like this.
 #' If the supplied \code{\link{CPORetrafo}} is not primitive, split it into
-#' its constituents using \code{\link[base:list]{as.list}}.
+#' its constituents using \code{\link[=as.list.CPO]{as.list}}.
 #'
 #' The structure of the internal state depends on the \code{\link{CPO}} backend
 #' used. For Functional CPO, the state is the environment of the
