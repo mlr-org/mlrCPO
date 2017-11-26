@@ -120,9 +120,9 @@ NULL
 #' @seealso \code{\link{print.CPO}} for possibly verbose printing.
 #'
 #' @family CPO lifecycle related
-#' @family CPO operations
-#' @family CPO properties
-#' @family CPO types
+#' @family operators
+#' @family getters and setters
+#' @family CPO classifications
 #' @examples
 #' class(cpoPca())  # c("CPOPrimitive", "CPO")
 #' class(cpoPca() %>>% cpoScale())  # c("CPOPipeline", "CPO")

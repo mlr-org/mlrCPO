@@ -429,7 +429,7 @@ getCPOName.CPOTrained = function(cpo) {
   paste(getCPOName(cpo$prev.retrafo), cpo$cpo$name, sep = ".")
 }
 
-#' @family CPOConstructor
+#' @family CPOConstructor related
 #' @rdname getCPOName
 #' @export
 getCPOName.CPOConstructor = function(cpo) {
