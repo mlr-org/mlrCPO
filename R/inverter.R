@@ -121,6 +121,18 @@ is.inverter = function(x) {  # nolint
 
 # data is either a data.frame or a matrix, and will be turned into
 # a uniform format.
+#
+# the canonical data layout, after sanitizePrediction:
+# regr response: numeric vector
+# regr se: numeric 2-column matrix
+# cluster response: integer vector
+# cluster prob: numeric matrix. This could also be a 1-D matrix but will be returned as numeric vector
+# classif response: logical vector
+# classif prob: numeric matrix > 1 column, except for oneclass possibly (numeric vector)
+# surv response: numeric vector
+# surv prob: assuming a numeric matrix > 1 column, but doesn't seem to currently exist
+# multiclass response: logical matrix > 1 column
+# multiclass prob: matrix > 1 column
 sanitizePrediction = function(data) {
   if (is.data.frame(data)) {
     if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
@@ -145,18 +157,6 @@ sanitizePrediction = function(data) {
 }
 
 inferPredictionTypePossibilities = function(data) {
-  # the canonical data layout, after sanitizePrediction
-  # regr response: numeric vector
-  # regr se: numeric 2-column matrix
-  # cluster response: integer vector
-  # cluster prob: numeric matrix. This could also be a 1-D matrix but will be returned as numeric vector
-  # classif response: logical vector
-  # classif prob: numeric matrix > 1 column, except for oneclass possibly (numeric vector)
-  # surv response: numeric vector
-  # surv prob: assuming a numeric matrix > 1 column, but doesn't seem to currently exist
-  # multiclass response: logical matrix > 1 column
-  # multiclass prob: matrix > 1 column
-
   data = sanitizePrediction(data)
   if (is.matrix(data)) {
     if (mode(data) == "logical") {
@@ -171,7 +171,7 @@ inferPredictionTypePossibilities = function(data) {
     stop("Data did not conform to any possible prediction: Was not numeric or factorial")
   } else {
     areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
-    c(if (areWhole(data)) "cluster", "surv", "regr")
+    c(if (areWhole(data) && all(data >= 0)) "cluster", "surv", "regr")
   }
 }
 
