@@ -1,44 +1,54 @@
 * TO-DO:
-** CPOs
-- 'cat_P' class prevalence
-- 'interaction'
-- QR
-- spacialSign
-- kernelPCA (kernlab) kpca
-- ICA
-- converting features to nums:
-  - 'as.numeric'
-  - ordered -> factor
-  - ordered -> as.numeric
-  - contr.poly, etc.
-  - knn impute
-  - binning -> to ordereds, to numbers
-- cpoRecodeNums (mit konstante, mit maximum, ...)
-- cpoNAIndicators
-- cpoMergeSmallLevels
-- cpo crossval
+** changes
+- [ ] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
+- [ ] rename 'trafo' to 'train'
+- [ ] retrafoless may not change column layout
+- [ ] don't use `...`, it's silly.
+- [ ] %=>>% operator
+- [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
+- [ ] reverse associativity:
+- [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 ** Features
-- cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
-- listCPO() nicer print
-- exporting / fixing / hiding hyperparameters needs to handle requirements.
-- cpoCbind: prevent copies
-- check shapeinfo when reattaching retrafos
-- meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
-  - properties.needed is the union of all properties.needed, properties and properties.adding are intersections
-  - optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
-  - cpoApply must have all properties, all properties.adding, must ignore properties.needed
-** sources:
--  https://topepo.github.io/recipes/reference/index.html
--  https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+- [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
+- [ ] listCPO() nicer print
+- [ ] exporting / fixing / hiding hyperparameters needs to handle requirements.
+- [ ] cpoCbind: prevent copies
+- [ ] check shapeinfo when reattaching retrafos
+- [ ] meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
+  - [ ] properties.needed is the union of all properties.needed, properties and properties.adding are intersections
+  - [ ] optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
+  - [ ] cpoApply must have all properties, all properties.adding, must ignore properties.needed
 ** test todo
-- convertNamesToItems, ItemsToNames
-- on.par.out.of.bounds setting
-- task types checked
-- retrafoless
-- simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
+- [ ] convertNamesToItems, ItemsToNames
+- [ ] on.par.out.of.bounds setting
+- [ ] task types checked
+- [ ] retrafoless
+- [ ] simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
+- [ ] test individual CPOs
+** CPOs
+- [ ] 'cat_P' class prevalence
+- [ ] 'interaction'
+- [ ] QR
+- [X] spatialSign
+- [ ] kernelPCA (kernlab) kpca
+- [ ] ICA
+- [-] converting features to nums:
+  - [X] 'as.numeric'
+  - [ ] ordered -> factor
+  - [ ] ordered -> as.numeric
+  - [ ] contr.poly, etc.
+  - [ ] knn impute
+  - [ ] binning -> to ordereds, to numbers
+- [ ] cpoRecodeNums (mit konstante, mit maximum, ...)
+- [ ] cpoNAIndicators
+- [ ] cpoMergeSmallLevels
+- [ ] cpo crossval
 ** news
-- colApplyCPO
-- cpoRangeScale
-- impact encoding: level -> probability fuer jede klasse
-- 'cat_B' ('bayesian' logit) x_catB = logit(P[y==target|x]) - logit(P[y==target]
-- cpoDropConst
+- [ ] colApplyCPO
+- [ ] cpoRangeScale
+- [ ] impact encoding: level -> probability fuer jede klasse
+- [ ] 'cat_B' ('bayesian' logit) x_catB = logit(P[y==target|x]) - logit(P[y==target]
+- [ ] cpoDropConst
+** sources:
+- [ ]  https://topepo.github.io/recipes/reference/index.html
+- [ ]  https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/

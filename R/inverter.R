@@ -127,7 +127,7 @@ is.inverter = function(x) {  # nolint
 # regr se: numeric 2-column matrix
 # cluster response: integer vector
 # cluster prob: numeric matrix. This could also be a 1-D matrix but will be returned as numeric vector
-# classif response: logical vector
+# classif response: factor vector
 # classif prob: numeric matrix > 1 column, except for oneclass possibly (numeric vector)
 # surv response: numeric vector
 # surv prob: assuming a numeric matrix > 1 column, but doesn't seem to currently exist
