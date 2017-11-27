@@ -44,7 +44,7 @@ Suggests:
     DiscriMiner
 LazyData: yes
 ByteCompile: yes
-Version: 0.1
+Version: 0.2
 Collate: 
     'auxiliary.R'
     'FormatCheck.R'
