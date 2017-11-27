@@ -29,7 +29,7 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
   if (verbose) {
     catf("CPO Trafo:")
     print(environment(x)$trafo.funs$cpo.trafo.orig)
-    retrafo.fun = environment(x)$trafo.funs$cpo.retrafo
+    retrafo.fun = environment(x)$trafo.funs$cpo.retrafo.orig
     if (!is.null(retrafo.fun)) {
       catf("\nCPO Retrafo:")
       print(retrafo.fun)

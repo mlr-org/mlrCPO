@@ -263,18 +263,30 @@
 #'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{properties.data}, it
 #'   indicates what kind of data a CPO can work with. To handle data given as \code{data.frame}, the \dQuote{cluster} property is needed. Default is the maximal set.
 #'
-#'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be one or more of \dQuote{oneclass},
-#'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
+#'   For Target Operation CPOs, this \emph{must} contain exactly one of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr}, \dQuote{surv}.
+#'   This indicates the type of \code{\link[mlr]{Task}} the
+#'   \code{\link{CPO}} can work on. If the input is a \code{data.frame}, it is treated as a \dQuote{cluster} type \code{\link[mlr]{Task}}.
+#'   If the \code{properties.target} contains \dQuote{classif}, the value must then also contain one or more of \dQuote{oneclass},
+#'   \dQuote{twoclass}, or \dQuote{multiclass}. Default is \dQuote{cluster}.
 #' @param properties.adding [\code{character}]\cr
 #'   Can be one or many of the same values as \code{properties.data} for Feature Operation CPOs, and one or many of the same values as \code{properties.target}
 #'   for Target Operation CPOs. These properties \emph{get added} to a \code{\link[mlr:makeLearner]{Learner}} (or \code{\link{CPO}}) coming after / behind this CPO.
 #'   When a CPO imputes missing values, for example, this should be \dQuote{missings}. This must be a subset of \dQuote{properties.data} or
-#'   \dQuote{properties.target}. Default is \code{character(0)}.
+#'   \dQuote{properties.target}.
+#'
+#'   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
+#'   conversion.
+#'
+#'   Default is \code{character(0)}.
 #' @param properties.needed [\code{character}]\cr
 #'   Can be one or many of the same values as \code{properties.data} for Feature Operation CPOs,
 #'   and one or many of the same values as \code{properties.target}. These properties are \emph{required}
 #'   from a \code{\link[mlr:makeLearner]{Learner}} (or \code{\link{CPO}}) coming after / behind this CPO. E.g., when a CPO converts factors to
 #'   numerics, this should be \dQuote{numerics} (and \code{properties.adding} should be \dQuote{factors}).
+#'
+#'   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
+#'   conversion.
+#'
 #'   Default is \code{character(0)}.
 #' @param packages [\code{character}]\cr
 #'   Package(s) that should be loaded when the CPO is constructed. This gives the user an error if
@@ -287,16 +299,23 @@
 #'   \dQuote{\code{cpo.invert}} as a function in its namespace (instead of the \code{cpo.retrafo}); this function will then be used for the
 #'   inversion step.
 #'   Default is \code{FALSE}.
-#' @param .predict.type.map [\code{character}]\cr
+#' @param predict.type.map [\code{character} | \code{list}]\cr
 #'   This becomes the \code{\link{CPO}}'s \code{predict.type}, explained in detail in \link{PredictType}.
 #'
-#'   In short, the \code{predict.type.map} is a character vector with \emph{names} according to the predict types \code{predict} can request
+#'   In short, the \code{predict.type.map} is a character vector, or a \code{list} of \code{character(1)},
+#'   with \emph{names} according to the predict types \code{predict} can request
 #'   in its \code{predict.type} argument when the created \code{\link{CPO}} was used as part of a \code{\link{CPOLearner}} to create the
 #'   model under consideration. The \emph{values} of \code{predict.type.map} are the \code{predict.type} that will be requested from the
 #'   underlying \code{\link[mlr:makeLearner]{Learner}} for prediction.
 #'
 #'   \code{predict.type.map} thus determines the format that the \code{target} parameter of \code{cpo.invert} can take: It is
 #'   the format according to \code{predict.type.map[predict.type]}, where \code{predict.type} is the respective \code{cpo.invert} parameter.
+#' @param task.type.out [\code{character(1)} | \code{NULL}]\cr
+#'   If \code{\link[mlr]{Task}} conversion is to take place, this is the output task that the data should be converted to. Note that the
+#'   CPO framework takes care of the conversion if \code{dataformat} is not \dQuote{task}, but the target column needs to have the
+#'   proper format for that.
+#'
+#'   If this is \code{NULL}, \code{\link[mlr]{Task}}s will not be converted. Default is \code{NULL}.
 #' @param cpo.train [\code{function} | \code{NULL}]\cr
 #'   This is a function which must have the parameters \code{data} and \code{target},
 #'   as well as the parameters specified in \code{par.set}. (Alternatively,
