@@ -53,7 +53,20 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
+\value{
+[\code{\link{CPO}}].
+}
 \description{
+This is a \code{\link{CPOCreator}} to be used to create a
+\code{\link{CPO}}. It is called like any R function and returns
+the created \code{\link{CPO}}.
+
+Note that data is neither scaled nor centered. Often
+this needs to be done for PCA, in which case, \code{\link{cpoScale}}
+should be used in addition (and before) \code{cpoPca}.
+}
+\section{General CPO info}{
+
 This function creates a CPO object, which can be applied to
 \code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
 and other CPO objects using the \code{\link{\%>>\%}} operator.
@@ -66,27 +79,41 @@ and \code{\link{getParamSet}} similarly work as one expects.
 If the \dQuote{id} parameter is given, the hyperparameters
 will have this id as aprefix; this will, however, not change
 the parameters of the creator function.
+}
 
-Note that data is neither scaled nor centered. Often
-this needs to be done for PCA, in which case, \code{\link{cpoScale}}
-should be used in addition (and before) \code{cpoPca}.
+\section{Calling a \code{\link{CPOConstructor}}}{
 
 CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-  The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-  enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-  data features are affected by default.
-}
-\section{General CPO Info}{
-NA
+The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
+enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
+data features are affected by default.
 }
 
 \seealso{
-Other CPO: \code{\link{CPOImputer}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
+Other CPOs: \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
+  \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
   \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}},
   \code{\link{cpoFixFactors}},
   \code{\link{cpoImpactEncodeClassif}},
   \code{\link{cpoImpactEncodeRegr}},
@@ -98,6 +125,5 @@ Other CPO: \code{\link{CPOImputer}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{makeCPOExtended}},
-  \code{\link{makeCPO}}
+  \code{\link{cpoWrap}}
 }

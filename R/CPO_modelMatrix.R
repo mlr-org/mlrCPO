@@ -2,10 +2,9 @@
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' This uses the \dQuote{stats} function \code{model.matrix} to create
 #' (numerical) data from the given data, using the provided formula.
-#'
-#' @template cpo_description
 #'
 #' @param formula [\code{formula}]\cr
 #'   Formula to use. Higher order interactions can be created using constructs
@@ -13,7 +12,7 @@
 #' @template cpo_doc_outro
 #' @export
 cpoModelMatrix = makeCPO("model.matrix", fix.factors = TRUE,  # nolint
-  par.set = makeParamSet(makeUntypedLearnerParam("formula")), .dataformat = "df.features",
+  par.set = makeParamSet(makeUntypedLearnerParam("formula")), dataformat = "df.features",
   properties.adding = c("factors", "ordered"), properties.needed = "numerics",
   cpo.train = NULL,
   cpo.retrafo = {

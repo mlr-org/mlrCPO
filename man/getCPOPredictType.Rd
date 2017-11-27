@@ -58,14 +58,15 @@ CPOs that are not Target Operating always have the \code{predict.type} of:
 \code{c(response = "response", prob = "prob", se = "se")}
 }
 \seealso{
-Other getters and setters: \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}},
+Other getters and setters: \code{\link{CPO}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
 
-Other CPO classifications: \code{\link{getCPOInvertCapability}},
+Other CPO classifications: \code{\link{CPO}},
+  \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}}
 

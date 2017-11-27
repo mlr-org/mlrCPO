@@ -11,7 +11,8 @@
 #' @template cpo_doc_outro
 #' @export
 cpoScale = makeCPOExtendedTrafo("scale",  # nolint
-  pSS(center = TRUE: logical, scale = TRUE: logical, .dataformat = "numeric"),
+  pSS(center = TRUE: logical, scale = TRUE: logical),
+  dataformat = "numeric",
   cpo.trafo = {
     result = scale(as.matrix(data), center = center, scale = scale)
     control = list(center = firstNonNull(attr(result, "scaled:center"), FALSE), scale = firstNonNull(attr(result, "scaled:scale"), FALSE))

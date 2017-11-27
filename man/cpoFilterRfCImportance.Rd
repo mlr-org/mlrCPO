@@ -2,21 +2,19 @@
 % Please edit documentation in R/CPO_filterFeatures.R
 \name{cpoFilterRfCImportance}
 \alias{cpoFilterRfCImportance}
-\title{Filter features: cforest.importance
-
-Permutation importance of random forests fitted in package \pkg{party}.
-The implementation follows the principle of mean decrese in accuracy used
-by the \pkg{randomForest} package (see description of \dQuote{randomForest.importance})
-filter.}
+\title{Filter features: cforest.importance}
 \usage{
-cpoFilterRfCImportance(perc = NULL, abs = NULL, threshold = NULL,
-  mtry = 5, id = NULL, export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoFilterRfCImportance(mtry = 5, perc = NULL, abs = NULL,
+  threshold = NULL, id = NULL, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
+\item{mtry}{[\code{integer(1)}]\cr
+Number of features to draw during feature bagging}
+
 \item{perc}{[\code{numeric(1)}]\cr
 If set, select \code{perc}*100 top scoring features.
 Mutually exclusive with arguments \code{abs} and \code{threshold}.}
@@ -28,9 +26,6 @@ Mutually exclusive with arguments \code{perc} and \code{threshold}.}
 \item{threshold}{[\code{numeric(1)}]\cr
 If set, select features whose score exceeds \code{threshold}.
 Mutually exclusive with arguments \code{perc} and \code{abs}.}
-
-\item{mtry}{[\code{integer(1)}]\cr
-Number of features to draw during feature bagging}
 
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
@@ -74,13 +69,96 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
-\description{
-CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-  The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-  enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-  data features are affected by default.
+\value{
+[\code{\link{CPO}}].
 }
-\section{General CPO Info}{
-NA
+\description{
+This is a \code{\link{CPOCreator}} to be used to create a
+\code{\link{CPO}}. It is called like any R function and returns
+the created \code{\link{CPO}}.
+
+Permutation importance of random forests fitted in package \pkg{party}.
+The implementation follows the principle of mean decrese in accuracy used
+by the \pkg{randomForest} package (see description of \dQuote{randomForest.importance})
+filter.
+}
+\section{General CPO info}{
+
+This function creates a CPO object, which can be applied to
+\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
+and other CPO objects using the \code{\link{\%>>\%}} operator.
+
+The parameters of this object can be changed after creation
+using the function \code{\link{setHyperPars}}. The other
+hyper-parameter manipulating functins, \code{\link{getHyperPars}}
+and \code{\link{getParamSet}} similarly work as one expects.
+
+If the \dQuote{id} parameter is given, the hyperparameters
+will have this id as aprefix; this will, however, not change
+the parameters of the creator function.
 }
 
+\section{Calling a \code{\link{CPOConstructor}}}{
+
+CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
+The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
+enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
+data features are affected by default.
+}
+
+\seealso{
+Other filter: \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}}
+
+Other CPOs: \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoDropConstants}},
+  \code{\link{cpoDummyEncode}},
+  \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}},
+  \code{\link{cpoFixFactors}},
+  \code{\link{cpoImpactEncodeClassif}},
+  \code{\link{cpoImpactEncodeRegr}},
+  \code{\link{cpoImpute}},
+  \code{\link{cpoMissingIndicators}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
+  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoQuantileBinNumerics}},
+  \code{\link{cpoScaleMaxAbs}},
+  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
+  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
+  \code{\link{cpoWrap}}
+}

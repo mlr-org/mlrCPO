@@ -85,7 +85,7 @@
 #'       \bold{Task type}    \tab \bold{target format}                          \cr
 #'       \dQuote{classif}    \tab one column of \code{\link[base]{factor}}      \cr
 #'       \dQuote{cluster}    \tab \code{data.frame} with zero columns.          \cr
-#'       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical} \cr
+#'       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical}}\cr
 #'       \dQuote{regr}       \tab one column of \code{\link[base]{numeric}}     \cr
 #'       \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}    \cr
 #'     }
@@ -355,7 +355,7 @@
 #'   function. This unit of information is a variable that must be defined inside the environment of the \code{cpo.trafo} function and will be
 #'   retrieved by the CPO framework.
 #'
-#'   If \code{cpo.retrafo} is not \code{NULL} (or if \code{skip.retrafo is \code{TRUE} and \code{cpo.invert} is not \code{NULL}),
+#'   If \code{cpo.retrafo} is not \code{NULL} (or if \code{skip.retrafo} is \code{TRUE} and \code{cpo.invert} is not \code{NULL}),
 #'   the unit is an object named \dQuote{\code{control}} that will be passed on as the \code{control} argument to the
 #'   \code{cpo.retrafo} function. If \code{cpo.retrafo} is \code{NULL}, the unit is a \emph{function}, called \dQuote{\code{cpo.retrafo}}
 #'   (or \dQuote{\code{cpo.invert}} if \code{skip.retrafo} is \code{TRUE}), that will be used

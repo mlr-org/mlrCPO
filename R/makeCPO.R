@@ -58,7 +58,7 @@ makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = l
     fix.factors = fix.factors, export.params = export.params, properties.data = properties.data,
     properties.adding = properties.adding, properties.needed = properties.needed,
     properties.target = properties.target,
-    packages = packages, cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), ...)
+    packages = packages, cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo))
 }
 
 #' @rdname makeCPO
@@ -104,7 +104,7 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
   assertFlag(skip.retrafo)
 
   task.type.in = intersect(properties.target, cpo.tasktypes)
-  if (is.null(task.type.out) {
+  if (is.null(task.type.out)) {
     task.type.out = task.type.in
   }
 
@@ -217,7 +217,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   export.params = params$export.params
 
   if (cpo.type == "target") {
-    assertCharacter(predict.type, any.missing = FALSE, names = "unique")
+    assertCharacter(predict.type.map, any.missing = FALSE, names = "unique")
   } else {
     # for feature operating CPOs, this is the identity.
     predict.type.map = c(response = "response", prob = "prob", se = "se")
@@ -252,7 +252,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     relevant.fun = if (cpo.type == "feature" || !skip.retrafo) trafo.funs$cpo.retrafo else trafo.funs$cpo.invert
     control.type = if (is.null(relevant.fun)) "functional" else "object"
   }
-  if (cpo.type = "target") {
+  if (cpo.type == "target") {
     if (!skip.retrafo) {
       control.type.invert = if (is.null(trafo.funs$cpo.invert)) "functional" else "object"
     } else {
@@ -345,36 +345,36 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
 
     cpo = makeS3Obj(c("CPOPrimitive", "CPO"),
       # --- CPO part
-      name = cpo.name,                               # [character(1)] the name of the operation performed by this CPO
-      debug.name = cpo.name,                         # [character(1)] Readable representation of of name and ID
-      par.set = par.set,                             # [ParamSet] exported parameters
-      par.vals = present.pars,                       # [named list] values of exported parameters
-      properties = properties.list,                  # properties$handling: [character] properties handled by this CPO
-                                                     # properties$adding [character] capabilities that this CPO adds to the next processor
-                                                     # properties$needed [character] capabilities needed by the next processor
-      properties.raw  = properties.list$handling,    # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
-      operating.type = cpo.type,                     # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
-      predict.type = predict.type,                   # [named character] translation of predict.type of underlying learner. Only for operating = "target"
+      name = cpo.name,                                       # [character(1)] the name of the operation performed by this CPO
+      debug.name = cpo.name,                                 # [character(1)] Readable representation of of name and ID
+      par.set = par.set,                                     # [ParamSet] exported parameters
+      par.vals = present.pars,                               # [named list] values of exported parameters
+      properties = properties.list,                          # properties$handling: [character] properties handled by this CPO
+                                                             # properties$adding [character] capabilities that this CPO adds to the next processor
+                                                             # properties$needed [character] capabilities needed by the next processor
+      properties.raw  = properties.list$handling,            # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
+      operating.type = cpo.type,                             # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
+      predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
-      id = NULL,                                     # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
-      trafo = trafo.funs$cpo.trafo,                  # [function] trafo function
-      retrafo = trafo.funs$cpo.retrafo,              # [function] retrafo function
-      control.type = control.type,                   # [character(1)] whether retrafo (or inverter if skip.retrafo) is taken from trafo
-                                                     #                environment ("functional"), uses 'control' object ("object"), or
-                                                     #                is stateless ("stateless")
-      control.type.invert = control.type.invert,     # [character(1)] whether inverter is taken from trafo / retrafo return value ("functional") or
-                                                     #                uses 'control' object
-      packages = packages,                           # [character] package(s) to load when constructing the CPO
-      affect.args = affect.args,                     # [named list] values of the "affect.*" arguments
-      unexported.pars = unexported.pars,             # [named list] values of parameters that are not exported
-      unexportedpar.set = unexportedpar.set,         # [ParamSet] unexported parameter set
-      barepar.set = par.set,                         # [ParamSet] exported parameters with names not containing the ID prefix
-      datasplit = dataformat,                        # [character(1)] data format as received by trafo / retrafo
-      fix.factors = fix.factors,                     # [logical(1)] whether to clean up factor levels in retrafo
+      id = NULL,                                             # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
+      trafo = trafo.funs$cpo.trafo,                          # [function] trafo function
+      retrafo = trafo.funs$cpo.retrafo,                      # [function] retrafo function
+      control.type = control.type,                           # [character(1)] whether retrafo (or inverter if skip.retrafo) is taken from trafo
+                                                             #                environment ("functional"), uses 'control' object ("object"), or
+                                                             #                is stateless ("stateless")
+      control.type.invert = control.type.invert,             # [character(1)] whether inverter is taken from trafo / retrafo return value ("functional") or
+                                                             #                uses 'control' object
+      packages = packages,                                   # [character] package(s) to load when constructing the CPO
+      affect.args = affect.args,                             # [named list] values of the "affect.*" arguments
+      unexported.pars = unexported.pars,                     # [named list] values of parameters that are not exported
+      unexportedpar.set = unexportedpar.set,                 # [ParamSet] unexported parameter set
+      bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
+      datasplit = dataformat,                                # [character(1)] data format as received by trafo / retrafo
+      fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things
-      convertfrom = type.from,                       # [character(1)] task type to convert from.
-      convertto = type.to,                           # [character(1)] task type to convert to.
-      skip.retrafo = skip.retrafo)                   # [logical(1)] whether retrafo is skipped in inverter
+      convertfrom = if (cpo.type == "target") type.from,     # [character(1)] task type to convert from.
+      convertto = if (cpo.type == "target") type.to,         # [character(1)] task type to convert to.
+      skip.retrafo = if (cpo.type == "target") skip.retrafo) # [logical(1)] whether retrafo is skipped in inverter
     if (length(getCPOAffect(cpo))) {
       # data is subset, so the overall 'properties' is the maximal set
       cpo$properties$handling = union(cpo$properties$handling,  c("numerics", "factors", "ordered", "missings"))
@@ -488,14 +488,14 @@ prepareParams = function(par.set, par.vals, export.params, reserved.params) {
 #   is needed by print.CPOConstructor for pretty printing of the functions, since the internal representation of them gets modified and is not informative.
 constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, skip.retrafo) {
 
-  if (!(is.recursive(cpo.trafo) && identical(cpo.trafo[[1]], quote(`{`)))) {
+  if (!(is.recursive(cpo.trafo) && length(cpo.trafo) > 1 && identical(cpo.trafo[[1]], quote(`{`)))) {
     cpo.trafo = eval(cpo.trafo, envir = eval.env)
   }
-  if (!(is.recursive(cpo.retrafo) && identical(cpo.retrafo[[1]], quote(`{`)))) {
+  if (!(is.recursive(cpo.retrafo) && length(cpo.retrafo) > 1 && identical(cpo.retrafo[[1]], quote(`{`)))) {
     cpo.retrafo = eval(cpo.retrafo, envir = eval.env)
   }
-  if (!(is.recursive(cpo.invert) && identical(cpo.retrafo[[1]], quote(`{`)))) {
-    cpo.retrafo = eval(cpo.retrafo, envir = eval.env)
+  if (!(is.recursive(cpo.invert) && length(cpo.invert) > 1 && identical(cpo.retrafo[[1]], quote(`{`)))) {
+    cpo.invert = eval(cpo.invert, envir = eval.env)
   }
 
   stateless = is.null(cpo.trafo)
@@ -532,7 +532,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, 
 
   cpo.trafo.new = cpo.trafo
   cpo.retrafo.new = cpo.retrafo
-  if (trafo.type == "feature") {
+  if (cpo.type == "feature") {
     # collapse "feature" and "feature.extended" into one, behaving like "feature.extended".
     if (is.null(cpo.retrafo)) {
       # functional
@@ -592,12 +592,13 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, 
 # @return [function] a function which can handle arguments as requested by `required.arglist` and either has the function
 #   body or is the function defined by `expr`.
 makeFunction = function(expr, required.arglist, env = parent.frame()) {
-  if (is.recursive(expr) && identical(expr[[1]], quote(`{`))) {
+  if (is.recursive(expr) && length(expr) > 1 && identical(expr[[1]], quote(`{`))) {
     # we have a headless list of expressions
     # so we build our own function
     args = as.pairlist(required.arglist)
     newfun = eval(call("function", args, expr), envir = env)
   } else {
+    newfun = expr
     assertFunction(newfun)
     if (!"..." %in% names(formals(newfun))) {
       # with a vararg function we tentatively trust the function

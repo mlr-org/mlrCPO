@@ -1,7 +1,7 @@
 
 #' @title Impute and re-impute data
 #'
-#' @cpo_doc_intro
+#' @template cpo_doc_intro
 #'
 #' @description
 #' Allows imputation of missing feature values through various techniques.
@@ -38,8 +38,6 @@
 #'   \item{impute.new.levels [\code{logical(1)}]}{See argument.}
 #'   \item{recode.factor.levels [\code{logical(1)}]}{See argument.}
 #' }
-#'
-#' @template cpo_description
 #'
 #' @param target.cols [\code{character}]\cr
 #'   Name of the column(s) specifying the response.
@@ -165,73 +163,73 @@ declareImputeFunction = function(name, method, additional.params, types = NULL) 
 
 #' @title Perform Imputation with Constant Value.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @param const [any]\cr
 #'  Constant valued use for imputation.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeConstant = declareImputeFunction("constant", imputeConstant, makeParamSet(makeUntypedLearnerParam("const")))  # nolint
 registerCPO(cpoImputeConstant, "imputation", "specialised", "Imputation using a constant value.")
 
 #' @title Perform Imputation with Median Value.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeMedian = declareImputeFunction("median", imputeMedian, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMedian, "imputation", "specialised", "Imputation using the median.")
 
 #' @title Perform Imputation with Mean Value.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeMean = declareImputeFunction("mean", imputeMean, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMean, "imputation", "specialised", "Imputation using the mean.")
 
 #' @title Perform Imputation with Mode Value.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeMode = declareImputeFunction("mode", imputeMode, makeParamSet())  # nolint
 registerCPO(cpoImputeMode, "imputation", "specialised", "Imputation using the mode.")
 
 #' @title Perform Imputation with Multiple of Minimum.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @description
 #' This method imputes by the minimum value of each column, multiplied by a constant.
 #'
 #' @param multiplier [\code{numeric(1)}]\cr
 #'   Value that stored minimum or maximum is multiplied with when imputation is done.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeMin = declareImputeFunction("min", imputeMin, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMin, "imputation", "specialised", "Imputation using constant values shifted below the minimum.")
 
 #' @title Perform Imputation with Multiple of Minimum.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @description
 #' This method imputes by the maximum value of each column, multiplied by a constant.
 #'
 #' @param multiplier [\code{numeric(1)}]\cr
 #'   Value that stored minimum or maximum is multiplied with when imputation is done.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeMax = declareImputeFunction("max", imputeMax, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constant values shifted above the maximum.")
 
 #' @title Perform Imputation with Uniformly Random Values.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @param min [\code{numeric(1)}]\cr
 #'   Lower bound for uniform distribution.
@@ -239,7 +237,7 @@ registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constan
 #' @param max [\code{numeric(1)}]\cr
 #'   Upper bound for uniform distribution.
 #'   If NA (default), it will be estimated from the data.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeUniform = declareImputeFunction("uniform", imputeUniform, {  # nolint
   ps = pSSLrn(min = 0: numeric[, ] [[special.vals = list(NA_real_)]],
@@ -252,13 +250,13 @@ registerCPO(cpoImputeUniform, "imputation", "specialised", "Imputation using uni
 
 #' @title Perform Imputation with Normally Distributed Random Values.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @param mu [\code{numeric(1)}]\cr
 #'   Mean of normal distribution. If missing it will be estimated from the data.
 #' @param sd [\code{numeric(1)}]\cr
 #'   Standard deviation of normal distribution. If missing it will be estimated from the data.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeNormal = declareImputeFunction("normal", imputeNormal, {  # nolint
   ps = pSSLrn(mu = 0: numeric[, ] [[special.vals = list(NA_real_)]],
@@ -271,7 +269,7 @@ registerCPO(cpoImputeNormal, "imputation", "specialised", "Imputation using norm
 
 #' @title Perform Imputation with Random Values.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @description
 #' This imputation method imputes with random values drawn from a distribution
@@ -283,7 +281,7 @@ registerCPO(cpoImputeNormal, "imputation", "specialised", "Imputation using norm
 #' @param use.mids [\code{logical(1)}]\cr
 #'  If \code{x} is numeric and a histogram is used, impute with bin mids (default)
 #'  or instead draw uniformly distributed samples within bin range.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeHist = declareImputeFunction("hist", imputeHist, pSSLrn(breaks = "Sturges": integer[1, ] [[special.vals = list("Sturges")]],  # nolint
   use.mids = TRUE: logical))
@@ -291,7 +289,7 @@ registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random
 
 #' @title Perform Imputation with an \code{mlr} \code{Learner}.
 #'
-#' @impute_doc_intro
+#' @template impute_doc_intro
 #'
 #' @param learner [\code{\link{Learner}} | \code{character(1)}]\cr
 #'  Supervised learner. Its predictions will be used for imputations.
@@ -301,7 +299,7 @@ registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random
 #'  Features to use in \code{learner} for prediction.
 #'  Default is \code{NULL} which uses all available features except the target column
 #'  of the original task.
-#' @impute_doc_outro
+#' @template impute_doc_outro
 #' @export
 cpoImputeLearner = declareImputeFunction("learner", imputeLearner, makeParamSet(makeUntypedLearnerParam("learner"),  # nolint
   makeUntypedLearnerParam("features", default = NULL)))

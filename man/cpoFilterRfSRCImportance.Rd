@@ -2,14 +2,7 @@
 % Please edit documentation in R/CPO_filterFeatures.R
 \name{cpoFilterRfSRCImportance}
 \alias{cpoFilterRfSRCImportance}
-\title{Filter features: randomForestSRC.rfsrc
-
-Filter \dQuote{randomForestSRC.rfsrc} computes the importance of random forests
-fitted in package \pkg{randomForestSRC}. The concrete method is selected via
-the \code{method} parameter. Possible values are \code{permute} (default), \code{random},
-\code{anti}, \code{permute.ensemble}, \code{random.ensemble}, \code{anti.ensemble}.
-See the VIMP section in the docs for \code{\link[randomForestSRC]{rfsrc}} for
-details.}
+\title{Filter features: randomForestSRC.rfsrc}
 \usage{
 cpoFilterRfSRCImportance(perc = NULL, abs = NULL, threshold = NULL,
   id = NULL, export = "export.default", affect.type = NULL,
@@ -73,13 +66,98 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
-\description{
-CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-  The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-  enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-  data features are affected by default.
+\value{
+[\code{\link{CPO}}].
 }
-\section{General CPO Info}{
-NA
+\description{
+This is a \code{\link{CPOCreator}} to be used to create a
+\code{\link{CPO}}. It is called like any R function and returns
+the created \code{\link{CPO}}.
+
+Filter \dQuote{randomForestSRC.rfsrc} computes the importance of random forests
+fitted in package \pkg{randomForestSRC}. The concrete method is selected via
+the \code{method} parameter. Possible values are \code{permute} (default), \code{random},
+\code{anti}, \code{permute.ensemble}, \code{random.ensemble}, \code{anti.ensemble}.
+See the VIMP section in the docs for \code{\link[randomForestSRC]{rfsrc}} for
+details.
+}
+\section{General CPO info}{
+
+This function creates a CPO object, which can be applied to
+\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
+and other CPO objects using the \code{\link{\%>>\%}} operator.
+
+The parameters of this object can be changed after creation
+using the function \code{\link{setHyperPars}}. The other
+hyper-parameter manipulating functins, \code{\link{getHyperPars}}
+and \code{\link{getParamSet}} similarly work as one expects.
+
+If the \dQuote{id} parameter is given, the hyperparameters
+will have this id as aprefix; this will, however, not change
+the parameters of the creator function.
 }
 
+\section{Calling a \code{\link{CPOConstructor}}}{
+
+CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
+The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
+enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
+data features are affected by default.
+}
+
+\seealso{
+Other filter: \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}}
+
+Other CPOs: \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoDropConstants}},
+  \code{\link{cpoDummyEncode}},
+  \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}},
+  \code{\link{cpoFixFactors}},
+  \code{\link{cpoImpactEncodeClassif}},
+  \code{\link{cpoImpactEncodeRegr}},
+  \code{\link{cpoImpute}},
+  \code{\link{cpoMissingIndicators}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
+  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoQuantileBinNumerics}},
+  \code{\link{cpoScaleMaxAbs}},
+  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
+  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
+  \code{\link{cpoWrap}}
+}

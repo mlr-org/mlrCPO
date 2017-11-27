@@ -127,37 +127,3 @@ convertItemsToNamesDVP = function(par.vals, par.set) {
   }
   par.vals
 }
-
-# Manipulate requirement expressions: rename all variables that are not function calls from
-# one name to another.
-#
-# This is important e.g. when changing requirement expressions. and a parameter in the paramset
-# is named e.g. 'c', because then c(1, 2, 3) would break. Therefore we
-# go through the expressions and change only those requirements that
-# are not function calls.
-# @param expr [language] the expression to manipulate
-# @param translate [list] named list of variable names to change
-# @return [language] the expression `expr`, with the variables renamed according to `translate`.
-renameNonfunctionNames = function(expr, translate) {
-  startfrom = 1
-  if (is.call(expr)) {
-    if (!is.recursive(expr)) {
-      return(expr)
-    }
-    startfrom = 2
-    if (is.recursive(expr[[1]])) {
-      startfrom = 1
-    } else if (length(expr) == 1) {
-      return(expr)
-    }
-  }
-  if (is.recursive(expr)) {
-    for (idx in seq(startfrom, length(expr))) {
-      expr[[idx]] = renameNonfunctionNames(expr[[idx]], translate)
-    }
-  } else if (is.symbol(expr) && as.character(expr) %in% names(translate)) {
-    expr = as.symbol(translate[[as.character(expr)]])
-  }
-  return(expr)
-}
-

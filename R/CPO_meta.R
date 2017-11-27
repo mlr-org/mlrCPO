@@ -93,6 +93,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Applies the \code{CPO} that is given to the \code{CPO} hyperparameter.
 #'
 #' @param cpo [\code{CPO}]\cr

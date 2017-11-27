@@ -17,7 +17,7 @@ cpoQuantileBinNumerics = makeCPO("bin.numerics",  # nolint
     lapply(data, function(d)
       unique(c(-Inf, quantile(d, (1:(numsplits - 1)) / numsplits, na.rm = TRUE), Inf)))
   },
-  cpo.retrafo = function(data) {
+  cpo.retrafo = {
     as.data.frame(mapply(function(d, b) ordered(cut(d, breaks = b)), d = data, b = control, SIMPLIFY = FALSE),
       row.names = rownames(data))
   })

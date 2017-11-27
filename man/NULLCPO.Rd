@@ -49,7 +49,8 @@ Other inverter related: \code{\link{CPOTrained}},
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
   \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{composeCPO}}
+  \code{\link{attachCPO}}, \code{\link{composeCPO}},
+  \code{\link{makeCPO}}
 
 Other NULLCPO related: \code{\link{is.nullcpo}},
   \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}

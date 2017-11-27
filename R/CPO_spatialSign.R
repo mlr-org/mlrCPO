@@ -15,7 +15,6 @@
 cpoSpatialSign = makeCPO("spatial.sign",  # nolint
   pSS(length = 1: numeric[0, ~.]),
   dataformat = "numeric",
-  trafo.type = "stateless",
   properties.data = c("numerics", "factors", "ordered"),  # no missings
   cpo.train = NULL,
   cpo.retrafo = {

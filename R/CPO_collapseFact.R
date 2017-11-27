@@ -9,7 +9,7 @@
 #' @param max.collapsed.class.prevalence [\code{numeric(1)}]\cr
 #'   Maximum prevalence of newly created collapsed factor level.
 #'   Default is \code{0.1}.
-#' @template arg_doc_outro
+#' @template cpo_doc_outro
 #' @export
 cpoCollapseFact = makeCPO("collapse.fact",  # nolint
   pSS(max.collapsed.class.prevalence = 0.1: numeric[0, ~1]),

@@ -62,5 +62,23 @@ head(getTaskData(iris.task \%>>\% cpoScale()))
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{composeCPO}}
+  \code{\link{attachCPO}}, \code{\link{composeCPO}},
+  \code{\link{makeCPO}}
+
+Other operators: \code{\link{\%>>\%}},
+  \code{\link{applyCPO}}, \code{\link{attachCPO}},
+  \code{\link{composeCPO}}, \code{\link{pipeCPO}}
+
+Other getters and setters: \code{\link{getCPOAffect}},
+  \code{\link{getCPOId}},
+  \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}},
+  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
+
+Other CPO classifications: \code{\link{getCPOInvertCapability}},
+  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOOperatingType}},
+  \code{\link{getCPOPredictType}}
 }

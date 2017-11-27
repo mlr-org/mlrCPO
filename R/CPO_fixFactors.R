@@ -8,8 +8,6 @@
 #' same levels in training and prediction, and by dropping factor levels that do not
 #' occur in training data.
 #'
-#' @template cpo_description
-#'
 #' @param drop.unused.levels
 #'   Factor levels of data that have no instances in the data are dropped. If
 #'   \dQuote{fix.factors.prediction} is false, this can lead to training data having

@@ -79,6 +79,7 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Minimum redundancy, maximum relevance filter \dQuote{mrmr} computes the
 #' mutual information between the target and each individual feature minus the
 #' average mutual information of previously selected features and this feature
@@ -93,6 +94,7 @@ registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features usin
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{carscore} determines the \dQuote{Correlation-Adjusted (marginal) coRelation
 #' scores} (short CAR scores). The CAR scores for a set of features are defined as the
 #' correlations between the target and the decorrelated features.
@@ -108,6 +110,7 @@ registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features 
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{randomForestSRC.rfsrc} computes the importance of random forests
 #' fitted in package \pkg{randomForestSRC}. The concrete method is selected via
 #' the \code{method} parameter. Possible values are \code{permute} (default), \code{random},
@@ -125,6 +128,7 @@ registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter fe
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{randomForestSRC.var.select} uses the minimal depth variable
 #' selection proposed by Ishwaran et al. (2010) (\code{method = "md"}) or a
 #' variable hunting approach (\code{method = "vh"} or \code{method = "vh.vimp"}).
@@ -139,6 +143,7 @@ registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter feat
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Permutation importance of random forests fitted in package \pkg{party}.
 #' The implementation follows the principle of mean decrese in accuracy used
 #' by the \pkg{randomForest} package (see description of \dQuote{randomForest.importance})
@@ -155,6 +160,7 @@ registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter feat
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{randomForest.importance} makes use of the \code{\link[randomForest]{importance}}
 #' from package \pkg{randomForest}. The importance measure to use is selected via
 #' the \code{method} parameter:
@@ -172,6 +178,7 @@ registerCPO(cpoFilterRfImportance, "featurefilter", "specialised", "Filter featu
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' The Pearson correlation between each feature and the target is used as an indicator
 #' of feature importance. Rows with NA values are not taken into consideration.
 #' @template arg_filter
@@ -184,6 +191,7 @@ registerCPO(cpoFilterLinearCorrelation, "featurefilter", "specialised", "Filter 
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' The Spearman correlation between each feature and the target is used as an indicator
 #' of feature importance. Rows with NA values are not taken into consideration.
 #' @template arg_filter
@@ -196,6 +204,7 @@ registerCPO(cpoFilterRankCorrelation, "featurefilter", "specialised", "Filter fe
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{information.gain} uses the entropy-based information gain
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
@@ -208,6 +217,7 @@ registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter fe
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{gain.ratio} uses the entropy-based information gain ratio
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
@@ -220,6 +230,7 @@ registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{symmetrical.uncertainty} uses the entropy-based symmetrical uncertainty
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
@@ -232,6 +243,7 @@ registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Fi
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' The chi-square test is a statistical test of independence to determine whether
 #' two variables are independent. Filter \dQuote{chi.squared} applies this
 #' test in the following way. For each feature the chi-square test statistic is
@@ -248,6 +260,7 @@ registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter feature
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{relief} is based on the feature selection algorithm \dQuote{ReliefF}
 #' by Kononenko et al., which is a generalization of the orignal \dQuote{Relief}
 #' algorithm originally proposed by Kira and Rendell. Feature weights are initialized
@@ -271,6 +284,7 @@ registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features us
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{oneR} makes use of a simple \dQuote{One-Rule} (OneR) learner to
 #' determine feature importance. For this purpose the OneR learner generates one
 #' simple association rule for each feature in the data individually and computes
@@ -286,6 +300,7 @@ registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features usin
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' The \dQuote{univariate.model.score} feature filter resamples an \pkg{mlr}
 #' learner specified via \code{perf.learner} for each feature individually
 #' with randomForest from package \pkg{rpart} being the default learner.
@@ -314,6 +329,7 @@ registerCPO(cpoFilterUnivariate, "featurefilter", "specialised", "Filter feature
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{anova.test} is based on the Analysis of Variance (ANOVA) between
 #' feature and class. The value of the F-statistic is used as a measure of feature
 #' importance.
@@ -327,6 +343,7 @@ registerCPO(cpoFilterAnova, "featurefilter", "specialised", "Filter features usi
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{kruskal.test} applies a Kruskal-Wallis rank sum test of the
 #' null hypothesis that the location parameters of the distribution of a feature
 #' are the same in each class and considers the test statistic as an variable
@@ -343,6 +360,7 @@ registerCPO(cpoFilterKruskal, "featurefilter", "specialised", "Filter features u
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Simple filter based on the variance of the features indepentent of each other.
 #' Features with higher variance are considered more important than features with
 #' low importance.
@@ -356,6 +374,7 @@ registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features 
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Filter \dQuote{permutation.importance} computes a loss function between predictions made by a
 #' learner before and after a feature is permuted.
 #' @param imp.learner [\code{\link[mlr:makeLearner]{Learner}} | \code{character(1)}]\cr

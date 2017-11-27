@@ -53,7 +53,7 @@ change the number or order of rows of a given data set.
 }
 
 \seealso{
-Other operators: \code{\link{\%>>\%}},
+Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
   \code{\link{attachCPO}}, \code{\link{composeCPO}},
   \code{\link{pipeCPO}}
 

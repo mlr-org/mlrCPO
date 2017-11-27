@@ -23,7 +23,8 @@ id as prefix. This makes it possible to
 compose CPOs that have clashing parameter names.
 }
 \seealso{
-Other getters and setters: \code{\link{getCPOAffect}},
+Other getters and setters: \code{\link{CPO}},
+  \code{\link{getCPOAffect}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},

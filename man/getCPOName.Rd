@@ -27,8 +27,8 @@ It is also the default \code{id}, as retrieved by \code{\link{getCPOId}},
 of a CPO.
 }
 \seealso{
-Other getters and setters: \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}},
+Other getters and setters: \code{\link{CPO}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
@@ -58,4 +58,7 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{getRetrafoState}}, \code{\link{is.inverter}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+
+Other CPOConstructor related: \code{\link{CPOConstructor}},
+  \code{\link{makeCPO}}, \code{\link{print.CPOConstructor}}
 }

@@ -24,7 +24,8 @@ are in one-to-one correspondence to the \code{affect.*} parameters given to the 
 see the parameter documentation there.
 }
 \seealso{
-Other getters and setters: \code{\link{getCPOId}},
+Other getters and setters: \code{\link{CPO}},
+  \code{\link{getCPOId}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},

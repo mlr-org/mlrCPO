@@ -18,27 +18,27 @@ The cpo.}
 Only get the CPO \emph{data properties} (not target or task type properties). Default is \code{FALSE}.}
 }
 \value{
-[\code{list}]. A \code{list} with slots \code{$properties}, \code{$properties.adding}, and \code{$properties.needed}.
+[\code{list}]. A \code{list} with slots \code{$handling}, \code{$adding}, and \code{$needed}.
 }
 \description{
 The properties of a \code{\link{CPO}} object determine the kind of data the CPO will be able to handle, and how
 it transforms data. Properties describe what kind of data a CPO can work with.
 
-This function returns a list of three values: \code{$properties}, \code{$properties.adding}, and
-\code{$properties.needed}.
+This function returns a list of three values: \code{$handling}, \code{$adding}, and
+\code{$needed}.
 
-The \code{$properties} determines what data the CPO handles. If a CPO is applied to a data set
+The \code{$handling} determines what data the CPO handles. If a CPO is applied to a data set
 (using \code{\link{\%>>\%}} or \code{\link{applyCPO}}, or indirectly when a \code{\link{CPOLearner}} is trained)
-that has a property not listed in \code{$properties}, an error will be given.
+that has a property not listed in \code{$handling}, an error will be given.
 
-\code{$properties.adding} can be one or many of the same values as \code{$properties}. These properties
+\code{$adding} can be one or many of the same values as \code{$handling}. These properties
 get added to a \code{\link[mlr:makeLearner]{Learner}} or CPO coming after / behind this CPO. When a CPO imputes missing values, for example,
-this is \dQuote{missings}. This is always a subset of \code{$properties}.
+this is \dQuote{missings}. This is always a subset of \code{$handling}.
 
-\code{$properties.needed} can be one or many of the same values as \code{$properties}. These properties
+\code{$properties.needed} can be one or many of the same values as \code{$handling}. These properties
 are required from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
-numerics, this is \dQuote{numerics} (and \code{$properties.adding} would be \dQuote{factors} in this case).
-\code{$properties.adding} and \code{$properties.needed} never have any value in common.
+numerics, this is \dQuote{numerics} (and \code{$adding} would be \dQuote{factors} in this case).
+\code{$adding} and \code{$needed} never have any value in common.
 }
 \section{Possible properties}{
 
@@ -53,8 +53,8 @@ numerics, this is \dQuote{numerics} (and \code{$properties.adding} would be \dQu
 }
 
 \seealso{
-Other getters and setters: \code{\link{getCPOAffect}},
-  \code{\link{getCPOId}},
+Other getters and setters: \code{\link{CPO}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},

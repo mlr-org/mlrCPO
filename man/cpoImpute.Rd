@@ -110,7 +110,14 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
+\value{
+[\code{\link{CPO}}].
+}
 \description{
+This is a \code{\link{CPOCreator}} to be used to create a
+\code{\link{CPO}}. It is called like any R function and returns
+the created \code{\link{CPO}}.
+
 Allows imputation of missing feature values through various techniques.
 Note that you have the possibility to re-impute a data set
 in the same way as the imputation was performed during training.
@@ -131,24 +138,6 @@ under \code{\link{imputations}} or create one yourself using \code{\link{makeImp
 \code{cpoImpute} will impute some columns. \code{cpoImputeAll} behaves just like \code{cpoImpute},
 except that it will throw an error if there are any missings remaining in its output. \code{cpoImputeAll}
 should be used if one wants to prepend an imputer to a learner.
-
-This function creates a CPO object, which can be applied to
-\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
-and other CPO objects using the \code{\link{\%>>\%}} operator.
-
-The parameters of this object can be changed after creation
-using the function \code{\link{setHyperPars}}. The other
-hyper-parameter manipulating functins, \code{\link{getHyperPars}}
-and \code{\link{getParamSet}} similarly work as one expects.
-
-If the \dQuote{id} parameter is given, the hyperparameters
-will have this id as aprefix; this will, however, not change
-the parameters of the creator function.
-
-CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-  The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-  enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-  data features are affected by default.
 }
 \details{
 The description object contains these slots
@@ -164,19 +153,55 @@ The description object contains these slots
   \item{recode.factor.levels [\code{logical(1)}]}{See argument.}
 }
 }
-\section{General CPO Info}{
-NA
+\section{General CPO info}{
+
+This function creates a CPO object, which can be applied to
+\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
+and other CPO objects using the \code{\link{\%>>\%}} operator.
+
+The parameters of this object can be changed after creation
+using the function \code{\link{setHyperPars}}. The other
+hyper-parameter manipulating functins, \code{\link{getHyperPars}}
+and \code{\link{getParamSet}} similarly work as one expects.
+
+If the \dQuote{id} parameter is given, the hyperparameters
+will have this id as aprefix; this will, however, not change
+the parameters of the creator function.
+}
+
+\section{Calling a \code{\link{CPOConstructor}}}{
+
+CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
+The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
+enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
+data features are affected by default.
 }
 
 \seealso{
-Other impute: \code{\link{CPOImputer}}
-
-Other CPO: \code{\link{CPOImputer}},
-  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCase}}, \code{\link{cpoCollapseFact}},
+Other CPOs: \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
+  \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
   \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRelief}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}},
   \code{\link{cpoFixFactors}},
   \code{\link{cpoImpactEncodeClassif}},
   \code{\link{cpoImpactEncodeRegr}},
@@ -187,6 +212,14 @@ Other CPO: \code{\link{CPOImputer}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}, \code{\link{makeCPOExtended}},
-  \code{\link{makeCPO}}
+  \code{\link{cpoWrap}}
+
+Other impute: \code{\link{cpoImputeConstant}},
+  \code{\link{cpoImputeHist}},
+  \code{\link{cpoImputeLearner}},
+  \code{\link{cpoImputeMax}}, \code{\link{cpoImputeMean}},
+  \code{\link{cpoImputeMedian}},
+  \code{\link{cpoImputeMin}}, \code{\link{cpoImputeMode}},
+  \code{\link{cpoImputeNormal}},
+  \code{\link{cpoImputeUniform}}
 }
