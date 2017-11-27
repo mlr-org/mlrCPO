@@ -10,7 +10,7 @@
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 ** Features
 - [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
-- [ ] listCPO() nicer print
+- [X] listCPO() nicer print
 - [ ] exporting / fixing / hiding hyperparameters needs to handle requirements.
 - [ ] cpoCbind: prevent copies
 - [ ] check shapeinfo when reattaching retrafos

@@ -69,5 +69,6 @@ listCPO = function() {
   df = convertListOfRowsToDataFrame(parent.env(environment())$CPOLIST)
   df = df[order(paste(df$category, df$subcategory, df$name, sep = "$")), ]
   df$description = as.character(df$description)
-  df
+  df$name = as.character(df$name)
+  addClasses(df, "ListCPO")
 }

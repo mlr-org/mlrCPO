@@ -150,3 +150,8 @@ print.ShapeInfo = function(x, ...) {
   catSI(x)
   cat(">\n")
 }
+
+#' @export
+print.ListCPO = function(x, ...) {
+  printHead(as.data.frame(dropNamed(x, drop = "description")), ...)
+}
