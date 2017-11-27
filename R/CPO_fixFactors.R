@@ -1,6 +1,8 @@
 
 #' @title Clean up Factorial Features.
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' Prevent common pitfalls when using factorial data, by making factorial data have the
 #' same levels in training and prediction, and by dropping factor levels that do not
@@ -15,19 +17,20 @@
 #' @param fix.factors.prediction
 #'   Factor levels are kept the same in training and prediction. This is
 #'   recommended. Default is \code{TRUE}.
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoFixFactors = makeCPOExtended("fixfactors", drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical,  # nolint
-  .dataformat = "df.features",
-  .properties.needed = "missings",
+cpoFixFactors = makeCPOExtendedTrafo("fixfactors",  # nolint
+  pSS(drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical),
+  dataformat = "df.features",
+  properties.needed = "missings",
   cpo.trafo = {
     if (drop.unused.levels) {
       data = droplevels(data)
     }
     control = Filter(function(x) !is.null(x), lapply(data, levels))
     data
-  }, cpo.retrafo = {
+  },
+  cpo.retrafo = {
     if (fix.factors.prediction) {
       data = fixFactors(data, control)
     } else if (drop.unused.levels) {

@@ -1,20 +1,21 @@
 
 #' @title Compine Rare Factors
 #'
-#' @template cpo_description
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Combine rare factor levels into a single factor level.
 #'
 #' @param max.collapsed.class.prevalence [\code{numeric(1)}]\cr
 #'   Maximum prevalence of newly created collapsed factor level.
 #'   Default is \code{0.1}.
-#'
-#' @template arg_cpo_id
-#' @family CPO
+#' @template arg_doc_outro
 #' @export
-cpoCollapseFact = makeCPOExtended("collapse.fact",  # nolint
-  max.collapsed.class.prevalence = 0.1: numeric[0, ~1],
-  .dataformat = "factor",
-  cpo.trafo = {
-    newlevels = sapply(data, function(d) {
+cpoCollapseFact = makeCPO("collapse.fact",  # nolint
+  pSS(max.collapsed.class.prevalence = 0.1: numeric[0, ~1]),
+  dataformat = "factor",
+  cpo.train = {
+    sapply(data, function(d) {
       if (all(is.na(d))) {
         return(levels(d))
       }
@@ -28,12 +29,11 @@ cpoCollapseFact = makeCPOExtended("collapse.fact",  # nolint
         levels(d)
       }
     }, simplify = FALSE)
-    cpo.retrafo = function(data) {
-      for (n in names(data)) {
-        levels(data[[n]]) = newlevels[[n]]
-      }
-      data
+  },
+  cpo.retrafo = {
+    for (n in names(data)) {
+      levels(data[[n]]) = control[[n]]
     }
-    cpo.retrafo(data)
-  }, cpo.retrafo = NULL)
+    data
+  })
 registerCPO(cpoCollapseFact, "data", "factor data preprocessing", "Combine rare factors.")

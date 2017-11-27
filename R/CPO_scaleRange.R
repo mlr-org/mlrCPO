@@ -1,5 +1,7 @@
 #' @title Range Scaling CPO
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' Linearly transform data columns so they are
 #' between \code{lower} and \code{upper}. If
@@ -7,21 +9,19 @@
 #' this will reverse the ordering of input data.
 #' \code{NA}, \code{Inf} are ignored.
 #'
-#' @template cpo_description
-#'
 #' @param lower [\code{numeric(1)}]\cr
 #'   Target value of smallest item of input data.
 #'   Default is 0.
 #' @param upper [\code{numeric(1)}]\cr
 #'   Target value of greatest item of input data.
 #'   Default is 1.
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoScaleRange = makeCPOExtended("range.scale", lower = 0: numeric[~., ~.], upper = 1: numeric[~., ~.],  # nolint
-  .dataformat = "numeric",
-  cpo.trafo = {
-    ranges = lapply(data, function(x) {
+cpoScaleRange = makeCPO("range.scale",  # nolint
+  pSS(lower = 0: numeric[~., ~.], upper = 1: numeric[~., ~.]),
+  dataformat = "numeric",
+  cpo.train = {
+    lapply(data, function(x) {
       rng = range(x, na.rm = TRUE, finite = TRUE)
       # linear transformation to get minimum to 'lower' and maximum to 'upper:
       # x' = a + x * b
@@ -31,13 +31,12 @@ cpoScaleRange = makeCPOExtended("range.scale", lower = 0: numeric[~., ~.], upper
       a = -rng[1] * b + lower
       c(a, b)
     })
-    cpo.retrafo = function(data) {
-      for (i in seq_along(data)) {
-        trafo = ranges[[i]]
-        data[[i]] = trafo[1] + data[[i]] * trafo[2]
-      }
-      data
+  },
+  cpo.retrafo = {
+    for (i in seq_along(data)) {
+      trafo = control[[i]]
+      data[[i]] = trafo[1] + data[[i]] * trafo[2]
     }
-    cpo.retrafo(data)
-  }, cpo.retrafo = NULL)
+    data
+  })
 registerCPO(cpoScaleRange, "data", "numeric data preprocessing", "Scale numeric columns to lie in a given range.")

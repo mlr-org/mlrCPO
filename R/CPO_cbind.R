@@ -2,6 +2,8 @@
 
 #' @title \dQuote{cbind} the Result of multiple CPOs
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' Build a CPO that represents the operations of its input parameters,
 #' performed in parallel and put together column wise.
@@ -42,6 +44,8 @@
 #'   name multiple times.
 #' @param .cpos [\code{list} of \code{CPO}]\cr
 #'   Alternatively, give the CPOs to cbind as a list. Default is \code{list()}.
+#' @template cpo_doc_outro
+#' @family special CPOs
 #' @export
 cpoCbind = function(..., .cpos = list()) {
   cpos = list(...)
@@ -104,11 +108,11 @@ cpoCbind = function(..., .cpos = list()) {
 
   control = NULL  # pacify static code analyser
 
-  addClasses(setCPOId(makeCPOExtended("cbind", .par.set = par.set, .par.vals = par.vals, .dataformat = "task",
-    .properties = collectedprops$properties,
-    .properties.adding = collectedprops$properties.adding,
-    .properties.needed = collectedprops$properties.needed,
-    .properties.target = collectedprops$properties.target,
+  addClasses(setCPOId(makeCPOExtendedTrafo("cbind", par.set = par.set, par.vals = par.vals, dataformat = "task",
+    properties.data = collectedprops$data,
+    properties.adding = collectedprops$adding,
+    properties.needed = collectedprops$needed,
+    properties.target = collectedprops$target,
     cpo.trafo = function(data, target, .CPO, ...) {
       args = list(...)
       ag = applyGraph(.CPO, data, TRUE, args)

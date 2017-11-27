@@ -1,12 +1,12 @@
 
 #' @title Drop All Columns Except Certain Selected Ones from Data
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' Select columns by type or name. The parameters \dQuote{type} and
 #' \dQuote{pattern} are additive; if both are given, all column that match
 #' either will be returned.
-#'
-#' @template cpo_description
 #'
 #' @param type [\code{character}]\cr
 #'   One or more out of \dQuote{numeric}, \dQuote{ordered}, \dQuote{factor}, \dQuote{other}.
@@ -36,11 +36,10 @@
 #'   Invert column selection: Drop the named columns and return the rest, instead of keeping the selected
 #'   columns only. Default is \code{FALSE}.
 #'
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoSelect = makeCPOExtended("select",  # nolint
-  .par.set = c(
+cpoSelect = makeCPO("select",  # nolint
+  par.set = c(
       pSSLrn(type = list(): discrete[numeric, ordered, factor, other]^NA,
         index = integer(0): integer[1, ]^NA),
       makeParamSet(makeUntypedLearnerParam("names", default = character(0)),
@@ -50,15 +49,14 @@ cpoSelect = makeCPOExtended("select",  # nolint
           pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
           pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
           invert = FALSE: logical)),
-  .dataformat = "df.features", cpo.trafo = {
+  dataformat = "df.features",
+  cpo.train = {
     assertCharacter(names, any.missing = FALSE, unique = TRUE)
     assertIntegerish(index, any.missing = FALSE, unique = TRUE)
 
-    index = getColIndices(data, type, index, names, pattern, invert, pattern.ignore.case, pattern.perl, pattern.fixed)
-
-    cpo.retrafo = function(data) {
-      data[index]
-    }
-    cpo.retrafo(data)
-  }, cpo.retrafo = NULL)
+    getColIndices(data, type, index, names, pattern, invert, pattern.ignore.case, pattern.perl, pattern.fixed)
+  },
+  cpo.retrafo = {
+    data[index]
+  })
 registerCPO(cpoSelect, "data", "feature selection ", "Select features from a data set by type, column name, or column index.")

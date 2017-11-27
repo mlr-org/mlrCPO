@@ -1,10 +1,10 @@
 #' @title Drop constant or near-constant Features.
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' Drop all columns that are either constant, or close to constant for numerics,
 #' and columns that have only one value for factors or ordered columns.
-#'
-#' @template cpo_description
 #'
 #' @param rel.tol [\code{numeric(1)}]\cr
 #'   Relative tolerance within which to consider a feature constant.
@@ -22,14 +22,14 @@
 #'   only count as constant if they are entirely made up of \code{NA},
 #'   or entirely made up of \code{NaN}.
 #'   Default is \code{FALSE}.
-#'
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoDropConstants = makeCPOExtended("dropconst", rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],  # nolint
-  ignore.na = FALSE: logical,
-  .dataformat = "df.features", cpo.trafo = {
-    control = sapply(data, function(col) {
+cpoDropConstants = makeCPO("dropconst",  # nolint
+  pSS(rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],
+    ignore.na = FALSE: logical),
+  dataformat = "df.features",
+  cpo.train = {
+    sapply(data, function(col) {
       if (ignore.na) {
         col = col[!(is.na(col) | is.nan(col))]
       }
@@ -51,8 +51,8 @@ cpoDropConstants = makeCPOExtended("dropconst", rel.tol = 1e-8: numeric[~0, ], a
       }
       return(!all(col == col[1]))
     })
-    data[control]
-  }, cpo.retrafo = {
+  },
+  cpo.retrafo = {
     data[control]
   })
 registerCPO(cpoDropConstants, "data", "cleanup", "Drop constant or near-constant Features.")

@@ -2,6 +2,8 @@
 
 #' @title Apply a Function Element-Wise
 #'
+#' @template cpo_doc_intro
+#'
 #' @description
 #' The function must either vectorize over the given data,
 #' or will be applied to each data element on its own.
@@ -11,8 +13,6 @@
 #'
 #' If the function can only handle a subset of the given columns,
 #' e.g. only a certain type, use \code{affect.*} arguments.
-#'
-#' @template cpo_description
 #'
 #' @param fun [\code{function}]\cr
 #'   The function to apply. Must take one argument. If
@@ -26,18 +26,18 @@
 #'   once for each element. If \code{fun} vectorizes,
 #'   it is recommended to have this set to \code{TRUE}
 #'   for better performance. Default is \code{TRUE}.
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoApplyFun = makeCPOExtended("fun.apply",  # nolint
-  .par.set = makeParamSet(
+cpoApplyFun = makeCPO("fun.apply",  # nolint
+  makeParamSet(
       makeFunctionLearnerParam("fun"),
       makeLogicalLearnerParam("vectorize", default = TRUE)),
-  .dataformat = "df.features", cpo.trafo = {
+  dataformat = "df.features",
+  cpo.train = {
     if (vectorize) {
-      fun2 = fun
+      fun
     } else {
-      fun2 = function(col) {
+      function(col) {
         sapply(col, function(x) {
           ret = fun(x)
           if (length(ret) != 1) {
@@ -46,10 +46,9 @@ cpoApplyFun = makeCPOExtended("fun.apply",  # nolint
         })
       }
     }
-    cpo.retrafo = function(data) {
-      as.data.frame(lapply(data, fun2))
-    }
-    cpo.retrafo(data)
-  }, cpo.retrafo = NULL)
+  },
+  cpo.retrafo = {
+    as.data.frame(lapply(data, control))
+  })
 registerCPO(cpoApplyFun, "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
 

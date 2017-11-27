@@ -1,23 +1,24 @@
 
 #' @title Split Numeric Features into Quantile Bins
 #'
-#' @template cpo_description
+#' @template cpo_doc_intro
 #'
 #' @param numsplits [\code{numeric(1)}]\cr
 #'   Number of bins to create. Default is \code{2}.
 #'
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
 #' @export
-cpoQuantileBinNumerics = makeCPOExtended("bin.numerics", numsplits = 2: integer[2, ],  # nolint
-  .properties.needed = "ordered", .properties.adding = "numerics",
-  .dataformat = "numeric", cpo.trafo = {
-    breaks = lapply(data, function(d)
+cpoQuantileBinNumerics = makeCPO("bin.numerics",  # nolint
+  pSS(numsplits = 2: integer[2, ]),
+  properties.needed = "ordered",
+  properties.adding = "numerics",
+  dataformat = "numeric",
+  cpo.train = {
+    lapply(data, function(d)
       unique(c(-Inf, quantile(d, (1:(numsplits - 1)) / numsplits, na.rm = TRUE), Inf)))
-    cpo.retrafo = function(data) {
-      as.data.frame(mapply(function(d, b) ordered(cut(d, breaks = b)), d = data, b = breaks, SIMPLIFY = FALSE),
-        row.names = rownames(data))
-    }
-    cpo.retrafo(data)
-  }, cpo.retrafo = NULL)
+  },
+  cpo.retrafo = function(data) {
+    as.data.frame(mapply(function(d, b) ordered(cut(d, breaks = b)), d = data, b = control, SIMPLIFY = FALSE),
+      row.names = rownames(data))
+  })
 registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert Numerics to Ordered by binning.")
