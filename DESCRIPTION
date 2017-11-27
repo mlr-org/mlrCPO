@@ -79,6 +79,7 @@ Collate:
     'doublecaret.R'
     'inverter.R'
     'learner.R'
+    'makeCPOHelp.R'
     'operators.R'
     'print.R'
     'zzz.R'

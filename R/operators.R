@@ -228,9 +228,9 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
 
   # check for properties match
   if (retrafo.composition) {
-    cpo2$properties.needed = compositeProperties(
-        list(properties = character(0), properties.adding = character(0), properties.needed = cpo1$properties.needed),
-        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)$properties.needed
+    cpo2$needed = compositeProperties(
+        list(handling = character(0), adding = character(0), needed = cpo1$needed),
+        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)$needed
   }
   if (inverter.composition) {
     if (pure.inverter.composition) {

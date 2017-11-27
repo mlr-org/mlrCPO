@@ -27,7 +27,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
   inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter")
   # --- state for pure "inverter":
   inverter$indatatd = getTaskDesc(data)
-  inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$properties, shapeinfo, cpo$name)$target
+  inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$handling, shapeinfo, cpo$name)$target
   composeCPO(nullToNullcpo(prev.inverter), inverter)
 }
 
@@ -47,7 +47,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
 makeCPORetrafo = function(cpo, state, prev.retrafo, shapeinfo.input, shapeinfo.output) {
   retrafo = makeCPOTrainedBasic(cpo, state, getCPORetrafoSubclasses(cpo))
   # --- state only in "CPORetrafo":
-  retrafo$properties.needed = cpo$properties$properties.needed  # is updated when chaining retrafos
+  retrafo$properties.needed = cpo$properties$needed  # is updated when chaining retrafos
   retrafo$shapeinfo.input = shapeinfo.input
   retrafo$shapeinfo.output = shapeinfo.output
 
@@ -115,7 +115,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     prevneeded = prev.retrafo$properties.needed
     assertCharacter(prevneeded, unique = TRUE)
     if (isPropertyStrict()) {
-      assertSubset(prevneeded, cpo$properties$properties)  # this should never happen, since we test this during CPO composition
+      assertSubset(prevneeded, cpo$properties$handling)  # this should never happen, since we test this during CPO composition
     }
   }
 
@@ -165,8 +165,8 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   }
 
   # the properties of the output should only be the input properties + the ones we're adding
-  allowed.properties = union(tin$properties, cpo$properties$properties.needed)
-  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$properties.adding,
+  allowed.properties = union(tin$properties, cpo$properties$needed)
+  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$adding,
     cpo$operating.type, cpo$convertto, tin$subset.index, cpo$debug.name)
 
   retrafo = if (build.retrafo && cpo$operating.type != "retrafoless") {
@@ -240,7 +240,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
 
   if (!is.null(retrafo$prev.retrafo)) {
     if (isPropertyStrict()) {
-      assertSubset(retrafo$prev.retrafo$properties.needed, cpo$properties$properties)  # this is already tested during composition
+      assertSubset(retrafo$prev.retrafo$properties.needed, cpo$properties$handling)  # this is already tested during composition
     }
     upper.result = callCPOTrained(retrafo$prev.retrafo, data, build.inverter, prev.inverter)
     data = upper.result$data
@@ -269,10 +269,10 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
     result = do.call(retrafo.fun, args)
   }
   # the properties of the output should only be the input properties + the ones we're adding
-  allowed.properties = union(tin$properties, cpo$properties$properties.needed)
+  allowed.properties = union(tin$properties, cpo$properties$needed)
 
   list(data = handleRetrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties,
-    cpo$properties$properties.adding, retrafo$shapeinfo.output, tin$subset.index, cpo$name),
+    cpo$properties$adding, retrafo$shapeinfo.output, tin$subset.index, cpo$name),
     inverter = prev.inverter)
 }
 

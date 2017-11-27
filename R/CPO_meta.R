@@ -245,10 +245,10 @@ cpoCase = function(par.set = NULL, par.vals = list(), export = list(),
 
 
   pr = collectProperties(constructed)
-  properties.data = firstNonNull(properties.adding, pr$properties, (cpo.dataproperties))
-  properties.adding = firstNonNull(properties.adding, pr$properties.adding, character(0))
-  properties.needed = firstNonNull(properties.needed, pr$properties.needed, character(0))
-  properties.target = firstNonNull(properties.target, pr$properties.target, c(cpo.targetproperties, cpo.tasktypes))
+  properties.data = firstNonNull(properties.adding, pr$data, (cpo.dataproperties))
+  properties.adding = firstNonNull(properties.adding, pr$adding, character(0))
+  properties.needed = firstNonNull(properties.needed, pr$needed, character(0))
+  properties.target = firstNonNull(properties.target, pr$target, c(cpo.targetproperties, cpo.tasktypes))
 
   required.arglist = lapply(c(paramset.pass.on$pars, export), function(dummy) substitute())
   required.arglist = insert(required.arglist, pv.pass.on)

@@ -17,7 +17,7 @@
 # TODO: throw error when predict.type "response" cannot be guarranteed
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
-  if (!learner$type %in% union(cpo$properties$properties.needed, setdiff(cpo$properties$properties, cpo$properties$properties.adding))) {
+  if (!learner$type %in% union(cpo$properties$needed, setdiff(cpo$properties$handling, cpo$properties$adding))) {
     stopf("Cannot combine CPO that outputs type %s with learner of type %s.",
       cpo$convertto, learner$type)
   }

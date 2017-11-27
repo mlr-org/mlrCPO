@@ -349,7 +349,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       debug.name = cpo.name,                         # [character(1)] Readable representation of of name and ID
       par.set = par.set,                             # [ParamSet] exported parameters
       par.vals = present.pars,                       # [named list] values of exported parameters
-      properties = properties.list,                  # properties$properties: [character] properties handled by this CPO
+      properties = properties.list,                  # properties$handling: [character] properties handled by this CPO
                                                      # properties$adding [character] capabilities that this CPO adds to the next processor
                                                      # properties$needed [character] capabilities needed by the next processor
       properties.raw  = properties.list$handling,    # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
@@ -377,7 +377,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       skip.retrafo = skip.retrafo)                   # [logical(1)] whether retrafo is skipped in inverter
     if (length(getCPOAffect(cpo))) {
       # data is subset, so the overall 'properties' is the maximal set
-      cpo$properties$properties = union(cpo$properties$properties,  c("numerics", "factors", "ordered", "missings"))
+      cpo$properties$handling = union(cpo$properties$handling,  c("numerics", "factors", "ordered", "missings"))
     }
     requireCPOPackages(cpo)
     setCPOId(cpo, id)  # this also adjusts par.set and par.vals

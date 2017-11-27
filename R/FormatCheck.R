@@ -334,14 +334,14 @@ getTaskProperties = function(data) {
 # @return [list of character] properties of compound CPO, with same slots as `prop1`
 # returns a list(properties, properties.adding, properties.needed)
 compositeProperties = function(prop1, prop2, name1, name2) {
-  properties.1 = prop1$properties
-  properties.adding.1 = prop1$properties.adding
-  properties.needed.1 = prop1$properties.needed
-  properties.2 = prop2$properties
-  properties.adding.2 = prop2$properties.adding
-  properties.needed.2 = prop2$properties.needed
-  assertCharacter(properties.1, unique = TRUE)
-  assertCharacter(properties.2, unique = TRUE)
+  properties.handling.1 = prop1$handling
+  properties.adding.1 = prop1$adding
+  properties.needed.1 = prop1$needed
+  properties.handling.2 = prop2$handling
+  properties.adding.2 = prop2$adding
+  properties.needed.2 = prop2$needed
+  assertCharacter(properties.handling.1, unique = TRUE)
+  assertCharacter(properties.handling.2, unique = TRUE)
   assertCharacter(properties.adding.1, unique = TRUE)
   assertCharacter(properties.adding.2, unique = TRUE)
   assertCharacter(properties.needed.1, unique = TRUE)
@@ -349,7 +349,7 @@ compositeProperties = function(prop1, prop2, name1, name2) {
   assertString(name1)
   assertString(name2)
   # some explanation about properties:
-  # * 'properties' are the properties that a CPO can handle.
+  # * 'properties.handling' are the properties that a CPO can handle.
   # * 'properties.adding' are the properties it adds to the things coming after it, it is therefore
   #   the things it *removes* from a dataset. E.g. if it removes 'missings' from data, it adds the property
   #   'missings' to the pipeline.
@@ -358,13 +358,13 @@ compositeProperties = function(prop1, prop2, name1, name2) {
   #   CPOs coming after it to have the property 'factors'.
 
   # The conditions on the properties are:
-  # A) properties.adding is a subset of properties
+  # A) properties.adding is a subset of properties.handling
   # B) properties.adding and properties.needed have no common elements
   # (these should be checked upon creation of a CPO)
 
   # When composing two CPOs (CPO1 %>>% CPO2), there is an additional requirement:
-  # * properties.needed.1 is a subset of properties.2
-  missing.properties = setdiff(properties.needed.1, properties.2)
+  # * properties.needed.1 is a subset of properties.handling.2
+  missing.properties = setdiff(properties.needed.1, properties.handling.2)
   if (isPropertyStrict() && length(missing.properties)) {
     stopf("CPO %s creates data with propert%s %s that %s can not handle.",
       name1, ifelse(length(missing.properties) > 1, "ies", "y"),
@@ -373,14 +373,14 @@ compositeProperties = function(prop1, prop2, name1, name2) {
   }
 
   # The properties of the new CPO are obtained thus:
-  properties.composite = intersect(properties.1, union(properties.2, properties.adding.1))
-  properties.adding.composite = union(setdiff(properties.adding.1, properties.needed.2), intersect(properties.1, properties.adding.2))
+  properties.composite = intersect(properties.handling.1, union(properties.handling.2, properties.adding.1))
+  properties.adding.composite = union(setdiff(properties.adding.1, properties.needed.2), intersect(properties.handling.1, properties.adding.2))
   properties.needed.composite = union(setdiff(properties.needed.1, properties.adding.2), properties.needed.2)
 
   # Proofs that conditions (A) and (B) are still fulfilled:
-  # A) using distribution of union and intersect, and the fact that (cond (A)) intersect(properties.adding.1, properties.1) == properties.adding.1,
+  # A) using distribution of union and intersect, and the fact that (cond (A)) intersect(properties.adding.1, properties.handling.1) == properties.adding.1,
   #    we rewrite
-  #      properties.composite = union(properties.adding.1, intersect(properties.1, properties.2))
+  #      properties.composite = union(properties.adding.1, intersect(properties.handling.1, properties.handling.2))
   #    Now the first term in the union of properties.adding.composite is a subset of the first term of the union of properties.composite;
   #    same with the second term of both.
   # B) We show that intersect(properties.adding.composite, properties.needed.composite) is empty by showing that both terms in the union
@@ -388,11 +388,11 @@ compositeProperties = function(prop1, prop2, name1, name2) {
   #    1) intersect(properties.adding.1 - properties.needed.2, properties.needed.2) is empty because properties.needed.2 is subtracted from the lhs
   #    2) intersect(properties.adding.1 - properties.needed.2, properties.needed.1 - properties.adding.2) is empty because
   #       intersect(properties.adding.1, properties.needed.1) is empty per condition (B)
-  #    3) intersect(intersect(properties.1, properties.adding.2), properties.needed.1 - properties.adding.2) is empty because properties.adding.2
+  #    3) intersect(intersect(properties.handling.1, properties.adding.2), properties.needed.1 - properties.adding.2) is empty because properties.adding.2
   #       is subtracted from the rhs
-  #    4) intersect(intersect(properties.1, properties.adding.2), properties.needed.2) is empty because properties.needed.2 and properties.adding.2
+  #    4) intersect(intersect(properties.handling.1, properties.adding.2), properties.needed.2) is empty because properties.needed.2 and properties.adding.2
   #       have empty intersect per condition (B)
-  list(properties = properties.composite, properties.adding = properties.adding.composite, properties.needed = properties.needed.composite)
+  list(handling = properties.composite, adding = properties.adding.composite, needed = properties.needed.composite)
 }
 
 # give error when shape is different than dictated by shapeinfo.
