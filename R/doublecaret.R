@@ -118,7 +118,11 @@
 
 #' @export
 `%>>%.data.frame` = function(cpo1, cpo2) {
-  `%>>%.Task`(cpo1, cpo2)
+  res = `%>>%.Task`(cpo1, cpo2)
+  if ("Task" %in% class(res)) {
+    message("data.frame was converted to Task by Target Operating CPO.")
+  }
+  res
 }
 
 #' @export
