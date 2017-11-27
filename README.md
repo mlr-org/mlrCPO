@@ -87,6 +87,8 @@ Predict-Type: response
 Hyperparameters: model=FALSE,scale.center=TRUE,scale.scale=TRUE
 ```
 
+Get a list of all `CPO`s by calling `listCPO()`.
+
 ## Documentation
 
 To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
@@ -98,7 +100,6 @@ A small intro guide for developers into the code base can be found in [info/deve
 ## Project Status
 
 `mlrCPO` is not yet a mature project and may be unstable at times; setting up a CI system is in progress, which should make things much smoother soon. Furthermore, even though it provides extensive functionality already, it is still lacking many concrete implementations of preprocessing operators.
-
 
 ## Similar Projects
 
