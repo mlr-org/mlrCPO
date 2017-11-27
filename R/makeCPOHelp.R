@@ -166,7 +166,7 @@
 #'     requested the feature \code{data.frame}, a \code{data.frame} must be returned.}
 #'   \item{\strong{Fix Factors}}{
 #'     Some preprocessing for factorial columns needs the factor levels to be the same during training and prediction. This is usually not guarranteed
-#'     by mlr, so the framework offers to do this if the \code{\link{fix.factors}} flag is set.}
+#'     by mlr, so the framework offers to do this if the \code{fix.factors} flag is set.}
 #'   \item{\strong{ID}}{
 #'     To prevent parameter name clashes when \code{\link{CPO}}s are concatenated, the parameters are prefixed with the \code{\link{CPO}}s
 #'     \emph{\link[=getCPOId]{id}}.
