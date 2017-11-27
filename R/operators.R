@@ -168,6 +168,9 @@ composeCPO.CPO = function(cpo1, cpo2) {
 #' @return [\code{list} of \code{\link{CPO}} | \code{list} of \code{\link{CPOTrained}}]. The primitive constituents of \code{x}.
 #'
 #' @name as.list.CPO
+#' @family operators
+#' @family retrafo related
+#' @family inverter related
 #' @export
 # Splitting a primitive object gives a list of that object
 as.list.CPOPrimitive = function(x, ...) {

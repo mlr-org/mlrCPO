@@ -40,8 +40,8 @@ training.
 }
 \seealso{
 Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{pipeCPO}}
+  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
+  \code{\link{attachCPO}}, \code{\link{pipeCPO}}
 
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},

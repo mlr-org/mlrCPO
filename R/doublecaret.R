@@ -7,7 +7,7 @@
 #' @title CPO Composition / Attachment / Application Operator.
 #'
 #' @description
-#' This operator \dQuote{pipes} data from the source into the target object.
+#' This operator \dQuote{pipes} data from the source into the sink object.
 #'
 #' If both objects are a \code{\link{CPO}} object, or both are a \code{\link{CPOTrained}} object,
 #' they will be composed. A new object, representing the operation of performing both object's operations in succession,
@@ -17,7 +17,7 @@
 #' transformation operation will be applied to this data, and the same resulting
 #' data will be returned. See \code{\link{applyCPO}}.
 #'
-#' If the target object is a \code{\link[mlr:makeLearner]{Learner}}, the CPO will be attached to
+#' If the sink object is a \code{\link[mlr:makeLearner]{Learner}}, the CPO will be attached to
 #' this learner. The same operation will be performed during the \code{\link[mlr]{train}} and
 #' \code{\link[stats]{predict}} phase; the behaviour during the predict phase may furthermore
 #' be depend on the training data. See \code{\link{attachCPO}}.
@@ -26,12 +26,18 @@
 #' to a \code{\link[mlr:makeLearner]{Learner}}, since this operation is not algebraically associative
 #' with the composition of CPOs. Use \code{\link[mlr]{train}} for this.
 #'
-#' The \code{\%<<\%} operator is synonymous with \code{\%>>\%} with source and target argument swapped.
+#' The \code{\%<<\%} operator is synonymous with \code{\%>>\%} with source and sink argument swapped.
+#'
+#' The \code{\%<>>\%} and \code{\%<<<\%} operators perform the piping operation and assign the result
+#' to the left hand variable. This way it is possible to apply a \code{\link{CPO}}, or to
+#' attach a \code{\link{CPO}} to a \code{\link[mlr:makeLearner]{Learner}}, and just keep the resulting
+#' object. The assignment operators evaluate their right hand side before their left hand side, so
+#' it is possible to build long chains thatend up writing to the leftmost variable.
 #'
 #' @param cpo1 [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The source object.
 #' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}} | \code{\link[mlr:makeLearner]{Learner}}]\cr
-#'   The target object.
+#'   The sink object.
 #'
 #' @family operators
 #' @family retrafo related
@@ -46,17 +52,63 @@
 #' newPCA = cpoPca() %>>% cpoScale()
 #'
 #' # Attach the above to learner
-#' pcaLogreg = neoPCA %>>% makeLearner("classif.logreg")
+#' pcaLogreg = newPCA %>>% makeLearner("classif.logreg")
+#'
+#' # append cpoAsNumeric to newPCA
+#' newPCA %<>>% cpoAsNumeric()
+#' print(newPCA)
+#'
+#' # prepend cpoAsNumeric to pcaLogreg
+#' pcaLogreg %<<<% cpoAsNumeric()
 #'
 #' @export
 `%>>%` = function(cpo1, cpo2) {
+  # deferAssignmentOperator call so that %<>>% etc. is evaluated last.
+  # it rewrites `%>>%` etc. operators to `internal%>>%` functions and
+  # calls the rewritten statement.
+  eval(deferAssignmentOperator(substitute(cpo1 %>>% cpo2)))
+}
+
+# %>>% is rewritten to internal%>>%
+`internal%>>%` = function(cpo1, cpo2) {
   UseMethod("%>>%")
 }
 
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%<<%` = function(cpo2, cpo1) {
-  cpo1 %>>% cpo2
+  eval(deferAssignmentOperator(substitute(cpo2 %<<% cpo1)))
+}
+
+# %<<% is rewritten to internal%<<%
+`internal%<<%` = function(cpo2, cpo1) {
+  `internal%>>%`(cpo1, cpo2)
+}
+
+#' @rdname grapes-greater-than-greater-than-grapes
+#' @export
+`%<>>%` = function(cpo1, cpo2) {
+  eval(deferAssignmentOperator(substitute(cpo1 %<>>% cpo2)))
+}
+
+# %<>>% is rewritten to internal%<>>%
+`internal%<>>%` = function(cpo1, cpo2) {
+  op = `internal%>>%`
+  cpo2 = cpo2  # don't want the expression of cpo2 in following substitute
+  eval.parent(substitute({ cpo1 = op(cpo1, cpo2) }), n = 4)
+}
+
+#' @rdname grapes-greater-than-greater-than-grapes
+#' @export
+`%<<<%` = function(cpo2, cpo1) {
+  eval(deferAssignmentOperator(substitute(cpo2 %<<<% cpo1)))
+}
+
+# %<<<% is rewritten to internal%<<<%
+`internal%<<<%` = function(cpo2, cpo1) {
+  op = `internal%>>%`
+  cpo1 = cpo1  # don't want the expression of cpo1 in following substitute
+  eval.parent(substitute({ cpo2 = op(cpo1, cpo2) }), n = 4)
 }
 
 #' @export
@@ -124,3 +176,85 @@
     stopf("Cannot compose CPO Retrafo with object of class c(%s)", paste0('"', class(cpo2), '"', collapse = ", "))
   }
 }
+
+# Rewrite all %**% operators to the right of the leftmost %<**% (assignment) operator
+#
+# Recursively collect the right hand side of each found operator.
+# As soon as an assignment operator is found, a
+# list(internal_operator, left_hand_side, right_hand_side)
+# is returned.
+#
+# right_hand_side is a newly created syntax tree that corresponds
+# to everything to the right of the %<>>% operator (as long as its precedence is equal
+# or above %%-operator precedence).
+#
+# left_hand_side is just the first operand of %<>>%, since that
+# *already* corresponds to everything of equal or above precedence to the left
+# of the operator.
+#
+# Some variables are defined outside of this function for performance, otherwise
+# the quotes are parsed again on every recursive iteration.
+#
+# @param expr [language] the expression to parse
+# @return [list]. list(operator, lhs, rhs)
+defas.assignment.ops = list(quote(`%<>>%`), quote(`%<<<%`))
+defas.assignment.repl = list(quote(`internal%<>>%`), quote(`internal%<<<%`))
+defas.deferred.ops = list(quote(`%>>%`), quote(`%<<%`))
+defas.deferred.repl = list(quote(`internal%>>%`), quote(`internal%<<%`))
+defas.triolist = list(NULL, NULL, NULL)
+defas.recurse.rewrite = function(expr) {
+  ret = defas.triolist
+  if (!is.call(expr)) {
+    ret[[3]] = expr
+  } else if (identical(expr[[1]], defas.deferred.ops[[1]])) {
+    # %>>%
+    ret = defas.recurse.rewrite(expr[[2]])
+
+    expr[[1]] = defas.deferred.repl[[1]]
+    expr[[2]] = ret[[3]]
+    ret[[3]] = expr
+  } else if (identical(expr[[1]], defas.deferred.ops[[2]])) {
+    # %<<%
+    ret = defas.recurse.rewrite(expr[[2]])
+
+    expr[[1]] = defas.deferred.repl[[2]]
+    expr[[2]] = ret[[3]]
+    ret[[3]] = expr
+  } else if (identical(expr[[1]], defas.assignment.ops[[1]])) {
+    ret[[1]] = defas.assignment.repl[[1]]
+    ret[[2]] = expr[[2]]
+    ret[[3]] = expr[[3]]
+  } else if (identical(expr[[1]], defas.assignment.ops[[2]])) {
+    ret[[1]] = defas.assignment.repl[[2]]
+    ret[[2]] = expr[[2]]
+    ret[[3]] = expr[[3]]
+  } else {
+    ret[[3]] = expr
+  }
+  ret
+}
+
+# Rewrite expr to make %<>>% and %>>>% right-associative
+#
+# This iterates through expr, rewrites %**% to internal%**%,
+# and makes %<>>% assignment operators evaluate their right hand
+# arguments first by rearranging the syntax tree.
+#
+# defas.recurse.rewrite is iteratively called until no more
+# %<>>% assignment operators are found.
+#
+# @param expr [language] the expression to rearrange / rewrite
+# @return [language]. The translated expression, which can be
+#   eval'd.
+deferAssignmentOperator = function(expr) {
+  prev.split = defas.recurse.rewrite(expr)
+  while (!is.null(prev.split[[1]])) {
+    split = defas.recurse.rewrite(prev.split[[2]])
+    prev.split[[2]] = split[[3]]
+    split[[3]] = as.call(prev.split)
+    prev.split = split
+  }
+  as.call(prev.split[[3]])
+}
+
+

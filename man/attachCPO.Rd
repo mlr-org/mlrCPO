@@ -25,8 +25,8 @@ The \code{\link{\%>>\%}} operator can be used synonymously to attach CPO objects
 }
 \seealso{
 Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{composeCPO}},
-  \code{\link{pipeCPO}}
+  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
+  \code{\link{composeCPO}}, \code{\link{pipeCPO}}
 
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},

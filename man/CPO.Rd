@@ -66,8 +66,9 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{makeCPO}}
 
 Other operators: \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}, \code{\link{pipeCPO}}
+  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
+  \code{\link{attachCPO}}, \code{\link{composeCPO}},
+  \code{\link{pipeCPO}}
 
 Other getters and setters: \code{\link{getCPOAffect}},
   \code{\link{getCPOId}},

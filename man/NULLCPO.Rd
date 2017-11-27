@@ -24,7 +24,7 @@ associated with it, and by \code{\link{pipeCPO}} when applied to an empty list.
 \seealso{
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{\%>>\%}}, \code{\link{applyCPO}},
-  \code{\link{clearRI}},
+  \code{\link{as.list.CPO}}, \code{\link{clearRI}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
@@ -36,7 +36,7 @@ Other retrafo related: \code{\link{CPOTrained}},
 
 Other inverter related: \code{\link{CPOTrained}},
   \code{\link{\%>>\%}}, \code{\link{applyCPO}},
-  \code{\link{clearRI}},
+  \code{\link{as.list.CPO}}, \code{\link{clearRI}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},

@@ -54,12 +54,12 @@ change the number or order of rows of a given data set.
 
 \seealso{
 Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{composeCPO}},
-  \code{\link{pipeCPO}}
+  \code{\link{as.list.CPO}}, \code{\link{attachCPO}},
+  \code{\link{composeCPO}}, \code{\link{pipeCPO}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{clearRI}},
+  \code{\link{as.list.CPO}}, \code{\link{clearRI}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
@@ -71,7 +71,7 @@ Other retrafo related: \code{\link{CPOTrained}},
 
 Other inverter related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{clearRI}},
+  \code{\link{as.list.CPO}}, \code{\link{clearRI}},
   \code{\link{getCPOInvertCapability}},
   \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
   \code{\link{getCPOOperatingType}},
