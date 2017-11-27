@@ -243,11 +243,9 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     funargs = insert(funargs, default.affect.args)
   }
 
-  if (is.null(trafo.funs$cpo.trafo)) {
-    control.type = "stateless"
-    assert(cpo.type, "feature")
-  } else if (cpo.type == "retrafoless") {
-    control.type = NULL
+  if (cpo.type == "retrafoless") {
+    assert(is.null(trafo.funs$cpo.retrafo))
+    control.type = "retrafoless"
   } else {
     relevant.fun = if (cpo.type == "feature" || !skip.retrafo) trafo.funs$cpo.retrafo else trafo.funs$cpo.invert
     control.type = if (is.null(relevant.fun)) "functional" else "object"
@@ -361,7 +359,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       retrafo = trafo.funs$cpo.retrafo,                      # [function] retrafo function
       control.type = control.type,                           # [character(1)] whether retrafo (or inverter if skip.retrafo) is taken from trafo
                                                              #                environment ("functional"), uses 'control' object ("object"), or
-                                                             #                is stateless ("stateless")
+                                                             #                is not defined ("retrafoless")
       control.type.invert = control.type.invert,             # [character(1)] whether inverter is taken from trafo / retrafo return value ("functional") or
                                                              #                uses 'control' object
       packages = packages,                                   # [character] package(s) to load when constructing the CPO
@@ -530,6 +528,15 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, 
     stop("One of cpo.train or cpo.retrafo must be non-NULL, since one cannot have a stateless functional CPO.")
   }
 
+  if (!is.null(cpo.invert)) {
+    assert(cpo.type == "target")
+    required.arglist = funargs
+    required.arglist$target = substitute()
+    required.arglist$control = substitute()
+    required.arglist$predict.type = substitute()
+    cpo.invert = makeFunction(cpo.invert, required.arglist, env = eval.env)
+  }
+
   cpo.trafo.new = cpo.trafo
   cpo.retrafo.new = cpo.retrafo
   if (cpo.type == "feature") {
@@ -562,7 +569,12 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, 
       }
     }
   }
-  cpo.trafo.new = captureEnvWrapper(cpo.trafo.new)
+  if (cpo.type != "retrafoless") {
+    cpo.trafo.new = captureEnvWrapper(cpo.trafo.new)
+  }
+  if (cpo.type == "target") {
+    cpo.retrafo.new = captureEnvWrapper(cpo.retrafo.new)
+  }
 
   list(cpo.trafo = cpo.trafo.new, cpo.retrafo = cpo.retrafo.new, cpo.invert = cpo.invert,
     cpo.trafo.orig = cpo.trafo, cpo.retrafo.orig = cpo.retrafo)

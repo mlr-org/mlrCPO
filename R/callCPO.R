@@ -120,30 +120,30 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   }
 
   tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties.raw, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
-  if (!cpo$data.dependent) {
-    assert(cpo$operating.type == "target")
-    tin$indata$data = NULL
-  }
-  if (cpo$control.type == "stateless" && is.null(cpo$retrafo)) {
-    # stateless trafo-less CPO
-    tin$indata$target = NULL
-  }
 
   .ENV = NULL  # nolint
   result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
-
-  assertChoice(cpo$control.type, c("functional", "object", "stateless"))
   trafoenv = .ENV
 
+  assertChoice(cpo$control.type, c("functional", "object", "retrafoless"))
   if (cpo$control.type == "functional") {
-    state = trafoenv$cpo.retrafo
     if (cpo$operating.type == "target") {
-      requiredargs = c("df.features", "predict.type")
-      if (is.null(state) || !isTRUE(checkFunction(state, args = requiredargs, nargs = 2))) {
-        stopf('.data.dependent targetbound CPO %s cpo.trafo must set a variable "cpo.retrafo"\n%s"%s".',
-          cpo$debug.name, "to a function with two arguments ", collapse(requiredargs, sep = '", "'))
+      if (cpo$skip.retrafo) {
+        # getting the cpo.invert right away
+        fname = "cpo.invert"
+        requiredargs = c("target", "control", "predict.type")
+      } else {
+        # getting cpo.retrafo
+        fname = cpo.retrafo
+        requiredargs = c("data", "control")
+      }
+      state = trafoenv[[fname]]
+      if (is.null(state) || !isTRUE(checkFunction(state, args = requiredargs, nargs = length(requiredargs)))) {
+        stopf('targetbound CPO %s with skip.retrafo %s must set a variable "%s" in cpo.trafo\n%s"%s".',
+          cpo$debug.name, cpo$skip.retrafo, fname, "to a function with arguments ", collapse(requiredargs, sep = '", "'))
       }
     } else if (is.null(state) || !isTRUE(checkFunction(state, nargs = 1))) {
+      state = trafoenv$cpo.retrafo
       stopf("CPO %s cpo.trafo did not set a variable 'cpo.retrafo' to a function with one argument.", cpo$debug.name)
     }
     if (!"data" %in% names(formals(state)) && referencesNonfunctionNames(body(state), "data") && cpo$data.dependent) {
@@ -152,15 +152,15 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
         "will not be accessible when cpo.retrafo is called.",
         "If you still need to access this data, copy it to a variable with a different name.",
         "If this warning is a false positive and you assign the 'data' variable properly, you can avoid",
-        "this warning by giving it a name different from 'data'.", sep = "\n"))
+        "this warning by renaming the 'data' variable.", sep = "\n"))
     }
     trafoenv$data = NULL
   } else if (cpo$control.type == "object") {
     if (!"control" %in% ls(trafoenv)) {
-      stopf("CPO %s cpo.trafo did not create a 'control' object. Use the .stateless flag on creation if you don't need a control object.", cpo$debug.name)
+      stopf("CPO %s cpo.trafo did not create a 'control' object.", cpo$debug.name)
     }
     state = trafoenv$control
-  } else {  # cpo$control.type == "stateless"
+  } else {  # cpo$control.type == "retrafoless"
     state = NULL
   }
 
