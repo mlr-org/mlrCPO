@@ -7,6 +7,8 @@
 #' which creates \code{\link{CPO}}s that may operate on both feature and target columns, but have no retrafo operation. See \link{OperatingType} for further
 #' details on the distinction of these. \code{makeCPOExtendedTrafo} creates a \emph{Feature Operation} \code{\link{CPOConstructor}} that
 #' has slightly more flexibility in its data transformation behaviour than \code{makeCPO} (but is otherwise identical).
+#' \code{makeCPOExtendedTargetOp} creates a \emph{Target Operation} \code{\link{CPOConstructor}} that has slightly more flexibility in its
+#' data transformation behaviour than \code{makeCPOTargetOp} but is otherwise identical.
 #'
 #' See example section for some simple custom CPO.
 #'
@@ -28,15 +30,15 @@
 #'         the \code{\link{CPOInverter}} retrieved using \code{\link{inverter}} from the result of step 2.
 #'     }
 #'     The framework poses restrictions on primitive (i.e. not compound using \code{\link{composeCPO}}) \code{\link{CPO}}s to simplify internal
-#'     operation: A \code{\link{CPO}} may be one of three \link{OperatingType} (see there). The \emph{Feature Operation} \code{\link{CPO}} does not
+#'     operation: A \code{\link{CPO}} may be one of three \link{OperatingType}s (see there). The \emph{Feature Operation} \code{\link{CPO}} does not
 #'     transform target columns and hence only needs to be involved in steps 1 and 2. The \emph{Target Operation} \code{\link{CPO}} only transforms
-#'     target columns, and therefore only concerns itself with steps 1 and 3. A \emph{Retrafoless} \code{\link{CPO}} may change both feature and
+#'     target columns, and therefore mostly concerns itself with steps 1 and 3. A \emph{Retrafoless} \code{\link{CPO}} may change both feature and
 #'     target columns, but may not perform a retrafo \emph{or} inverter operation (and is therefore only concerned with step 1). Note that this
 #'     is effectively a restriction on what kind of transformation a Retrafoless CPO may perform: it must not be a transformation of the data
 #'     or target \emph{space}, it may only act or subtract points within this space.
 #'
 #'     The Operating Type of a \code{\link{CPO}} is ultimately dependent on the function that was used to create the \code{\link{CPOConstructor}}:
-#'     \code{makeCPO} / \code{makeCPOExtendedTrafo}, \code{makeCPOTargetOp}, or \code{makeCPORetrafoless}.}
+#'     \code{makeCPO} / \code{makeCPOExtendedTrafo}, \code{makeCPOTargetOp} / \code{makeCPOExtendedTargetOp}, or \code{makeCPORetrafoless}.}
 #'   \item{\strong{Data Transformation}}{
 #'     At the core of a CPO is the modification of data it performs. For Feature Operation CPOs, the transformation of each row,
 #'     during training \emph{and} prediction, should
@@ -51,68 +53,41 @@
 #'
 #'     Internally, when a \code{\link{CPO}} gets applied to a data set using \code{\link{applyCPO}}, the \code{cpo.train} function is called, and the
 #'     resulting control object is used for a subsequent \code{cpo.retrafo} call which transforms the data. Before the result is given back from the
-#'     \code{\link{applyCPO}} call, the control object is used to create a \code{\link{CPORetrafo}} object and a \code{\link{CPOInverter}} object,
-#'     which are attached to the result as attributes.
+#'     \code{\link{applyCPO}} call, the control object is used to create a \code{\link{CPORetrafo}} object,
+#'     which is attached to the result as attribute. Target Operating CPOs additionally create and add a \code{\link{CPOInverter}} object.
 #'
 #'     When a \code{\link{CPORetrafo}} is then applied to new prediction data, the control object previously returned by \code{cpo.train} is given,
 #'     combined with this \emph{new} data, to another \code{cpo.retrafo} call that performs the new transformation.
 #'
 #'     \code{makeCPOExtendedTrafo} gives more flexibility by having calling only the \code{cpo.trafo} in the training step, which both creates a control
-#'     object and modifies the data. This can increase performance if the underlying operation creates a control object and the transformed data in one step,
+#'     object \emph{and} modifies the data. This can increase performance if the underlying operation creates a control object and the transformed data in one step,
 #'     as for example \emph{PCA} does. Note that the requirement that the same row in training and prediction data should result in the same transformation
-#'     result still stands.}
+#'     result still stands. The \code{cpo.trafo} function returns the transformed data and creates a local variable with the control information, which the
+#'     CPO framework will access.}
 #'   \item{\strong{Inversion}}{
-#'     If a \code{\link{CPO}} performs transformations of the target column, the predictions made by a following machine learning process should ideally have this
-#'     transformation undone, so that if the process makes a prediction that coincides with a target value \emph{after} the transformation, the whole pipeline
-#'     should return a prediction that equals to the target value \emph{before} this transformation.
+#'     If a \code{\link{CPO}} performs transformations of the \emph{target} column, the predictions made by a following machine learning process should
+#'     ideally have this transformation undone, so that if the process makes a prediction that coincides with a target value \emph{after} the
+#'     transformation, the whole pipeline should return a prediction that equals to the target value \emph{before} this transformation.
 #'
-#'     This is done by the \code{cpo.invert} function given to \code{makeCPOTargetOp}. It can access information from both the preceding training and prediction
-#'     steps. During the training (and initial transformation) step, \code{cpo.trafo} creates a \code{control} object that is then, during prediction, given
-#'     to \code{cpo.retrafo}. The objective of \code{cpo.retrafo} is to modify the \code{control} object to include information about the prediction data.
-#'     this modified \code{control} object is then given to \code{cpo.invert}.
+#'     This is done by the \code{cpo.invert} function given to \code{makeCPOTargetOp}. It has access to information from both the preceding training and prediction
+#'     steps. During the training step, \code{cpo.train} createas a \code{control} object that is not only given to \code{cpo.retrafo}, but also
+#'     to \code{cpo.train.invert}. This latter function is called before the prediction step, whenever new data is fed to the machine learning process.
+#'     It takes the new data and the old \code{control} object and transforms it to a new \code{control.invert} object to include information about the prediction
+#'     data. This object is then given to \code{cpo.invert}.
 #'
 #'     It is possible to have Target Operation CPOs that do not require information from the retrafo step. This is specified by setting
-#'     \code{skip.retrafo} to \code{TRUE}. It has the advantage that the same \code{\link{CPOInverter}}
+#'     \code{constant.invert} to \code{TRUE}. It has the advantage that the same \code{\link{CPOInverter}}
 #'     can be used for inversion of predictions made with any new data. Otherwise, a new \code{\link{CPOInverter}} object must be obtained for each
-#'     new data set after the retrafo step (using the \code{\link{inverter}} function on the retrafo result). Having \code{skip.retrafo} set to \code{TRUE}
-#'     results in \emph{hybrid}
-#'     retrafo / inverter objects: The \code{\link{CPORetrafo}} object can then also be used for \code{inversions}.}
-#'   \item{\strong{Target Column Format}}{
-#'     Different \code{\link[mlr]{Task}} types have the target in a different formats. They are listed here for reference. Target data is in this format
-#'     when given to the \code{target} argument of some functions, and must be returned in this format by \code{cpo.trafo}
-#'     in Target Operation CPOs. Target values are always in the format of a \code{\link[base]{data.frame}}, even when only one column.
-#'     \tabular{ll}{
-#'       \bold{Task type}    \tab \bold{target format}                          \cr
-#'       \dQuote{classif}    \tab one column of \code{\link[base]{factor}}      \cr
-#'       \dQuote{cluster}    \tab \code{data.frame} with zero columns.          \cr
-#'       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical}}\cr
-#'       \dQuote{regr}       \tab one column of \code{\link[base]{numeric}}     \cr
-#'       \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}    \cr
-#'     }
+#'     new data set after the retrafo step (using the \code{\link{inverter}} function on the retrafo result). Having \code{constant.invert} set to \code{TRUE}
+#'     results in \emph{hybrid} retrafo / inverter objects: The \code{\link{CPORetrafo}} object can then also be used for \code{inversions}.
+#'     When defining a \code{constant.invert} Target Operating CPO, no \code{cpo.train.invert} function is given, and the same \code{control}
+#'     object is given to both \code{cpo.retrafo} and \code{cpo.invert}.
 #'
-#'     When inverting, the format of the \code{target} argument, as well as the return value of, the \code{cpo.invert} function depends on the
-#'     \code{\link[mlr]{Task}} type as well as the \code{predict.type}. The requested return value \code{predict.type} is given to the \code{cpo.invert} function
-#'     as a parameter, the \code{predict.type} of the \code{target} parameter depends on this and the \code{predict.type.map} (see \link{PredictType}).
-#'     The format of the prediction, depending on the task type and \code{predict.type}, is:
-#'     \tabular{lll}{
-#'       \bold{Task type}    \tab \bold{\code{predict.type}} \tab \bold{target format}                          \cr
-#'       \dQuote{classif}    \tab \dQuote{response}          \tab \code{\link[base]{factor}}                    \cr
-#'       \dQuote{classif}    \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclass cols   \cr
-#'       \dQuote{cluster}    \tab \dQuote{response}          \tab \code{\link[base]{integer}} cluster index     \cr
-#'       \dQuote{cluster}    \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclustr cols  \cr
-#'       \dQuote{multilabel} \tab \dQuote{response}          \tab \code{\link[base]{logical}} \code{\link[base]{matrix}} \cr
-#'       \dQuote{multilabel} \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclass cols   \cr
-#'       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-#'       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
-#'       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-#'       \dQuote{surv}       \tab \dQuote{prob}              \tab UNDEFINED                                     \cr
-#'     }
-#'     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
-#'   \item{\strong{Task Conversion}}{
-#'     Target Operation CPOs can be used for conversion between \code{\link[mlr]{Task}}s. For this, the \code{type.out} value must be given. Task conversion
-#'     works with all values of \code{dataformat} and is handled by the CPO framework. The \code{cpo.trafo} function must take care to return the target data
-#'     in a proper format (see above). Note that for conversion, not only does the \code{\link[mlr]{Task}} type need to be changed during \code{cpo.trafo}, but
-#'     also the \emph{prediction} format (see above) needs to change.}
+#'     \code{makeCPOExtendedTargetOp} gives more flexibility and allows more efficient implementation of Target Operating CPOs at cost of more complexity.
+#'     With this method, a \code{cpo.trafo} function is given that is executed during the first training step; It must return the transformed target column,
+#'     as well as a \code{control} and \code{control.invert} object. The \code{cpo.retrafo} function not only transforms the target, but must also
+#'     create a new \code{control.invert} object (unless \code{constant.invert} is \code{TRUE}). The semantics of \code{cpo.invert} is identical with the
+#'     basic \code{makeCPOTargetOp}.}
 #'   \item{\strong{\code{cpo.train}-\code{cpo.retrafo} information transfer}}{
 #'     One possibility to transfer information from \code{cpo.train} to \code{cpo.retrafo} is to have \code{cpo.train} return a
 #'     control object (a \code{\link[base]{list}})
@@ -121,8 +96,18 @@
 #'     Another possibility is to not give the \code{cpo.retrafo}
 #'     argument (set it to \code{NULL} in the \code{makeCPO} call) and have \code{cpo.train} instead return a \emph{function} instead. This function is then
 #'     used as the \code{cpo.retrafo} function, and should have access to all relevant information about the training data as a closure. This is called
-#'     \emph{functional} CPO. To save memory, the actual data given to \code{cpo.train} is removed from the environment of its return value in this case
-#'     (i.e. the environment of the \code{cpo.retrafo} function). This means the \code{cpo.retrafo} function may not reference a \dQuote{\code{data}} variable.}
+#'     \emph{functional} CPO. To save memory, the actual data (including target) given to \code{cpo.train} is removed from the environment of its
+#'     return value in this case
+#'     (i.e. the environment of the \code{cpo.retrafo} function). This means the \code{cpo.retrafo} function may not reference a \dQuote{\code{data}} variable.
+#'
+#'     There are similar possibilities of functional information transfer for other types of CPOs: \code{cpo.trafo} in \code{makeCPOExtendedTargetOp} may
+#'     create a \code{cpo.retrafo} function instead of a \code{control} object. \code{cpo.train} in \code{makeCPOTargetOp} has the option of creating
+#'     a \code{cpo.retrafo} and \code{cpo.train.invert} (\code{cpo.invert} if \code{constant.invert} is \code{TRUE}) function (and returning \code{NULL})
+#'     instead of returning a \code{control} object. Similarly, \code{cpo.train.invert} may return a \code{cpo.invert} function instead of a \code{control.invert}
+#'     object. In \code{makeCPOExtendedTargetOp}, \code{cpo.trafo} may create a \code{cpo.retrafo} of \a \code{cpo.invert} function, each optionally instead
+#'     of a \code{control} or \code{control.invert} object (one \emph{or} both may be functional). \code{cpo.retrafo} similarly may create a \code{cpo.invert}
+#'     function instead of giving a \code{control.invert} object. Functional information transfer may be more parsimonious and elegant than control
+#'     object information transfer.}
 #'   \item{\strong{Hyperparameters}}{
 #'     The action performed by a CPO may be influenced using \emph{hyperparameters}, during its construction as well as afterwards (then using
 #'     \code{\link[mlr]{setHyperPars}}). Hyperparameters must be specified as a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and given as argument \code{par.set}.
@@ -160,10 +145,15 @@
 #'   \item{\strong{Data Format}}{
 #'     Different CPOs may want to change different aspects of the data, e.g. they may only care about numeric columns, they may or may not care about
 #'     the target column values, sometimes they might need the actual task used as input. The CPO framework offers to present the data in a specified
-#'     formats to the \code{cpo.train} and \code{cpo.retrafo} functions, to reduce the need for boilerplate data subsetting on the user's part. The format is
+#'     formats to the \code{cpo.train}, \code{cpo.retrafo} and other functions, to reduce the need for boilerplate data subsetting on the user's part. The format is
 #'     requested using the \code{dataformat} and \code{dataformat.factor.with.ordered} parameter. A \code{cpo.retrafo} function is expected to return
 #'     data in the same format as it requested, so if it requested a \code{\link[mlr]{Task}}, it must return one, while if it only
 #'     requested the feature \code{data.frame}, a \code{data.frame} must be returned.}
+#'   \item{\strong{Task Conversion}}{
+#'     Target Operation CPOs can be used for conversion between \code{\link[mlr]{Task}}s. For this, the \code{type.out} value must be given. Task conversion
+#'     works with all values of \code{dataformat} and is handled by the CPO framework. The \code{cpo.trafo} function must take care to return the target data
+#'     in a proper format (see above). Note that for conversion, not only does the \code{\link[mlr]{Task}} type need to be changed during \code{cpo.trafo}, but
+#'     also the \emph{prediction} format (see above) needs to change.}
 #'   \item{\strong{Fix Factors}}{
 #'     Some preprocessing for factorial columns needs the factor levels to be the same during training and prediction. This is usually not guarranteed
 #'     by mlr, so the framework offers to do this if the \code{fix.factors} flag is set.}
@@ -176,6 +166,37 @@
 #'     Whenever a \code{\link{CPO}} needs certain packages to be installed to work, it can specify these in the \code{packages} parameter. The framework
 #'     will check for the availability of the packages and throw an error if not found \emph{during construction}. This means that loading a \code{\link{CPO}}
 #'     from a savefile will omit this check, but in most cases it is a sufficient measure to make the user aware of missing packages in time.}
+#'   \item{\strong{Target Column Format}}{
+#'     Different \code{\link[mlr]{Task}} types have the target in a different formats. They are listed here for reference. Target data is in this format
+#'     when given to the \code{target} argument of some functions, and must be returned in this format by \code{cpo.trafo}
+#'     in Target Operation CPOs. Target values are always in the format of a \code{\link[base]{data.frame}}, even when only one column.
+#'     \tabular{ll}{
+#'       \bold{Task type}    \tab \bold{target format}                          \cr
+#'       \dQuote{classif}    \tab one column of \code{\link[base]{factor}}      \cr
+#'       \dQuote{cluster}    \tab \code{data.frame} with zero columns.          \cr
+#'       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical}}\cr
+#'       \dQuote{regr}       \tab one column of \code{\link[base]{numeric}}     \cr
+#'       \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}    \cr
+#'     }
+#'
+#'     When inverting, the format of the \code{target} argument, as well as the return value of, the \code{cpo.invert} function depends on the
+#'     \code{\link[mlr]{Task}} type as well as the \code{predict.type}. The requested return value \code{predict.type} is given to the \code{cpo.invert} function
+#'     as a parameter, the \code{predict.type} of the \code{target} parameter depends on this and the \code{predict.type.map} (see \link{PredictType}).
+#'     The format of the prediction, depending on the task type and \code{predict.type}, is:
+#'     \tabular{lll}{
+#'       \bold{Task type}    \tab \bold{\code{predict.type}} \tab \bold{target format}                          \cr
+#'       \dQuote{classif}    \tab \dQuote{response}          \tab \code{\link[base]{factor}}                    \cr
+#'       \dQuote{classif}    \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclass cols   \cr
+#'       \dQuote{cluster}    \tab \dQuote{response}          \tab \code{\link[base]{integer}} cluster index     \cr
+#'       \dQuote{cluster}    \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclustr cols  \cr
+#'       \dQuote{multilabel} \tab \dQuote{response}          \tab \code{\link[base]{logical}} \code{\link[base]{matrix}} \cr
+#'       \dQuote{multilabel} \tab \dQuote{prob}              \tab \code{\link[base]{matrix}} with nclass cols   \cr
+#'       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
+#'       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
+#'       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
+#'       \dQuote{surv}       \tab \dQuote{prob}              \tab UNDEFINED                                     \cr
+#'     }
+#'     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
 #' }
 #'
 #' @section Headless function definitions:
@@ -206,7 +227,7 @@
 #' @param dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by the \code{cpo.train} and \code{cpo.retrafo} function.
 #'   The following table shows what values of \code{dataformat} lead to what is given to \code{cpo.train} and \code{cpo.retrafo}
-#'   as \code{data} and \code{target} parameter value. (Note that \code{cpo.retrafo} has no \code{target} argument.) Possibilities are:
+#'   as \code{data} and \code{target} parameter value. (Note that for Feature Operating CPOs, \code{cpo.retrafo} has no \code{target} argument.) Possibilities are:
 #'   \tabular{lll}{
 #'     \bold{dataformat}    \tab \bold{data}                            \tab \bold{target}                \cr
 #'     \dQuote{df.all}       \tab \code{data.frame} with target cols     \tab target colnames              \cr
@@ -229,7 +250,7 @@
 #'   the \code{$factor} slot of the returned list may contain numeric data. (Note however that if data is returned
 #'   that has a type not already present in the data, \code{properties.needed} must specify this.)
 #'
-#'   If \code{dataformat} is either \dQuote{df.all} or \dQuote{task}, the
+#'   For Feature Operating CPOs, if \code{dataformat} is either \dQuote{df.all} or \dQuote{task}, the
 #'   target column(s) in the returned value of the retrafo function must be identical with the target column(s) given as input.
 #'
 #'   If \code{dataformat} is \dQuote{split}, the \code{$numeric} slot of the value returned by the \code{cpo.retrafo} function
@@ -238,8 +259,9 @@
 #'
 #'   Default is \dQuote{df.features} for all functions except \code{makeCPORetrafoless}, for which it is \dQuote{df.all}.
 #' @param dataformat.factor.with.ordered [\code{logical(1)}]\cr
-#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, and only
-#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. Default is \code{TRUE}.
+#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, for which it only
+#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. It also affects how strictly data fed to a \code{\link{CPORetrafo}} object
+#'   is checked for adherence to the data format of data given to the generating \code{\link{CPO}}. Default is \code{TRUE}.
 #' @param export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link[mlr]{setHyperPars}},
 #'   but exporting too many parameters may lead to messy parameter sets if many CPOs are combined using \code{\link{composeCPO}} or \code{\link{\%>>\%}}.
@@ -291,13 +313,20 @@
 #' @param packages [\code{character}]\cr
 #'   Package(s) that should be loaded when the CPO is constructed. This gives the user an error if
 #'   a package required for the CPO is not available on his system, or can not be loaded. Default is \code{character(0)}.
-#' @param skip.retrafo [\code{logical(1)}]\cr
-#'   Whether the \code{cpo.retrafo} step should be skipped for Target Operation CPOs (\code{makeCPOTargetOp}). If this is \code{TRUE}, the
-#'   \code{cpo.retrafo} argument must be \code{NULL}, and no action is performed during retrafo. Then if \code{cpo.invert} is given,
-#'   \code{cpo.trafo} must define a variable named \dQuote{\code{control}} in its namespace that will be given directly to the \code{cpo.invert}
-#'   call in the inversion step. Otherwise, if \code{cpo.invert} is \code{NULL}, \code{cpo.trafo} must define a variable named
-#'   \dQuote{\code{cpo.invert}} as a function in its namespace (instead of the \code{cpo.retrafo}); this function will then be used for the
-#'   inversion step.
+#' @param constant.invert [\code{logical(1)}]\cr
+#'   Whether the \code{cpo.invert} step should not have information from the previous \code{cpo.retrafo} or \code{cpo.train.invert} step in
+#'   Target Operation CPOs (\code{makeCPOTargetOp} or \code{makeCPOExtendedTargetOp}).
+#'
+#'   For \code{makeCPOTargetOp}, if this is \code{TRUE}, the
+#'   \code{cpo.train.invert} argument must be \code{NULL}. If \code{cpo.retrafo} and \code{cpo.invert} are given, the same \code{control}
+#'   object is given to both of them. Otherwise, if \code{cpo.retrafo} and \code{cpo.invert} are \code{NULL}, the \code{cpo.train} function
+#'   must return \code{NULL} and define a \code{cpo.retrafo} and \code{cpo.invert} function in its namespace (see \code{cpo.train} documentation
+#'   for more details). If \code{constant.invert} is \code{FALSE}, \code{cpo.train} may either return a \code{control} object that will then be
+#'   given to \code{cpo.train.invert}, or define a \code{cpo.retrafo} and \code{cpo.train.invert} function in its namespace.
+#'
+#'   For \code{makeCPOExtendedTargetOp}, if this is \code{TRUE}, \code{cpo.retrafo} does not need to generate a \code{control.invert} object.
+#'   The \code{control.invert} object created in \code{cpo.trafo} will then always be given to \code{cpo.invert} for all data sets.
+#'
 #'   Default is \code{FALSE}.
 #' @param predict.type.map [\code{character} | \code{list}]\cr
 #'   This becomes the \code{\link{CPO}}'s \code{predict.type}, explained in detail in \link{PredictType}.
@@ -322,9 +351,12 @@
 #'   the function may have only some of these arguments and a \code{\link[methods:dotsMethods]{dotdotdot}} argument).
 #'   It is called whenever a \code{\link{CPO}} is applied to
 #'   a data set to prepare for transformation of the training \emph{and} prediction data.
-#'   Note that this function is only used in Feature Operating CPOs created with (\code{makeCPO}).
+#'   Note that this function is only used in Feature Operating CPOs created with \code{makeCPO}, and in Target Operating CPOs
+#'   created with \code{makeCPOExtendedTargetOp}.
 #'
-#'   If \code{cpo.retrafo} is \code{NULL}, this is a constructor function which must return a \dQuote{retrafo} function which
+#'   The behaviour of this function differs slightly in Feature Operation and Target Operation CPOs.
+#'
+#'   For \bold{Feature Operation CPOs}, if \code{cpo.retrafo} is \code{NULL}, this is a constructor function which must return a \dQuote{retrafo} function which
 #'   will then modify (possibly new unseen) data. This retrafo function must have exactly one argument--the (new) data--and return the modified data. The format
 #'   of the argument, and of the return value of the retrafo function, depends on the value of the \code{dataformat} parameter, see documentation there.
 #'
@@ -332,7 +364,25 @@
 #'   This control object returned by \code{cpo.train} will then be given as the \code{control} argument of the \code{cpo.retrafo} function, along with
 #'   (possibly new unseen) data to manipulate.
 #'
-#'   This parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO. A stateless CPO does the same transformation for initial CPO
+#'   For \bold{Target Operation CPOs}, if \code{cpo.retrafo} is \code{NULL}, \code{cpo.train.invert}
+#'   (or \code{cpo.invert} if \code{constant.invert} is \code{TRUE}) must likewise be \code{NULL}.
+#'   In that case \code{cpo.train} must return \code{NULL} and define, within its namespace, two
+#'   functions \code{cpo.retrafo} and \code{cpo.train.invert} (or \code{cpo.invert} if \code{constant.invert}
+#'   is \code{TRUE}) which will take the place of the respective functions. \code{cpo.retrafo} must take the
+#'   parameters \code{data} and \code{target}, and return the modified target \code{target} (or \code{data},
+#'   depending on \code{dataformat}) data. \code{cpo.train.invert} must take a \code{data} and \code{control}
+#'   argument and return either a modified control object, or a \code{cpo.invert} function.
+#'   \code{cpo.invert} must have a \code{target} and \code{predict.type} argument and return the modified
+#'   target data.
+#'
+#'   If \code{cpo.retrafo} is not \code{NULL}, \code{cpo.train.invert}
+#'   (or \code{cpo.invert} if \code{constant.invert} is \code{TRUE}) must likewise be non-\code{NULL}.
+#'   In that case, \code{cpo.train} must return a control object. This control object will then be
+#'   given as the \code{control} argument of both \code{cpo.retrafo} and \code{cpo.train.invert}
+#'   (or the \code{control.invert} argument of \code{cpo.invert} if \code{constant.invert} is \code{TRUE}).
+#'
+#'   For Feature Operation CPOs, this parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO.
+#'   A stateless CPO does the same transformation for initial CPO
 #'   application and subsequent prediction data transformation (e.g. taking the logarithm of numerical columns). Note that \code{retrafo} should not
 #'   have a \code{control} argument in a stateless CPO.
 #' @param cpo.trafo [\code{function}]\cr
@@ -344,9 +394,11 @@
 #'   Note that this function is not used in \code{makeCPO}.
 #'
 #'   This functions primary task is to transform the given data when the \code{\link{CPO}} gets applied to training data. For Target Operating CPOs
-#'   (created with \code{makeCPOTargetOp}),
+#'   (created with \code{makeCPOExtendedTargetOp}(!)),
 #'   it must return the complete transformed target column(s), unless \code{dataformat} is \dQuote{df.all} (in which case the complete, modified,
-#'   \code{data.frame} must be returned) or \dQuote{task} (in which case the complete, modified, \code{Task} must be returned). For Retrafoless CPOs
+#'   \code{data.frame} must be returned) or \dQuote{task} (in which case the complete, modified, \code{Task} must be returned). It must furthermore
+#'   create the control objects for \code{cpo.retrafo} and \code{cpo.invert}, or create these functins themselves, and save them in its function
+#'   environment (see below). For Retrafoless CPOs
 #'   (created with \code{makeCPORetrafoless}) and Feature Operation CPOs (created with \code{makeCPOExtendedTrafo}(!)), it must return the
 #'   data in the same format as received it in its \code{data} argument (depending on \code{dataformat}). If \code{dataformat} is a
 #'   \code{df.all} or \code{task}, this means the target column(s) contained in the \code{data.frame} or \code{Task} returned must not be modified.
@@ -355,34 +407,66 @@
 #'   function. This unit of information is a variable that must be defined inside the environment of the \code{cpo.trafo} function and will be
 #'   retrieved by the CPO framework.
 #'
-#'   If \code{cpo.retrafo} is not \code{NULL} (or if \code{skip.retrafo} is \code{TRUE} and \code{cpo.invert} is not \code{NULL}),
+#'   If \code{cpo.retrafo} is not \code{NULL}
 #'   the unit is an object named \dQuote{\code{control}} that will be passed on as the \code{control} argument to the
-#'   \code{cpo.retrafo} function. If \code{cpo.retrafo} is \code{NULL}, the unit is a \emph{function}, called \dQuote{\code{cpo.retrafo}}
-#'   (or \dQuote{\code{cpo.invert}} if \code{skip.retrafo} is \code{TRUE}), that will be used
-#'   \emph{instead} of the \code{cpo.retrafo} (or \code{cpo.invert} function if \code{skip.retrafo} is \code{TRUE})
-#'   function passed over to \code{makeCPOTargetOp} / \code{makeCPOExtendedTrafo}. It must behave
-#'   the same as the function it replaces, but has only the \code{data} argument.
+#'   \code{cpo.retrafo} function. If \code{cpo.retrafo} is \code{NULL}, the unit is a \emph{function}, called \dQuote{\code{cpo.retrafo}},
+#'   that will be used
+#'   \emph{instead} of the \code{cpo.retrafo}
+#'   function passed over to \code{makeCPOExtendedTargetOp} / \code{makeCPOExtendedTrafo}. It must behave
+#'   the same as the function it replaces, but has only the \code{data} (and \code{target}, for Target Operation CPOs) argument.
+#'
+#'   For Target Operation CPOs created with \code{makeCPOExtendedTargetOp}, another unit of information to be used by \code{cpo.invert}
+#'   must be used. The options here are similar to \code{cpo.retrafo}: Either a control object, named \code{control.invert}, is created,
+#'   or the \code{cpo.invert} function itself is given (and \code{cpo.invert} in the \code{makeCPOExtendedTargetOp} call is set to \code{NULL}),
+#'   with the \code{target} and \code{predict.type} arguments.
 #' @param cpo.retrafo [\code{function} | \code{NULL}]\cr
-#'   This is a function which must have the parameters \code{data} and \code{control},
+#'   This is a function which must have the parameters \code{data}, \code{target} (Target Operation CPOs only) and \code{control},
 #'   as well as the parameters specified in \code{par.set}. (Alternatively,
 #'   the function may have only some of these arguments and a \code{\link[methods:dotsMethods]{dotdotdot}} argument).
+#'   In Feature Operation CPOs created with \code{makeCPO}, if \code{cpo.train} is \code{NULL}, the \code{control} argument must be absent.
 #'
 #'   This function gets called during the \dQuote{retransformation} step where prediction data is given to the \code{\link{CPORetrafo}} object before it
-#'   is given to a fitted machine learning model for prediction. In \code{makeCPO} Featore Operation CPOs, this is \emph{also} called during the
+#'   is given to a fitted machine learning model for prediction. In \code{makeCPO} Featore Operation CPOs and \code{makeCPOTargetOp} Target Operation CPOs,
+#'   this is \emph{also} called during the
 #'   first trafo step, where the \code{\link{CPO}} object is applied to training data.
 #'
 #'   In Feature Operation CPOs, this function receives the data to be
-#'   transformed and must return the transformed data in the same format as it received them (depending on \code{dataformat}, but see below).
+#'   transformed and must return the transformed data in the same format as it received them.
+#'   The format of \code{data} is the same as the format in \code{cpo.train} and \code{cpo.trafo}, with the exception that if \code{dataformat} is
+#'   \dQuote{task} or \dQuote{df.all}, the behaviour here is as if \dQuote{df.split} had been given.
 #'
-#'   In Target Operation CPOs, this function receives the feature columns given for prediction, and must return a
+#'   In Target Operation CPOs created with \code{makeCPOTargetOp}, this function receives the data and target to be transformed
+#'   and must return the transformed target. The input format of these parameters depends on \code{dataformat}.
+#'   If \code{dataformat} is \dQuote{task} or \dQuote{df.all}, the returned value must be the modified \code{\link[mlr]{Task}} / \code{data.frame}
+#'   with the feature columns not modified. Otherwise, the target values to be modified are in the \code{target} parameter, and the return
+#'   value must be a \code{data.frame} of the modified target values only.
+#'
+#'   In Target Operation CPOs created with \code{makeCPOExtendedTargetOp}, this function is called during the retrafo step, and it must
+#'   create a \code{control.invert} object in its environment to be used in the inversion step, as well as return the modified target
+#'   data.The format of the data given to \code{cpo.retrafo} in Target Operation CPOs created with \code{makeCPOExtendedTargetOp} is the same
+#'   as in other functions, with the exception that, if \code{dataformat} is \dQuote{df.all} or \dQuote{task}, the full \code{data.frame}
+#'   or \code{\link[mlr]{Task}} will be given as the \code{target} parameter, while the \code{data} parameter will behave as if
+#'   \code{dataformat} \dQuote{df.split}. Depending on what object the \code{\link{CPORetrafo}} object was applied to,
+#'   the \code{target} argument \emph{may be \code{NULL}}; in that case \code{NULL} must also be returned by the function.
+#'
+#'   If \code{cpo.invert} is \code{NULL}, \code{cpo.retrafo} should create a \code{cpo.invert} function in its environment instead of
+#'   creating the control object; this function should then take the \code{target} and \code{predict.type} arguments. If \code{constant.invert}
+#'   is \code{TRUE}, this function does not need to define the \code{control.invert} or \code{cpo.invert} variables, they are instead
+#'   taken from \code{cpo.trafo}.
+#' @param cpo.train.invert
+#'   This is a function which must have the parameters \code{data}, and \code{control},
+#'   as well as the parameters specified in \code{par.set}. (Alternatively,
+#'   the function may have only some of these arguments and a \code{\link[methods:dotsMethods]{dotdotdot}} argument).
+#'
+#'   This function receives the feature columns given for prediction, and must return a
 #'   control object that will be passed on to the \code{cpo.invert} function, \emph{or} it must return a \emph{function} that will be treated
 #'   as the \code{cpo.invert} function if the \code{cpo.invert} argument is \code{NULL}. In the latter case, the returned function takes
 #'   exactly two arguments (the prediction column to be inverted, and \code{predict.type}), and otherwise behaves identically to \code{cpo.invert}.
 #'
-#'   The format of \code{data} is the same as the format in \code{cpo.train} and \code{cpo.trafo}, with the exception that if \code{dataformat} is
-#'   \dQuote{task} or \dQuote{df.all}, the behaviour here is as if \dQuote{df.split} had been given.
+#'   If \code{constant.invert} is \code{TRUE}, this must be \code{NULL}.
+#'
 #' @param cpo.invert [\code{function} | \code{NULL}]\cr
-#'   This is a function which must have the parameters \code{target} (a \code{data.frame} containing the columns of a prediction made), \code{control},
+#'   This is a function which must have the parameters \code{target} (a \code{data.frame} containing the columns of a prediction made), \code{control.invert},
 #'   and \code{predict.type}, as well as the parameters specified in \code{par.set}. (Alternatively,
 #'   the function may have only some of these arguments and a \code{\link[methods:dotsMethods]{dotdotdot}} argument).
 #'

@@ -3,6 +3,8 @@
 - [ ] retrafoless may not change column layout
 - [ ] make retrafoless work
 - [ ] make inverter work
+- [ ] delete 'target' variable in functional CPOs
+- [ ] refactor prepare trafo / retrafo to separate checking and splitting / uniting
 - [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
 - [ ] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?

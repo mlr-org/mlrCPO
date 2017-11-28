@@ -97,10 +97,63 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
                            task.type.out = NULL,
                            predict.type.map = c(response = "response"),
                            packages = character(0),
-                           skip.retrafo = FALSE,
-                           cpo.trafo, cpo.retrafo, cpo.invert) {
-
+                           constant.invert = FALSE,
+                           cpo.train, cpo.retrafo, cpo.train.invert, cpo.invert) {
   dataformat = match.arg(dataformat)
+
+  prep = prepareCPOTargetOp(properties.adding, properties.needed, properties.target,
+    task.type.out, predict.type.map, constant.invert)
+
+  makeCPOGeneral(cpo.type = "target",
+    cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
+    dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    fix.factors = fix.factors, export.params = export.params, properties.data = properties.data,
+    properties.adding = prep$properties.adding, properties.needed = prep$properties.needed,
+    properties.target = prep$properties.target, type.from = prep$task.type.in, type.to = prep$task.type.out,
+    predict.type.map = prep$predict.type.map, packages = packages, constant.invert = constant.invert,
+    cpo.train = substitute(cpo.train), cpo.retrafo = substitute(cpo.retrafo),
+    cpo.train.invert = substitute(cpo.train.invert), cpo.invert = substitute(cpo.invert))
+}
+
+#' @rdname makeCPO
+#' @export
+makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+                           dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                           dataformat.factor.with.ordered = TRUE,
+                           export.params = TRUE, fix.factors = FALSE,
+                           properties.data = c("numerics", "factors", "ordered", "missings"),
+                           properties.adding = character(0), properties.needed = character(0),
+                           properties.target = "cluster",
+                           task.type.out = NULL,
+                           predict.type.map = c(response = "response"),
+                           packages = character(0),
+                           constant.invert = FALSE,
+                           cpo.trafo, cpo.retrafo, cpo.invert) {
+  dataformat = match.arg(dataformat)
+
+  prep = prepareCPOTargetOp(properties.adding, properties.needed, properties.target,
+    task.type.out, predict.type.map, constant.invert)
+
+  makeCPOGeneral(cpo.type = "target",
+    cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
+    dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    fix.factors = fix.factors, export.params = export.params, properties.data = properties.data,
+    properties.adding = prep$properties.adding, properties.needed = prep$properties.needed,
+    properties.target = prep$properties.target, type.from = prep$task.type.in, type.to = prep$task.type.out,
+    predict.type.map = prep$predict.type.map, packages = packages, constant.invert = constant.invert,
+    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), cpo.invert = substitute(cpo.invert))
+}
+
+# Make some checks and adjustmends for target operating CPOs
+#
+# These are common to makeCPOTargetOp and makeCPOExtendedTargetOp.
+# All parameters coincide with the respecive parameters of the makeCPO* functions.
+# @return [list] named list with the following, which should be given to makeCPOGeneral as is:
+#   properties.adding, properties.needed properties.target,
+#   predict.type.map, task.type.in, task.type.out
+prepareCPOTargetOp = function(properties.adding, properties.needed, properties.target,
+                              task.type.out, predict.type.map, constant.invert) {
+
   assertFlag(skip.retrafo)
 
   task.type.in = intersect(properties.target, cpo.tasktypes)
@@ -168,14 +221,10 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
   properties.adding = c(properties.adding, setdiff(names(predict.type.map), c("response", unname(predict.type.map))))
   properties.target = c(properties.target, setdiff(names(predict.type.map), "response"))
 
-  makeCPOGeneral(cpo.type = "target",
-    cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
-    dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
-    fix.factors = fix.factors, export.params = export.params, properties.data = properties.data,
-    properties.adding = properties.adding, properties.needed = properties.needed,
-    properties.target = properties.target, type.from = task.type.in, type.to = task.type.out,
-    predict.type.map = predict.type.map, packages = packages, skip.retrafo = skip.retrafo,
-    cpo.trafo = substitute(cpo.trafo), cpo.retrafo = substitute(cpo.retrafo), cpo.invert = substitute(cpo.invert))
+  list(properties.adding = properties.adding, properties.needed = properties.needed,
+    properties.target = properties.target, predict.type.map = predict.type.map,
+    task.type.in = task.type.in, task.type.out = task.type.out)
+
 }
 
 # This is the central CPO defining function, for Feature Operating CPOs and Target Operating CPOs.
