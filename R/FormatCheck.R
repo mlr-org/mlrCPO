@@ -86,9 +86,49 @@ prepareTrafoInput = function(indata, dataformat, strict.factors, get.data.reduce
 # @return [list] the data to feed to the CPO retrafo function, as well as meta-information:
 #   list(indata = data in a shape fit to be fed into retrafo, properties, tempdata, subset.index)
 prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.properties, shapeinfo.input, name) {
+  # check that input column names and general types match (num / fac, or num/fac/ordered if strict.factors
+  if ("Task" %in% class(indata)) {
+    if (length(shapeinfo.input$target) && length(getTaskTargetNames(indata))) {
+      # FIXME: this might be too strict: maybe the user wants to retrafo a Task with the target having a different name?
+      # HOWEVER, then either the training indata's task didnt matter (and he should have trained with a data.set?), or it
+      #  DID matter, in which case it is probably important to have the same data type <==> target name
+      assertSetEqual(getTaskTargetNames(indata), shapeinfo.input$target, .var.name = sprintf("Target names of Task %s", getTaskId(indata)))
+    }
+    target = getTaskData(indata, features = character(0))
+    indata = getTaskData(indata, target.extra = TRUE)$data
+  } else {
+    if (any(shapeinfo.input$target %in% names(indata))) {
+      if (!all(shapeinfo.input$target %in% names(indata))) {
+        badcols = intersect(shapeinfo.input$target, names(indata))
+        stopf("Some, but not all target columns of training data found in new data. This is probably an error.\n%s%s: %s",
+          "Offending column", ifelse(length(badcols) > 1, "s", ""), collapse(badcols, sep = ", "))
+      }
+      target = indata[shapeinfo.input$target]
+      indata = dropNamed(indata, shapeinfo.input$target)
+    } else {
+      target = indata[character(0)]
+      shapeinfo.input$target = NULL
+    }
+  }
+  if (!is.data.frame(indata)) {
+    stopf("Data fed into CPO %s retrafo is not a Task or data.frame.", name)
+  }
 
-  prepared = prepareRetrafoData(indata, dataformat, allowed.properties, shapeinfo.input, name)
-  indata = prepared$data
+  shapeinfo.input$subset.selector$data = indata
+  subset.index = do.call(getColIndices, shapeinfo.input$subset.selector)
+  indata = indata[subset.index]
+  shapeinfo.input$subset.selector = NULL
+
+  lldataformat = getLLDataformat(dataformat)
+
+  assertShapeConform(indata, shapeinfo.input, strict.factors, name)
+
+  if ("factor.levels" %in% names(shapeinfo.input)) {
+    indata = fixFactors(indata, shapeinfo.input$factor.levels)
+  }
+
+  present.properties = getDataProperties(indata, character(0))
+  assertPropertiesOk(present.properties, allowed.properties, "retrafo", "in", name)
 
   lldataformat = getLLDataformat(dataformat)
 
@@ -98,7 +138,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
     indata = splitColsByType(splitinto, indata)
   }
 
-  list(indata = getIndata(indata, dataformat), properties = prepared$properties, tempdata = indata, subset.index = prepared$subset.index)
+  list(indata = getIndata(indata, dataformat), properties = present.properties, tempdata = indata, subset.index = subset.index)
 }
 
 # Do the check of the trafo's return value
@@ -211,67 +251,6 @@ handleRetrafoOutput = function(outdata, olddata, tempdata, dataformat, allowed.p
   }
 
   recombined
-}
-
-
-# this is a subset of retrafo preparation which also needs to happen for target retrafo
-# data prep.
-# - split data into 'data' and 'target' DFs (latter possibly empty df)
-# - test shapeinfo.input conformity
-# @param data [Task | data.frame] incoming data to be prepared (i.e. split and formatted)
-# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
-# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
-# @param allowed.properties [character] allowed properties of `indata`
-# @param shapeinfo.input [InputShapeInfo] information about the data shape used to train the CPO
-# @param name [character(1)] name of the CPO to print for debug information
-# @return [list] the prepared data, as well as meta-information: list(data = data in a shape fit to be fed into retrafo, properties, subset.index)
-prepareRetrafoData = function(data, dataformat, strict.factors, allowed.properties, shapeinfo.input, name) {
-
-  # check that input column names and general types match (num / fac, or num/fac/ordered if strict.factors
-  if ("Task" %in% class(data)) {
-    if (length(shapeinfo.input$target) && length(getTaskTargetNames(data))) {
-      # FIXME: this might be too strict: maybe the user wants to retrafo a Task with the target having a different name?
-      # HOWEVER, then either the training data's task didnt matter (and he should have trained with a data.set?), or it
-      #  DID matter, in which case it is probably important to have the same data type <==> target name
-      assertSetEqual(getTaskTargetNames(data), shapeinfo.input$target, .var.name = sprintf("Target names of Task %s", getTaskId(data)))
-    }
-    target = getTaskData(data, features = character(0))
-    data = getTaskData(data, target.extra = TRUE)$data
-  } else {
-    if (any(shapeinfo.input$target %in% names(data))) {
-      if (!all(shapeinfo.input$target %in% names(data))) {
-        badcols = intersect(shapeinfo.input$target, names(data))
-        stopf("Some, but not all target columns of training data found in new data. This is probably an error.\n%s%s: %s",
-          "Offending column", ifelse(length(badcols) > 1, "s", ""), collapse(badcols, sep = ", "))
-      }
-      target = data[shapeinfo.input$target]
-      data = dropNamed(data, shapeinfo.input$target)
-    } else {
-      target = data[character(0)]
-      shapeinfo.input$target = NULL
-    }
-  }
-  if (!is.data.frame(data)) {
-    stopf("Data fed into CPO %s retrafo is not a Task or data.frame.", name)
-  }
-
-  shapeinfo.input$subset.selector$data = data
-  subset.index = do.call(getColIndices, shapeinfo.input$subset.selector)
-  data = data[subset.index]
-  shapeinfo.input$subset.selector = NULL
-
-  lldataformat = getLLDataformat(dataformat)
-
-  assertShapeConform(data, shapeinfo.input, strict.factors, name)
-
-  if ("factor.levels" %in% names(shapeinfo.input)) {
-    data = fixFactors(data, shapeinfo.input$factor.levels)
-  }
-
-  present.properties = getDataProperties(data, character(0))
-  assertPropertiesOk(present.properties, allowed.properties, "retrafo", "in", name)
-
-  list(data = data, target = target, properties = present.properties, subset.index = subset.index)
 }
 
 # make sure that the factor levels of data.frame 'data' are as described by 'levels'.
