@@ -398,7 +398,7 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE) {
 #' @export
 getCPOProperties.CPOTrained = function(cpo, only.data = FALSE) {
   if (!is.null(cpo$prev.retrafo)) {
-    props = compositeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
+    props = composeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
   } else {
     props = cpo$cpo$properties
   }

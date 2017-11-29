@@ -7,7 +7,7 @@
 # @name2 [character(1)] name of CPO2 to print in debug messages
 # @return [list of character] properties of compound CPO, with same slots as `prop1`
 # returns a list(handling, adding, needed)
-compositeProperties = function(prop1, prop2, name1, name2) {
+composeProperties = function(prop1, prop2, name1, name2) {
   handling.1 = prop1$handling
   adding.1 = prop1$adding
   needed.1 = prop1$needed

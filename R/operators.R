@@ -132,7 +132,7 @@ applyCPO = function(cpo, task) {
 composeCPO.CPO = function(cpo1, cpo2) {
   assertClass(cpo2, "CPO")
   parameterClashAssert(cpo1, cpo2, cpo1$debug.name, cpo2$debug.name)
-  newprops = compositeProperties(cpo1$properties, cpo2$properties, cpo1$debug.name, cpo2$debug.name)
+  newprops = composeProperties(cpo1$properties, cpo2$properties, cpo1$debug.name, cpo2$debug.name)
   newpt = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$debug.name, cpo2$debug.name)
 
   makeS3Obj(c("CPOPipeline", "CPO"),
@@ -231,7 +231,7 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
 
   # check for properties match
   if (retrafo.composition) {
-    cpo2$needed = compositeProperties(
+    cpo2$needed = composeProperties(
         list(handling = character(0), adding = character(0), needed = cpo1$needed),
         cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)$needed
   }
@@ -244,7 +244,7 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
         stopf("Incompatible chaining of inverters: %s converts to %s, but %s needs %s.",
           cpo1$cpo$name, cpo1$cpo$convertto, cpo2$cpo$name, cpo2$cpo$convertfrom)
       }
-      compositeProperties(cpo1$cpo$properties, cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)  # just for checking
+      composeProperties(cpo1$cpo$properties, cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)  # just for checking
     }
     assert(length(cpo1$predict.type) <= 2,  # at least one predict.type cannot be the identity (since otherwise its a noop-composition)
       length(cpo2$predict.type) <= 2)       # the identity (and only the identity) has more than 2 elements.

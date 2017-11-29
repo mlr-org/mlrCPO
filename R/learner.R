@@ -61,7 +61,7 @@ compositeCPOLearnerProps = function(cpo, learner) {
   # relevant: we only have an influence on these properties.
   relevant = c(cpo.dataproperties, cpo.targetproperties, cpo.tasktypes, "prob", "se")
   props.relevant = intersect(props, relevant)
-  props.relevant = compositeProperties(cpo$properties,
+  props.relevant = composeProperties(cpo$properties,
     list(properties = props.relevant, properties.adding = character(0), properties.needed = character(0)),
     cpo$debug.name, getLearnerName(learner))$properties  # checks for property problems automatically
   c(props.relevant, setdiff(props, relevant))
