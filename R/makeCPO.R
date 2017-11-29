@@ -534,34 +534,39 @@ prepareParams = function(par.set, par.vals, export.params, reserved.params) {
 # @param skip.retrafo [logical(1)] whether TOCPO skips the retrafo step
 # @return [list] list(cpo.trafo, cpo.retrafo, cpo.trafo.orig, cpo.retrafo.orig) trafo and retrafo as used internally when handling CPO. "*.orig"
 #   is needed by print.CPOConstructor for pretty printing of the functions, since the internal representation of them gets modified and is not informative.
-constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, skip.retrafo) {
+constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, constant.invert) {
+
+  fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
   # evaluate expressions that are not headless functions
-  for (eval.name in c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")) {
+  for (eval.name in fnames) {
     expr = get(eval.name)
     if (!(is.recursive(expr) && length(expr) > 1 && identical(expr[[1]], quote(`{`)))) {
       assign(eval.name, eval(expr, envir = eval.env))
     }
   }
 
+  ###
+  # build and check cpo.trafo
   stateless = is.null(cpo.trafo)
-
   if (stateless && cpo.type %nin% c("target", "feature")) {
     stop("cpo.trafo may not be NULL. If you mean to create a stateless CPO, use makeCPO or makeCPOTargetOp.")
   }
-
+  if (stateless && cpo.type == "target" && !constant.invert) {
+    stop("constant.invert must be TRUE in stateless Target Operation CPO.")
+  }
   required.arglist = funargs
   required.arglist$data = substitute()
   required.arglist$target = substitute()
-
   if (!stateless) {
     cpo.trafo = makeFunction(cpo.trafo, required.arglist, env = eval.env)
   }
 
-
+  ###
+  # build and check cpo.retrafo
   if (!is.null(cpo.retrafo)) {
     assert(cpo.type != "retrafoless")  # retrafoless cpo must have cpo.retrafo = NULL, should be enforced by API
-    if (cpo.type == "target" && skip.retrafo) {
+    if (cpo.type == "target" && constant.invert) {
       stop("Target Operating CPO with skip.retrafo == TRUE must not have cpo.retrafo = NULL.")
     }
 
@@ -570,61 +575,63 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     if (!stateless) {
       required.arglist$control = substitute()
     }
+    if (cpo.type %in% "target", "target.extended") {
+      required.arglist$target = substitute()
+    }
     cpo.retrafo = makeFunction(cpo.retrafo, required.arglist, env = eval.env)
   } else if (stateless) {
     stop("One of cpo.train or cpo.retrafo must be non-NULL, since one cannot have a stateless functional CPO.")
   }
 
+  ###
+  # build and check cpo.train.invert
+  if (!is.null(cpo.train.invert)) {
+    assert(cpo.type == "target")  # should be enforced by API
+    if (constant.invert) {
+      stop("cpo.train.invert can not be given if constant.invert is TRUE")
+    }
+    required.arglist = funargs
+    required.arglist$data = substitute()
+    required.arglist$control = substitute()
+    cpo.train.invert = makeFunction(cpo.train.invert, required.arglist, env = eval.env)
+  }
+
+  ###
+  # build and check cpo.invert
   if (!is.null(cpo.invert)) {
-    assert(cpo.type == "target")
+    assert(cpo.type %in% c("target", "target.extended"))
     required.arglist = funargs
     required.arglist$target = substitute()
-    required.arglist$control = substitute()
+    if (!stateless) {
+      required.arglist$control = substitute()
+    }
     required.arglist$predict.type = substitute()
     cpo.invert = makeFunction(cpo.invert, required.arglist, env = eval.env)
   }
 
-  cpo.trafo.new = cpo.trafo
-  cpo.retrafo.new = cpo.retrafo
-  if (cpo.type == "feature") {
-    # collapse "feature" and "feature.extended" into one, behaving like "feature.extended".
-    if (is.null(cpo.retrafo)) {
-      # functional
-      # cannot be stateless
-      cpo.trafo.new = function(data, target, ...) {
-        cpo.retrafo = cpo.trafo(data = data, target = target, ...)
-        if (!isTRUE(checkFunction(cpo.retrafo, nargs = 1))) {
-          stopf("CPO %s cpo.trafo did not generate a retrafo function with one argument.", cpo.name)
-        }
-        cpo.retrafo(data)
-      }
-    } else {
-      # object based
-      if (stateless) {
-        cpo.trafo.new = function(data, target, ...) {
-          control = NULL
-          cpo.retrafo(data = data, ...)
-        }
-        cpo.retrafo.new = function(data, control, ...) {
-          cpo.retrafo(data, ...)
-        }
-      } else {
-        cpo.trafo.new = function(data, target, ...) {
-          control = cpo.trafo(data = data, target = target, ...)
-          cpo.retrafo(data = data, control = control, ...)
-        }
-      }
+  # make sure simple target operating CPO trafo is either all functional or all object based
+  if (cpo.type == "target") {
+    inv.control.target.name = if (constant.invert) "cpo.invert" else "cpo.train.invert"
+    inv.control.target = get(inv.control.target.name)
+    if (is.null(cpo.retrafo) != is.null(inv.control.target)) {
+      stopf("If cpo.retrafo is NULL, %s must also be NULL and vice versa if constant.invert is %s.",
+        inv.control.target.name, constant.invert)
     }
   }
-  if (cpo.type != "retrafoless") {
-    cpo.trafo.new = captureEnvWrapper(cpo.trafo.new)
-  }
-  if (cpo.type == "target") {
-    cpo.retrafo.new = captureEnvWrapper(cpo.retrafo.new)
-  }
 
-  list(cpo.trafo = cpo.trafo.new, cpo.retrafo = cpo.retrafo.new, cpo.invert = cpo.invert,
-    cpo.trafo.orig = cpo.trafo, cpo.retrafo.orig = cpo.retrafo)
+  function.interface = switch(cpo.type,
+    feature = makeCallFeatureOpSimple,
+    feature.extended = makeCallFeatureOpExtended,
+    target = makeCallTargetOpSimple,
+    target.extended = makeCallTargetOpExtended,
+    retrafoless = makeCallRetrafoless)
+
+  cpo.funs = function.interface(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert)
+
+  cpo.origs = lapply(fnames, get)  # cpo.trafo, cpo.retrafo, ...
+  names(cpo.origs) = paste0(names(cpo.origs), ".orig")  # rename to cpo.trafo.orig, ...
+
+  c(cpo.funs, cpo.origs)
 }
 
 # create a function with expressions 'expr' in the environment 'env'.

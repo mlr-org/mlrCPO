@@ -137,16 +137,6 @@ makeRetrafoCallFeatureOp = function(cpo.trafo, cpo.retrafo) {
 
 # simple target operation cpo
 makeCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert) {
-  # check a few things that are not checked in constructTrafoFunctions
-  inv.control.target.name = if (constant.invert) "cpo.invert" else "cpo.train.invert"
-  inv.control.target = get(inv.control.target.name)
-  if (is.null(cpo.retrafo) != is.null(inv.control.target)) {
-    stopf("If cpo.retrafo is NULL, %s must also be NULL and vice versa if constant.invert is %s.",
-      inv.control.target.name, constant.invert)
-  }
-  if (is.null(cpo.trafo) && !constant.invert) {
-    stop("constant.invert must be TRUE in stateless Target Operation CPO.")
-  }
   list(cpo.trafo = makeTrafoCallTargetOpSimple(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert),
     cpo.retrafo = makeRetrafoCallTargetOpSimple(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, constant.invert),
     cpo.invert = makeInvertCall(cpo.trafo, cpo.invert))
