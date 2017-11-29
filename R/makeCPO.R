@@ -277,11 +277,10 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   funargs = insert(funargs, par.vals)
 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, parent.frame(2),
-    cpo.name, cpo.type, dataformat, skip.retrafo)
-  if (cpo.type == "feature.extended") {
-    # from here on, feature.extended and feature work the same
-    cpo.type = "feature"
-  }
+    cpo.name, cpo.type, dataformat, constant.invert)
+
+  # from here on, *.extended  work the same as the simple equivalents
+  cpo.type = gsub(".extended", "", cpo.type, fixed = TRUE)
 
   funargs = insert(funargs, list(id = NULL, export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
@@ -290,23 +289,6 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   if (cpo.type != "retrafoless") {
     # "retrafoless" CPOs have no affect.* arguments
     funargs = insert(funargs, default.affect.args)
-  }
-
-  if (cpo.type == "retrafoless") {
-    assert(is.null(trafo.funs$cpo.retrafo))
-    control.type = "retrafoless"
-  } else {
-    relevant.fun = if (cpo.type == "feature" || !skip.retrafo) trafo.funs$cpo.retrafo else trafo.funs$cpo.invert
-    control.type = if (is.null(relevant.fun)) "functional" else "object"
-  }
-  if (cpo.type == "target") {
-    if (!skip.retrafo) {
-      control.type.invert = if (is.null(trafo.funs$cpo.invert)) "functional" else "object"
-    } else {
-      control.type.invert = control.type
-    }
-  } else {
-    control.type.invert = NULL
   }
 
   ####
@@ -404,13 +386,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
       id = NULL,                                             # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
-      trafo = trafo.funs$cpo.trafo,                          # [function] trafo function
-      retrafo = trafo.funs$cpo.retrafo,                      # [function] retrafo function
-      control.type = control.type,                           # [character(1)] whether retrafo (or inverter if skip.retrafo) is taken from trafo
-                                                             #                environment ("functional"), uses 'control' object ("object"), or
-                                                             #                is not defined ("retrafoless")
-      control.type.invert = control.type.invert,             # [character(1)] whether inverter is taken from trafo / retrafo return value ("functional") or
-                                                             #                uses 'control' object
+      trafo.funs = trafo.funs                                # [list of function] cpo.trafo, cpo.retrafo, cpo.invert, and cpo.*.orig
       packages = packages,                                   # [character] package(s) to load when constructing the CPO
       affect.args = affect.args,                             # [named list] values of the "affect.*" arguments
       unexported.pars = unexported.pars,                     # [named list] values of parameters that are not exported
@@ -531,7 +507,7 @@ prepareParams = function(par.set, par.vals, export.params, reserved.params) {
 # @param cpo.type [character(1)] whether CPO is target or feature operating; must be one of "target", "feature", "feature.extended", "retrafoless"
 # @param dataformat [character(1)] data format used by cpo.trafo and cpo.retrafo, in its internally used semantics. Must
 #   be one of "most", "all", "factor", "onlyfactor", "numeric", "ordered", "df.features", "split", "task"
-# @param skip.retrafo [logical(1)] whether TOCPO skips the retrafo step
+# @param constant.invert [logical(1)] whether TOCPO inversion is independent of retrafo data
 # @return [list] list(cpo.trafo, cpo.retrafo, cpo.trafo.orig, cpo.retrafo.orig) trafo and retrafo as used internally when handling CPO. "*.orig"
 #   is needed by print.CPOConstructor for pretty printing of the functions, since the internal representation of them gets modified and is not informative.
 constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, constant.invert) {
@@ -567,7 +543,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   if (!is.null(cpo.retrafo)) {
     assert(cpo.type != "retrafoless")  # retrafoless cpo must have cpo.retrafo = NULL, should be enforced by API
     if (cpo.type == "target" && constant.invert) {
-      stop("Target Operating CPO with skip.retrafo == TRUE must not have cpo.retrafo = NULL.")
+      stop("Target Operating CPO with constant.invert == TRUE must not have cpo.retrafo = NULL.")
     }
 
     required.arglist = funargs
