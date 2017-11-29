@@ -393,6 +393,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       unexportedpar.set = unexportedpar.set,                 # [ParamSet] unexported parameter set
       bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
       datasplit = dataformat,                                # [character(1)] data format as received by trafo / retrafo
+      strict.factors = dataformat.factor.with.ordered        # [logical(1)] whether factors and ordereds are distinguished
       fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things
       convertfrom = if (cpo.type == "target") type.from,     # [character(1)] task type to convert from.

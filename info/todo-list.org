@@ -3,12 +3,21 @@
 - [ ] retrafoless may not change column layout
 - [ ] make retrafoless work
 - [ ] make inverter work
-- [ ] delete 'target' variable in functional CPOs
+- [X] delete 'target' variable in functional CPOs
 - [ ] refactor prepare trafo / retrafo to separate checking and splitting / uniting
+- [ ] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
 - [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
 - [ ] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 - [ ] roxygen-document internal functions
+- [ ] plan for today:
+  - [ ] callCPO should call retrafo / inverter properly
+  - [ ] retrafo chaining should work again
+  - [ ] retrafo state should work again
+  - [ ] see that learner attachment etc still works
+  - [ ] see that getting operating type etc. works (also for NULLCPO)
+  - [ ] make invert() etc work
+  - [ ] make the printers work
 ** test todo
 - [ ] convertNamesToItems, ItemsToNames
 - [ ] on.par.out.of.bounds setting

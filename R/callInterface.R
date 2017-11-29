@@ -60,10 +60,13 @@ makeCallFeatureOpExtended = function(cpo.trafo, cpo.retrafo, cpo.train.invert, c
 # object is then used to transform the data.
 makeTrafoCallFeatureOpSimple = function(cpo.trafo, cpo.retrafo) {
   if (is.null(cpo.retrafo)) {
+    cpo.trafo = captureEnvWrapper(cpo.trafo)
     # functional, cannot be stateless
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
+      .ENV = NULL
       cpo.retrafo = cpo.trafo(data = data, target = target, ...)
       checkFunctionReturn(cpo.retrafo, "data", "cpo.retrafo", "cpo.train")
+      clearEnv(.ENV)
       list(result = cpo.retrafo(data.reduced),
         state = cpo.retrafo,
         state.invert = NULL)
@@ -99,6 +102,7 @@ makeTrafoCallFeatureOpExtended = function(cpo.trafo, cpo.retrafo) {
       # functional
       state = getVarCreated(.ENV, "cpo.retrafo", "cpo.trafo")
       checkFunctionReturn(state, "data", "cpo.retrafo", "cpo.trafo")
+      clearEnv(.ENV)
     } else {
       # object based
       state = getVarCreated(.ENV, "control", "cpo.trafo")
@@ -191,10 +195,12 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
 
       .ENV = NULL
       cpo.trafo(data = data, target = target, ...)
+      clearEnv(.ENV)
+
       cpo.retrafo = getVarCreated(.ENV, "cpo.retrafo", "cpo.train")
       checkFunctionReturn(cpo.retrafo, c("data", "target"), "cpo.retrafo", "cpo.train")
-      inv.control.target = getVarCreated(.ENV, inv.control.target.name, "cpo.train")
 
+      inv.control.target = getVarCreated(.ENV, inv.control.target.name, "cpo.train")
       req.args = if (constant.invert) c("target", "predict.type") else "data"
       checkFunctionReturn(inv.control.target, req.args, inv.control.target.name, "cpo.train")
 
@@ -202,11 +208,19 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
         state = cpo.retrafo
         state.invert = if (build.inverter) inv.control.target
       } else if (build.inverter) {
+        if (is.null(cpo.invert)) {
+          # functional invert --> need to capture .ENV
+          inv.control.target = captureEnvWrapper(inv.control.target)
+          .ENV = NULL
+        }
+
         state = list(cpo.retrafo = cpo.retrafo,
           cpo.train.invert = inv.control.target)
         state.invert = inv.control.target(data.reduced)
+
         if (is.null(cpo.invert)) {
           # functional invert
+          clearEnv(.ENV)
           checkFunctionReturn(state.invert, c("target", "predict.type"))
         }
       } else {
@@ -217,6 +231,9 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
     }
   } else {
     # object based
+    if (!constant.invert && is.null(cpo.invert)) {
+      cpo.train.invert = captureEnvWrapper(cpo.train.invert)
+    }
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
       target.reduced = if (dataformat %in% c("df.all", "task")) data else target
 
@@ -224,9 +241,11 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
       if (constant.invert) {
         state.invert = state
       } else if (build.inverter) {
+        .ENV = NULL
         state.invert = cpo.train.invert(data = data.reduced, control = state, ...)
         if (is.null(cpo.invert)) {
           # functional invert
+          clearEnv(.ENV)
           checkFunctionReturn(state.invert, c("target", "predict.type"))
         }
       } else {
@@ -253,6 +272,9 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
         state.invert = NULL)
     }
   } else {
+    if (!constant.invert && !is.null(cpo.train.invert)) {
+      cpo.train.invert = captureEnvWrapper(cpo.train.invert)
+    }
     function(data, target, state, ...) {
       # re-apply trafo
       if (is.null(target)) {
@@ -274,6 +296,10 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
       if (constant.invert) {
         state.invert = NULL
       } else {
+        .ENV = NULL
+        # if cpo.invert is functional, we need to delete the call's
+        # 'target' and 'data' variables. If cpo.train.invert was given
+        # functionally, it was wrapped in makeTrafoCallTargetOpSimple already.
         if (is.null(cpo.train.invert)) {
           # functional
           state.invert = state$cpo.train.invert(data)
@@ -284,6 +310,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
         if (is.null(cpo.invert)) {
           # 'cpo.invert' can itself be functional here, independent
           # on whether cpo.train was functional or not.
+          clearEnv(.ENV)
           checkFunctionReturn(state.invert, c("target", "predict.type"))
         }
       }
@@ -304,6 +331,7 @@ makeTrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert) {
   function(data, target, data.reduced, target.reduced, build.inverter, ...) {
     .ENV = NULL
     result = cpo.trafo(data = data, target = target, ...)
+    clearEnv(result)
     if (is.null(cpo.retrafo)) {
       state = getVarCreated(.ENV, "cpo.retrafo", "cpo.trafo")
       checkFunctionReturn(state, c("data", "target"), "cpo.retrafo", "cpo.trafo")
@@ -351,6 +379,7 @@ makeRetrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert, c
     if (!constant.invert) {
       # get inverter state
       if (is.null(cpo.invert)) {
+        clearEnv(.ENV)
         state.invert = getVarCreated(.ENV, "cpo.invert", "cpo.retrafo")
         checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.retrafo")
       } else {
@@ -387,7 +416,7 @@ makeInvertCall = function(cpo.trafo, cpo.invert) {
 }
 
 
-# Check function generated by functional trafo
+# Check function generated by functional trafo, and modify its environment
 #
 # Check that the function generated by user supplied function
 # satisfies criteria, and give some warnings in some cases.
@@ -395,12 +424,13 @@ makeInvertCall = function(cpo.trafo, cpo.invert) {
 # If the number of parameters is > 1, check that the parameter
 # names are as needed. Give a warning if 'data' or 'target'
 # value is referenced inside function.
+#
 # @param fun [function] the function (as returned by the user) to check
 # @param requiredargs [character] the arguments that the function must have
 # @param fun.name [character(1)] the name of the function (cpo.trafo, cpo.retrafo etc) for message printing
 # @param source.name [character(1)] the name where the function comes from, for message printing
 # @return [invisible(NULL)]
-checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
+checkFunctionReturn = function(requiredargs, fun.name, source.name) {
   assert(length(requiredargs >= 1))
   if (is.null(fun)) {
     stopf("%s did not create a %s function.", source.name, fun.name)
@@ -428,6 +458,18 @@ checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
       "this warning by renaming the 'data' variable.", sep = "\n"),
       fun.name, collapse(bad.references, sep = " and a "), fun.name)
   }
+}
+
+# Remove 'data' and 'target' variables from environment
+#
+# This saves memory when the environment stays around as the environment
+# of functionally created cpo.* function
+#
+# @param env [environment] the environment
+# @return [NULL]
+clearEnv = function(env) {
+  env$data = NULL
+  env$target = NULL
 }
 
 # Check whether function created a variable with the name, and get that variable
