@@ -8,8 +8,7 @@
 #
 # These functions should all return a list(cpo.trafo, cpo.retrafo, cpo.invert) of function that
 # - have parameters corresponding to the ones that are given in callCPO and callCPOTrained do.call lines:
-#   (asterisk: only present in some cases)
-#   - trafo: data, target, data.reduced* (i.e. task/df.all -> df.features), target.reduced*, build.inverter, [hyperparameters]
+#   - trafo: data, target, data.reduced (i.e. task/df.all -> df.features), target.reduced, build.inverter, [hyperparameters]
 #   - retrafo: data (reduced), target* (task/df.all this is the complete task / df instead of target), [hyperparameters]
 #   - invert: predict.type, target, [hyperparameters]
 # - check for presence and correctness of state objects
