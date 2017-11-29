@@ -247,11 +247,10 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   # d.f.w.o val: TRUE | FALSE
   # split  --> most   | all
   # factor --> factor | onlyfactor
-  if (dataformat == "split") {
-    dataformat = ifelse(dataformat.factor.with.ordered, "most", "all")
-  } else if (dataformat == "factor" && !dataformat.factor.with.ordered) {
-    dataformat = "onlyfactor"
+  if (dataformat == "ordered" && dataformat.factor.with.ordered) {
+    stop('dataformat.factor.with.ordered must be FALSE when dataformat is "ordered".')
   }
+
 
   # Reserved parameter names:
   # these parameters are either special parameters given to the constructor function (id, affect.*),
@@ -392,7 +391,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       unexported.pars = unexported.pars,                     # [named list] values of parameters that are not exported
       unexportedpar.set = unexportedpar.set,                 # [ParamSet] unexported parameter set
       bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
-      datasplit = dataformat,                                # [character(1)] data format as received by trafo / retrafo
+      dataformat = dataformat,                                # [character(1)] data format as received by trafo / retrafo
       strict.factors = dataformat.factor.with.ordered        # [logical(1)] whether factors and ordereds are distinguished
       fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
       # --- Target Operating CPO relevant things

@@ -27,7 +27,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data, shapeinfo) {
   inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter")
   # --- state for pure "inverter":
   inverter$indatatd = getTaskDesc(data)
-  inverter$truth = prepareRetrafoData(data, cpo$datasplit, cpo$properties$handling, shapeinfo, cpo$name)$target
+  inverter$truth = prepareRetrafoData(data, cpo$dataformat, cpo$properties$handling, shapeinfo, cpo$name)$target
   composeCPO(nullToNullcpo(prev.inverter), inverter)
 }
 
@@ -119,7 +119,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
     }
   }
 
-  tin = prepareTrafoInput(data, cpo$datasplit, cpo$properties.raw, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
+  tin = prepareTrafoInput(data, cpo$dataformat, cpo$properties.raw, getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$debug.name)
 
   .ENV = NULL  # nolint
   result = do.call(cpo$trafo, insert(getBareHyperPars(cpo), tin$indata))
@@ -166,7 +166,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$needed)
-  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties, cpo$properties$adding,
+  tout = handleTrafoOutput(result, data, tin$tempdata, cpo$dataformat, allowed.properties, cpo$properties$adding,
     cpo$operating.type, cpo$convertto, tin$subset.index, cpo$debug.name)
 
   retrafo = if (build.retrafo && cpo$operating.type != "retrafoless") {
@@ -252,7 +252,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
   }
   assert(cpo$operating.type == "feature")  # "retrafoless" has no retrafo!
 
-  tin = prepareRetrafoInput(data, cpo$datasplit, cpo$properties.raw, retrafo$shapeinfo.input, cpo$name)
+  tin = prepareRetrafoInput(data, cpo$dataformat, cpo$properties.raw, retrafo$shapeinfo.input, cpo$name)
 
   assertChoice(cpo$control.type, c("functional", "object", "stateless"))
   if (cpo$control.type == "functional") {
@@ -271,7 +271,7 @@ callCPOTrained = function(retrafo, data, build.inverter, prev.inverter) {
   # the properties of the output should only be the input properties + the ones we're adding
   allowed.properties = union(tin$properties, cpo$properties$needed)
 
-  list(data = handleRetrafoOutput(result, data, tin$tempdata, cpo$datasplit, allowed.properties,
+  list(data = handleRetrafoOutput(result, data, tin$tempdata, cpo$dataformat, allowed.properties,
     cpo$properties$adding, retrafo$shapeinfo.output, tin$subset.index, cpo$name),
     inverter = prev.inverter)
 }

@@ -260,7 +260,8 @@
 #'   Default is \dQuote{df.features} for all functions except \code{makeCPORetrafoless}, for which it is \dQuote{df.all}.
 #' @param dataformat.factor.with.ordered [\code{logical(1)}]\cr
 #'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, for which it only
-#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. It also affects how strictly data fed to a \code{\link{CPORetrafo}} object
+#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. If \code{dataformat} is \dQuote{ordered}, this must be \code{FALSE}.
+#'   It also affects how strictly data fed to a \code{\link{CPORetrafo}} object
 #'   is checked for adherence to the data format of data given to the generating \code{\link{CPO}}. Default is \code{TRUE}.
 #' @param export.params [\code{logical(1)} | \code{character}]\cr
 #'   Indicates which CPO parameters are exported by default. Exported parameters can be changed after construction using \code{\link[mlr]{setHyperPars}},

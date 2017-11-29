@@ -19,12 +19,17 @@
 #  - split the data
 #  - get a shape info object
 # @param indata [Task | data.frame] incoming data to be fed to the CPO trafo function
-# @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
+# @param get.data.reduced [logical(1)] whether to also get 'data.reduced', 'target.reduced'. These equal 'data' and 'target',
+#   except when dataformat is 'task' or 'df.all', in which case the reduced data / target are split according to 'df.features'.
 # @param allowed.properties [character] allowed properties of `indata`
 # @param subset.selector [list] information about 'affect.*' parameters that determine which subset of 'indata' is affected
 # @param capture.factors [logical(1)] whether to save factor levels of input data in shapeinfo data structure. This is only used if the CPO has 'fix.factors' set to TRUE
-# @return [list] the data to feed to the CPO trafo function, as well as meta-information: list(indata = list(data, target), shapeinfo, properties)
-prepareTrafoInput = function(indata, datasplit, allowed.properties, subset.selector, capture.factors, name) {
+# @return [list] the data to feed to the CPO trafo function, as well as meta-information:
+#   list(indata = list(data, target [, data.reduced, target.reduced]), shapeinfo, properties)
+prepareTrafoInput = function(indata, dataformat, strict.factors, get.data.reduced, allowed.properties, subset.selector, capture.factors, name) {
+  stop("TODO")
   assert(checkClass(indata, "data.frame"), checkClass(indata, "Task"))
   if ("Task" %in% class(indata)) {
     targets = getTaskTargetNames(indata)
@@ -55,13 +60,13 @@ prepareTrafoInput = function(indata, datasplit, allowed.properties, subset.selec
   shapeinfo$subset.selector = subset.selector
 
   indata = if (is.data.frame(indata)) {
-    splitdf(indata, getLLDatasplit(datasplit))
+    splitdf(indata, getLLDataformat(dataformat), strict.factors)
   } else {
-    splittask(indata, getLLDatasplit(datasplit))
+    splittask(indata, getLLDataformat(dataformat), strict.factors)
   }
 
   tempdata = indata$data
-  indata$data = getIndata(indata$data, datasplit)
+  indata$data = getIndata(indata$data, dataformat)
   list(indata = indata, shapeinfo = shapeinfo, properties = present.properties, tempdata = tempdata, subset.index = subset.index)
 }
 
@@ -74,29 +79,30 @@ prepareTrafoInput = function(indata, datasplit, allowed.properties, subset.selec
 #  --> return
 # how does mlr predict handle this stuff? they just drop target columns by name
 # @param indata [Task | data.frame] incoming data to be fed to the CPO retrafo function
-# @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param allowed.properties [character] allowed properties of `indata`
 # @param shapeinfo.input [InputShapeInfo] information about the data shape used to train the CPO
 # @param name [character(1)] name of the CPO to print for debug information
 # @return [list] the data to feed to the CPO retrafo function, as well as meta-information:
 #   list(indata = data in a shape fit to be fed into retrafo, properties, tempdata, subset.index)
-prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.input, name) {
+prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.properties, shapeinfo.input, name) {
 
-  prepared = prepareRetrafoData(indata, datasplit, allowed.properties, shapeinfo.input, name)
+  prepared = prepareRetrafoData(indata, dataformat, allowed.properties, shapeinfo.input, name)
   indata = prepared$data
 
-  lldatasplit = getLLDatasplit(datasplit)
+  lldataformat = getLLDataformat(dataformat)
 
 
-  if (lldatasplit %in% c("most", "all")) {
-    splitinto = c("numeric", "factor", "other", if (lldatasplit == "all") "ordered")
+  if (lldataformat == "split") {
+    splitinto = c("numeric", "factor", "other", if (strict.factors) "ordered")
     indata = splitColsByType(splitinto, indata)
   }
 
-  list(indata = getIndata(indata, datasplit), properties = prepared$properties, tempdata = indata, subset.index = prepared$subset.index)
+  list(indata = getIndata(indata, dataformat), properties = prepared$properties, tempdata = indata, subset.index = prepared$subset.index)
 }
 
-# do the check of the trafo's return value
+# Do the check of the trafo's return value
 #  - check the data is in an acceptable format (task, df, split dfs)
 #  - recombine into a task / df
 #  - check properties are allowed
@@ -104,7 +110,8 @@ prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.
 # @param outdata [Task | data.frame | matrix] data returned by CPO trafo function
 # @param olddata [Task | data.frame] incoming data that was already given to prepareTrafoInput as 'indata'
 # @param tempdata [Task | data.frame] incoming data that was given to prepareTrafoInput as 'indata', after subsetting according to 'affect.*' parameters
-# @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param allowed.properties [character] allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
 # @param properties.adding [character] which properties are supposed to be 'added' to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
 # @param operating.type [character(1)] one of 'target', 'feature', 'retrafoless': whether target data, feature data, or both (but only during trafo) may be changed
@@ -112,30 +119,31 @@ prepareRetrafoInput = function(indata, datasplit, allowed.properties, shapeinfo.
 # @param subset.index [numeric] index into olddata columns: the columns actually selected by 'affect.*' parameters
 # @param name [character(1)] name of the CPO to print for debug information
 # @return [list] the data resulting from the CPO operation, as well as meta-information: list(outdata, shapeinfo)
-handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.properties, properties.adding, operating.type, convertto, subset.index, name) {
-  outdata = rebuildOutdata(outdata, tempdata, datasplit)
-  datasplit = getLLDatasplit(datasplit)
+handleTrafoOutput = function(outdata, olddata, tempdata, dataformat, strict.factors, allowed.properties, properties.adding, operating.type,
+                             convertto, subset.index, name) {
+  outdata = rebuildOutdata(outdata, tempdata, dataformat)
+  dataformat = getLLDataformat(dataformat)
   if (operating.type == "target") {
-    recombined = recombinetask(olddata, outdata, datasplit, subset.index, TRUE, convertto, name)
-    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), TRUE, convertto, name)
+    recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, TRUE, convertto, name)
+    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, dataformat, strict.factors, seq_along(subset.index), TRUE, convertto, name)
   } else if (operating.type == "feature") {
     if (is.data.frame(olddata)) {
-      recombined = recombinedf(olddata, outdata, datasplit, subset.index, character(0), name)
-      small.recombined = recombinedf(olddata[subset.index], outdata, datasplit, seq_along(subset.index), character(0), name)
+      recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, character(0), name)
+      small.recombined = recombinedf(olddata[subset.index], outdata, dataformat, strict.factors, seq_along(subset.index), character(0), name)
 
     } else {
-      recombined = recombinetask(olddata, outdata, datasplit, subset.index, FALSE, name = name)
-      small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), FALSE, name = name)
+      recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
+      small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, dataformat, strict.factors, seq_along(subset.index), FALSE, name = name)
     }
   } else {  # operating.type == "retrafoless"
-    recombined = recombineRetrafolessResult(olddata, outdata, datasplit, subset.index, name)
+    recombined = recombineRetrafolessResult(olddata, outdata, dataformat, subset.index, name)
     small.recombined = recombined
   }
 
   present.properties = getTaskProperties(small.recombined)
   assertPropertiesOk(present.properties, allowed.properties, "trafo", "out", name)
   assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), "trafo", "adding", name)
-  if (datasplit %in% c("df.all", "task")) {
+  if (dataformat %in% c("df.all", "task")) {
     # in this case, take shape info with 'target' separated
     shapeinfo = makeOutputShapeInfo(small.recombined)
   } else {
@@ -156,7 +164,8 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
 # @param outdata [Task | data.frame | matrix] data returned by CPO retrafo function
 # @param olddata [Task | data.frame] incoming data that was already given to prepareRetrafoInput as 'indata'
 # @param tempdata [Task | data.frame] incoming data that was given to prepareRetrafoInput as 'indata', after subsetting according to 'affect.*' parameters
-# @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param allowed.properties [character] allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
 # @param properties.adding [character] which properties are supposed to be 'added' to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
 # @param shapeinfo.output [OutputShapeInfo] ShapeInfo describing the shape of the data returned by the CPO `trafo` function when it was called.
@@ -164,12 +173,12 @@ handleTrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.prop
 # @param subset.index [numeric] index into olddata columns: the columns actually selected by 'affect.*' parameters
 # @param name [character(1)] name of the CPO to print for debug information
 # @return [list] the data resulting from the CPO retrafo operation
-handleRetrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.properties, properties.adding, shapeinfo.output, subset.index, name) {
-  outdata = rebuildOutdata(outdata, tempdata, datasplit)
-  datasplit = getLLDatasplit(datasplit)
-  if (datasplit %in% c("df.all", "task")) {
+handleRetrafoOutput = function(outdata, olddata, tempdata, dataformat, allowed.properties, properties.adding, shapeinfo.output, subset.index, name) {
+  outdata = rebuildOutdata(outdata, tempdata, dataformat)
+  dataformat = getLLDataformat(dataformat)
+  if (dataformat %in% c("df.all", "task")) {
     # target is always split off during retrafo
-    datasplit = "df.features"
+    dataformat = "df.features"
   }
   targetcols = character(0)
 
@@ -179,12 +188,12 @@ handleRetrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.pr
       targetcols = shapeinfo.output$target
     }
 
-    recombined = recombinedf(olddata, outdata, datasplit, subset.index, targetcols, name)
-    small.recombined = recombinedf(cbind(dropNamed(olddata, targetcols)[subset.index], olddata[targetcols]), outdata, datasplit,
-      seq_along(subset.index), targetcols, name)
+    recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, targetcols, name)
+    small.recombined = recombinedf(cbind(dropNamed(olddata, targetcols)[subset.index], olddata[targetcols]), outdata, dataformat,
+      strict.factors, seq_along(subset.index), targetcols, name)
   } else {
-    recombined = recombinetask(olddata, outdata, datasplit, subset.index, FALSE, name = name)
-    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, datasplit, seq_along(subset.index), FALSE, name = name)
+    recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
+    small.recombined = recombinetask(subsetTask(olddata, features = subset.index), outdata, dataformat, strict.factors, seq_along(subset.index), FALSE, name = name)
   }
 
   present.properties = getDataProperties(small.recombined, targetcols)
@@ -193,13 +202,13 @@ handleRetrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.pr
 
   # check the shape of outdata is as expected
   shapeinfo.output$target = NULL
-  if (datasplit %in% c("all", "most")) {
+  if (dataformat == "split") {
     assertSetEqual(names(outdata), names(shapeinfo.output))
     for (n in names(outdata)) {
-      assertShapeConform(outdata[[n]], shapeinfo.output[[n]], datasplit == "all", name)
+      assertShapeConform(outdata[[n]], shapeinfo.output[[n]], strict.factors, name)
     }
   } else {
-    assertShapeConform(outdata, shapeinfo.output, FALSE, name)
+    assertShapeConform(outdata, shapeinfo.output, strict.factors, name)
   }
 
   recombined
@@ -211,14 +220,15 @@ handleRetrafoOutput = function(outdata, olddata, tempdata, datasplit, allowed.pr
 # - split data into 'data' and 'target' DFs (latter possibly empty df)
 # - test shapeinfo.input conformity
 # @param data [Task | data.frame] incoming data to be prepared (i.e. split and formatted)
-# @param datasplit [character(1)] one of 'task', 'no', 'most', 'all', 'factor', 'onlyfactor', 'numeric', 'ordered'
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param allowed.properties [character] allowed properties of `indata`
 # @param shapeinfo.input [InputShapeInfo] information about the data shape used to train the CPO
 # @param name [character(1)] name of the CPO to print for debug information
 # @return [list] the prepared data, as well as meta-information: list(data = data in a shape fit to be fed into retrafo, properties, subset.index)
-prepareRetrafoData = function(data, datasplit, allowed.properties, shapeinfo.input, name) {
+prepareRetrafoData = function(data, dataformat, strict.factors, allowed.properties, shapeinfo.input, name) {
 
-  # check that input column names and general types match (num / fac, or num/fac/ordered if datasplit == "all"
+  # check that input column names and general types match (num / fac, or num/fac/ordered if strict.factors
   if ("Task" %in% class(data)) {
     if (length(shapeinfo.input$target) && length(getTaskTargetNames(data))) {
       # FIXME: this might be too strict: maybe the user wants to retrafo a Task with the target having a different name?
@@ -251,9 +261,9 @@ prepareRetrafoData = function(data, datasplit, allowed.properties, shapeinfo.inp
   data = data[subset.index]
   shapeinfo.input$subset.selector = NULL
 
-  lldatasplit = getLLDatasplit(datasplit)
+  lldataformat = getLLDataformat(dataformat)
 
-  assertShapeConform(data, shapeinfo.input, lldatasplit == "all", name)
+  assertShapeConform(data, shapeinfo.input, strict.factors, name)
 
   if ("factor.levels" %in% names(shapeinfo.input)) {
     data = fixFactors(data, shapeinfo.input$factor.levels)
@@ -399,17 +409,17 @@ compositeProperties = function(prop1, prop2, name1, name2) {
 # wasresult: whether we are checking the result of retrafo
 # @param df [data.frame] the data to check
 # @param shapeinfo [ShapeInfo] a the shape which `df` must conform to
-# @param checkordered [logical(1)] whether to check for 'ordered' as a type differing from 'factor'
+# @param strict.factors [logical(1)] whether to check for 'ordered' as a type differing from 'factor'
 # @param name [character(1)] name of the CPO currently being run, for error and debug printing
 # @return [invisible(NULL)]
-assertShapeConform = function(df, shapeinfo, checkordered, name) {
+assertShapeConform = function(df, shapeinfo, strict.factors, name) {
   if (!identical(names2(df), shapeinfo$colnames)) {
     stopf("Error in CPO %s: column name mismatch between training and test data.\nWas %s during training, is %s now.",
           name, collapse(shapeinfo$colnames, sep = ", "), collapse(names(df), sep = ", "))
   }
   indata = df[shapeinfo$colnames]
 
-  if (checkordered) {
+  if (strict.factors) {
     typesmatch = list(
         c("integer", "numeric"),
         "factor", "ordered")
@@ -556,45 +566,44 @@ getColIndices = function(data, type, index, names, pattern, invert, pattern.igno
   index
 }
 
-# Translate the 'datasplit' option for internal use ("low level" datasplit) to a simplified version.
+# Translate the 'dataformat' option for internal use ("low level" dataformat) to a simplified version.
 #
 # most of CPOFormatCheck's split / recombine logic doesn't care about "factor", "onlyfactor", "ordered" or "numeric"
 # and just treats it as "most" or "all" dataformat, subsetting the resulting data. This significantly
 # simplifies the "splitting" and "recombining" of input / output data.
 # E.g. if dataformat is "factor":
-#  (1) the data is split according to "most" -- this is translated by 'getLLDatasplit'
+#  (1) the data is split according to "most" -- this is translated by 'getLLDataformat'
 #  (2) the data that is handed to the cpo.trafo function is gotten by 'getIndata' which takes the '$factor' slot of the split data, in this case
 #  (3) cpo.trafo returns its output. This output is put back together with the other data using 'rebuildOutdata'
 #  (4) all checks are then done as if cpo.trafo had had used the "most" dataformat and not touched any but the '$factor' slots.
-# @param datasplit [character(1)] the datasplit to translate
-# @return [character(1)] a simplified datasplit option
-getLLDatasplit = function(datasplit) {
-  if (datasplit %in% c("factor", "numeric")) {
-    datasplit = "most"
-  } else if (datasplit %in% c("onlyfactor", "ordered")) {
-    datasplit = "all"
+# @param dataformat [character(1)] the dataformat to translate
+# @return [character(1)] a simplified dataformat option
+getLLDataformat = function(dataformat) {
+  if (dataformat %in% c("factor", "numeric", "ordered")) {
+    "split"
+  } else {
+    dataformat
   }
-  datasplit
 }
 
-# Get element of data according to datasplit.
+# Get element of data according to dataformat.
 #
-# This is the complementary operation (category theoretically the quotient object) of `getLLDatasplit`.
+# This is the complementary operation (category theoretically the quotient object) of `getLLDataformat`.
 # With 'indata' being split according to dataformat "factor", "onlyfactor", "ordered", or "numeric", get the relevant subitem
 # from the indata after it was split according to "most" or "all".
 # If dataformat is none of these, this is a noop.
-# @param indata [list of data.frame | data.frame | Task] the result of splitting incoming data according to `getLLDatasplit(datasplit)`.
-# @param datasplit [character(1)] one of the possible datasplit options
-# @return [data.frame | Task] data formatted according to datasplit, to be fed into a trafo / retrafo function
-getIndata = function(indata, datasplit) {
-  if (datasplit %in% c("factor", "onlyfactor", "ordered", "numeric")) {
-    indata[[ifelse(datasplit == "onlyfactor", "factor", datasplit)]]
+# @param indata [list of data.frame | data.frame | Task] the result of splitting incoming data according to `getLLDataformat(dataformat)`.
+# @param dataformat [character(1)] one of the possible dataformat options
+# @return [data.frame | Task] data formatted according to dataformat, to be fed into a trafo / retrafo function
+getIndata = function(indata, dataformat) {
+  if (dataformat %in% c("factor", "ordered", "numeric")) {
+    indata[[dataformat]]
   } else {
     indata
   }
 }
 
-# Reassemble data that was split according to some of the `datasplit` options.
+# Reassemble data that was split according to some of the `dataformat` options.
 #
 # If dataformat is one of "factor", "onlyfactor", "ordered", or "numeric", then
 # the data returned by trafo / retrafo (only the modified factors / etc) needs
@@ -604,15 +613,15 @@ getIndata = function(indata, datasplit) {
 #
 # If dataformat is none of these, this is a noop.
 # @param outdata [data.frame | list of data.frame | Task] the data returned by a trafo / retrafo function
-# @param tempdata [data.frame | list of data.frame | Task] the original data, split according to `getLLDatasplit(datasplit)`.
-# @param datasplit [character(1)] the datasplit option of the current CPO
+# @param tempdata [data.frame | list of data.frame | Task] the original data, split according to `getLLDataformat(dataformat)`.
+# @param dataformat [character(1)] the dataformat option of the current CPO
 # @return [data.frame | list of data.frame | Task] `outdata`, possibly embedded into `tempdata`.
-rebuildOutdata = function(outdata, tempdata, datasplit) {
-  if (datasplit %in% c("factor", "onlyfactor", "ordered", "numeric")) {
-    tempdata[[ifelse(datasplit == "onlyfactor", "factor", datasplit)]] = outdata
+rebuildOutdata = function(outdata, tempdata, dataformat) {
+  if (dataformat %in% c("factor", "ordered", "numeric")) {
+    tempdata[[dataformat]] = outdata
     outdata = tempdata
   }
-  if (datasplit %in% c("numeric", "most", "all") && is.matrix(outdata$numeric)) {
+  if (dataformat %in% c("numeric", "split") && is.matrix(outdata$numeric)) {
     outdata$numeric = as.data.frame(outdata$numeric)
   }
   outdata
@@ -649,55 +658,49 @@ splitColsByType = function(which = c("numeric", "factor", "ordered", "other"), d
 
 # This does the 'dataformat' splitting up of Tasks.
 #
-# Note that "dataformat" and "dataformat.factor.with.ordered" is translated to "datasplit":
-# dataformat.factor.with.ordered TRUE | FALSE
-# split                    --> most   | all
-# factor                   --> factor | onlyfactor
-#
 # This performs no checks. possibly need to check that properties are adhered to
 # in retrafo, must also check if the format is the same as during training
 # 'possibly' here means: if not attached to a learner
 #
 # This is the sister of `splitdf` which gets applied to `data.frame`.
 # @param task [Task] the task to split up
-# @param datasplit [character(1)] subset of `c("df.features", "most", "all", "df.all", "task")`. Should be
-#   a result of `getLLDatasplit` applied to the datasplit used for the CPO.
-# @return [Task | data.frame | list of data.frame] the data split / formatted according to `datasplit`.
-splittask = function(task, datasplit = c("df.features", "most", "all", "df.all", "task")) {
-  datasplit = match.arg(datasplit)
+# @param dataformat [character(1)] subset of `c("df.features", "split", "df.all", "task")`. Should be
+#   a result of `getLLDataformat` applied to the dataformat used for the CPO.
+# @param strict.factors [logical(1)] whether to split ordered from factor columns
+# @return [Task | data.frame | list of data.frame] the data split / formatted according to `dataformat`.
+splittask = function(task, dataformat = c("df.features", "split", "df.all", "task")) {
+  dataformat = match.arg(dataformat)
 
 
-  if (datasplit %in% c("most", "all")) {
+  if (dataformat == "split") {
     splt = getTaskData(task, target.extra = TRUE)
-
+    colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")
   }
 
-  switch(datasplit,
+  switch(dataformat,
     task = list(data = task, target = getTaskTargetNames(task)),
     df.all = list(data = getTaskData(task), target = getTaskTargetNames(task)),
     df.features = list(data = getTaskData(task, target.extra = TRUE)$data,
       target = getTaskData(task, features = character(0))),  # want the target to always be a data.frame
-    most = list(data = splitColsByType(c("numeric", "factor", "other"), splt$data),
-      target = getTaskData(task, features = character(0))),  # want the target to always be a data.frame
-    all = list(data = splitColsByType(c("numeric", "factor", "ordered", "other"), splt$data),
+    split = list(data = splitColsByType(colsplit, splt$data),
       target = getTaskData(task, features = character(0))))  # want the target to always be a data.frame
 }
 
 # This does the 'dataformat' splitting up of data.frames, see `splittask`. When creating a `Task` from a
-# `data.frame` for `datasplit == "task"`, a `ClusterTask` is generated.
+# `data.frame` for `dataformat == "task"`, a `ClusterTask` is generated.
 # @param df [data.frame] the data to split up
-# @param datasplit [character(1)] subset of `c("df.features", "most", "all", "df.all", "task")`. Should be
-#   a result of `getLLDatasplit` applied to the datasplit used for the CPO.
-# @return [Task | data.frame | list of data.frame] the data split / formatted according to `datasplit`.
-splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "task")) {
-  datasplit = match.arg(datasplit)
-  switch(datasplit,
+# @param dataformat [character(1)] subset of `c("df.features", "split", "df.all", "task")`. Should be
+#   a result of `getLLDataformat` applied to the dataformat used for the CPO.
+# @param strict.factors [logical(1)] whether to split ordered from factor columns
+# @return [Task | data.frame | list of data.frame] the data split / formatted according to `dataformat`.
+splitdf = function(df, dataformat = c("df.features", "split", "df.all", "task"), strict.factors) {
+  dataformat = match.arg(dataformat)
+  colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")
+  switch(dataformat,
     task = list(data = makeClusterTask(data = df, fixup.data = "no"), target = character(0)),
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
-    most = list(data = splitColsByType(c("numeric", "factor", "other"), df),
-      target = df[, character(0), drop = FALSE]),
-    all = list(data = splitColsByType(c("numeric", "factor", "ordered", "other"), df),
+    split = list(data = splitColsByType(colsplit), df),
       target = df[, character(0), drop = FALSE]))
 }
 
@@ -707,7 +710,7 @@ splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "ta
 # Task / Data recombination entails checking that data / target was only modified if allowed by the CPO type,
 # checking that the number of rows didn't change, and relevant properties didn't change.
 
-# Recombine the data previously split up by `splitdf` / `splittask` with `datasplit` being "most" or "all",
+# Recombine the data previously split up by `splitdf` / `splittask` with `dataformat` being "most" or "all",
 # and after the CPO trafo / retrafo function performed its operations on it.
 #
 # recombineLL is called by both recombinetask and recombinedf, and does the checking (e.g. number or rows did not change)
@@ -716,14 +719,12 @@ splitdf = function(df, datasplit = c("df.features", "most", "all", "df.all", "ta
 # 'LL' meaning 'low level'
 # @param olddata [list of data.frame] data as fed to the CPO, for reference of correct row number etc.
 # @param newdata [list of data.frame] data as returned by trafo / retrafo
-# @param datasplit [character(1)] datasplit. This is the result of `getLLDatasplit` applied to the CPO's `datasplit`, but
-#   it is a bug to call `recombineLL` if that is not "most" or "all".
 # @param subset.index [integer] subset of 'task' features that were selected by 'affect.*' parameters
 # @param name [character(1)] CPO name for pretty debug printing
 # @return [data.frame] the data in `newdata` combined into a single data.frame.
-recombineLL = function(olddata, newdata, targetnames, datasplit, subset.index, name) {
+recombineLL = function(olddata, newdata, targetnames, strict.factors, subset.index, name) {
   allnames = names(olddata)
-  needednames = c("numeric", "factor", "other", if (datasplit == "all") "ordered")
+  needednames = c("numeric", "factor", "other", if (strict.factors) "ordered")
   if (!isTRUE(checkSetEqual(names(newdata), needednames))) {
     stopf('CPO %s gave bad return. The returned value must be a list with names {"%s"}.',
       name, collapse(needednames, sep = '", "'))
@@ -772,33 +773,34 @@ recombineLL = function(olddata, newdata, targetnames, datasplit, subset.index, n
   newdata[namesorder]
 }
 
-# Recombine a task that was previously (potentially) split up according to `datasplit` and then changed by trafo / retrafo.
+# Recombine a task that was previously (potentially) split up according to `dataformat` and then changed by trafo / retrafo.
 #
 # This is used when the split up data was created from a task, and if (therefore) the result of the
 # CPO is again expected to be a task.
 #
 # this checks that the result of trafo / retrafo has the proper type, that target and type didn't change,
-# (if datasplit == "task"), and that the number of rows is the same. It then reconstructs the complete task that
+# (if dataformat == "task"), and that the number of rows is the same. It then reconstructs the complete task that
 # will be output by the CPO.
 # @param task [Task] old task, used for input, for comparison
 # @param newdata [Task | data.frame | list of data.frame] output of cpo.trafo / cpo.retrafo. This has the same format
-#   as `splittask(task, datasplit)`
-# @param datasplit [character(1)] the datasplit used, this is `getLLDatasplit` applied to the CPO's datasplit parameter.
+#   as `splittask(task, dataformat)`
+# @param dataformat [character(1)] the dataformat used, this is `getLLDataformat` applied to the CPO's dataformat parameter.
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param subset.index [integer] subset of 'task' features that were selected by 'affect.*' parameters
 # @param targetbound [logical(1)] TRUE for target operating CPO, FALSE for feature operating CPO.
 # @param newtasktype [character(1)] only if `targetbound`, type of new task. Give even if no task conversion happens.
 # @param name [character(1)] CPO name for pretty debug printing
 # @return [Task] the task incorporating the changes done by the CPO to `newdata`.
-recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.features", "most", "all"),
-                         subset.index, targetbound, newtasktype, name) {
-  datasplit = match.arg(datasplit)
+recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.features", "split"),
+                         strict.factors, subset.index, targetbound, newtasktype, name) {
+  dataformat = match.arg(dataformat)
 
   if (is.data.frame(task)) {
     # only if 'targetbound'
     task = makeClusterTask(id = "CPO-constructed", data = task)
   }
 
-  if (datasplit %in% c("df.features", "most", "all")) {
+  if (dataformat %in% c("df.features", "split")) {
     if (targetbound) {
       # return is just 'target' in a df.
       if (!is.data.frame(newdata)) {
@@ -822,11 +824,11 @@ recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.feat
       }
       return(constructTask(task, newdata, newtnames, newtasktype, getTaskId(task)))
     } else {
-      return(changeData(task, recombinedf(getTaskData(task), newdata, datasplit, subset.index, getTaskTargetNames(task), name)))
+      return(changeData(task, recombinedf(getTaskData(task), newdata, dataformat, strict.factors, subset.index, getTaskTargetNames(task), name)))
     }
   }
 
-  if (datasplit == "df.all") {
+  if (dataformat == "df.all") {
     checkDFBasics(task, newdata, targetbound, name)
     if (!targetbound) {
       newdata = changeData(task, newdata)
@@ -871,27 +873,28 @@ recombinetask = function(task, newdata, datasplit = c("df.all", "task", "df.feat
   } else {
     new.subset.index = c(which(aretargets), new.subset.index)
   }
-  changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "df.all", new.subset.index, character(0), name))
+  changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "df.all", strict.factors, new.subset.index, character(0), name))
 }
 
-# Recombine a data.frame that was previously (potentially) split up according to `datasplit` and then changed by trafo / retrafo.
+# Recombine a data.frame that was previously (potentially) split up according to `dataformat` and then changed by trafo / retrafo.
 #
 # recombine data.frame after checking for match of rows etc., see 'recombinetask'.
 # @param df [data.frame] old data.frame, used for input, for comparison
 # @param newdata [Task | data.frame | list of data.frame] output of cpo.trafo / cpo.retrafo. This has the same format
-#   as `splitdf(df, datasplit)`
-# @param datasplit [character(1)] the datasplit used, this is `getLLDatasplit` applied to the CPO's datasplit parameter.
+#   as `splitdf(df, dataformat)`
+# @param dataformat [character(1)] the dataformat used, this is `getLLDataformat` applied to the CPO's dataformat parameter.
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
 # @param subset.index [integer] subset of 'df' features that were selected by 'affect.*' parameters
 # @param targetcols [character] names of target columns; this is relevant for retrafo when cpo.trafo was trained with a Task that
 #   contains target columns, and cpo.retrafo is fed with a data.frame that contains columns with the same name.
 # @param name [character(1)] CPO name for pretty debug printing
 # @return [data.frame] the data.frame incorporating the changes done by the CPO to `newdata`
-recombinedf = function(df, newdata, datasplit = c("df.features", "most", "all", "df.all", "task"), subset.index, targetcols, name) {
+recombinedf = function(df, newdata, dataformat = c("df.features", "split", "df.all", "task"), strict.factors, subset.index, targetcols, name) {
 # otherwise it contains the columns removed from the DF because they were target columns.
-  datasplit = match.arg(datasplit)
-  if (datasplit %in% c("most", "all")) {
-    return(recombineLL(df, newdata, targetcols, datasplit, subset.index, name))
-  } else if (datasplit == "task") {
+  dataformat = match.arg(dataformat)
+  if (dataformat %in% c("most", "all")) {
+    return(recombineLL(df, newdata, targetcols, strict.factors, subset.index, name))
+  } else if (dataformat == "task") {
     assertClass(newdata, "Task")
     newdata = getTaskData(newdata)
   }
@@ -1024,28 +1027,28 @@ checkDFBasics = function(task, newdata, targetbound, name) {
 # then convert, if necessary.
 # @param olddata [Task | data.frame] the original input data
 # @param newdata [Task | data.frame] the data returned by the CPO trafo function
-# @param datasplit [character(1)] the result of `getLLDatasplit` applied to the CPO's datasplit parameter
+# @param dataformat [character(1)] the result of `getLLDataformat` applied to the CPO's dataformat parameter
 # @param subset.index [integer] index into olddata columns: the columns actually selected by 'affect.*' parameters
 # @param name [character(1)] the CPO name used in error messages
 # @return [Task | data.frame] the recombined data from newdata
-recombineRetrafolessResult = function(olddata, newdata, datasplit, subset.index, name) {
+recombineRetrafolessResult = function(olddata, newdata, dataformat, subset.index, name) {
   assert(identical(subset.index, seq_along(subset.index)))
-  assertSubset(datasplit, c("df.all", "task"))
+  assertSubset(dataformat, c("df.all", "task"))
   if (is.data.frame(olddata)) {
-    if (datasplit == "df.all") {
+    if (dataformat == "df.all") {
       assertClass(newdata, "data.frame")
-    } else {  # datasplit == "task"
+    } else {  # dataformat == "task"
       assertClass(newdata, "ClusterTask")
       newdata = getTaskData(newdata)
     }
   } else {
-    if (datasplit == "df.all") {
+    if (dataformat == "df.all") {
       assertClass(newdata, "data.frame")
       if (!all(getTaskTargetNames(olddata) %in% names(newdata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
       }
       newdata = changeData(olddata, newdata)
-    } else {  # datasplit == "task"
+    } else {  # dataformat == "task"
       assert(identical(class(newdata), class(olddata)))
       if (!all(getTaskTargetNames(olddata) == getTaskTargetNames(newdata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
