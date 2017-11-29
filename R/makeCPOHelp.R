@@ -366,7 +366,7 @@
 #'
 #'   For \bold{Target Operation CPOs}, if \code{cpo.retrafo} is \code{NULL}, \code{cpo.train.invert}
 #'   (or \code{cpo.invert} if \code{constant.invert} is \code{TRUE}) must likewise be \code{NULL}.
-#'   In that case \code{cpo.train} must return \code{NULL} and define, within its namespace, two
+#'   In that case \code{cpo.train}'s return value is ignored and it must define, within its namespace, two
 #'   functions \code{cpo.retrafo} and \code{cpo.train.invert} (or \code{cpo.invert} if \code{constant.invert}
 #'   is \code{TRUE}) which will take the place of the respective functions. \code{cpo.retrafo} must take the
 #'   parameters \code{data} and \code{target}, and return the modified target \code{target} (or \code{data},
@@ -381,9 +381,11 @@
 #'   given as the \code{control} argument of both \code{cpo.retrafo} and \code{cpo.train.invert}
 #'   (or the \code{control.invert} argument of \code{cpo.invert} if \code{constant.invert} is \code{TRUE}).
 #'
-#'   For Feature Operation CPOs, this parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO.
+#'   This parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO. For Target Operation CPOs created with \code{makeCPOTargetOp},
+#'   \code{constant.invert} must be \code{TRUE} in this case.
 #'   A stateless CPO does the same transformation for initial CPO
-#'   application and subsequent prediction data transformation (e.g. taking the logarithm of numerical columns). Note that \code{retrafo} should not
+#'   application and subsequent prediction data transformation (e.g. taking the logarithm of numerical columns). Note that \code{cpo.retrafo}
+#'   and \code{cpo.invert} should not
 #'   have a \code{control} argument in a stateless CPO.
 #' @param cpo.trafo [\code{function}]\cr
 #'   This is a function which must have the parameters \code{data} and \code{target},

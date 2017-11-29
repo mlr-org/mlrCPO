@@ -111,7 +111,7 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
     properties.adding = prep$properties.adding, properties.needed = prep$properties.needed,
     properties.target = prep$properties.target, type.from = prep$task.type.in, type.to = prep$task.type.out,
     predict.type.map = prep$predict.type.map, packages = packages, constant.invert = constant.invert,
-    cpo.train = substitute(cpo.train), cpo.retrafo = substitute(cpo.retrafo),
+    cpo.trafo = substitute(cpo.train), cpo.retrafo = substitute(cpo.retrafo),
     cpo.train.invert = substitute(cpo.train.invert), cpo.invert = substitute(cpo.invert))
 }
 
@@ -134,7 +134,7 @@ makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals 
   prep = prepareCPOTargetOp(properties.adding, properties.needed, properties.target,
     task.type.out, predict.type.map, constant.invert)
 
-  makeCPOGeneral(cpo.type = "target",
+  makeCPOGeneral(cpo.type = "target.extended",
     cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
     dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
     fix.factors = fix.factors, export.params = export.params, properties.data = properties.data,
@@ -153,8 +153,6 @@ makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals 
 #   predict.type.map, task.type.in, task.type.out
 prepareCPOTargetOp = function(properties.adding, properties.needed, properties.target,
                               task.type.out, predict.type.map, constant.invert) {
-
-  assertFlag(skip.retrafo)
 
   task.type.in = intersect(properties.target, cpo.tasktypes)
   if (is.null(task.type.out)) {
@@ -235,10 +233,12 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
                           dataformat, dataformat.factor.with.ordered, fix.factors, export.params,
                           properties.data, properties.adding, properties.needed,
                           properties.target, type.from, type.to, predict.type.map, packages,
-                          skip.retrafo, cpo.trafo, cpo.retrafo = NULL, cpo.invert = NULL) {
+                          constant.invert, cpo.trafo, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL) {
 
   cpo.type = match.arg(cpo.type)
   assertString(cpo.name)
+
+  assertFlag(constant.invert)
 
   assertList(par.vals, names = "unique")
   assertFlag(dataformat.factor.with.ordered)
@@ -276,7 +276,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   funargs = lapply(par.set$pars, function(dummy) substitute())
   funargs = insert(funargs, par.vals)
 
-  trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.invert, parent.frame(2),
+  trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, parent.frame(2),
     cpo.name, cpo.type, dataformat, skip.retrafo)
   if (cpo.type == "feature.extended") {
     # from here on, feature.extended and feature work the same
@@ -524,6 +524,7 @@ prepareParams = function(par.set, par.vals, export.params, reserved.params) {
 #   must be absent and will be added here.
 # @param cpo.trafo [language | function] the CPO trafo function, in a format as used by `makeFunction`
 # @param cpo.retrafo [language | function] the CPO retrafo function, in a format as used by `makeFunction`
+# @param cpo.train.invert [language | function] the CPO train.invert function, in a format as used by `makeFunction`
 # @param cpo.invert [language | function] the CPO invert function, in a format as used by `makeFunction`
 # @param eval.env [environment] the environment in which to evaluate `cpo.trafo` and `cpo.retrafo`
 # @param cpo.name [character(1)] name of the CPO, for error messages
@@ -533,24 +534,21 @@ prepareParams = function(par.set, par.vals, export.params, reserved.params) {
 # @param skip.retrafo [logical(1)] whether TOCPO skips the retrafo step
 # @return [list] list(cpo.trafo, cpo.retrafo, cpo.trafo.orig, cpo.retrafo.orig) trafo and retrafo as used internally when handling CPO. "*.orig"
 #   is needed by print.CPOConstructor for pretty printing of the functions, since the internal representation of them gets modified and is not informative.
-constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, skip.retrafo) {
+constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, eval.env, cpo.name, cpo.type, dataformat, skip.retrafo) {
 
-  if (!(is.recursive(cpo.trafo) && length(cpo.trafo) > 1 && identical(cpo.trafo[[1]], quote(`{`)))) {
-    cpo.trafo = eval(cpo.trafo, envir = eval.env)
-  }
-  if (!(is.recursive(cpo.retrafo) && length(cpo.retrafo) > 1 && identical(cpo.retrafo[[1]], quote(`{`)))) {
-    cpo.retrafo = eval(cpo.retrafo, envir = eval.env)
-  }
-  if (!(is.recursive(cpo.invert) && length(cpo.invert) > 1 && identical(cpo.retrafo[[1]], quote(`{`)))) {
-    cpo.invert = eval(cpo.invert, envir = eval.env)
+  # evaluate expressions that are not headless functions
+  for (eval.name in c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")) {
+    expr = get(eval.name)
+    if (!(is.recursive(expr) && length(expr) > 1 && identical(expr[[1]], quote(`{`)))) {
+      assign(eval.name, eval(expr, envir = eval.env))
+    }
   }
 
   stateless = is.null(cpo.trafo)
 
-  if (stateless && cpo.type != "feature") {
-    stop("cpo.trafo may not be NULL. If you mean to create a stateless CPO, use makeCPO.")
+  if (stateless && cpo.type %nin% c("target", "feature")) {
+    stop("cpo.trafo may not be NULL. If you mean to create a stateless CPO, use makeCPO or makeCPOTargetOp.")
   }
-
 
   required.arglist = funargs
   required.arglist$data = substitute()
@@ -707,25 +705,3 @@ makeFunction = function(expr, required.arglist, env = parent.frame()) {
   newfun
 }
 
-# capture the environment of the call to 'fun'
-#
-# This puts a wrapper around a function so when it is called, the call environment
-# will be assigned to a variable `.ENV`.
-#
-# Example:
-# ```
-# f = function(x) x
-# fw = captureEnvWrapper(f)
-# fw(10)
-# ls(.ENV)  # .ENV variable was created, contains "x"
-# .ENV$x    # == 10, since fw(10) assigned 10 to x
-# @param fun [function] the function to wrap
-# @return [function] a function that behaves the same, as `fun`, but also creates
-#   the variable `.ENV` when called.
-captureEnvWrapper = function(fun) {
-  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })
-  envcapture[[3]] = body(fun)
-  body(fun) = envcapture
-  environment(fun) = new.env(parent = environment(fun))
-  fun
-}
