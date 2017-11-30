@@ -82,14 +82,14 @@ print.CPO = function(x, verbose = FALSE, ...) {
 #' @export
 print.CPOTrained = function(x, ...) {
   first = TRUE
-  object.type = getCPOObjectType(x)
+  object.type = getCPOClass(x)
   invcap = getCPOInvertCapability(x)
   pt = names(getCPOPredictType(x))
   if (length(pt) == 3) {
     assert(object.type == "CPORetrafo")
   }
   catf("CPO %s chain", collapse(stri_trans_totitle(invcap), sep = " / "), newline = FALSE)
-  if (invcap %in% c("inverter", "hybrid")) {
+  if (invcap %in% c("invert", "hybrid")) {
     catf("(able to predict '%s')", collapse(pt, sep = "', '"))
   } else {
     cat("\n")

@@ -9,6 +9,12 @@ deparseJoin = function(what, sep = " ") {
   collapse(deparse(what, 500), sep = sep)
 }
 
+# for pretty printing named vectors
+# will not work for contents of `vec` that are longer than 60 characters.
+namedVecToString = function(vec) {
+  paste0("c(", collapse(paste(names(vec), sapply(vec, deparse, control = NULL), sep = " = "), sep = ", "), ")")
+}
+
 # Search for references to variables (not function) named in 'pattern'
 # return TRUE if any were found, FALE otherwise.
 # This is necessary since the R namespace for functions is different from

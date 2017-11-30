@@ -129,18 +129,28 @@ getCPOName.NULLCPO = function(cpo) {
 }
 
 #' @export
-getCPOObjectType.NULLCPO = function(cpo) {
+getCPOClass.NULLCPO = function(cpo) {
   "NULLCPO"
 }
 
 #' @export
-getCPOInvertCapability.NULLCPO = function(cpo) {
-  "retrafo"
+getCPOTrainedCapability.NULLCPO = function(cpo) {
+  c(retrafo = 0L, invert = 0L)
 }
 
 #' @export
 getCPOOperatingType.NULLCPO = function(cpo) {
   character(0)
+}
+
+#' @export
+getOriginalCPO.NULLCPO = function(cpo) {
+  NULLCPO
+}
+
+#' @export
+getOriginalCPOConstructor.NULLCPO = function(cpo) {
+  stop("No CPOConstructor for NULLCPO.")
 }
 
 #' @export

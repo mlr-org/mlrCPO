@@ -279,6 +279,9 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, parent.frame(2),
     cpo.name, cpo.type, dataformat, constant.invert)
 
+  control.type = trafo.funs$control.type
+  trafo.funs$control.type = NULL
+
   # from here on, *.extended  work the same as the simple equivalents
   cpo.type = gsub(".extended", "", cpo.type, fixed = TRUE)
 
@@ -381,9 +384,11 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       properties = properties.list,                          # properties$handling: [character] properties handled by this CPO
                                                              # properties$adding [character] capabilities that this CPO adds to the next processor
                                                              # properties$needed [character] capabilities needed by the next processor
-      properties.raw = properties.list$handling,             # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       operating.type = cpo.type,                             # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
       predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
+      convertfrom = NULL,                                    # see TOCPO part below
+      convertto = NULL,                                      # see TOCPO part below
+      constant.invert = TRUE,                                # see TOCPO part below
       # --- CPOPrimitive part
       id = NULL,                                             # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
       trafo.funs = trafo.funs,                               # [list of function] cpo.trafo, cpo.retrafo, cpo.invert, and cpo.*.orig
@@ -392,9 +397,12 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       unexported.pars = unexported.pars,                     # [named list] values of parameters that are not exported
       unexportedpar.set = unexportedpar.set,                 # [ParamSet] unexported parameter set
       bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
+      properties.raw = properties.list$handling,             # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       dataformat = dataformat,                               # [character(1)] data format as received by trafo / retrafo
       strict.factors = dataformat.factor.with.ordered,       # [logical(1)] whether factors and ordereds are distinguished
-      fix.factors = fix.factors)                             # [logical(1)] whether to clean up factor levels in retrafo
+      fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
+      constructor = cpo.constructor,                         # [CPOConstructor] the constructor function used to create this object
+      control.type = control.type)                           # [named list] list(retrafo, invert) of one of "functional", "object": how state is communicated
     # --- Target Operating CPO relevant things
     if (cpo.type == "target") {
       cpo$convertfrom = type.from                            # [character(1)] task type to convert from.
@@ -408,7 +416,8 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     requireCPOPackages(cpo)
     setCPOId(cpo, id)  # this also adjusts par.set and par.vals
   })
-  addClasses(eval(call("function", as.pairlist(funargs), funbody)), "CPOConstructor")
+  cpo.constructor = addClasses(eval(call("function", as.pairlist(funargs), funbody)), "CPOConstructor")
+  cpo.constructor
 }
 
 # check the validity of properties.data, properties.needed, properties.adding, properties.target and assemble
@@ -610,7 +619,13 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   cpo.origs = lapply(fnames, get)  # cpo.trafo, cpo.retrafo, ...
   names(cpo.origs) = paste0(names(cpo.origs), ".orig")  # rename to cpo.trafo.orig, ...
 
-  c(cpo.funs, cpo.origs)
+  control.type = list(
+      retrafo = if (cpo.type != "retrafoless")
+                  (if (is.null(cpo.retrafo)) "functional" else "object"),
+      invert = if (cpo.type %in% c("target.extended", "target"))
+                 (if (is.null(cpo.invert)) "functional" else "object"))
+
+  c(cpo.funs, cpo.origs, list(control.type = control.type))
 }
 
 # create a function with expressions 'expr' in the environment 'env'.

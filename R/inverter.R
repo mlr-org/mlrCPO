@@ -222,7 +222,7 @@ invertCPO = function(inverter, prediction, predict.type) {
 invertCPO.CPOInverter = function(inverter, prediction, predict.type) {
   assertString(predict.type)
   cpo = inverter$cpo
-  if ("inverter" %in% inverter$kind) {
+  if ("invert" %in% inverter$kind) {
     # make sure some things that should always be true are actually true
     assertString(cpo$convertfrom)
     assertString(cpo$convertto)

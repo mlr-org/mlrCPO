@@ -1,8 +1,8 @@
 * TO-DO:
 ** changes
 - [X] retrafoless may not change column layout
-- [ ] make retrafoless work
-- [ ] make inverter work
+- [X] make retrafoless work
+- [X] make inverter work
 - [X] delete 'target' variable in functional CPOs
 - [X] refactor prepare trafo / retrafo to separate checking and splitting / uniting
 - [X] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
@@ -11,12 +11,16 @@
 - [ ] document that index with cpoSelect and affect.* is always relative do data cols only
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 - [ ] roxygen-document internal functions
-- [ ] plan for today:
-  - [ ] callCPO should call retrafo / inverter properly
-  - [ ] retrafo chaining should work again
+- [-] plan for today:
+  - [X] callCPO should call retrafo / inverter properly
+  - [X] retrafo chaining should work again
+  - [X] predict.type of cpotrained
+  - [ ] getoriginalcpo of objects restored from state has correct hyperparameters, export settings, etc.
+  - [ ] set CPOConstructor for multiplex cpos etc.
   - [ ] retrafo state should work again
+  - [ ] retrafo element change
   - [ ] see that learner attachment etc still works
-  - [ ] see that getting operating type etc. works (also for NULLCPO)
+  - [X] see that getting operating type etc. works (also for NULLCPO)
   - [ ] make invert() etc work
   - [ ] make the printers work
 ** test todo

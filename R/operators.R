@@ -144,6 +144,10 @@ composeCPO.CPO = function(cpo1, cpo2) {
     properties = newprops,
     operating.type = unique(c(cpo1$operating.type, cpo2$operating.type)),
     predict.type = newpt,
+    convertfrom = firstNonNull(cpo1$convertfrom, cpo2$convertfrom),
+    convertto = firstNonNull(cpo2$convertto, cpo1$convertto),
+    constant.invert = cpo1$constant.invert && cpo2$constant.invert,
+
     # --- CPOPipeline part
     first = cpo1,
     second = cpo2)
@@ -196,9 +200,10 @@ as.list.CPOPipeline = function(x, ...) {
 ##################################
 
 # RETRAFO %>>% RETRAFO
+# or INVERTER %>>% INVERTER
 # Check types, check properties.
-# Since "Retrafo" and "Inverter" are fundamentally the
-# same class, some special cases need to be handled.
+# "Retrafo" and "Inverter" are fundamentally the
+# same class, but some special cases need to be handled.
 #' @export
 composeCPO.CPOTrained = function(cpo1, cpo2) {
   assertClass(cpo2, "CPOTrained")
@@ -206,72 +211,51 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
     return(cpo1)
   }
   is.prim = "CPOTrainedPrimitive" %in% class(cpo2)
-  assert(is.prim == is.null(cpo2$prev.retrafo))
+  assert(is.prim == is.null(cpo2$element$prev.retrafo.elt))
 
-  objtype = c(getCPOObjectType(cpo1), getCPOObjectType(cpo2))
-  invcap = c(getCPOInvertCapability(cpo1), getCPOInvertCapability(cpo2))
 
-  # are we composing the retrafo part?
-  retrafo.composition = all(objtype == "CPORetrafo")  # invcap are retrafo, retrafo.only, or hybrid
-  # is the inverter part a noop composition?
-  inverter.noop.composition = all(invcap == "retrafo")
-  # do we need to compose inverter at all?
-  inverter.composition = !inverter.noop.composition && all(invcap != "retrafo.only")
-  # are both involved CPOs actual inverters?
-  pure.inverter.composition = all(objtype == "CPOInverter")
-
-  if (!retrafo.composition && !inverter.composition) {
-    # don't need to check inverter.noop.composition, since that is only true if retrafo.composition.
-    stopf("Cannot compose retrafos with capability %s with retrafos with capability %s.",
-      getCPOInvertCapability(cpo1), getCPOInvertCapability(cpo2))
-  }
-  if (!is.prim) {
-    cpo1 = composeCPO(cpo1, cpo2$prev.retrafo)
-  }
-
-  # check for properties match
-  if (retrafo.composition) {
-    cpo2$needed = composeProperties(
-        list(handling = character(0), adding = character(0), needed = cpo1$needed),
-        cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)$needed
-  }
-  if (inverter.composition) {
-    if (pure.inverter.composition) {
-      # pure inverter chaining: do myopic property checking
-      assertString(cpo1$cpo$convertto)
-      assertString(cpo2$cpo$convertfrom)
-      if (cpo1$convertto != cpo2$convertfrom) {
-        stopf("Incompatible chaining of inverters: %s converts to %s, but %s needs %s.",
-          cpo1$cpo$name, cpo1$cpo$convertto, cpo2$cpo$name, cpo2$cpo$convertfrom)
-      }
-      composeProperties(cpo1$cpo$properties, cpo2$cpo$properties, getCPOName(cpo1), cpo2$cpo$name)  # just for checking
+  # update prev.retrafo.elt
+  recursive.compose = function(c1, c2) {
+    if (!is.null(c2$prev.retrafo.elt)) {
+      c1 = recursive.compose(c1, c2$prev.retrafo.elt)
     }
-    assert(length(cpo1$predict.type) <= 2,  # at least one predict.type cannot be the identity (since otherwise its a noop-composition)
-      length(cpo2$predict.type) <= 2)       # the identity (and only the identity) has more than 2 elements.
+    c2$prev.retrafo.elt = c1
+    c2
+  }
+  cpo1$element = recursive.compose(cpo1$element, cpo2$element)
+
+  ##
+  # update cached values
+
+
+  # name
+  cpo1$name = paste(cpo1$name, cpo2$name, sep = ".")
+
+  # check that capabilities don't mismatch
+  if (all(pmin(cpo1$capability, cpo2$capability) < 0)) {
+    stopf("Cannot compose CPOTrained with capability %s with CPOTrained with capability %s, since the resulting object can neither do retrafo nor invert.",
+      namedVecToString(cpo1$capability), namedVecToString(cpo2$capability))
   }
 
-  cpo2$predict.type = chainPredictType(cpo1$predict.type, cpo2$cpo$predict.type, getCPOName(cpo1), cpo2$cpo$name)
-  cpo2$prev.retrafo = cpo1
+  # capability
+  cpo1$capability = (pmax(cpo1$capability %% 3L, cpo2$capability %% 3L) + 1L) %% 3L - 1L
+  assertInteger(cpo1$capability, lower = -1, upper = 1, len = 2, any.missing = FALSE)
+  assert(identical(names(cpo1$capability), c("retrafo", "invert")))
+  assert(any(cpo1$capability > 0))
 
-  if (retrafo.composition) {
-    # any chance of the result not just being an inverter?
-    if (inverter.noop.composition) {
-      # two CPORetrafos --> CPORetrafo
-      newclass = "CPORetrafo"
-    } else if (inverter.composition) {
-      # at least one non-pure CPORetrafo, but the CPORetrafo allows inversion
-      newclass = c("CPORetrafoHybrid", "CPORetrafo")
-    } else {
-      # at least one retrafo.only
-      newclass = c("CPORetrafoOnly", "CPORetrafo")
-    }
-  } else {
-    newclass = "CPOInverter"
-  }
+  # predict.type
+  cpo1$predict.type = chainPredictType(cpo1$predict.type, cpo2$predict.type, cpo1$name, cpo2$name)
 
-  class(cpo2) = setdiff(class(cpo2), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter"))
+  # properties
+  cpo1$properties = composeProperties(cpo1$properties, cpo2$properties, cpo1$name, cpo2$name)
 
-  addClasses(cpo2, newclass)
+  # conversion
+  cpo1$convertfrom = firstNonNull(cpo1$convertfrom, cpo2$convertfrom)
+  cpo1$convertto = firstNonNull(cpo2$convertto, cpo1$convertto)
+
+  newclass = if (cpo1$capability["retrafo"] < 0) "CPOInverter" else "CPORetrafo"
+  class(cpo1) = c(newclass, setdiff(class(cpo1), c("CPOTrainedPrimitive", "CPORetrafo", "CPOInverter")))
+  cpo1
 }
 
 # chain CPOs with predict.type pt1 %>>% pt2
@@ -299,24 +283,29 @@ chainPredictType = function(pt1, pt2, name1, name2) {
 
 # RETRAFO splitting
 # retrafos are a linked list, so on a basic level what happens is
-# c(as.list(x$prev.retrafo), list({x$prev.retrafo = NULL ; x}))
-# However, some other things that happen in composeCPO.CPOTrained need to be undone.
+# c(as.list(x [with prev.retrafo.elt]), list({x$element$prev.retrafo.elt = NULL ; x}))
+# Besides the "cached" values in the CPOTrained object need to be set.
 #' @rdname as.list.CPO
 #' @export
 as.list.CPOTrained = function(x, ...) {
   assert(length(list(...)) == 0)
-  prev = if (!is.null(x$prev.retrafo)) as.list(x$prev.retrafo)
-  x$prev.retrafo = NULL
-  class(x) = setdiff(class(x), c("CPOTrainedPrimitive", "CPORetrafoHybrid", "CPORetrafoOnly", "CPORetrafo", "CPOInverter"))
-  if ("properties.needed" %in% names(x)) {
-    # was a CPORetrafo before
-    x$properties.needed = x$cpo$properties$properties.needed
-    x = addClasses(x, getCPORetrafoSubclasses(x$cpo))
-  } else {
-    x = addClasses(x, "CPOInverter")
-  }
-  x$predict.type = x$cpo$predict.type
-  c(prev, list(addClasses(x, "CPOTrainedPrimitive")))
+  x.with.prev = x
+  x.with.prev$element = x$element$prev.retrafo.elt
+  prev = if (!is.null(x.with.prev$element)) as.list(x.with.prev)
+
+  x$element$prev.retrafo.elt = NULL
+  cpo = x$element$cpo
+  x$name = cpo$name
+  x$capability = x$element$capability
+  x$predict.type = cpo$predict.type
+  x$properties = cpo$properties
+  x$convertfrom = cpo$convertfrom
+  x$convertto = cpo$convertto
+
+  newclass = if (x$capability["retrafo"] < 0) "CPOInverter" else "CPORetrafo"
+  class(x) = c("CPOTrainedPrimitive", newclass, setdiff(class(x), c("CPOTrainedPrimitive", "CPORetrafo", "CPOInverter")))
+
+  c(prev, list(x))
 }
 
 ##################################

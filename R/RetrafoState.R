@@ -42,7 +42,7 @@ getRetrafoState.CPOTrainedPrimitive = function(retrafo.object) {
     return(NULL)
   }
   cpo = retrafo.object$cpo
-  otype = getCPOObjectType(retrafo.object)
+  otype = getCPOClass(retrafo.object)
   if (otype != "CPORetrafo") {
     stopf("Cannot get state of %s", otype)
   }

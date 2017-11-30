@@ -138,41 +138,53 @@ getCPOAffect = function(cpo, drop.defaults = TRUE) {
   UseMethod("getCPOAffect")
 }
 
-#' @title Get the CPO Object Type.
+#' @title Get the CPO Class.
 #'
 #' @description
-#' Get the type / functionality provided by the given \code{\link{CPO}} object.
+#' Gets the relevant \code{\link{CPO}} class that distinguishes between steps in a CPO's
+#' lifecycle.
+#'
 #' There is a fundamental distinction between \code{\link{CPO}} objects
 #' and \code{\link{CPOTrained}} objects, the latter of which can provide either
 #' retrafo or inverter functionality, or both. \code{CPOTrained} are subclassed into
 #' \code{\link{CPOInverter}} (only inverter functionality), or
 #' \code{\link{CPORetrafo}} (retrafo, possibly also inverter). To get more information
-#' about a \code{\link{CPORetrafo}} object's capabilities, use \code{\link{getCPOInvertCapability}}.
+#' about a \code{\link{CPORetrafo}} object's capabilities, use \code{\link{getCPOTrainedCapability}}.
 #'
 #'
-#' @param cpo [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+#' @param cpo [\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The CPO.
-#' @return [\code{character(1)}]. \dQuote{CPO} if the given object is a \code{\link{CPO}},
-#'   \dQuote{CPOInverter} if the object is a \code{\link{CPOInverter}} only,
-#'   \dQuote{CPORetrafo} if the object is a \code{\link{CPORetrafo}} object (which may have inverter capabilities, see
-#'   \code{link{getCPOInvertCapability}}),
-#'   \dQuote{NULLCPO} if the object is \code{\link{NULLCPO}}.
+#' @return [\code{character(1)}]. \dQuote{CPOConstructor} if the given object is a \code{\link{CPOConstructor}},
+#'   \dQuote{CPO} for a \code{\link{CPO}},
+#'   \dQuote{CPOInverter} for a \code{\link{CPOInverter}} only,
+#'   \dQuote{CPORetrafo} for a \code{\link{CPORetrafo}} object (which may have inverter capabilities, see
+#'   \code{link{getCPOTrainedCapability}}),
+#'   \dQuote{NULLCPO} for a \code{\link{NULLCPO}}.
 #' @family getters and setters
 #' @family retrafo related
 #' @family inverter related
+#' @family CPOConstructor related
 #' @family CPO classifications
+#' @family CPO lifecycle related
 #' @export
-getCPOObjectType = function(cpo) {
-  UseMethod("getCPOObjectType")
+getCPOClass = function(cpo) {
+  UseMethod("getCPOClass")
 }
 
-#' @title Get the CPO's Inverter Capability.
+#' @title Get the CPOTrained's Capabilities.
 #'
 #' @description
-#' Both \code{\link{CPORetrafo}} and \code{\link{CPOInverter}} objects could be used for inversion using
+#' While \code{\link{CPOInverter}} is only used for inversion,
+#' both \code{\link{CPORetrafo}} and \code{\link{CPOInverter}} objects could be used for inversion using
 #' \code{\link{invert}} in principle. However, some \code{\link{CPORetrafo}}
 #' objects forbid inversion (and one must use the \code{\link{CPOInverter}} object instead),
-#' and some \code{\link{CPORetrafo}} objects are NO-OPS when called with \code{\link{invert}}.
+#' some \code{\link{CPORetrafo}} objects are NO-OPS when called with \code{\link{invert}},
+#' some can be used both for transformation and inversion.
+#'
+#' The \code{CPOTrainedCapability} is a named \code{integer(2)} with two slots: \dQuote{retrafo} and
+#' \dQuote{invert}. Both can be \code{1} (\code{\link{CPOTrained}} does something when used in retrafo
+#' / inversion), \code{0} (\code{\link{CPOTrained}} is a NO-OP when used in retrafo / inversion) or
+#' \code{-1} (\code{\link{CPOTrained}} cannot be used in retrafo / inversion).
 #'
 #' @section Inverter capability:
 #' The invert capability of a \code{\link{CPOTrained}} depends on the \code{\link{CPO}} which was used to
@@ -186,38 +198,43 @@ getCPOObjectType = function(cpo) {
 #'
 #' If a (possibly compound) CPO contains only Feature Operation CPOs and Retrafoless CPOs, then it does not perform any operation
 #' on the target column of a data set; hence there is no inversion to be performed, the resulting \code{\link{CPORetrafo}}
-#' is a NO-OP when used with \code{\link{invert}} (and the \code{\link{inverter}} attribute created is in fact a
-#' \code{\link{NULLCPO}}).
+#' is a NO-OP when used with \code{\link{invert}}. The \code{\link{inverter}} attribute created is in fact a
+#' \code{\link{NULLCPO}}), while the \code{\link{retrafo}} attribute contains a \code{\link{CPORetrafo}} with
+#' capabilities \code{c(retrafo = 1, invert = 0)}.
 #'
-#' If a (possibly compound) CPO also contains Target Operation CPOs, but they are data independent--e.g. a CPO that
+#' If a (possibly compound) CPO also contains Target Operation CPOs, but they are independent of the prediction data features--e.g. a CPO that
 #' takes the logarithm of the target column in a regression task--then the \code{\link{CPORetrafo}} object has enough information
-#' to perform inversion and hence can also meaningfully be used with \code{\link{invert}}. In this case the invert capability
-#' of the \code{\link{CPORetrafo}} will be \dQuote{hybrid}. The \code{\link{CPOInverter}}
+#' to perform inversion and hence can also meaningfully be used with \code{\link{invert}}. In this case the capability
+#' of the \code{\link{CPORetrafo}} will be \code{c(retrafo = 1, invert = 1)}. The \code{\link{CPOInverter}}
 #' object retrieved using the \code{\link{inverter}} function can be used for the same task, but the benefit of the
-#' \code{\link{CPORetrafo}} object is that it can be used for all prediction data applied to it, while the
-#' \code{\link{CPOInverter}} object needs to be retrieved for each prediction data set anew.
+#' \code{\link{CPORetrafo}} object is that it can be used for \emph{all} prediction data applied to it, while the
+#' \code{\link{CPOInverter}} object needs to be retrieved for each prediction data set anew. The \code{\link{CPOInverter}}
+#' object furthermore cannot be used for retrafo and hence has, like all \code{\link{CPOInverter}}, capabilities \code{c(retrafo = -1, invert = 1)}.
 #'
-#' If a (possibly compound) CPO contains Target Operation CPOs that are not data independent then the resulting
-#' \code{\link{CPORetrafo}} has invert capability \dQuote{retrafo.only}, since the inversion requires information about
+#' If a (possibly compound) CPO contains Target Operation CPOs that are not prediction data independent then the resulting
+#' \code{\link{CPORetrafo}} has capability \code{c(retrafo = 1, invert = -1)}, since the inversion requires information about
 #' the particular data set that was transformed.
 #'
-#' A \code{\link{CPOInverter}} object \emph{always} has the \dQuote{inverter} invert capability, since it can always be used
+#' A \code{\link{CPOInverter}} object \emph{always} has capabilities \code{c(retrafo = -1, invert = 1)}, since it can always be used
 #' for \code{\link{invert}} and never used in the place of a \code{\link{CPORetrafo}}.
+#'
+#' The only object with capabilities \code{c(retrafo = 0, invert = 0)} is \code{NULLCPO}. Other objects that don't have at least
+#' one capability equal to \code{1} cannot be created.
 #'
 #' @param cpo [\code{\link{CPOTrained}}]\cr
 #'   The \code{\link{CPOTrained}} object to query.
-#' @return [\code{character(1)}]. \dQuote{inverter} if given object is an inverter only,
-#'   \dQuote{hybrid} if given object is retrafo and inverter,
-#'   \dQuote{retrafo.only} if given object is retrafo only,
-#'   \dQuote{retrafo} if given object is a retrafo that is a NO-OP if used with \code{\link{invert}}.
+#' @return [named \code{integer(2)}]. The first component is named \dQuote{retrafo} and specifies whether the object can perform
+#'   retrafo operations; the second component is named \dQuote{invert} and specifies whether it can perform invert operations.
+#'   \code{0} indicates no effect for the operation, \code{1} indicates an operation is performed, \code{-1} indicates the object
+#'   cannot be used for the purpose.
 #' @family getters and setters
 #' @family retrafo related
 #' @family inverter related
 #' @family CPO classifications
-#' @aliases InvertCapability
+#' @aliases CPOTrainedCapability
 #' @export
-getCPOInvertCapability = function(cpo) {
-  UseMethod("getCPOInvertCapability")
+getCPOTrainedCapability = function(cpo) {
+  UseMethod("getCPOTrainedCapability")
 }
 
 #' @title Get the CPO \code{predict.type}.
@@ -265,7 +282,6 @@ getCPOInvertCapability = function(cpo) {
 #' @return [\code{character}]. A named \code{character} that maps potential predict types that a CPO may provide to the required
 #' predict type of an underlying learner.
 #' @family getters and setters
-#' @family CPO classifications
 #' @aliases PredictType
 #' @export
 getCPOPredictType = function(cpo) {
@@ -307,7 +323,7 @@ getCPOPredictType = function(cpo) {
 #' \code{\link[mlr:makeLearner]{Learner}} was applied to the task. Note that the last of these examples distinguishes itself by the fact that
 #' the inversion operation is dependent on the \emph{prediction} data used. While for the first two examples, the
 #' \code{\link{CPORetrafo}} object can be used for inversionk, the last one requires the \code{\link{CPOInverter}} object. See
-#' \code{\link{InvertCapability}} for more on this.
+#' \code{\link{CPOTrainedCapability}} for more on this.
 #'
 #' Retrafoless CPOs (\bold{ROCPO}) can change the feature \emph{and} target columns of a task, but this comes at the cost of not
 #' allowing retransformations. When getting the
@@ -317,7 +333,7 @@ getCPOPredictType = function(cpo) {
 #' are subsampling and supersampling.
 #'
 #'
-#' @param cpo [\code{CPO} | \code{CPOTrained}]\cr
+#' @param cpo [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The CPO, Retrafo, or Inverter to inspect.
 #' @return [\code{character(1)}]. Zero or more of \dQuote{target}, \dQuote{feature}, \dQuote{retrafoless}.
 #' @family getters and setters
@@ -330,6 +346,43 @@ getCPOOperatingType = function(cpo) {
   UseMethod("getCPOOperatingType")
 }
 
+#' @title Get CPO Used to Train a Retrafo / Inverter.
+#'
+#' @description
+#' Get the \code{\link{CPO}} used to create a \code{\link{CPOTrained}} object. The
+#' retrieved \code{\link{CPO}} will have all its hyperparameters and \code{affect.*}
+#' settings set to the values used to create the particular \code{\link{CPOTrained}} object.
+#'
+#' @param cpo [\code{\link{CPOTrained}}]\cr
+#'   The Retrafo or Inverter to get the original \code{\link{CPO}} from.
+#' @return [\code{\link{CPO}}]. The original \code{\link{CPO}}.
+#' @family getters and setters
+#' @family retrafo related
+#' @family inverter related
+#' @family CPO lifecycle related
+#' @export
+getOrigialCPO = function(cpo) {
+  UseMethod("getOrigialCPO")
+}
+
+#' @title Get CPOConstructor Used to create a CPO object.
+#'
+#' @description
+#' Get the \code{\link{CPOConstructor}} used to create a \code{\link{CPO}} or \code{\link{CPOTrained}} object.
+#' Only primitive \code{\link{CPO}} or \code{\link{CPOTrained}} objects have an originating \code{\link{CPOConstructor}}.
+#'
+#' @param cpo [\code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
+#'   The CPO, Retrafo, or Inverter to get the original \code{\link{CPOConstructor}} from.
+#' @return [\code{\link{CPOConstructor}}]. The original \code{\link{CPOConstructor}}.
+#' @family getters and setters
+#' @family CPO lifecycle related
+#' @family CPOConstructor related
+#' @export
+getOriginalCPOConstructor = function(cpo) {
+  UseMethod("getOriginalCPOConstructor")
+}
+
+
 # Param Sets and related
 
 #' @export
@@ -339,7 +392,7 @@ getParamSet.CPO = function(x) {
 
 #' @export
 getParamSet.CPOTrainedPrimitive = function(x) {
-  c(x$cpo$bare.par.set, x$cpo$unexported.par.set)
+  c(x$element$cpo$bare.par.set, x$element$cpo$unexported.par.set)
 }
 
 #' @export
@@ -354,7 +407,7 @@ getHyperPars.CPO = function(learner, for.fun = c("train", "predict", "both")) {
 
 #' @export
 getHyperPars.CPOTrainedPrimitive = function(learner, for.fun = c("train", "predict", "both")) {
-  getBareHyperPars(learner$cpo)
+  getBareHyperPars(learner$element$cpo)
 }
 
 #' @export
@@ -396,18 +449,7 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE) {
 #' @family inverter related
 #' @rdname getCPOProperties
 #' @export
-getCPOProperties.CPOTrained = function(cpo, only.data = FALSE) {
-  if (!is.null(cpo$prev.retrafo)) {
-    props = composeProperties(getCPOProperties(cpo$prev.retrafo), cpo$cpo$properties, "[PREVIOUS RETRAFO CHAIN]", cpo$cpo$name)
-  } else {
-    props = cpo$cpo$properties
-  }
-  if (only.data) {
-    lapply(props, intersect, y = cpo.dataproperties)
-  } else {
-    props
-  }
-}
+getCPOProperties.CPOTrained = getCPOProperties.CPO
 
 # CPO ID, NAME
 
@@ -420,14 +462,7 @@ getCPOName.CPO = function(cpo) {
 #' @family inverter related
 #' @rdname getCPOName
 #' @export
-getCPOName.CPOTrainedPrimitive = function(cpo) {
-  cpo$cpo$name
-}
-
-#' @export
-getCPOName.CPOTrained = function(cpo) {
-  paste(getCPOName(cpo$prev.retrafo), cpo$cpo$name, sep = ".")
-}
+getCPOName.CPOTrained = getCPOName.CPO
 
 #' @family CPOConstructor related
 #' @rdname getCPOName
@@ -481,38 +516,62 @@ setCPOId.CPOPrimitive = function(cpo, id) {
 # CPO Type
 
 #' @export
-getCPOObjectType.CPO = function(cpo) {
+getCPOClass.CPOConstructor = function(cpo) {
+  "CPOConstructor"
+}
+
+#' @export
+getCPOClass.CPO = function(cpo) {
   "CPO"
 }
 
 #' @export
-getCPOObjectType.CPORetrafo = function(cpo) {
+getCPOClass.CPORetrafo = function(cpo) {
   "CPORetrafo"
 }
 
 #' @export
-getCPOObjectType.CPOInverter = function(cpo) {
+getCPOClass.CPOInverter = function(cpo) {
   "CPOInverter"
 }
 
+# CPO capability
+
 #' @export
-getCPOInvertCapability.CPOInverter = function(cpo) {
-  "inverter"
+getCPOTrainedCapability.CPOTrained = function(cpo) {
+  cpo$capability
+}
+
+# original CPO, CPOConstructor
+
+#' @export
+getOrigialCPO.CPOTrainedPrimitive = function(cpo) {
+  cpo$element$cpo
 }
 
 #' @export
-getCPOInvertCapability.CPORetrafo = function(cpo) {
-  "retrafo"
+getOriginalCPO.CPOTrained = function(cpo) {
+  getOriginalCPO(cpo$prev.retrafo) %>>% cpo$cpo
 }
 
 #' @export
-getCPOInvertCapability.CPORetrafoOnly = function(cpo) {
-  "retrafo.only"
+getOriginalCPOConstructor.CPOPrimitive = function(cpo) {
+  cpo$constructor
 }
 
 #' @export
-getCPOInvertCapability.CPORetrafoHybrid = function(cpo) {
-  "hybrid"
+getOriginalCPOConstructor.CPOTrainedPrimitive = function(cpo) {
+  getOriginalCPOConstructor(getOriginalCPO(cpo))
+}
+
+#' @export
+getOriginalCPOConstructor.CPOTrained = function(cpo) {
+  stop("Compound CPOTrained cannot be queried for the CPOConstructor.")
+}
+
+#' @export
+getOriginalCPOConstructor.CPO = function(cpo) {
+  stop("Compound CPO cannot be queried for the CPOConstructor.")
 }
 
 # Operating Type
@@ -524,12 +583,8 @@ getCPOOperatingType.CPO = function(cpo) {
 
 #' @export
 getCPOOperatingType.CPOTrained = function(cpo) {
-  res = switch(getCPOInvertCapability(cpo),
-    inverter = "target",
-    retrafo = "feature",
-    retrafo.only = "feature",
-    hybrid = return(c("target", "feature")))  # if it is both 'target' and 'feature', we're done: no recursion
-  unique(res, getCPOOperatingType(nullToNullcpo(cpo$prev.retrafo)))
+  cap = getCPOTrainedCapability(cpo)
+  c(character(0), if (cap["retrafo"] > 0) "feature", if (cap["invert"] > 0) "target")
 }
 
 # Predict Type
@@ -543,9 +598,7 @@ getCPOPredictType.CPO = function(cpo) {
 #' @family inverter related
 #' @rdname getCPOPredictType
 #' @export
-getCPOPredictType.CPOTrained = function(cpo) {
-  cpo$cpo$predict.type
-}
+getCPOPredictType.CPOTrained = getCPOPredictType.CPO
 
 
 # Normalize "affect.*" arguments of CPOs

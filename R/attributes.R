@@ -58,7 +58,7 @@
 #'
 #' In some cases a target transformation is independent of the data used to create it (e.g. log-transform of a regression target
 #' column); in that case the \code{CPORetrafo} can be used with \code{\link{invert}}. This is the concept of
-#' \code{\link{InvertCapability}}, which can be queried using \code{\link{getCPOInvertCapability}}.
+#' \code{\link{CPOTrainedCapability}}, which can be queried using \code{\link{getCPOTrainedCapability}}.
 #'
 #' @section Using \code{CPORetrafo}:
 #' \code{CPORetrafo} objects can be applied to new data sets using the \code{\link{\%>>\%}} operator, the
