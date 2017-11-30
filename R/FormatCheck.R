@@ -32,7 +32,6 @@
 prepareTrafoInput = function(indata, dataformat, strict.factors, allowed.properties, subset.selector, capture.factors, operating.type, name) {
   assert(checkClass(indata, "data.frame"), checkClass(indata, "Task"))
 
-
   subset.info = subsetIndata(indata, subset.selector, allowed.properties, "trafo")
   indata = subset.info$indata
 
@@ -41,6 +40,7 @@ prepareTrafoInput = function(indata, dataformat, strict.factors, allowed.propert
   shapeinfo$subset.selector = subset.selector
 
   split.data = splitIndata(indata, dataformat, strict.factors, TRUE)
+
 
   list(indata = split.data$indata,
     shapeinfo = shapeinfo, properties = subset.info$properties,
@@ -64,7 +64,8 @@ prepareTrafoInput = function(indata, dataformat, strict.factors, allowed.propert
 # @param operating.type [character(1)] one of 'target', 'feature', 'retrafoless': whether target data, feature data, or both (but only during trafo) may be changed
 # @param name [character(1)] name of the cpo, for message printing
 # @return [list] the data to feed to the CPO retrafo function, as well as meta-information:
-#   list(indata = data in a shape fit to be fed into retrafo, properties, private)
+#   list(indata = data in a shape fit to be fed into retrafo, properties, task, private)
+#   'task' is the reconstructed task, if any
 #   'private' is a list containing some fields used by `handleTrafoOutput`.
 prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.properties, shapeinfo.input, operating.type, name) {
   origdata = indata
@@ -145,9 +146,10 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   } else {
     split.data = splitIndata(indata, if (reducing) "df.features" else dataformat, strict.factors, FALSE)
     indata = split.data$indata
+    indata$target = NULL
   }
 
-  list(indata = indata, properties = subset.info$properties,
+  list(indata = indata, properties = subset.info$properties, task = task,
     private = list(tempdata = split.data$tempdata, subset.index = subset.info$subset.index,
       origdata = origdata, dataformat = dataformat, strict.factors = strict.factors,
       name = name, operating.type = operating.type, origdatatype = origdatatype))

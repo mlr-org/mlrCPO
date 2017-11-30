@@ -257,7 +257,8 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   # the possible special values of 'export' that should not clash with param names,
   # special parameters given to the cpo.trafo function (data, target), special parameters given to the
   # cpo.retrafo function (predict.type, control),
-  reserved.params = c("data", "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
+  reserved.params = c("data", "target", "data.reduced", "target.reduced",
+    "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
 
   params = prepareParams(par.set, par.vals, export.params, reserved.params)
   par.set = params$par.set
@@ -380,24 +381,26 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       properties = properties.list,                          # properties$handling: [character] properties handled by this CPO
                                                              # properties$adding [character] capabilities that this CPO adds to the next processor
                                                              # properties$needed [character] capabilities needed by the next processor
-      properties.raw  = properties.list$handling,            # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
+      properties.raw = properties.list$handling,             # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       operating.type = cpo.type,                             # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
       predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       # --- CPOPrimitive part
       id = NULL,                                             # [character(1)] ID of the CPO -- prefix to parameters and possibly postfix to printed name
-      trafo.funs = trafo.funs                                # [list of function] cpo.trafo, cpo.retrafo, cpo.invert, and cpo.*.orig
+      trafo.funs = trafo.funs,                               # [list of function] cpo.trafo, cpo.retrafo, cpo.invert, and cpo.*.orig
       packages = packages,                                   # [character] package(s) to load when constructing the CPO
       affect.args = affect.args,                             # [named list] values of the "affect.*" arguments
       unexported.pars = unexported.pars,                     # [named list] values of parameters that are not exported
       unexportedpar.set = unexportedpar.set,                 # [ParamSet] unexported parameter set
       bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
-      dataformat = dataformat,                                # [character(1)] data format as received by trafo / retrafo
-      strict.factors = dataformat.factor.with.ordered        # [logical(1)] whether factors and ordereds are distinguished
-      fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
-      # --- Target Operating CPO relevant things
-      convertfrom = if (cpo.type == "target") type.from,     # [character(1)] task type to convert from.
-      convertto = if (cpo.type == "target") type.to,         # [character(1)] task type to convert to.
-      skip.retrafo = if (cpo.type == "target") skip.retrafo) # [logical(1)] whether retrafo is skipped in inverter
+      dataformat = dataformat,                               # [character(1)] data format as received by trafo / retrafo
+      strict.factors = dataformat.factor.with.ordered,       # [logical(1)] whether factors and ordereds are distinguished
+      fix.factors = fix.factors)                             # [logical(1)] whether to clean up factor levels in retrafo
+    # --- Target Operating CPO relevant things
+    if (cpo.type == "target") {
+      cpo$convertfrom = type.from                            # [character(1)] task type to convert from.
+      cpo$convertto = type.to                                # [character(1)] task type to convert to.
+      cpo$constant.invert = constant.invert                  # [logical(1)] whether retrafo creates / modifies state.invert
+    }
     if (length(getCPOAffect(cpo))) {
       # data is subset, so the overall 'properties' is the maximal set
       cpo$properties$handling = union(cpo$properties$handling,  c("numerics", "factors", "ordered", "missings"))

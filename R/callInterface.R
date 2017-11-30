@@ -7,7 +7,7 @@
 # call is made (trafo, retrafo, invert).
 #
 # These functions should all return a list(cpo.trafo, cpo.retrafo, cpo.invert) of function that
-# - have parameters corresponding to the ones that are given in callCPO and callCPOTrained do.call lines:
+# - have parameters corresponding to the ones that are given in callCPO and callCPORetrafo do.call lines:
 #   - trafo: data, target, data.reduced (i.e. task/df.all -> df.features), target.reduced, build.inverter, [hyperparameters]
 #   - retrafo: data (reduced), target* (task/df.all this is the complete task / df instead of target), [hyperparameters]
 #   - invert: predict.type, target, [hyperparameters]
@@ -19,7 +19,7 @@
 #
 # These functions are currently called in makeCPO.R:constructTrafoFunctions and then assigned to the
 # cpo.trafo, cpo.retrafo etc. slots in a created CPO object. Then when the CPO is applied to data,
-# callCPO and callCPOTrained call these.
+# callCPO and callCPORetrafo call these.
 
 ##################################
 ### Retrafoless CPO            ###
