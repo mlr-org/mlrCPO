@@ -24,13 +24,13 @@
     - [ ] for multiplexer etc
     - [ ] multiplexer: check for affect.*, be less restrictive
     - [X] retrafo adds 'missings' to needed.max if not part of adding.min.
-  - [ ] see that learner attachment etc still works
+  - [X] see that learner attachment etc still works
   - [X] retrafo element change
   - [ ] make invert() etc work
   - [ ] make the printers work
   - [ ] set CPOConstructor for multiplex cpos etc.
-  - [ ] functional properties
-  - [ ] 
+  - [ ] make tests work
+  - [ ] new tests
 ** test todo
 - [ ] convertNamesToItems, ItemsToNames
 - [ ] on.par.out.of.bounds setting
@@ -38,6 +38,14 @@
 - [ ] retrafoless
 - [ ] simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
 - [ ] test individual CPOs
+** cosmetic changes
+- [ ] call map
+- [ ] !..%in%.. -> %nin%
+- [ ] limit line length
+- [ ] use if ({ = }) more often
+- [ ] text output lines may be longer.
+- [ ] plural s unification
+- [ ] centralize output strings
 ** Features
 - [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
 - [X] listCPO() nicer print

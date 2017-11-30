@@ -14,7 +14,6 @@
 # @param learner [Learner] the learner to attach the CPO to
 # @return [CPOLearner] a learner with attached CPO
 #' @export
-# TODO: throw error when predict.type "response" cannot be guarranteed
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
   if (!learner$type %in% union(cpo$properties$needed, setdiff(cpo$properties$handling, cpo$properties$adding))) {
@@ -62,9 +61,22 @@ compositeCPOLearnerProps = function(cpo, learner) {
   relevant = c(cpo.dataproperties, cpo.targetproperties, cpo.tasktypes, "prob", "se")
   props.relevant = intersect(props, relevant)
   props.relevant = composeProperties(cpo$properties,
-    list(properties = props.relevant, properties.adding = character(0), properties.needed = character(0)),
+    list(handling = props.relevant, adding = character(0), needed = character(0),
+      adding.min = character(0), needed.max = character(0)),
     cpo$debug.name, getLearnerName(learner))$properties  # checks for property problems automatically
-  c(props.relevant, setdiff(props, relevant))
+  newprops = c(props.relevant, setdiff(props, relevant))
+
+  # check whether the promised predict.types actually work
+  not.working.predict.types = Filter(function(ptype) {
+    cpo$predict.type[ptype] %nin% newprops
+  }, c("response", "prob", "se"))
+
+  if ("response" %in% not.working.predict.types) {
+    stopf("Cannot add CPO to Learner, since for 'response' prediction, the Learner must have '%s' prediction capability.",
+      cpo$predict.type["response"])
+  }
+
+  setdiff(newprops, not.working.predict.types)
 }
 
 # wraps around callCPO and makeChainModel
@@ -79,8 +91,7 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
 
   # note that an inverter for a model makes no sense, since the inverter is crucially bound to
   # the data that is supposed to be *predicted*.
-  retrafo(.task) = NULL
-  inverter(.task) = NULL
+  .task = clearRI(.task)
 
   transformed = callCPO(cpo, .task, TRUE, NULL, FALSE, NULL)
 
@@ -92,13 +103,9 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
 # Wraps around callCPORetrafo and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
-  retrafod = callCPORetrafo(.model$learner.model$retrafo, .newdata, TRUE, NULL)
+  retrafod = callCPORetrafoElement(.model$learner.model$retrafo$element, .newdata, TRUE, NULLCPO)
   prediction = NextMethod(.newdata = retrafod$data)
-  if (!is.null(retrafod$inverter)) {
-    invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
-  } else {
-    prediction
-  }
+  invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
 }
 
 #' @export
