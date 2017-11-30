@@ -141,7 +141,16 @@
 #'     }
 #'     The specification of (1) is done with \code{properties.data} and \code{properties.target}, (2) is specified using \code{properties.needed}, and
 #'     (3) is specified using \code{properties.adding}. Internally, \code{properties.data} and \code{properties.target} are concatenated and treated as
-#'     one vector, they are specified separately in \code{makeCPO} etc. for convenience reasons. See \code{\link{CPOProperties}} for details.}
+#'     one vector, they are specified separately in \code{makeCPO} etc. for convenience reasons. See \code{\link{CPOProperties}} for details.
+#'
+#'     The CPO framework checks the \code{cpo.retrafo} etc. functions for adherence to these properties, so it e.g. throws an error if a \code{cpo.retrafo}
+#'     function adds missing values to some data but didn't declare \dQuote{missings} in \code{properties.needed}. It may be desirable to have this
+#'     internal checking happen to a laxer standard than the property checking when composing CPOs (e.g. when a CPO adds missings only with certain
+#'     hyperparameters, one may still want to compose this CPO to another one that can't handle missings). Therefore it is possible to postfix
+#'     listed properties with \dQuote{.sometimes}. The internal CPO checking will ignore these when listed in \code{properties.adding}
+#'     (it uses the \sQuote{minimal} set of adding properties, \code{adding.min}), and it will not declare them externally when listed in
+#'     \code{properties.needed} (but keeps them internally in the \sQuote{maximal} set of needed properties, \code{needed.max}). The \code{adding.min}
+#'     and \code{needed.max} can be retrieved using \code{\link{getCPOProperties}} with \code{get.internal = TRUE}.}
 #'   \item{\strong{Data Format}}{
 #'     Different CPOs may want to change different aspects of the data, e.g. they may only care about numeric columns, they may or may not care about
 #'     the target column values, sometimes they might need the actual task used as input. The CPO framework offers to present the data in a specified
@@ -300,6 +309,9 @@
 #'   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
 #'   conversion.
 #'
+#'   Property names may be postfixed with \dQuote{.sometimes}, to indicate that adherence should not be checked internally. This distinction is made by
+#'   not putting them in the \code{$adding.min} slot of the \code{\link{getCPOProperties}} return value when \code{get.internal = TRUE}.
+#'
 #'   Default is \code{character(0)}.
 #' @param properties.needed [\code{character}]\cr
 #'   Can be one or many of the same values as \code{properties.data} for Feature Operation CPOs,
@@ -309,6 +321,10 @@
 #'
 #'   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
 #'   conversion.
+#'
+#'   Property names may be postfixed with \dQuote{.sometimes}, to indicate that adherence should not be checked internally. This distinction is made by
+#'   not putting them in the \code{$needed} slot of properties. They can still be found in the \code{$needed.max} slot of the
+#'   \code{\link{getCPOProperties}} return value when \code{get.internal = TRUE}.
 #'
 #'   Default is \code{character(0)}.
 #' @param packages [\code{character}]\cr

@@ -79,7 +79,7 @@ getCPOId = function(cpo) {
 #' The properties of a \code{\link{CPO}} object determine the kind of data the CPO will be able to handle, and how
 #' it transforms data. Properties describe what kind of data a CPO can work with.
 #'
-#' This function returns a list of three values: \code{$handling}, \code{$adding}, and
+#' By default, this function returns a list of three values: \code{$handling}, \code{$adding}, and
 #' \code{$needed}.
 #'
 #' The \code{$handling} determines what data the CPO handles. If a CPO is applied to a data set
@@ -95,10 +95,23 @@ getCPOId = function(cpo) {
 #' numerics, this is \dQuote{numerics} (and \code{$adding} would be \dQuote{factors} in this case).
 #' \code{$adding} and \code{$needed} never have any value in common.
 #'
+#' There are two more properties mostly for internal usage: \code{$adding.min} and \code{$needed.max}.
+#' These are for internal checking of trafo / retrafo function return values: If some
+#' hyperparameter settings lead to a CPO returning values not conforming to properties (e.g. not
+#' removing all \sQuote{missings}, or creating \sQuote{missings} where there were none before),
+#' while in other cases the CPO \emph{does} conform, it is desirable to treat the CPO like
+#' it behaves in the best case (and rely on the user to make good hyperparameter choices).
+#' The properties discussed so far thus represent the CPO on its \sQuote{best} behaviour.
+#' Internally, each CPO also has a list of properties that it minimally \sQuote{adds} to its successors
+#' or maximally \sQuote{needs} from it in the worst case. These are \code{$adding.min} and \code{$needed.max}.
+#' \code{$adding.min} is always a subset of \code{$adding}, \code{$needed.max} is always a superset of \code{needed}.
+#' Their compliance is checked by the CPO framework, so a CPO that doesn't conform to these crashes.
+#'
 #' @section Possible properties:
 #' \describe{
 #'   \item{data properties}{\dQuote{numerics}, \dQuote{factors}, \dQuote{ordered}, \dQuote{missings}:
-#'     Whether any data column contains the type in question, or has missings.}
+#'     Whether any data column contains the type in question, or has missings. When \code{only.data}
+#'     is \code{TRUE}, only these are returned.}
 #'   \item{task type properties}{\dQuote{cluster} \dQuote{classif} \dQuote{multilabel} \dQuote{regr} \dQuote{surv}:
 #'     The type of the task. \code{\link[base]{data.frame}} data objects have the implicit property \dQuote{cluster}.}
 #'   \item{target properties}{\dQuote{oneclass} \dQuote{twoclass} \dQuote{multiclass}:
@@ -108,12 +121,15 @@ getCPOId = function(cpo) {
 #' @template arg_cpo
 #' @param only.data [\code{logical(1)}]\cr
 #'   Only get the CPO \emph{data properties} (not target or task type properties). Default is \code{FALSE}.
-#' @return [\code{list}]. A \code{list} with slots \code{$handling}, \code{$adding}, and \code{$needed}.
+#' @param get.internal [\code{logical(1)}]\cr
+#'   Also retrieve \code{$adding.min} and \code{$needed.max}. Default is \code{FALSE}.
+#' @return [\code{list}]. A \code{list} with slots \code{$handling}, \code{$adding}, and \code{$needed};
+#'   also \code{$adding.min} and \code{$needed.max} if \code{get.internal} is \code{TRUE}.
 #'
 #' @aliases CPOProperties
 #' @family getters and setters
 #' @export
-getCPOProperties = function(cpo, only.data = FALSE) {
+getCPOProperties = function(cpo, only.data = FALSE, get.internal = FALSE) {
   assertFlag(only.data)
   UseMethod("getCPOProperties")
 }
@@ -439,12 +455,17 @@ setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
 # Properties
 
 #' @export
-getCPOProperties.CPO = function(cpo, only.data = FALSE) {
+getCPOProperties.CPO = function(cpo, only.data = FALSE, get.internal = FALSE) {
   if (only.data) {
-    lapply(cpo$properties, intersect, y = cpo.dataproperties)
+    ret = lapply(cpo$properties, intersect, y = cpo.dataproperties)
   } else {
-    cpo$properties
+    ret = cpo$properties
   }
+  if (!get.internal) {
+    ret$adding.min = NULL
+    ret$needed.min = NULL
+  }
+  ret
 }
 
 #' @family retrafo related
