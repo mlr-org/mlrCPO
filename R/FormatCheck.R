@@ -74,7 +74,9 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   if ("factor.levels" %in% names(shapeinfo.input)) {
     indata = fixFactors(indata, shapeinfo.input$factor.levels)
   }
+  task = NULL
   if ("Task" %in% class(indata)) {
+    origdatatype = "Task"
     if (length(shapeinfo.input$target) && length(getTaskTargetNames(indata))) {
       # NOTE: this might be too strict: maybe the user wants to retrafo a Task with the target having a different name?
       # HOWEVER, then either the training indata's task didnt matter (and he should have trained with a data.set?), or it
@@ -89,11 +91,15 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
       stopf("CPO trained with task of type %s cannot operate on task of type %s.",
         traintype, curtype)
     }
-    task = indata
+    if (curtype != "cluster" || traintype == "cluster") {
+      # if the current task is a cluster, we only do target
+      # op stuff if the training type was also a cluster.
+      task = indata
+    }
     target = getTaskData(indata, features = character(0))
     indata = getTaskData(indata, target.extra = TRUE)$data
   } else if (is.data.frame(indata)) {
-
+    origdatatype = "data.frame"
     if (any(shapeinfo.input$target %in% names(indata))) {
       if (!all(shapeinfo.input$target %in% names(indata))) {
         badcols = intersect(shapeinfo.input$target, names(indata))
@@ -144,7 +150,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   list(indata = indata, properties = subset.info$properties,
     private = list(tempdata = split.data$tempdata, subset.index = subset.info$subset.index,
       origdata = origdata, dataformat = dataformat, strict.factors = strict.factors,
-      name = name, operating.type = operating.type))
+      name = name, operating.type = operating.type, origdatatype = origdatatype))
 }
 
 # Do the check of the trafo's return value
@@ -156,8 +162,8 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
 # @param prepared.input [list] return object of `prepareTrafoInput`
 # @param properties.needed [character] which properties are 'needed' by the subsequent data handler.
 #   Therefore, these properties may be present in `outdata` even though there were not in the input data.
-# @param properties.adding [character] which properties are supposed to be 'added' to the subsequent data handler.
-#   Therefore, these properties must be *absent* from `outdata`.
+# @param properties.adding [character] which properties are supposed to be 'added'
+#   to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
 # @param convertto [character(1)] only if the operating.type is 'target': type of the new task
 # @return [list] the data resulting from the CPO operation, as well as meta-information: list(outdata, shapeinfo)
 handleTrafoOutput = function(outdata, prepared.input, properties.needed, properties.adding, convertto) {
@@ -179,7 +185,7 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
   recombined = if (operating.type == "target") {
     recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, TRUE, convertto, name)
   } else if (operating.type == "retrafoless") {
-    recombineRetrafolessResult(olddata, outdata, dataformat, subset.index, name)
+    recombineRetrafolessResult(olddata, outdata, prepared.input$shapeinfo, dataformat, strict.factors, subset.index, name)
   } else  if (is.data.frame(olddata)) {
     # implied operating.type == "feature"
     recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, character(0), name)
@@ -188,23 +194,8 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
     recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
   }
 
-  # allowed properties of `outdata`: The union of the CPO's 'properties.needed' field and the properties already present in 'indata'
-  allowed.properties = union(prepared.input$properties, properties.needed)
-  present.properties = if (operating.type == "feature") {
-    # present properties
-    getGeneralDataProperties(outdata)
-  } else {
-    getTaskProperties(recombined)
-  }
-  if (operating.type == "target") {
-    # target operating CPOs can not change feature properties, but
-    # there may be properties hidden from 'prepared.input$properties'
-    # because of affect.*-subsetting which could be present in 'present.properties'
-    # so we remove all feature properties here.
-    present.properties = setdiff(present.properties, cpo.dataproperties)
-  }
-  assertPropertiesOk(present.properties, allowed.properties, "trafo", "out", name)
-  assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), "trafo", "adding", name)
+  checkOutputProperties(outdata, recombined, prepared.input$properties, properties.needed, properties.adding, operating.type, "trafo")
+
   if (dataformat %in% c("df.all", "task")) {
     # in this case, take shape info with 'target' separated
     shapeinfo = makeOutputShapeInfo(recombined)
@@ -224,48 +215,51 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
 #  - check the properties are fulfilled
 #  - check the shape is the same as during trafo
 # @param outdata [Task | data.frame | matrix] data returned by CPO retrafo function
-# @param olddata [Task | data.frame] incoming data that was already given to prepareRetrafoInput as 'indata'
-# @param tempdata [Task | data.frame] incoming data that was given to prepareRetrafoInput as 'indata', after subsetting according to 'affect.*' parameters
-# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
-# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
-# @param allowed.properties [character] allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
-# @param properties.adding [character] which properties are supposed to be 'added' to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
+# @param prepared.input [list] return object of `prepareTrafoInput`
+# @param properties.needed [character] which properties are 'needed' by the subsequent data handler.
+#   Therefore, these properties may be present in `outdata` even though there were not in the input data.
+# @param properties.adding [character] which properties are supposed to be 'added'
+#   to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
+# @param convertto [character(1)] type of task to convert to, for target operation cpo
 # @param shapeinfo.output [OutputShapeInfo] ShapeInfo describing the shape of the data returned by the CPO `trafo` function when it was called.
 #        This imposes the same structure on the retrafo return value.
-# @param subset.index [numeric] index into olddata columns: the columns actually selected by 'affect.*' parameters
-# @param name [character(1)] name of the CPO to print for debug information
 # @return [list] the data resulting from the CPO retrafo operation
 handleRetrafoOutput = function(outdata, prepared.input, properties.needed, properties.adding, convertto, shapeinfo.output) {
   ppr = prepared.input$prepared.input
-  olddata = ppr$origdata
+  olddata = ppr$origdata  # incoming data that was already given to prepareRetrafoInput as 'indata'
   dataformat = ppr$dataformat
   strict.factors = ppr$strict.factors
-  subset.index = ppr$subset.index
+  subset.index = ppr$subset.index  # index into olddata columns: the columns actually selected by 'affect.*' parameters
+  operating.type = ppr$operating.type
   name = ppr$name
 
-  outdata = rebuildOutdata(outdata, ppr$tempdata, dataformat)
+  if (operating.type != "target") {
+    # tempdata: incoming data that was given to prepareRetrafoInput as 'indata', after subsetting according to 'affect.*' parameters
+    outdata = rebuildOutdata(outdata, ppr$tempdata, dataformat)
+  }
   dataformat = getLLDataformat(dataformat)
-  if (dataformat %in% c("df.all", "task")) {
-    # target is always split off during retrafo
-    dataformat = "df.features"
-  }
-  targetcols = character(0)
 
-  if (is.data.frame(olddata)) {
-    if (any(shapeinfo.output$target %in% names(olddata))) {
-      assert(all(shapeinfo.output$target %in% names(olddata)))  # we also check this in prepareRetrafoInput
-      targetcols = shapeinfo.output$target
-    }
-
-    recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, targetcols, name)
+  if (operating.type == "target") {
+    # this won't get called at all if operating.type is target and there were not target
+    # columns to rebuild. Therefore `olddata` will always be a Task here.
+    recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, TRUE, convertto, name)
   } else {
-    recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
+    if (dataformat %in% c("df.all", "task")) {
+      # target is always split off during retrafo
+      dataformat = "df.features"
+    }
+    if (ppr$origdatatype == "data.frame") {
+      if (any(shapeinfo.output$target %in% names(olddata))) {
+        assert(all(shapeinfo.output$target %in% names(olddata)))  # we also check this in prepareRetrafoInput
+        targetcols = shapeinfo.output$target
+      }
+      recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, targetcols, name)
+    } else {
+      recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
+    }
   }
 
-  present.properties = getGeneralDataProperties(outdata)
-  allowed.properties = union(prepared.input$properties, properties.needed)
-  assertPropertiesOk(present.properties, allowed.properties, "retrafo", "out", name)
-  assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), "retrafo", "adding", name)
+  checkOutputProperties(outdata, recombined, prepared.input$properties, properties.needed, properties.adding, operating.type, "retrafo")
 
   # check the shape of outdata is as expected
   shapeinfo.output$target = NULL
@@ -278,8 +272,17 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
     assertShapeConform(outdata, shapeinfo.output, strict.factors, name)
   }
 
+  if (operating.type == "target" && ppr$origdatatype == "data.frame") {
+    # input was a data.frame (with target columns), so we return da data.frame (with target columns)
+    recombined = getTaskData(recombined.task)
+  }
   recombined
 }
+
+
+##################################
+### Shape & Properties         ###
+##################################
 
 # make sure that the factor levels of data.frame 'data' are as described by 'levels'.
 # @param data [data.frame | Task] data / task to check / modify
@@ -298,13 +301,6 @@ fixFactors.default = function(data, levels) {
 fixFactorsTask.Task = function(data, levels) {
   changeData(data, fixFactors(getTaskData(data)))
 }
-
-
-
-
-##################################
-### Shape & Properties         ###
-##################################
 
 # calculate the properties of the data (only feature types & missings)
 # data can be a task or data.frame
@@ -365,13 +361,14 @@ getGeneralDataProperties = function(data) {
 }
 
 # give error when shape is different than dictated by shapeinfo.
-# wasresult: whether we are checking the result of retrafo
+#
 # @param df [data.frame] the data to check
 # @param shapeinfo [ShapeInfo] a the shape which `df` must conform to
 # @param strict.factors [logical(1)] whether to check for 'ordered' as a type differing from 'factor'
 # @param name [character(1)] name of the CPO currently being run, for error and debug printing
+# @param retrafoless [logical(1)] whether this is the trafo result of a retrafoless CPO. Default FALSE.
 # @return [invisible(NULL)]
-assertShapeConform = function(df, shapeinfo, strict.factors, name) {
+assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless = FALSE) {
   if (!identical(names2(df), shapeinfo$colnames)) {
     stopf("Error in CPO %s: column name mismatch between training and test data.\nWas %s during training, is %s now.",
           name, collapse(shapeinfo$colnames, sep = ", "), collapse(names(df), sep = ", "))
@@ -449,6 +446,36 @@ makeOutputShapeInfo = function(outdata) {
     res = lapply(outdata, makeShapeInfo)
   }
   addClasses(res, "OutputShapeInfo")
+}
+
+# check properties of data returned by trafo or retrafo function
+# @param outdata [data.frame | Task | list] data returned by (re)trafo function (after rebuildOutdata)
+# @param recombined [data.frame | Task] recombined data as will be returned to the user
+# @param input.properties [character] input properties as determined by prepare***Input
+# @param properties.needed [character] which properties are 'needed' by the subsequent data handler.
+#   Therefore, these properties may be present in `outdata` even though there were not in the input data.
+# @param properties.adding [character] which properties are supposed to be 'added'
+#   to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
+# @param operating.type [character(1)] operating type of cpo, one of 'target', 'feature', 'retrafoless'
+# @param whichfun [character(1)] name of the CPO stage
+# @return [invisible(NULL)]
+checkOutputProperties = function(outdata, recombined, input.properties, properties.needed, properties.adding, operating.type, whichfun) {
+  # allowed.properties: allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
+  allowed.properties = union(input.properties, properties.needed)
+  present.properties = if (operating.type == "feature") {
+    getGeneralDataProperties(outdata)
+  } else {
+    getTaskProperties(recombined)
+  }
+  if (operating.type == "target") {
+    # target operating CPOs can not change feature properties, but
+    # there may be properties hidden from 'prepared.input$properties'
+    # because of affect.*-subsetting which could be present in 'present.properties'
+    # so we remove all feature properties here.
+    present.properties = setdiff(present.properties, cpo.dataproperties)
+  }
+  assertPropertiesOk(present.properties, allowed.properties, whichfun, "out", name)
+  assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), whichfun, "adding", name)
 }
 
 # give userfriendly error message when data does have the properties it is allowed to have.
@@ -679,6 +706,67 @@ splitdf = function(df, dataformat, strict.factors) {
     split = list(data = splitColsByType(colsplit), df),
       target = df[, character(0), drop = FALSE]))
 }
+
+# Take subset of data according to 'affect.*' parameters
+#
+# @param indata [Task | data.frame]
+# @param subset.selector [list] information about 'affect.*' parameters that determine which subset of 'indata' is affected
+# @param allowed.properties [character] allowed properties of `indata`
+# @param whichfun [character(1)] name of the CPO stage
+# @return [list] list(origdata, indata, subset.index, properties)
+subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
+  origdata = indata
+  if ("Task" %in% class(indata)) {
+    subset.selector$data = getTaskData(indata, target.extra = TRUE)$data
+    subset.index = do.call(getColIndices, subset.selector)
+    # subsetTask, but keep everything in order
+    new.subset.index = featIndexToTaskIndex(subset.index, indata)
+    indata.data = getTaskData(indata)
+    indata = changeData(indata, indata.data[new.subset.index])
+  } else {
+    subset.selector$data = indata
+    subset.index = do.call(getColIndices, subset.selector)
+    indata = indata[subset.index]
+  }
+
+  present.properties = getTaskProperties(indata)
+  assertPropertiesOk(present.properties, allowed.properties, "trafo", "in", name)
+
+  list(origdata = origdata, indata = indata, subset.index = subset.index,
+    properties = present.properties)
+}
+
+
+# Split cpo input data according to dataformat
+#
+# Creates also 'tempdata', the data after the split but before
+# subsetting (useful for dataformat 'numeric', 'factors' etc)
+# and possibly 'reduced.indata', which reduces df.all and task into df.features.
+# @param data [data.frame | Task] the input data
+# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
+# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
+# @param create.reduced [logical(1)] whether to create 'reduced' indata
+# @return [list] list(indata, tempdata). indata is the proper input for the CPO function,
+#   a list(data, target [, data.reduced, target.reduced]). tempdata the data after split before subsetting.
+splitIndata = function(data, dataformat, strict.factors, create.reduced) {
+  indata = splitX(data, getLLDataformat(dataformat), strict.factors)
+  tempdata = indata$data
+  indata$data = getIndata(indata$data, dataformat)
+
+  if (create.reduced) {
+    # create separate "reduced" data that, besides containing the full task / df, also
+    # contains the data and target alone.
+    reduced.indata = if (dataformat %in% c("task", "df.all")) {
+      splitX(data, "df.features", strict.factors)
+    } else {
+      indata
+    }
+    names(reduced.indata) = paste0(names(reduced.indata), ".reduced")
+    indata = c(indata, reduced.indata)
+  }
+  list(indata = indata, tempdata = tempdata)
+}
+
 
 ##################################
 ### Task Recombination         ###
@@ -1020,11 +1108,13 @@ checkDFBasics = function(task, newdata, targetbound, name) {
 # then convert, if necessary.
 # @param olddata [Task | data.frame] the original input data
 # @param newdata [Task | data.frame] the data returned by the CPO trafo function
+# @param shapeinfo [ShapeInfo] The input shape which `df` must conform to
 # @param dataformat [character(1)] the result of `getLLDataformat` applied to the CPO's dataformat parameter
+# @param strict.factors [logical(1)] whether to check for 'ordered' as a type differing from 'factor'
 # @param subset.index [integer] index into olddata columns: the columns actually selected by 'affect.*' parameters
 # @param name [character(1)] the CPO name used in error messages
 # @return [Task | data.frame] the recombined data from newdata
-recombineRetrafolessResult = function(olddata, newdata, dataformat, subset.index, name) {
+recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, dataformat, strict.factors, subset.index, name) {
   assert(identical(subset.index, seq_along(subset.index)))
   assertSubset(dataformat, c("df.all", "task"))
   if (is.data.frame(olddata)) {
@@ -1034,6 +1124,7 @@ recombineRetrafolessResult = function(olddata, newdata, dataformat, subset.index
       assertClass(newdata, "ClusterTask")
       newdata = getTaskData(newdata)
     }
+    assertShapeConform(newdata, shapeinfo.input, strict.factors, name, TRUE)
   } else {
     if (dataformat == "df.all") {
       assertClass(newdata, "data.frame")
@@ -1047,70 +1138,8 @@ recombineRetrafolessResult = function(olddata, newdata, dataformat, subset.index
         stopf("retrafoless CPO %s must not change target names.", name)
       }
     }
+    assertShapeConform(getTaskData(newdata, ), shapeinfo.input, strict.factors, name, TRUE)
   }
   newdata
 }
 
-
-
-##################################
-### To be sorted in            ###
-##################################
-
-# @param indata [Task | data.frame]
-# @param subset.selector [list] information about 'affect.*' parameters that determine which subset of 'indata' is affected
-# @param allowed.properties [character] allowed properties of `indata`
-# @param whichfun [character(1)] name of the CPO stage
-# @return [list] list(origdata, indata, subset.index, properties)
-subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
-  origdata = indata
-  if ("Task" %in% class(indata)) {
-    subset.selector$data = getTaskData(indata, target.extra = TRUE)$data
-    subset.index = do.call(getColIndices, subset.selector)
-    # subsetTask, but keep everything in order
-    new.subset.index = featIndexToTaskIndex(subset.index, indata)
-    indata.data = getTaskData(indata)
-    indata = changeData(indata, indata.data[new.subset.index])
-  } else {
-    subset.selector$data = indata
-    subset.index = do.call(getColIndices, subset.selector)
-    indata = indata[subset.index]
-  }
-
-  present.properties = getTaskProperties(indata)
-  assertPropertiesOk(present.properties, allowed.properties, "trafo", "in", name)
-
-  list(origdata = origdata, indata = indata, subset.index = subset.index,
-    properties = present.properties)
-}
-
-
-# Split cpo input data according to dataformat
-#
-# Creates also 'tempdata', the data after the split but before
-# subsetting (useful for dataformat 'numeric', 'factors' etc)
-# and possibly 'reduced.indata', which reduces df.all and task into df.features.
-# @param data [data.frame | Task] the input data
-# @param dataformat [character(1)] one of 'task', 'df.all', 'df.features', 'split', 'factor', 'numeric', 'ordered'
-# @param strict.factors [logical(1)] whether to consider 'ordered' as separate from 'factor' types
-# @param create.reduced [logical(1)] whether to create 'reduced' indata
-# @return [list] list(indata, tempdata). indata is the proper input for the CPO function,
-#   a list(data, target [, data.reduced, target.reduced]). tempdata the data after split before subsetting.
-splitIndata = function(data, dataformat, strict.factors, create.reduced) {
-  indata = splitX(data, getLLDataformat(dataformat), strict.factors)
-  tempdata = indata$data
-  indata$data = getIndata(indata$data, dataformat)
-
-  if (create.reduced) {
-    # create separate "reduced" data that, besides containing the full task / df, also
-    # contains the data and target alone.
-    reduced.indata = if (dataformat %in% c("task", "df.all")) {
-      splitX(data, "df.features", strict.factors)
-    } else {
-      indata
-    }
-    names(reduced.indata) = paste0(names(reduced.indata), ".reduced")
-    indata = c(indata, reduced.indata)
-  }
-  list(indata = indata, tempdata = tempdata)
-}
