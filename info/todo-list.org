@@ -15,9 +15,10 @@
   - [X] callCPO should call retrafo / inverter properly
   - [X] retrafo chaining should work again
   - [X] predict.type of cpotrained
-  - [ ] getoriginalcpo of objects restored from state has correct hyperparameters, export settings, etc.
+  - [X] getoriginalcpo of objects restored from state documented as not having correct parameters
   - [ ] set CPOConstructor for multiplex cpos etc.
   - [ ] retrafo state should work again
+    - makeRetrafoFromState --> makeCPOTrainedFromState
   - [ ] retrafo element change
   - [ ] see that learner attachment etc still works
   - [X] see that getting operating type etc. works (also for NULLCPO)

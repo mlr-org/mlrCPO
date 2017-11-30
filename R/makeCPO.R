@@ -385,6 +385,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
                                                              # properties$adding [character] capabilities that this CPO adds to the next processor
                                                              # properties$needed [character] capabilities needed by the next processor
       operating.type = cpo.type,                             # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
+                                                             #   for compound CPOs this can be a character with more than one of these.
       predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       convertfrom = NULL,                                    # see TOCPO part below
       convertto = NULL,                                      # see TOCPO part below
@@ -402,7 +403,8 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       strict.factors = dataformat.factor.with.ordered,       # [logical(1)] whether factors and ordereds are distinguished
       fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
       constructor = cpo.constructor,                         # [CPOConstructor] the constructor function used to create this object
-      control.type = control.type)                           # [named list] list(retrafo, invert) of one of "functional", "object": how state is communicated
+      control.type = control.type)                           # [named list] list(retrafo, invert) of one of "functional", "object", "dual.function":
+                                                             #   how state is communicated. Needed by RetrafoState.R:getPrettyState()
     # --- Target Operating CPO relevant things
     if (cpo.type == "target") {
       cpo$convertfrom = type.from                            # [character(1)] task type to convert from.
@@ -619,11 +621,17 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   cpo.origs = lapply(fnames, get)  # cpo.trafo, cpo.retrafo, ...
   names(cpo.origs) = paste0(names(cpo.origs), ".orig")  # rename to cpo.trafo.orig, ...
 
-  control.type = list(
-      retrafo = if (cpo.type != "retrafoless")
-                  (if (is.null(cpo.retrafo)) "functional" else "object"),
-      invert = if (cpo.type %in% c("target.extended", "target"))
-                 (if (is.null(cpo.invert)) "functional" else "object"))
+  control.type = list()
+  if (cpo.type != "retrafoless") {
+    control.type$retrafo = if (is.null(cpo.retrafo)) "functional" else "object"
+    if (cpo.type == "target" && control.type$retrafo == "functional") {
+      # special case: the simple target operation CPO creates two functions for retrafo
+      cpo.type$retrafo = "dual.functional"
+    }
+  }
+  if (cpo.type %in% c("target.extended", "target")) {
+    control.type$invert = if (is.null(cpo.invert)) "functional" else "object"
+  }
 
   c(cpo.funs, cpo.origs, list(control.type = control.type))
 }

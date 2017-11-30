@@ -350,8 +350,10 @@ getCPOOperatingType = function(cpo) {
 #'
 #' @description
 #' Get the \code{\link{CPO}} used to create a \code{\link{CPOTrained}} object. The
-#' retrieved \code{\link{CPO}} will have all its hyperparameters and \code{affect.*}
+#' retrieved \code{\link{CPO}} will usually have all its hyperparameters and \code{affect.*}
 #' settings set to the values used to create the particular \code{\link{CPOTrained}} object.
+#' The only case where this is \emph{not true} is if \code{cpo} is a \code{\link{CPOTrained}}
+#' that was created using \code{\link{makeCPOTrainedFromState}}.
 #'
 #' @param cpo [\code{\link{CPOTrained}}]\cr
 #'   The Retrafo or Inverter to get the original \code{\link{CPO}} from.
@@ -430,8 +432,8 @@ setHyperPars2.CPO = function(learner, par.vals = list()) {
 #' @export
 setHyperPars2.CPOTrained = function(learner, par.vals = list()) {
   stopf("Cannot change parameter values of retrafo / inverter object\n%s\n%s\n",
-    "To create a retrafo / inverter with a specific state use makeRetrafoFromState.",
-    "Get the state of an existing retrafo / inverter using getRetrafoState.")
+    "To create a retrafo / inverter with a specific state use makeCPOTrainedFromState.",
+    "Get the state of an existing retrafo / inverter using getCPOTrainedState.")
 }
 
 # Properties

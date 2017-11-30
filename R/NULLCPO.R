@@ -94,7 +94,7 @@ predict.NULLCPO = function(object, data, ...) {
 }
 
 #' @export
-getRetrafoState.NULLCPO = function(retrafo.object) {
+getCPOTrainedState.NULLCPO = function(retrafo.object) {
   NULL
 }
 

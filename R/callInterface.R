@@ -220,7 +220,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
         if (is.null(cpo.invert)) {
           # functional invert
           clearEnv(.ENV)
-          checkFunctionReturn(state.invert, c("target", "predict.type"))
+          checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
         }
       } else {
         state.invert = NULL
@@ -245,7 +245,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
         if (is.null(cpo.invert)) {
           # functional invert
           clearEnv(.ENV)
-          checkFunctionReturn(state.invert, c("target", "predict.type"))
+          checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
         }
       } else {
         state.invert = NULL
@@ -310,7 +310,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
           # 'cpo.invert' can itself be functional here, independent
           # on whether cpo.train was functional or not.
           clearEnv(.ENV)
-          checkFunctionReturn(state.invert, c("target", "predict.type"))
+          checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
         }
       }
       list(result = result,

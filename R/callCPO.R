@@ -29,7 +29,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data) {
 
   inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter", "InverterElement", c(retrafo = -1L, invert = 1L))
   # --- state for pure "inverter":
-  inverter$element$indatatd = td
+  inverter$element$task.desc = td
   inverter$element$truth = truth  # may be NULL for a data.frame / cluster task
   composeCPO(nullToNullcpo(prev.inverter), inverter)
 }
@@ -47,6 +47,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data) {
 #   create `CPORetrafo` objects that are hybrid retrafo / inverter, see getCPOTrainedCapability.
 makeCPORetrafo = function(cpo, state, state.invert, prev.retrafo, shapeinfo.input, shapeinfo.output) {
   invcap = if (cpo$operating.type != "target") {
+    assert(is.null(state.invert))
     0L
   } else if (cpo$constant.invert) {
     1L

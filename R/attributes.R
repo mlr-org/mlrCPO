@@ -44,7 +44,7 @@
 #' to the position within a CPO pipeline), it is only advisable to chain or break apart \code{CPOTrained} pipes for inspection, or
 #' if you really know what you are doing.
 #'
-#' (Primitive) \code{CPORetrafo} objects can be inspected using \code{\link{getRetrafoState}}, and it is possible to create new \code{CPORetrafo}
+#' (Primitive) \code{CPORetrafo} objects can be inspected using \code{\link{getCPOTrainedState}}, and it is possible to create new \code{CPORetrafo}
 #' objects from (possibly modified) retrafo state using \code{\link{makeRetrafoFromState}}.
 #'
 #' @section Difference between \code{CPORetrafo} and \code{CPOInverter}:
