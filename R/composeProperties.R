@@ -11,15 +11,26 @@ composeProperties = function(prop1, prop2, name1, name2) {
   handling.1 = prop1$handling
   adding.1 = prop1$adding
   needed.1 = prop1$needed
+  adding.min.1 = prop1$adding.min
+  needed.max.1 = prop1$needed.max
+
   handling.2 = prop2$handling
   adding.2 = prop2$adding
   needed.2 = prop2$needed
+  adding.min.2 = prop2$adding.min
+  needed.max.2 = prop2$needed.max
+
   assertCharacter(handling.1, unique = TRUE)
   assertCharacter(handling.2, unique = TRUE)
   assertCharacter(adding.1, unique = TRUE)
   assertCharacter(adding.2, unique = TRUE)
+  assertCharacter(adding.min.1, unique = TRUE)
+  assertCharacter(adding.min.2, unique = TRUE)
   assertCharacter(needed.1, unique = TRUE)
   assertCharacter(needed.2, unique = TRUE)
+  assertCharacter(needed.max.1, unique = TRUE)
+  assertCharacter(needed.max.2, unique = TRUE)
+
   assertString(name1)
   assertString(name2)
   # some explanation about properties:
@@ -51,6 +62,10 @@ composeProperties = function(prop1, prop2, name1, name2) {
   adding.composite = union(setdiff(adding.1, needed.2), intersect(handling.1, adding.2))
   needed.composite = union(setdiff(needed.1, adding.2), needed.2)
 
+  adding.min.composite = union(setdiff(adding.min.1, needed.max.2), intersect(handling.1, adding.min.2))
+  needed.max.composite = union(setdiff(needed.max.1, adding.min.2), needed.max.2)
+
+
   # Proofs that conditions (A) and (B) are still fulfilled:
   # A) using distribution of union and intersect, and the fact that (cond (A)) intersect(adding.1, handling.1) == adding.1,
   #    we rewrite
@@ -66,5 +81,6 @@ composeProperties = function(prop1, prop2, name1, name2) {
   #       is subtracted from the rhs
   #    4) intersect(intersect(handling.1, adding.2), needed.2) is empty because needed.2 and adding.2
   #       have empty intersect per condition (B)
-  list(handling = composite, adding = adding.composite, needed = needed.composite)
+  list(handling = composite, adding = adding.composite, needed = needed.composite,
+    adding.min = adding.min.composite, needed.max = needed.max.composite)
 }

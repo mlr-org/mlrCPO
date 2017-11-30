@@ -21,10 +21,6 @@ makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = list(), datafo
                    packages = character(0), cpo.train, cpo.retrafo) {
   dataformat = match.arg(dataformat)
 
-  assertSubset(properties.data, cpo.dataproperties)
-  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
-  assertSubset(properties.needed, cpo.dataproperties)
-
   makeCPOGeneral(cpo.type = "feature",
     cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
     dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
@@ -48,10 +44,6 @@ makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = l
 
   dataformat = match.arg(dataformat)
 
-  assertSubset(properties.data, cpo.dataproperties)
-  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
-  assertSubset(properties.needed, cpo.dataproperties)
-
   makeCPOGeneral(cpo.type = "feature.extended",
     cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
     dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
@@ -71,10 +63,6 @@ makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = lis
                      "oneclass", "twoclass", "multiclass"),
                    packages = character(0), cpo.trafo) {
   dataformat = match.arg(dataformat)
-
-  assertSubset(properties.data, cpo.dataproperties)
-  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
-  assertSubset(properties.needed, cpo.dataproperties)
 
   makeCPOGeneral(cpo.type = "retrafoless",
     cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
@@ -185,7 +173,8 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
   }
 
   if (length(possible.properties[[task.type.out]])) {
-    assertSubset(properties.needed, possible.properties[[task.type.out]])
+    assertSubset(properties.needed, c(possible.properties[[task.type.out]],
+      paste0(possible.properties[[task.type.out]], ".sometimes")))
   } else if (length(properties.needed)) {
     stopf("Output type is %s, so properties.needed must be empty.", task.type.out)
   }
@@ -214,6 +203,7 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
     # the lower learner must provide what we need for 'response' prediction.
     # alternatively, we could drop the requirement that every learner / CPO must always be able to deliver response.
     properties.needed = c(properties.needed, unname(predict.type.map["response"]))
+    # TODO: we may loosen this requirement and only have it set to "sometimes".
   }
 
   properties.adding = c(properties.adding, setdiff(names(predict.type.map), c("response", unname(predict.type.map))))
@@ -229,13 +219,18 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
 # It checks that the given parameters are valid, creates functions and ParamSet from nonstandardevaluation
 # arguments, and then returns the CPO creator function.
 # For parameters, see docu of `makeCPO`, `makeCPOExtended`, `makeCPOTargetOpExtended`.
-makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", "retrafoless"), cpo.name, par.set, par.vals,
+makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", "target.extended", "retrafoless"), cpo.name, par.set, par.vals,
                           dataformat, dataformat.factor.with.ordered, fix.factors, export.params,
                           properties.data, properties.adding, properties.needed,
                           properties.target, type.from, type.to, predict.type.map, packages,
                           constant.invert, cpo.trafo, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL) {
 
-  cpo.type = match.arg(cpo.type)
+  cpo.type.extended = match.arg(cpo.type)
+
+  # for most cases, *.extended  work the same as the simple equivalents
+  cpo.type = gsub(".extended", "", cpo.type.extended, fixed = TRUE)
+
+
   assertString(cpo.name)
 
   assertFlag(constant.invert)
@@ -243,10 +238,6 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   assertList(par.vals, names = "unique")
   assertFlag(dataformat.factor.with.ordered)
 
-  # we encode the information in dataformat.factor.with.ordered into dataformat:
-  # d.f.w.o val: TRUE | FALSE
-  # split  --> most   | all
-  # factor --> factor | onlyfactor
   if (dataformat == "ordered" && dataformat.factor.with.ordered) {
     stop('dataformat.factor.with.ordered must be FALSE when dataformat is "ordered".')
   }
@@ -277,13 +268,11 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   funargs = insert(funargs, par.vals)
 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, parent.frame(2),
-    cpo.name, cpo.type, dataformat, constant.invert)
+    cpo.name, cpo.type.extended, dataformat, constant.invert)
 
   control.type = trafo.funs$control.type
   trafo.funs$control.type = NULL
 
-  # from here on, *.extended  work the same as the simple equivalents
-  cpo.type = gsub(".extended", "", cpo.type, fixed = TRUE)
 
   funargs = insert(funargs, list(id = NULL, export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
@@ -438,6 +427,15 @@ assembleProperties = function(properties.data, properties.needed, properties.add
   assertCharacter(properties.adding, unique = TRUE)
   assertCharacter(properties.target, unique = TRUE)
 
+  # retrafoless, feature only
+  assertSubset(properties.data, cpo.dataproperties)
+  assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
+  if (cpo.type != "target") {
+    data.and.sometimes = c(cpo.dataproperties, paste0(cpo.dataproperties, ".sometimes"))
+    assertSubset(properties.needed, data.and.sometimes)
+    assertSubset(properties.adding, data.and.sometimes)
+  }
+
   properties.handling = union(properties.data, properties.target)
 
   if (cpo.type == "target") {
@@ -452,21 +450,47 @@ assembleProperties = function(properties.data, properties.needed, properties.add
     properties.handling = c(properties.handling, "prob", "se")
   }
 
-  if (length(properties.handling)) {
-    assertSubset(properties.adding, properties.handling)
-  } else {
-    # doing this because a bug in assertSubset doesn't recognize the empty set as a subset of itself.
-    assert(length(properties.adding) == 0)
-  }
+  aux = handleSometimesProps(properties.needed)
+  properties.needed = aux$props
+  properties.needed.max = c(properties.needed, aux$sometimes)
 
-  badprops = intersect(properties.adding, properties.needed)
-  if (length(badprops)) {
-    stopf("properties.adding and properties.needed must not contain the same properties, but both contained %s.",
+  aux = handleSometimesProps(properties.adding)
+  properties.adding.min = aux$props
+  properties.adding = c(properties.adding.min, aux$sometimes)
+
+  assertSubset(properties.adding, properties.handling)
+
+  if (length({badprops = intersect(properties.adding, properties.needed)})) {
+    stopf("properties.adding (including *.sometimes) and properties.needed (not including *.sometimes) must not contain the same properties, but both contained %s.",
       collapse(badprops, sep = ", "))
   }
+  if (length({badprops = intersect(properties.adding.min, properties.needed.max)})) {
+    stopf("properties.adding (not including *.sometimes) and properties.needed (including *.sometimes) must not contain the same properties, but both contained %s.",
+      collapse(badprops, sep = ", "))
+  }
+
+
   list(handling = properties.handling,
     adding = properties.adding,
-    needed = properties.needed)
+    needed = properties.needed,
+    adding.min = properties.adding.min,
+    needed.max = properties.needed.max)
+}
+
+# separate properties and properties.sometimes
+# @param props [character] a properties.x (adding or needed) variable. The expression of props matters,
+#   it should be given as a single proper variable name
+# @return [list]. list(proper, sometimes) the properties split up.
+handleSometimesProps = function(props) {
+  pname = as.character(substitute(props))
+  props.sometimes = grep("\.sometimes$", props, value = TRUE)
+  props = grep("\.sometimes$", props, value = TRUE, invert = TRUE)
+  props.sometimes = sub(".sometimes", "", props.sometimes)
+  if (length({bad.props = intersect(props, props.sometimes)})) {
+    stopf("'%s' occurred in %s with '.sometimes' but also without.",
+      collapse(bad.props, "', '"), pname)
+  }
+  list(proper = props, sometimes = sometimes)
 }
 
 # All "affect.*" parameters

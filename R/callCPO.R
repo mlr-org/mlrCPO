@@ -135,7 +135,7 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   tin$indata$build.inverter = build.inverter
   result = do.call(cpo$trafo.funs$cpo.trafo, insert(getBareHyperPars(cpo), tin$indata))
 
-  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed, cpo$properties$adding, cpo$convertto)
+  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed.max, cpo$properties$adding.min, cpo$convertto)
 
   if (build.retrafo && cpo$operating.type != "retrafoless") {
     prev.retrafo = makeCPORetrafo(cpo, result$state, result$state.invert, prev.retrafo, tin$shapeinfo, tout$shapeinfo)
@@ -218,8 +218,15 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   result = do.call(cpo$trafo.funs$cpo.retrafo, insert(getBareHyperPars(cpo), tin$indata))
 
   if (operating.type != "target" || !is.null(tin$indata$target)) {
-    data = handleRetrafoOutput(result$result, tin, cpo$properties$needed,
-      cpo$properties$adding, cpo$convertto, cpo$shapeinfo.output)
+    # in retrafo we forgive the creation of 'missings', unless they are in adding.min
+    properties.needed = cpo$properties$needed.max
+    properties.adding = cpo$properties$adding.min
+    if ("missings" %nin% properties.adding) {
+      properties.needed = union(properties.needed, "missings")
+    }
+
+    data = handleRetrafoOutput(result$result, tin, properties.needed,
+      properties.adding, cpo$convertto, cpo$shapeinfo.output)
   }
 
   if (build.inverter && cpo$operating.type == "target") {

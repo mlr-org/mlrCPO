@@ -19,9 +19,13 @@
   - [X] retrafo state should work again
     - makeRetrafoFromState --> makeCPOTrainedFromState
   - [X] see that getting operating type etc. works (also for NULLCPO)
-  - [ ] properties: adding.min, needed.max
+  - [-] properties: adding.min, needed.max
+    - [X] implement and document
+    - [ ] for multiplexer etc
+    - [ ] multiplexer: check for affect.*, be less restrictive
+    - [X] retrafo adds 'missings' to needed.max if not part of adding.min.
   - [ ] see that learner attachment etc still works
-  - [ ] retrafo element change
+  - [X] retrafo element change
   - [ ] make invert() etc work
   - [ ] make the printers work
   - [ ] set CPOConstructor for multiplex cpos etc.

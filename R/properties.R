@@ -463,7 +463,7 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE, get.internal = FALSE) {
   }
   if (!get.internal) {
     ret$adding.min = NULL
-    ret$needed.min = NULL
+    ret$needed.max = NULL
   }
   ret
 }
