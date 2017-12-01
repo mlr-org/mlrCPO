@@ -8,6 +8,7 @@ cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these a
 cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
 cpo.predict.properties = c("prob", "se")
 cpo.predict.types = c("response", cpo.predict.properties)
+cpo.identity.predict.type.map = c(response = "response", prob = "prob", se = "se")
 
 # Developer Notes: All exported CPO defining functions call makeCPOGeneral, with certain parameters already set.
 
@@ -261,7 +262,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     assertCharacter(predict.type.map, any.missing = FALSE, names = "unique")
   } else {
     # for feature operating CPOs, this is the identity.
-    predict.type.map = c(response = "response", prob = "prob", se = "se")
+    predict.type.map = cpo.identity.predict.type.map
   }
   properties.list = assembleProperties(properties.data, properties.needed, properties.adding, properties.target, cpo.type, type.from, type.to)
 

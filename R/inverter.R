@@ -11,7 +11,7 @@
 #' chain.
 #'
 #' If a \code{\link{CPORetrafo}} object is used that contains no target-bound transformations
-#' (i.e. has \dQuote{invert} capability 0}, this is a no-op (except for dropping the \sQuote{truth} column).
+#' (i.e. has \dQuote{invert} capability 0}, this is a no-op.
 #'
 #' @param inverter [\code{CPOInverter}]\cr
 #'   The retrafo or inverter to apply
@@ -23,7 +23,8 @@
 #'   \dQuote{prob}. Default is \dQuote{response}. Care must be taken that the \code{prediction} was generated
 #'   with a prediction type that fits this, i.e. it must be of type \code{getCPOPredictType(inverter)[predict.type]}.
 #' @return [\code{\link[mlr]{Prediction}} | \code{data.frame}]. A transformed \code{\link{Prediction}} if a prediction was given,
-#'   or a \code{data.frame}. If a \code{CPORetrafo} object is used, the \sQuote{truth} column(s) of the prediction will be dropped.
+#'   or a \code{data.frame}. If the first object in the chain is a \code{CPORetrafo} object, the \sQuote{truth} column(s) of the
+#'   prediction will be dropped.
 #'
 #' @export
 invert = function(inverter, prediction, predict.type = "response") {
@@ -78,7 +79,6 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
 
   if ("Prediction" %in% class(prediction)) {
     preddf = prediction$data
-
     if (needed.predict.type == "response") {
       if ("response" %nin% names(preddf)) {
         stopf("Trying to predict %s, and need response prediction for that, but no response found in Prediction.",
@@ -110,26 +110,24 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
     preddf = prediction
   }
 
+  assert(identical(intersect(getCPOProperties(inverter)$handling, cpo.tasktypes), inverter$convertfrom))
   assertChoice(inverter$convertto, cpo.tasktypes)
   sanpred = sanitizePrediction(preddf, inverter$convertto, predict.type)
 
   inverted = invertCPO(inverter$element, sanpred, predict.type)
 
-
+  if ("Prediction" %nin% class(prediction)) {
+    return(inverted$new.prediction)
+  }
 
   invdata = inverted$new.prediction
-  assert(all(grepl("^se$|^(prob|response)(\\..*)?$", names(invdata))))
+
   if (is.null(inverted$new.td)) {
-#    TODO assert("retrafo" %in% getCPOKind(inverter))  # only hybrid retrafos should return a NULL td
-
-    outputtype = intersect(getCPOProperties(inverter)$properties, cpo.tasktypes)
-    assert(length(outputtype) == 1)  # hybrid retrafos should always have one, otherwise it is a bug.
-
-    tdconstructor = get(sprintf("make%sTaskDesc", stri_trans_totitle(outputtype)), mode = "function")
+    # last inverter was a CPORetrafo, so we don't have a TD
 
     tdname = "[CPO CONSTRUCTED]"
 
-    inverted$new.td = switch(outputtype,
+    inverted$new.td = switch(inverter$convertfrom,
       classif = {
         levels = ifelse(predict.type == "prob", colnames(invdata), levels(invdata))
         makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL, levels[1])
@@ -138,16 +136,11 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
       regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
       multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
       surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL),
-      # assuming rcens since nothing else ever gets used.
       stop("unknown outputtype"))
   }
-  if ("Prediction" %in% class(prediction)) {
-    makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
-      truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
-      error = prediction$error, dump = prediction$dump)
-  } else {
-    invdata
-  }
+  makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
+    truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
+    error = prediction$error, dump = prediction$dump)
 }
 
 # Invert the (learner supplied) prediction.
@@ -167,45 +160,40 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
 # @return [list] list(new.prediction, new.td, new.truth)
 #   new.td & new.truth may be NULL if no target change occurred.
 invertCPO = function(inverter, prediction, predict.type) {
-  assertString(predict.type)
+  assertChoice(predict.type, cpo.predict.types)
   cpo = inverter$cpo
-  if ("invert" %in% inverter$kind) {
-    # make sure some things that should always be true are actually true
-    assertString(cpo$convertfrom)
-    assertString(cpo$convertto)
-    assert(!"retrafo" %in% inverter$kind || cpo$stateless)  # for data caching inverters, no hybrids are created
-    assert(("retrafo" %in% inverter$kind) == is.null(inverter$inverter.indata))
-
-    if (!predict.type %in% names(inverter$predict.type)) {
-      stop("Inverter %s cannot convert to requested predict.type %s", getCPOName(inverter), predict.type)
-    }
-    input.predict.type = inverter$predict.type[predict.type]
-    assertString(input.predict.type)
-
-    output.predict.type = ifelse(is.null(inverter$prev.retrafo), predict.type, inverter$prev.retrafo$predict.type[predict.type])
-    assertString(output.predict.type)
-    assertSubset(output.predict.type, names(cpo$predict.type))
-    assert(cpo$predict.type[output.predict.type] == input.predict.type)
-
-    prediction = validateSupposedPredictionFormat(prediction, cpo$convertto, input.predict.type, predict.type, "input", inverter)
-    args = list(target = prediction, predict.type = output.predict.type)
-    assertChoice(cpo$control.type, c("functional", "object"))
-    if (cpo$control.type == "functional") {
-      result = do.call(cpo$state, args)
-    } else {
-      args = insert(args, cpo$par.vals)
-      if (!cpo$stateless) {
-        args$control = inverter$state
-      }
-      result = do.call(cpo$retrafo, args)
-    }
-
-
-    result = sanitizePrediction(result)
-    result = validateSupposedPredictionFormat(result, cpo$convertfrom, output.predict.type, predict.type, "output", inverter)
+  assert(inverter$capability["invert"] %in% 0:1)
+  if (inverter$capability["invert"] != 1) {
+    assertClass(inverter, "RetrafoElement")
+    return(invertCPO(inverter$prev.retrafo.elt, prediction, predict.type))
   }
+
+  assertString(cpo$convertfrom)
+  assertString(cpo$convertto)
+
+  if (!predict.type %in% names(inverter$prev.predict.type)) {
+    stop("Inverters preceding %s cannot convert to requested predict.type %s", getCPOName(cpo), predict.type)
+  }
+
+  output.predict.type = inverter$prev.predict.type[predict.type]
+  assert(output.predict.type %in% names(cpo$predict.type))
+
+  input.predict.type = cpo$predict.type[output.predict.type]
+
+  if (class(inverter) == "InverterElement") {
+    state = inverter$state
+  } else {
+    assert("state.invert" %in% names(inverter))
+    state = inverter$state.invert
+  }
+
+  args = list(target = prediction, predict.type = input.predict.type, state = state)
+
+  result = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo, args)))
+  result = sanitizePrediction(result, cpo$convertfrom, output.predict.type)
+
   if (is.null(inverter$prev.retrafo)) {
-    return(list(new.prediction = prediction, new.td = inverter$indatatd, new.truth = inverter$truth))
+    return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
   }
   invertCPO(inverter$prev.retrafo, prediction, predict.type)
 }

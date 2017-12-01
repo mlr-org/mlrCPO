@@ -20,7 +20,7 @@
 makeCPOInverter = function(cpo, state, prev.inverter, data) {
 
   if (is.data.frame(data)) {
-    td = getTaskDesc(makeClusterTask("CPO Generated", data, check.data = FALSE))
+    td = getTaskDesc(makeClusterTask("[CPO CONSTRUCTED]", data, check.data = FALSE))
     truth = data[integer(0)]
   } else {
     td = getTaskDesc(data)
@@ -79,6 +79,8 @@ makeCPOTrainedBasic = function(cpo, state, subclass, elclass, capability) {
         cpo = setCPOId(cpo, NULL),    # the CPOPrimitive that was used to create this object
         state = state,                # whatever control object or retrafo function was given
         capability = capability,      # capability of this CPOTrained unit
+        prev.predict.type =           # the predict.type transformation matrix of all preceding elements (in prev.retrafo.elt)
+          cpo.identity.predict.type.map,
         prev.retrafo.elt = NULL),     # Point to the "previous" CPOTrained element, forming a linked list
     # --- cached info for chained CPOTrained
     name = cpo$name,

@@ -108,7 +108,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
           "Offending column", ifelse(length(badcols) > 1, "s", ""), collapse(badcols, sep = ", "))
       }
       if (targetop) {
-        task = constructTask(NULL, indata, shapeinfo.input$target, shapeinfo.input$type, "CPO Generated")
+        task = constructTask(NULL, indata, shapeinfo.input$target, shapeinfo.input$type, "[CPO CONSTRUCTED]")
       }
       target = indata[shapeinfo.input$target]
       indata = dropNamed(indata, shapeinfo.input$target)
@@ -863,7 +863,7 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
 
   if (is.data.frame(task)) {
     # only if 'targetbound'
-    task = makeClusterTask(id = "CPO-constructed", data = task)
+    task = makeClusterTask(id = "[CPO CONSTRUCTED]", data = task)
   }
 
   if (dataformat %in% c("df.features", "split")) {

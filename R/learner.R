@@ -109,7 +109,7 @@ predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
     # check prediction before we feed it to CPOs
     prediction = checkPredictLearnerOutput(.learner$next.learner, .model$learner.model$next.model, prediction)
     # invert
-    invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
+    invertCPO(retrafod$inverter$element, prediction, .learner$predict.type)$new.prediction
   } else {
     prediction
   }

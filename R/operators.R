@@ -220,6 +220,7 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
       c1 = recursive.compose(c1, c2$prev.retrafo.elt)
     }
     c2$prev.retrafo.elt = c1
+    c2$prev.predict.type = chainPredictType(c1$prev.predict.type, c1$cpo$predict.type)
     c2
   }
   cpo1$element = recursive.compose(cpo1$element, cpo2$element)
@@ -294,6 +295,7 @@ as.list.CPOTrained = function(x, ...) {
   prev = if (!is.null(x.with.prev$element)) as.list(x.with.prev)
 
   x$element$prev.retrafo.elt = NULL
+  x$element$prev.predict.type = cpo.identity.predict.type.map
   cpo = x$element$cpo
   x$name = cpo$name
   x$capability = x$element$capability

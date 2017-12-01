@@ -31,6 +31,7 @@
   - [ ] set CPOConstructor for multiplex cpos etc.
   - [ ] make tests work
   - [ ] new tests
+- [ ] option to drop 'truth' columns
 ** test todo
 - [ ] convertNamesToItems, ItemsToNames
 - [ ] on.par.out.of.bounds setting
