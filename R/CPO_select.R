@@ -1,4 +1,28 @@
 
+
+# we create two very similar CPOs, so write out the arguments here and do.call them later.
+cpoSelect.callargs = alist(
+    cpo.name = "select",
+    par.set = c(
+        pSSLrn(type = list(): discrete[numeric, ordered, factor, other]^NA,
+          index = integer(0): integer[1, ]^NA),
+        makeParamSet(makeUntypedLearnerParam("names", default = character(0)),
+          makeCharacterParam("pattern", NULL, special.vals = list(NULL))),
+        pSSLrn(
+            pattern.ignore.case = FALSE: logical [[requires = quote(!is.null(pattern))]],
+            pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
+            pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
+            invert = FALSE: logical)),
+    dataformat = "df.features",
+    cpo.train = {
+      assertCharacter(names, any.missing = FALSE, unique = TRUE)
+      assertIntegerish(index, any.missing = FALSE, unique = TRUE)
+      getColIndices(data, type, index, names, pattern, invert, pattern.ignore.case, pattern.perl, pattern.fixed)
+    },
+    cpo.retrafo = {
+      data[control]
+    })
+
 #' @title Drop All Columns Except Certain Selected Ones from Data
 #'
 #' @template cpo_doc_intro
@@ -7,6 +31,12 @@
 #' Select columns by type or name. The parameters \dQuote{type} and
 #' \dQuote{pattern} are additive; if both are given, all column that match
 #' either will be returned.
+#'
+#' \code{cpoSelectFreeProperties} behaves just as \code{cpoSelect}, with the additional function
+#' that it is treated like a \code{\link{CPO}} that removes all data properties from the data.
+#' This disables the internal property check and can be useful when trying to compose \code{\link{CPO}}s
+#' that do not have compatible properties.
+#'
 #'
 #' @param type [\code{character}]\cr
 #'   One or more out of \dQuote{numeric}, \dQuote{ordered}, \dQuote{factor}, \dQuote{other}.
@@ -38,25 +68,14 @@
 #'
 #' @template cpo_doc_outro
 #' @export
-cpoSelect = makeCPO("select",  # nolint
-  par.set = c(
-      pSSLrn(type = list(): discrete[numeric, ordered, factor, other]^NA,
-        index = integer(0): integer[1, ]^NA),
-      makeParamSet(makeUntypedLearnerParam("names", default = character(0)),
-        makeCharacterParam("pattern", NULL, special.vals = list(NULL))),
-      pSSLrn(
-          pattern.ignore.case = FALSE: logical [[requires = quote(!is.null(pattern))]],
-          pattern.perl = FALSE: logical [[requires = quote(!is.null(pattern))]],
-          pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
-          invert = FALSE: logical)),
-  dataformat = "df.features",
-  cpo.train = {
-    assertCharacter(names, any.missing = FALSE, unique = TRUE)
-    assertIntegerish(index, any.missing = FALSE, unique = TRUE)
-
-    getColIndices(data, type, index, names, pattern, invert, pattern.ignore.case, pattern.perl, pattern.fixed)
-  },
-  cpo.retrafo = {
-    data[index]
-  })
+cpoSelect = do.call(makeCPO, cpoSelect.callargs)  # nolint
 registerCPO(cpoSelect, "data", "feature selection ", "Select features from a data set by type, column name, or column index.")
+
+
+cpoSelect.callargs$cpo.name = "selectfreeprop"
+cpoSelect.callargs$properties.adding = paste0(cpo.dataproperties, ".sometimes")
+cpoSelect.callargs$properties.needed = paste0(cpo.dataproperties, ".sometimes")
+#' @rdname cpoSelect
+#' @export
+cpoSelectFreeProperties = do.call(makeCPO, cpoSelect.callargs)  # nolint
+registerCPO(cpoSelectFreeProperties, "data", "feature selection ", "Select features from a data set, also reset data properties.")
