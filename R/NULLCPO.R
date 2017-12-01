@@ -124,7 +124,24 @@ getCPOAffect.NULLCPO = function(cpo, drop.defaults = TRUE) {
 }
 
 #' @export
+getCPOProperties.NULLCPO = function(cpo, only.data = FALSE, get.internal = FALSE) {
+  ret = list(handling = c(cpo.dataproperties, if (!only.data) cpo.all.target.properties),
+    adding = character(0), needed = character(0))
+
+  if (get.internal) {
+    ret$adding.min = character(0),
+    ret$needed.max = character(0)
+  }
+  ret
+}
+
+#' @export
 getCPOName.NULLCPO = function(cpo) {
+  "NULLCPO"
+}
+
+#' @export
+getCPOId.NULLCPO = function(cpo) {
   "NULLCPO"
 }
 

@@ -22,7 +22,7 @@
 #' @export
 print.CPOConstructor = function(x, verbose = FALSE, ...) {
   assertFlag(verbose)
-  args = dropNamed(formals(x), environment(x)$reserved.params)
+  args = dropNamed(formals(x), reserved.params)
   argvals = sapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)

@@ -7,8 +7,28 @@ cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
 cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
 cpo.predict.properties = c("prob", "se")
-cpo.predict.types = c("response", cpo.predict.properties)
 cpo.identity.predict.type.map = c(response = "response", prob = "prob", se = "se")
+
+cpo.predict.types = c("response", cpo.predict.properties)
+cpo.all.target.properties = c(cpo.tasktypes, cpo.targetproperties, cpo.predict.properties)
+cpo.all.properties = c(cpo.dataproperties, cpo.all.target.properties)
+
+
+# All "affect.*" parameters
+affect.params = c("affect.type", "affect.index", "affect.names", "affect.pattern", "affect.invert", "affect.pattern.ignore.case",
+  "affect.pattern.perl", "affect.pattern.fixed")
+# The "export" parameter may either contain a list of names of parameters to export, or one of these special values:
+export.possibilities = c("export.default", "export.set", "export.default.set", "export.unset", "export.default.unset",
+  "export.all", "export.none", "export.all.plus")
+
+# Reserved parameter names:
+# these parameters are either special parameters given to the constructor function (id, affect.*),
+# the possible special values of 'export' that should not clash with param names,
+# special parameters given to the cpo.trafo function (data, target), special parameters given to the
+# cpo.retrafo function (predict.type, control),
+reserved.params = c("data", "target", "data.reduced", "target.reduced",
+  "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
+
 
 # Developer Notes: All exported CPO defining functions call makeCPOGeneral, with certain parameters already set.
 
@@ -170,8 +190,12 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
     if (task.type.out != task.type.in && length(setdiff(properties.target, c(properties.adding, task.type.in)))) {
       stopf("For conversion away from %s, the elements of properties.adding that are *not* the input task type must equal properties.target.", task.type.in)
     }
+    assertSubset(properties.adding, c(possible.properties[[task.type.in]],
+      paste0(possible.properties[[task.type.in]], ".sometimes")))
   } else if (length(setdiff(properties.target, cpo.tasktypes))) {
     stopf("CPO handling type %s must have properties.target equal to the task type only.", task.type.in)
+  } else if (length(properties.adding)) {
+    stopf("Input type is %s, so properties.adding must be empty.", task.type.in)
   }
 
   if (length(possible.properties[[task.type.out]])) {
@@ -245,15 +269,8 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   }
 
 
-  # Reserved parameter names:
-  # these parameters are either special parameters given to the constructor function (id, affect.*),
-  # the possible special values of 'export' that should not clash with param names,
-  # special parameters given to the cpo.trafo function (data, target), special parameters given to the
-  # cpo.retrafo function (predict.type, control),
-  reserved.params = c("data", "target", "data.reduced", "target.reduced",
-    "df.features", "predict.type", "control", "id", "export", affect.params, export.possibilities)
 
-  params = prepareParams(par.set, par.vals, export.params, reserved.params)
+  params = prepareParams(par.set, par.vals, export.params)
   par.set = params$par.set
   par.vals = params$par.vals
   export.params = params$export.params
@@ -391,7 +408,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
       bare.par.set = par.set,                                # [ParamSet] exported parameters with names not containing the ID prefix
       properties.raw = properties.list$handling,             # [character] properties handled by the cpo.trafo / cpo.retrafo internally, after filtering for affect.*
       dataformat = dataformat,                               # [character(1)] data format as received by trafo / retrafo
-      strict.factors = dataformat.factor.with.ordered,       # [logical(1)] whether factors and ordereds are distinguished
+      strict.factors = !dataformat.factor.with.ordered,      # [logical(1)] whether factors and ordereds are distinguished
       fix.factors = fix.factors,                             # [logical(1)] whether to clean up factor levels in retrafo
       constructor = cpo.constructor,                         # [CPOConstructor] the constructor function used to create this object
       control.type = control.type)                           # [named list] list(retrafo, invert) of one of "functional", "object", "dual.function":
@@ -449,7 +466,7 @@ assembleProperties = function(properties.data, properties.needed, properties.add
     }
     properties.handling = union(properties.handling, type.from)
   } else {
-    properties.handling = c(properties.handling, "prob", "se")
+    properties.handling = c(properties.handling, cpo.predict.properties)
   }
 
   aux = handleSometimesProps(properties.needed)
@@ -495,12 +512,6 @@ handleSometimesProps = function(props) {
   list(proper = props, sometimes = sometimes)
 }
 
-# All "affect.*" parameters
-affect.params = c("affect.type", "affect.index", "affect.names", "affect.pattern", "affect.invert", "affect.pattern.ignore.case",
-  "affect.pattern.perl", "affect.pattern.fixed")
-# The "export" parameter may either contain a list of names of parameters to export, or one of these special values:
-export.possibilities = c("export.default", "export.set", "export.default.set", "export.unset", "export.default.unset",
-  "export.all", "export.none", "export.all.plus")
 
 # check the given parameter set and parameters for validity.
 # par.set.
@@ -508,9 +519,8 @@ export.possibilities = c("export.default", "export.set", "export.default.set", "
 # @param par.vals [list] named list of default parameter values
 # @param export.params [logical(1) | character] TRUE if all parameters are to be exported, FALSE if none are to be
 #   exported, a character vector of parameter names that are to be exported otherwise.
-# @param reserved.params [character] parameter names that are reserved and may not be used for CPOs.
 # @return [list] list(par.set, par.vals, export.params)
-prepareParams = function(par.set, par.vals, export.params, reserved.params) {
+prepareParams = function(par.set, par.vals, export.params) {
   if (any(names(par.set$pars) %in% reserved.params)) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
