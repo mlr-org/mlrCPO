@@ -32,6 +32,8 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
   makeParamSet(
       makeFunctionLearnerParam("fun"),
       makeLogicalLearnerParam("vectorize", default = TRUE)),
+  properties.adding = paste0(cpo.dataproperties, ".sometimes"),
+  properties.needed = paste0(cpo.dataproperties, ".sometimes"),
   dataformat = "df.features",
   cpo.train = {
     if (vectorize) {
