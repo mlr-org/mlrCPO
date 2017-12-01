@@ -41,7 +41,6 @@ invert = function(inverter, prediction, predict.type = "response") {
   } else {
     preddf = prediction
   }
-  prediction = sanitizePrediction(preddf)
   UseMethod("invert")
 }
 
@@ -63,7 +62,8 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
     # to check his data for consistency
     return(prediction)
   }
-
+  assertChoice(inverter$convertto, cpo.tasktypes)
+  prediction = sanitizePrediction(preddf, inverter$convertto, predict.type)
 
 }
 

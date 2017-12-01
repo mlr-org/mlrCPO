@@ -58,3 +58,33 @@ validateSupposedPredictionFormat = function(prediction, type, predict.type, ulti
   prediction
 }
 
+
+# if 'typepossibilities' has one element, this will also return one element EXCEPT FOR CLASSIF, CLUSTER
+getPredResponseType = function(data, typepossibilities) {
+  assertSubset(typepossibilities, cpo.tasktypes, empty.ok = FALSE)
+  errout = function() stopf("Data did not conform to any of the possible prediction types %s", collapse(typepossibilities))
+  data = sanitizePrediction(data)
+  if (is.matrix(data)) {
+    if (mode(data) == "logical") {
+      if (!"multilabel" %in% typepossibilities) errout()
+      return("response")
+    }
+    if (ncol(data) == 2) {
+      if (identical(typepossibilities, "regr")) {
+        return("se")
+      }
+      return(c("se", "prob"))
+    }
+    if ("regr" %in% typepossibilities) errout()
+    return("prob")
+  }
+
+  if (is.factor(data)) {
+    if (!"classif" %in% typepossibilities) errout()
+    return("response")
+  }
+  if (!numeric(data)) errout()
+  areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
+  if (!areWhole(data) && !"surv" %in% typepossibilities && !"regr" %in% typepossibilities) errout()
+  c("response", if (any(c("classif", "cluster") %in% typepossibilities)) "prob")
+}
