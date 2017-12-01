@@ -491,7 +491,7 @@ getCPOName.CPOTrained = getCPOName.CPO
 #' @rdname getCPOName
 #' @export
 getCPOName.CPOConstructor = function(cpo) {
-  environment(cpo)$.cpo.name
+  environment(cpo)$cpo.name
 }
 
 #' @export

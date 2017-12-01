@@ -85,8 +85,17 @@ ll = listLearners(create=TRUE)
 
 tasks = list(classif = pid.task, regr = bh.task, surv = lung.task, cluster = mtcars.task, multilabel = agri.task)
 
-configureMlr(on.learner.error = "quiet", on.learner.warning = "quiet", show.learner.output = FALSE, show.info = FALSE)
+configureMlr(on.learner.error = "warn", on.learner.warning = "warn", show.learner.output = TRUE, show.info = TRUE)
 
 cll = Filter(function(x) getLearnerType(x) == "cluster" && "prob" %in% getLearnerProperties(x), ll)
 
-predict(train(cll[[1]], tasks$cluster), tasks$cluster)
+getLearnerParams
+(cll[[2]])
+
+names(predict(train(setPredictType(setHyperPars(cll[[2]], centers = 1), "prob"), tasks$cluster), tasks$cluster)$data)
+xx = predict(train(setPredictType(cll[[2]], "prob"), tasks$cluster), tasks$cluster)
+str(xx)
+
+dropNamed(xx$data, c("id", "response"))
+
+debugger()

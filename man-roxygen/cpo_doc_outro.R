@@ -39,7 +39,8 @@
 #'   Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
 #'   to not match by column type. Default is \code{NULL}.
 #' @param affect.index [\code{numeric}]\cr
-#'   Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.
+#'   Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+#'   (since target columns are always included). Default is \code{integer(0)}.
 #' @param affect.names [\code{character}]\cr
 #'   Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.
 #' @param affect.pattern [\code{character(1)} | \code{NULL}]\cr

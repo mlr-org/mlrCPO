@@ -27,12 +27,23 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)
   if (verbose) {
-    catf("CPO Trafo:")
-    print(environment(x)$trafo.funs$cpo.trafo.orig)
-    retrafo.fun = environment(x)$trafo.funs$cpo.retrafo.orig
-    if (!is.null(retrafo.fun)) {
-      catf("\nCPO Retrafo:")
-      print(retrafo.fun)
+    type.extended = environment(x)$cpo.type.extended
+    tf = environment(x)$trafo.funs
+    allfuns = c("trafo", "retrafo", "train.invert", "invert")
+
+    relfuns = switch(type.extended,
+      feature = allfuns[1:2], target = allfuns, retrafoless = allfuns[1],
+      feature.extended = allfuns[1:2], target.extended = allfuns[-3])
+    relfunlist = lapply(relfuns, function(x) tf[[paste0(x, ".orig")]])
+    if (type.extended %in% c("trafo", "retrafo")) {
+      name(relfunlist)[1] = "train"
+    }
+    for (funname in names(relfunlist)) {
+      fun = relfunlist[[funname]]
+      if (!is.null(fun)) {
+        catf("\ncpo.%s:", funname)
+        print(fun)
+      }
     }
   }
 }
@@ -42,16 +53,28 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
 # @param x [CPO] the CPO to print
 vprint = function(x) {
   chain = as.list(x)
-  catf("Trafo chain of %d elements:", length(chain))
+  catf("Trafo chain of %d cpos:", length(chain))
   is.first = TRUE
-  for (retrafo in chain) {
+  for (cpo in chain) {
     if (!is.first) {
       cat("  ====>\n")
     }
     is.first = FALSE
-    print(retrafo)
-    cat("\n")
-    print(getParamSet(retrafo))
+    print(cpo)
+    ot = getCPOOperatingType(cpo)
+    catf("Operating: %s", ot, newline = FALSE)
+    if (ot == "target") {
+      if (cpo$constant.invert) {
+        cat(" [constant invert]")
+      }
+      catf("\nConversion: %s -> %s", cpo$convertfrom, cpo$convertto)
+      pt = getCPOPredictType(cpo)
+      catf("Predict type maping:\n%s", collapse(paste(names(pt), pt, sep = " -> "), sep = "\n"))
+    } else {
+      cat("\n")
+    }
+    cat("ParamSet:\n")
+    print(getParamSet(cpo))
   }
 }
 
@@ -83,28 +106,59 @@ print.CPO = function(x, verbose = FALSE, ...) {
 print.CPOTrained = function(x, ...) {
   first = TRUE
   object.type = getCPOClass(x)
-  invcap = getCPOInvertCapability(x)
+  invcap = getCPOTrainedCapability(x)
   pt = names(getCPOPredictType(x))
-  if (length(pt) == 3) {
-    assert(object.type == "CPORetrafo")
-  }
-  catf("CPO %s chain", collapse(stri_trans_totitle(invcap), sep = " / "), newline = FALSE)
-  if (invcap %in% c("invert", "hybrid")) {
+  caps = names(Filter(function(x) x > 0, invcap))
+  catf("CPO %s chain", collapse(stri_trans_totitle(caps), sep = " / "), newline = FALSE)
+  if (invcap["invert"] > 0) {
     catf("(able to predict '%s')", collapse(pt, sep = "', '"))
   } else {
     cat("\n")
   }
-  for (primitive in as.list(x)) {
+  reverse = invcap["retrafo"] < 1
+  plist = as.list(x)
+  if (reverse) {
+    plist = rev(plist)
+  }
+  for (primitive in plist) {
     if (!first) {
       cat("=>")
     }
     first = FALSE
     pv = getHyperPars(primitive)
     argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
-    catf("[RETRAFO %s(%s)]", getCPOName(primitive), argstring, newline = FALSE)
+    pcap = getCPOTrainedCapability(primitive)
+    if (pcap["invert"] > 0) {
+      fromto = c(primitive$convertfrom, primitive$convertto)
+      if (reverse) {
+        fromto = rev(fromto)
+      }
+      convstring = paste0("{conv:", collapse(fromto, "->"), "}")
+    } else {
+      convstring = ""
+    }
+    if (pcap["retrafo"] < 1) {
+      classname = "INVERTER"
+    } else {
+      classname = "RETRAFO"
+    }
+    catf("[%s %s(%s)%s]", classname, getCPOName(primitive), argstring, convstring, newline = FALSE)
   }
   cat("\n")
 }
+
+# helper function for retrafo / inverter 'element's
+# The user shouldn't see these too often
+#' @export
+print.RetrafoElement = function(x, ...) {
+  if (!is.null(x$prev.retrafo.elt)) {
+      x$prev.retrafo.elt = paste0("<More ", class(x$prev.retrafo.elt), ">")
+  }
+  print(c(x))
+}
+#' @export
+print.InverterElement = print.RetrafoElement
+
 
 # ShapeInfo printing
 

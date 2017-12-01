@@ -32,6 +32,12 @@ invert = function(inverter, prediction, predict.type = "response") {
   UseMethod("invert")
 }
 
+#' @export
+predict.CPOTrained = function(object, data, predict.type = "response", ...) {
+  assert(length(list(...)) == 0)
+  invert(object, data, predict.type = predict.type)
+}
+
 #' @title Check CPOInverter
 #'
 #' @description

@@ -6,9 +6,9 @@
 - [X] delete 'target' variable in functional CPOs
 - [X] refactor prepare trafo / retrafo to separate checking and splitting / uniting
 - [X] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
-- [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
+- [X] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
 - [X] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
-- [ ] document that index with cpoSelect and affect.* is always relative do data cols only
+- [X] document that index with cpoSelect and affect.* is always relative do data cols only
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 - [ ] roxygen-document internal functions
 - [-] plan for today:
@@ -26,8 +26,8 @@
     - [X] retrafo adds 'missings' to needed.max if not part of adding.min.
   - [X] see that learner attachment etc still works
   - [X] retrafo element change
-  - [ ] make invert() etc work
-  - [ ] make the printers work
+  - [X] make invert() etc work
+  - [X] make the printers work
   - [ ] set CPOConstructor for multiplex cpos etc.
   - [ ] make tests work
   - [ ] new tests
