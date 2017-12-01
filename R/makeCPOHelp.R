@@ -104,7 +104,7 @@
 #'     create a \code{cpo.retrafo} function instead of a \code{control} object. \code{cpo.train} in \code{makeCPOTargetOp} has the option of creating
 #'     a \code{cpo.retrafo} and \code{cpo.train.invert} (\code{cpo.invert} if \code{constant.invert} is \code{TRUE}) function (and returning \code{NULL})
 #'     instead of returning a \code{control} object. Similarly, \code{cpo.train.invert} may return a \code{cpo.invert} function instead of a \code{control.invert}
-#'     object. In \code{makeCPOExtendedTargetOp}, \code{cpo.trafo} may create a \code{cpo.retrafo} of \a \code{cpo.invert} function, each optionally instead
+#'     object. In \code{makeCPOExtendedTargetOp}, \code{cpo.trafo} may create a \code{cpo.retrafo} or a \code{cpo.invert} function, each optionally instead
 #'     of a \code{control} or \code{control.invert} object (one \emph{or} both may be functional). \code{cpo.retrafo} similarly may create a \code{cpo.invert}
 #'     function instead of giving a \code{control.invert} object. Functional information transfer may be more parsimonious and elegant than control
 #'     object information transfer.}

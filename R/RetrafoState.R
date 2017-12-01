@@ -98,7 +98,7 @@ getCPOTrainedState.CPOTrained = function(trained.object) {
 #' @family retrafo related
 #' @family inverter related
 #' @export
-makeRetrafoFromState = function(constructor, state, get.inverter = FALSE) {
+makeCPOTrainedFromState = function(constructor, state, get.inverter = FALSE) {
   assertClass(constructor, "CPOConstructor")
   assertList(state, names = "unique")
   bare = constructor()

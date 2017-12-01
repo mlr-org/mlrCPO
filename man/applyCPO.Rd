@@ -67,7 +67,7 @@ Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
   \code{\link{getOrigialCPO}}, \code{\link{is.retrafo}},
-  \code{\link{makeRetrafoFromState}},
+  \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
 Other inverter related: \code{\link{CPOTrained}},
@@ -80,6 +80,6 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
   \code{\link{getOrigialCPO}}, \code{\link{is.inverter}},
-  \code{\link{makeRetrafoFromState}},
+  \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

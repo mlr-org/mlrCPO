@@ -676,7 +676,7 @@ splitX = function(data, dataformat = c("df.features", "split", "df.all", "task")
 #   a result of `getLLDataformat` applied to the dataformat used for the CPO.
 # @param strict.factors [logical(1)] whether to split ordered from factor columns
 # @return [Task | data.frame | list of data.frame] the data split / formatted according to `dataformat`.
-splittask = function(task, dataformat) {
+splittask = function(task, dataformat, strict.factors) {
   if (dataformat == "split") {
     splt = getTaskData(task, target.extra = TRUE)
     colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")

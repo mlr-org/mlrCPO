@@ -45,7 +45,7 @@
 #' if you really know what you are doing.
 #'
 #' (Primitive) \code{CPORetrafo} objects can be inspected using \code{\link{getCPOTrainedState}}, and it is possible to create new \code{CPORetrafo}
-#' objects from (possibly modified) retrafo state using \code{\link{makeRetrafoFromState}}.
+#' objects from (possibly modified) retrafo state using \code{\link{makeCPOTrainedFromState}}.
 #'
 #' @section Difference between \code{CPORetrafo} and \code{CPOInverter}:
 #' The fundamental difference between \code{CPORetrafo} and \code{CPOInverter} is that a \code{CPORetrafo} is

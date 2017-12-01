@@ -429,7 +429,7 @@ makeInvertCall = function(cpo.trafo, cpo.invert) {
 # @param fun.name [character(1)] the name of the function (cpo.trafo, cpo.retrafo etc) for message printing
 # @param source.name [character(1)] the name where the function comes from, for message printing
 # @return [invisible(NULL)]
-checkFunctionReturn = function(requiredargs, fun.name, source.name) {
+checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
   assert(length(requiredargs >= 1))
   if (is.null(fun)) {
     stopf("%s did not create a %s function.", source.name, fun.name)
