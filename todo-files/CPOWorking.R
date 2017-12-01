@@ -75,3 +75,18 @@ x = train(tst() %>>% makeLearner("regr.lm"), makeRegrTask(data = df, target = "a
 x$learner.model$next.model$learner.model
 
 getLearnerType(makeLearner("classif.logreg"))
+
+
+
+#####
+# try to find out what return values different learners use
+
+ll = listLearners(create=TRUE)
+
+tasks = list(classif = pid.task, regr = bh.task, surv = lung.task, cluster = mtcars.task, multilabel = agri.task)
+
+configureMlr(on.learner.error = "quiet", on.learner.warning = "quiet", show.learner.output = FALSE, show.info = FALSE)
+
+cll = Filter(function(x) getLearnerType(x) == "cluster" && "prob" %in% getLearnerProperties(x), ll)
+
+predict(train(cll[[1]], tasks$cluster), tasks$cluster)

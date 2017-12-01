@@ -103,9 +103,16 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
 # Wraps around callCPORetrafo and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
-  retrafod = callCPORetrafoElement(.model$learner.model$retrafo$element, .newdata, TRUE, NULLCPO)
+  retrafod = callCPORetrafoElement(.model$learner.model$retrafo$element, .newdata, TRUE, NULL)
   prediction = NextMethod(.newdata = retrafod$data)
-  invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
+  if (!is.null(retrafod$inverter)) {
+    # check prediction before we feed it to CPOs
+    prediction = checkPredictLearnerOutput(.learner$next.learner, .model$learner.model$next.model, prediction)
+    # invert
+    invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
+  } else {
+    prediction
+  }
 }
 
 #' @export

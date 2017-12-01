@@ -203,7 +203,7 @@
 #'       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
 #'       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
 #'       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-#'       \dQuote{surv}       \tab \dQuote{prob}              \tab UNDEFINED                                     \cr
+#'       \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]                           \cr
 #'     }
 #'     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
 #' }

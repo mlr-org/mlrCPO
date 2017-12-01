@@ -5,24 +5,25 @@
 #' Invert the transformation, done on the target column(s)
 #' of a data set, after prediction.
 #'
-#' Use either a retrafo object, or an inverter retrieved with
+#' Use either a \code{\link{CPORetrafo}} object with invert capability (see \code{\link{getCPOTrainedCapability}},
+#' or a \code{\link{CPOInverter} retrieved with
 #' \code{\link{inverter}} from a data object that was fed through a retrafo
 #' chain.
 #'
-#' If the retrafo object used had no target-bound transformations,
-#' this is mostly a no-op, except that it possibly changes the task description
-#' of the prediction.
+#' If a \code{\link{CPORetrafo}} object is used that contains no target-bound transformations
+#' (i.e. has \dQuote{invert} capability 0}, this is a no-op (except for dropping the \sQuote{truth} column).
 #'
 #' @param inverter [\code{CPOInverter}]\cr
 #'   The retrafo or inverter to apply
-#' @param prediction [\code{\link{Prediction}} | \code{matrix} | \code{data.frame}]\cr
+#' @param prediction [\code{\link[mlr]{Prediction}} | \code{matrix} | \code{data.frame}]\cr
 #'   The prediction to invert
 #' @param predict.type [\code{character(1)}]\cr
 #'   The equivalent to the \code{predict.type} property of a \code{\link[mlr:makeLearner]{Learner}}] object,
 #'   control what kind of prediction to perform. One of \dQuote{response}, \dQuote{se},
-#'   \dQuote{prob}. Default is \dQuote{response}.
-#' @return A transformed \code{\link{Prediction}} if a prediction was given,
-#'   or a \code{data.frame}. The 'truth' column(s) of the prediction will be dropped.
+#'   \dQuote{prob}. Default is \dQuote{response}. Care must be taken that the \code{prediction} was generated
+#'   with a prediction type that fits this, i.e. it must be of type \code{getCPOPredictType(inverter)[predict.type]}.
+#' @return [\code{\link[mlr]{Prediction}} | \code{data.frame}]. A transformed \code{\link{Prediction}} if a prediction was given,
+#'   or a \code{data.frame}. If a \code{CPORetrafo} object is used, the \sQuote{truth} column(s) of the prediction will be dropped.
 #'
 #' @export
 invert = function(inverter, prediction, predict.type = "response") {
@@ -41,7 +42,7 @@ invert = function(inverter, prediction, predict.type = "response") {
     preddf = prediction
   }
   prediction = sanitizePrediction(preddf)
-  UseMethod("invert", inverter)
+  UseMethod("invert")
 }
 
 #' @export
@@ -50,11 +51,20 @@ invert.CPO = function(inverter, prediction, predict.type = "response") {
 }
 
 #' @export
-invert.CPORetrafo = function(inverter, prediction, predict.type = "response") {
-  message("(Inversion was a no-op.)")
-  # we check this here and not earlier because the user might rely on inverter()
-  # to check his data for consistency
-  prediction
+invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
+  cap = getCPOTrainedCapability(inverter)["invert"]
+  assertSubset(cap, -1:1)
+  if (cap == -1) {
+    stopf("Inverting with CPORetrafo %s not possible, since it was created with data-dependent inverters\nUse a CPOInverter object instead\n%s",
+      getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
+  } else if (cap == 0) {
+    message("(Inversion was a no-op.)")
+    # we check this here and not earlier because the user might rely on inverter()
+    # to check his data for consistency
+    return(prediction)
+  }
+
+
 }
 
 #' @export
@@ -94,15 +104,6 @@ invert.CPOInverter = function(inverter, prediction, predict.type = "response") {
   }
 }
 
-#' @export
-invert.CPORetrafoHybrid = invert.CPOInverter  # nolint
-
-#' @export
-invert.CPORetrafoOnly = function(inverter, prediction, predict.type = "response") {
-  stopf("Inverting with CPO %s not possible, since it contains data-dependent inverters\nUse a CPOInverter object instead\n%s",
-    getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
-}
-
 #' @title Check CPOInverter
 #'
 #' @description
@@ -118,97 +119,16 @@ is.inverter = function(x) {  # nolint
   "CPOInverter" %in% class(x)
 }
 
-
-# data is either a data.frame or a matrix, and will be turned into
-# a uniform format.
+# Invert the (learner supplied) prediction.
 #
-# the canonical data layout, after sanitizePrediction:
-# regr response: numeric vector
-# regr se: numeric 2-column matrix
-# cluster response: integer vector
-# cluster prob: numeric matrix. This could also be a 1-D matrix but will be returned as numeric vector
-# classif response: factor vector
-# classif prob: numeric matrix > 1 column, except for oneclass possibly (numeric vector)
-# surv response: numeric vector
-# surv prob: assuming a numeric matrix > 1 column, but doesn't seem to currently exist
-# multiclass response: logical matrix > 1 column
-# multiclass prob: matrix > 1 column
-sanitizePrediction = function(data) {
-  if (is.data.frame(data)) {
-    if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
-      stop("Prediction had columns of multiple modes.")
-    }
-    if (ncol(data) > 1) {
-      data = as.matrix(data)
-    } else {
-      data = data[[1]]
-    }
-  }
-  if (is.matrix(data) && ncol(data) == 1) {
-    data = data[, 1, drop = TRUE]
-  }
-  if (is.logical(data) && !is.matrix(data)) {
-    data = matrix(data, ncol = 1)
-  }
-  if (!is.logical(data) && !is.numeric(data) && !is.factor(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric, factorial, or logical")
-  }
-  data
-}
-
-inferPredictionTypePossibilities = function(data) {
-  data = sanitizePrediction(data)
-  if (is.matrix(data)) {
-    if (mode(data) == "logical") {
-      return("multilabel")
-    }
-    return(c("cluster", "classif", "multilabel", "surv", if (ncol(data) == 2) "regr"))
-  }
-
-  if (is.factor(data)) {
-    "classif"
-  } else if (!is.numeric(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric or factorial")
-  } else {
-    areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
-    c(if (areWhole(data) && all(data >= 0)) "cluster", "surv", "regr")
-  }
-}
-
-# if 'typepossibilities' has one element, this will also return one element EXCEPT FOR CLASSIF, CLUSTER
-getPredResponseType = function(data, typepossibilities) {
-  assertSubset(typepossibilities, cpo.tasktypes, empty.ok = FALSE)
-  errout = function() stopf("Data did not conform to any of the possible prediction types %s", collapse(typepossibilities))
-  data = sanitizePrediction(data)
-  if (is.matrix(data)) {
-    if (mode(data) == "logical") {
-      if (!"multilabel" %in% typepossibilities) errout()
-      return("response")
-    }
-    if (ncol(data) == 2) {
-      if (identical(typepossibilities, "regr")) {
-        return("se")
-      }
-      return(c("se", "prob"))
-    }
-    if ("regr" %in% typepossibilities) errout()
-    return("prob")
-  }
-
-  if (is.factor(data)) {
-    if (!"classif" %in% typepossibilities) errout()
-    return("response")
-  }
-  if (!numeric(data)) errout()
-  areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
-  if (!areWhole(data) && !"surv" %in% typepossibilities && !"regr" %in% typepossibilities) errout()
-  c("response", if (any(c("classif", "cluster") %in% typepossibilities)) "prob")
-}
-
-# 'prediction' is whatever type the prediction usually has (depending on type). must return
-# a list (new.prediction, new.td, new.truth)
+# This is used internally and takes the 'prediction' as generated by a Learner; it is whatever type the
+# prediction usually has (depending on type).
 #
-# new.td & new.truth may be NULL if no target change occurred.
+# @param inverter [CPOInverter] the inverter
+# @param prediction [any] prediction, as usually given by a Learner
+# @param predict.type [character(1)] "response", "se", or "prob"
+# @return [list] list(new.prediction, new.td, new.truth)
+#   new.td & new.truth may be NULL if no target change occurred.
 invertCPO = function(inverter, prediction, predict.type) {
   UseMethod("invertCPO")
 }
@@ -262,6 +182,96 @@ invertCPO.CPOInverter = function(inverter, prediction, predict.type) {
   }
   invertCPO(inverter$prev.retrafo, prediction, predict.type)
 }
+
+# if 'typepossibilities' has one element, this will also return one element EXCEPT FOR CLASSIF, CLUSTER
+getPredResponseType = function(data, typepossibilities) {
+  assertSubset(typepossibilities, cpo.tasktypes, empty.ok = FALSE)
+  errout = function() stopf("Data did not conform to any of the possible prediction types %s", collapse(typepossibilities))
+  data = sanitizePrediction(data)
+  if (is.matrix(data)) {
+    if (mode(data) == "logical") {
+      if (!"multilabel" %in% typepossibilities) errout()
+      return("response")
+    }
+    if (ncol(data) == 2) {
+      if (identical(typepossibilities, "regr")) {
+        return("se")
+      }
+      return(c("se", "prob"))
+    }
+    if ("regr" %in% typepossibilities) errout()
+    return("prob")
+  }
+
+  if (is.factor(data)) {
+    if (!"classif" %in% typepossibilities) errout()
+    return("response")
+  }
+  if (!numeric(data)) errout()
+  areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
+  if (!areWhole(data) && !"surv" %in% typepossibilities && !"regr" %in% typepossibilities) errout()
+  c("response", if (any(c("classif", "cluster") %in% typepossibilities)) "prob")
+}
+
+# Put the prediction 'data' into a canonical format.
+#
+# This is used when a new prediction comes in from outside, i.e. when invertCPO
+# is called. The return value of a Learner is always checked with
+# 'checkPredictLearnerOutput', so we will rely on that being correct.
+#
+# the canonical data layout, after sanitizePrediction:
+# regr response: numeric vector
+# regr se: numeric 2-column matrix
+# cluster response: integer vector
+# cluster prob: numeric matrix.
+# classif response: factor vector
+# classif prob: numeric matrix > 1 column
+# surv response: numeric vector
+# surv prob: not currently supported
+# multilabel response: logical matrix > 1 column
+# multilabel prob: matrix > 1 column
+sanitizePrediction = function(data) {
+  if (is.data.frame(data)) {
+    if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
+      stop("Prediction had columns of multiple modes.")
+    }
+    if (ncol(data) > 1) {
+      data = as.matrix(data)
+    } else {
+      data = data[[1]]
+    }
+  }
+  if (is.matrix(data) && ncol(data) == 1) {
+    data = data[, 1, drop = TRUE]
+  }
+  if (is.logical(data) && !is.matrix(data)) {
+    data = matrix(data, ncol = 1)
+  }
+  if (!is.logical(data) && !is.numeric(data) && !is.factor(data)) {
+    stop("Data did not conform to any possible prediction: Was not numeric, factorial, or logical")
+  }
+  data
+}
+
+inferPredictionTypePossibilities = function(data) {
+  data = sanitizePrediction(data)
+  if (is.matrix(data)) {
+    if (mode(data) == "logical") {
+      return("multilabel")
+    }
+    return(c("cluster", "classif", "multilabel", "surv", if (ncol(data) == 2) "regr"))
+  }
+
+  if (is.factor(data)) {
+    "classif"
+  } else if (!is.numeric(data)) {
+    stop("Data did not conform to any possible prediction: Was not numeric or factorial")
+  } else {
+    areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
+    c(if (areWhole(data) && all(data >= 0)) "cluster", "surv", "regr")
+  }
+}
+
 
 # type: the Task type that the prediction should conform to
 # predict.type: what predict.type should prediction conform to?
