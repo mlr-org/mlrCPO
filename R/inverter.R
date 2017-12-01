@@ -217,7 +217,7 @@ getPredResponseType = function(data, typepossibilities) {
 #
 # This is used when a new prediction comes in from outside, i.e. when invertCPO
 # is called. The return value of a Learner is always checked with
-# 'checkPredictLearnerOutput', so we will rely on that being correct.
+# 'checkPredictLearnerOutput'.
 #
 # the canonical data layout, after sanitizePrediction:
 # regr response: numeric vector
@@ -230,29 +230,86 @@ getPredResponseType = function(data, typepossibilities) {
 # surv prob: not currently supported
 # multilabel response: logical matrix > 1 column
 # multilabel prob: matrix > 1 column
-sanitizePrediction = function(data) {
+#
+# @param data [data.frame | matrix | atomic] the input data
+# @param type [character(1)] one of 'regr', 'cluster', 'classif', 'surv', 'multilabel'
+# @param predict.type [character(1)] one of 'response', 'prob', 'se'.
+sanitizePrediction = function(data, type, predict.type) {
+  assertChoice(type, cpo.tasktypes)
+  assertChoice(predict.type, cpo.predict.types)
   if (is.data.frame(data)) {
     if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
       stop("Prediction had columns of multiple modes.")
     }
     if (ncol(data) > 1) {
+      if (type == "classif" && predict.type == "response") {
+        # give special error message here, since otherwise the error message
+        # we give further down is cryptic.
+        stop("'classif' response prediction needs single factor, but got data.frame with multiple columns.")
+      }
       data = as.matrix(data)
     } else {
       data = data[[1]]
     }
   }
-  if (is.matrix(data) && ncol(data) == 1) {
+  if (!is.matrix(data) && !is.factor(data) && !is.numeric(data) && !is.logical(data)) {
+    stop("data was not in any valid prediction format")
+  }
+  if (predict.type == "prob") {
+    if (type == "surv") {
+      stop("'surv' prediction has no predict.type 'prob'")
+    }
+    if (!is.numeric(data)) {
+      stop("predict.type 'prob' must have numeric data")
+    }
+    return(as.matrix(data))
+  } else if (predict.type == "se") {
+    if (type != "regr") {
+      stopf("predict.type 'se' only valid for 'regr' prediction, but prediction was '%s'.", type)
+    }
+    if (!is.matrix(data) || !is.numeric(data) || !ncol(data) == 2) {
+      stop("'regr' 'se' prediction must be a numeric matrix with two columns")
+    }
+    return(data)
+  } else if (type == "multilabel") {
+    # the only other matrix
+    if (!is.logical(data)) {
+      stop("'multilabel' response prediction must be logical")
+    }
+    return(as.matrix(data))
+  }
+
+  # if data is a matrix, we allow it if it is a 1-column matrix
+  if (is.matrix(data)) {
+    if (ncol(matrix) > 1) {
+      stopf("'%s' response prediction must be a vector, but is matrix with %s columns.",
+        type, ncol(matrix))
+    }
     data = data[, 1, drop = TRUE]
   }
-  if (is.logical(data) && !is.matrix(data)) {
-    data = matrix(data, ncol = 1)
-  }
-  if (!is.logical(data) && !is.numeric(data) && !is.factor(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric, factorial, or logical")
+
+  if (type == "cluster") {
+    if (!is.numeric(data) || any(as.integer(data) != data)) {
+      stop("'cluster' response prediction must be an integer vector")
+    }
+    data = as.integer(data)
+  } else if (type == "classif") {
+    if (!is.factor(data)) {
+      stop("'classif' response prediction must be a factor")
+    }
+  } else {
+    # regr, surv
+    if (!is.numeric(data)) {
+      stopf("'%s' response prediction must be a numeric vector", type)
+    }
   }
   data
 }
 
+# Currently unused: Inver prediction type from data type
+#
+# @param data [any] the data, as returned by inverter / Learner
+# @return [character]. Possible
 inferPredictionTypePossibilities = function(data) {
   data = sanitizePrediction(data)
   if (is.matrix(data)) {
@@ -265,7 +322,8 @@ inferPredictionTypePossibilities = function(data) {
   if (is.factor(data)) {
     "classif"
   } else if (!is.numeric(data)) {
-    stop("Data did not conform to any possible prediction: Was not numeric or factorial")
+    # Data did not conform to any possible prediction: Was not numeric or factorial
+    character(0)
   } else {
     areWhole = function(x, tol = .Machine$double.eps^0.25)  all(abs(x - round(x)) < tol)
     c(if (areWhole(data) && all(data >= 0)) "cluster", "surv", "regr")

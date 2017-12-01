@@ -7,6 +7,7 @@ cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
 cpo.targetproperties = c("oneclass", "twoclass", "multiclass")
 cpo.predict.properties = c("prob", "se")
+cpo.predict.types = c("response", cpo.predict.properties)
 
 # Developer Notes: All exported CPO defining functions call makeCPOGeneral, with certain parameters already set.
 
