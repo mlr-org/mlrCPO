@@ -706,7 +706,7 @@ splitdf = function(df, dataformat, strict.factors) {
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
     split = list(data = splitColsByType(colsplit), df),
-      target = df[, character(0), drop = FALSE]))
+    target = df[, character(0), drop = FALSE])
 }
 
 # Take subset of data according to 'affect.*' parameters

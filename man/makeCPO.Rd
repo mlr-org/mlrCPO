@@ -30,12 +30,12 @@ makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(), par.vals = list(),
   cpo.retrafo)
 
 makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = list(),
-  dataformat = c("df.all", "task"), export.params = TRUE,
-  fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered",
-  "missings"), properties.adding = character(0),
-  properties.needed = character(0), properties.target = c("cluster",
-  "classif", "multilabel", "regr", "surv", "oneclass", "twoclass",
-  "multiclass"), packages = character(0), cpo.trafo)
+  dataformat = c("df.all", "task"), dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE, fix.factors = FALSE,
+  properties.data = c("numerics", "factors", "ordered", "missings"),
+  properties.adding = character(0), properties.needed = character(0),
+  properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
+  "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.trafo)
 
 makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = list(),
   dataformat = c("df.features", "split", "df.all", "task", "factor",
@@ -113,7 +113,8 @@ and not \code{par.vals}. Default is \code{list()}.}
 
 \item{dataformat.factor.with.ordered}{[\code{logical(1)}]\cr
 Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{dataformat} is handled, for which it only
-has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. It also affects how strictly data fed to a \code{\link{CPORetrafo}} object
+has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}. If \code{dataformat} is \dQuote{ordered}, this must be \code{FALSE}.
+It also affects how strictly data fed to a \code{\link{CPORetrafo}} object
 is checked for adherence to the data format of data given to the generating \code{\link{CPO}}. Default is \code{TRUE}.}
 
 \item{export.params}{[\code{logical(1)} | \code{character}]\cr
@@ -146,6 +147,9 @@ Defaults to the maximal set.}
   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
   conversion.
 
+  Property names may be postfixed with \dQuote{.sometimes}, to indicate that adherence should not be checked internally. This distinction is made by
+  not putting them in the \code{$adding.min} slot of the \code{\link{getCPOProperties}} return value when \code{get.internal = TRUE}.
+
   Default is \code{character(0)}.}
 
 \item{properties.needed}{[\code{character}]\cr
@@ -156,6 +160,10 @@ Defaults to the maximal set.}
 
   Note that this may \emph{not} contain a \code{\link[mlr]{Task}}-type property, even if the \code{\link{CPO}} is a Target Operation CPO that performs
   conversion.
+
+  Property names may be postfixed with \dQuote{.sometimes}, to indicate that adherence should not be checked internally. This distinction is made by
+  not putting them in the \code{$needed} slot of properties. They can still be found in the \code{$needed.max} slot of the
+  \code{\link{getCPOProperties}} return value when \code{get.internal = TRUE}.
 
   Default is \code{character(0)}.}
 
@@ -195,7 +203,7 @@ a package required for the CPO is not available on his system, or can not be loa
 
   For \bold{Target Operation CPOs}, if \code{cpo.retrafo} is \code{NULL}, \code{cpo.train.invert}
   (or \code{cpo.invert} if \code{constant.invert} is \code{TRUE}) must likewise be \code{NULL}.
-  In that case \code{cpo.train} must return \code{NULL} and define, within its namespace, two
+  In that case \code{cpo.train}'s return value is ignored and it must define, within its namespace, two
   functions \code{cpo.retrafo} and \code{cpo.train.invert} (or \code{cpo.invert} if \code{constant.invert}
   is \code{TRUE}) which will take the place of the respective functions. \code{cpo.retrafo} must take the
   parameters \code{data} and \code{target}, and return the modified target \code{target} (or \code{data},
@@ -210,9 +218,11 @@ a package required for the CPO is not available on his system, or can not be loa
   given as the \code{control} argument of both \code{cpo.retrafo} and \code{cpo.train.invert}
   (or the \code{control.invert} argument of \code{cpo.invert} if \code{constant.invert} is \code{TRUE}).
 
-  For Feature Operation CPOs, this parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO.
+  This parameter may be \code{NULL}, resulting in a so-called \emph{stateless} CPO. For Target Operation CPOs created with \code{makeCPOTargetOp},
+  \code{constant.invert} must be \code{TRUE} in this case.
   A stateless CPO does the same transformation for initial CPO
-  application and subsequent prediction data transformation (e.g. taking the logarithm of numerical columns). Note that \code{retrafo} should not
+  application and subsequent prediction data transformation (e.g. taking the logarithm of numerical columns). Note that \code{cpo.retrafo}
+  and \code{cpo.invert} should not
   have a \code{control} argument in a stateless CPO.}
 
 \item{cpo.retrafo}{[\code{function} | \code{NULL}]\cr
@@ -495,7 +505,16 @@ the process can be influenced by the user during CPO definition or application. 
     }
     The specification of (1) is done with \code{properties.data} and \code{properties.target}, (2) is specified using \code{properties.needed}, and
     (3) is specified using \code{properties.adding}. Internally, \code{properties.data} and \code{properties.target} are concatenated and treated as
-    one vector, they are specified separately in \code{makeCPO} etc. for convenience reasons. See \code{\link{CPOProperties}} for details.}
+    one vector, they are specified separately in \code{makeCPO} etc. for convenience reasons. See \code{\link{CPOProperties}} for details.
+
+    The CPO framework checks the \code{cpo.retrafo} etc. functions for adherence to these properties, so it e.g. throws an error if a \code{cpo.retrafo}
+    function adds missing values to some data but didn't declare \dQuote{missings} in \code{properties.needed}. It may be desirable to have this
+    internal checking happen to a laxer standard than the property checking when composing CPOs (e.g. when a CPO adds missings only with certain
+    hyperparameters, one may still want to compose this CPO to another one that can't handle missings). Therefore it is possible to postfix
+    listed properties with \dQuote{.sometimes}. The internal CPO checking will ignore these when listed in \code{properties.adding}
+    (it uses the \sQuote{minimal} set of adding properties, \code{adding.min}), and it will not declare them externally when listed in
+    \code{properties.needed} (but keeps them internally in the \sQuote{maximal} set of needed properties, \code{needed.max}). The \code{adding.min}
+    and \code{needed.max} can be retrieved using \code{\link{getCPOProperties}} with \code{get.internal = TRUE}.}
   \item{\strong{Data Format}}{
     Different CPOs may want to change different aspects of the data, e.g. they may only care about numeric columns, they may or may not care about
     the target column values, sometimes they might need the actual task used as input. The CPO framework offers to present the data in a specified
@@ -548,7 +567,7 @@ the process can be influenced by the user during CPO definition or application. 
       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-      \dQuote{surv}       \tab \dQuote{prob}              \tab UNDEFINED                                     \cr
+      \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]                           \cr
     }
     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
 }
@@ -594,12 +613,15 @@ constFeatRem = makeCPO("constFeatRem",
 }
 \seealso{
 Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOName}},
+  \code{\link{getCPOClass}}, \code{\link{getCPOName}},
+  \code{\link{getOriginalCPOConstructor}},
   \code{\link{print.CPOConstructor}}
 
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
   \code{\link{CPO}}, \code{\link{NULLCPO}},
   \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}
+  \code{\link{composeCPO}}, \code{\link{getCPOClass}},
+  \code{\link{getOrigialCPO}},
+  \code{\link{getOriginalCPOConstructor}}
 }

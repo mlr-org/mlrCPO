@@ -6,7 +6,21 @@
 \usage{
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
   imp.learner, contrast = function (x, y)  {     x - y }, measure = NULL,
-  aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
+  aggregation = structure(function (x, ...)  standardGeneric("mean"), generic
+  = structure("mean", package = "base"), package = "base", group = list(),
+  valueClass = character(0), signature = "x", default = structure(function (x,
+  ...)  UseMethod("mean"), target = structure("ANY", class =
+  structure("signature", package = "methods"), .Names = "x", package =
+  "methods"), defined = structure("ANY", class = structure("signature", package
+  = "methods"), .Names = "x", package = "methods"), generic = structure("mean",
+  package = "base"), class = structure("derivedDefaultMethod", package =
+  "methods")), skeleton = (structure(function (x, ...)  UseMethod("mean"),
+  target = structure("ANY", class = structure("signature", package = "methods"),
+  .Names = "x", package = "methods"), defined = structure("ANY", class =
+  structure("signature", package = "methods"), .Names = "x", package =
+  "methods"), generic = structure("mean", package = "base"), class =
+  structure("derivedDefaultMethod", package = "methods")))(x, ...), class =
+  structure("standardGeneric", package = "methods")), nmc = 50,
   replace = FALSE, id = NULL, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
   affect.names = character(0), affect.pattern = NULL,
@@ -66,7 +80,8 @@ Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuot
 to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}

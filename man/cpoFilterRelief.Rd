@@ -46,7 +46,8 @@ Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuot
 to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}

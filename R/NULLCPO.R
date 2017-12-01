@@ -129,7 +129,7 @@ getCPOProperties.NULLCPO = function(cpo, only.data = FALSE, get.internal = FALSE
     adding = character(0), needed = character(0))
 
   if (get.internal) {
-    ret$adding.min = character(0),
+    ret$adding.min = character(0)
     ret$needed.max = character(0)
   }
   ret

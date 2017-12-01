@@ -96,7 +96,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #'   parameter default values of \code{par.set}. It is often more elegant to use
 #'   these default values, and not \code{par.vals}. Default is \code{list()}.
 #'   Default is \code{list()}.
-#' @param export [\code{list} of \code{CPO}]\cr
+#' @param export.cpos [\code{list} of \code{CPO}]\cr
 #'   List of \code{CPO} objects that have their hyperparameters exported. If this is a named list, the
 #'   names must be unique and represent the parameter name by which
 #'   they are given to the \code{cpo.build} function. They are also the IDs that will
@@ -114,7 +114,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #'   Indicate what format the data should be as seen by \dQuote{cpo.build}. See the parameter in \code{\link{makeCPO}}
 #'   for details.
 #'
-#'   Note that if the \code{\link{CPO}}s in \code{export} are Retrafoless CPOs, this must be either \dQuote{task} or \dQuote{df.all}.
+#'   Note that if the \code{\link{CPO}}s in \code{export.cpos} are Retrafoless CPOs, this must be either \dQuote{task} or \dQuote{df.all}.
 #'   Default is \dQuote{df.features}.
 #' @param dataformat.factor.with.ordered [\code{logical(1)}]\cr
 #'   Whether to treat \code{ordered} typed features as \code{factor} typed features. See the parameter in \code{\link{makeCPO}}.
@@ -149,7 +149,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #'   Default is \code{NULL}.
 #' @param cpo.build [\code{function}]\cr
 #'   This function works similar to \code{cpo.trafo} in \code{\link{makeCPO}}: It has the arguments \code{data}, \code{target}, one argument for each
-#'   hyperparameter declared in \code{par.set}. However, it also has one parameter for each entry in \code{export}, named by each item
+#'   hyperparameter declared in \code{par.set}. However, it also has one parameter for each entry in \code{export.cpos}, named by each item
 #'   in that list. The \code{cpoCase} framework supplies the pre-configured \code{CPO}s (pre-configured as the exported hyperparameters of \code{cpoCase}
 #'   demand) to the \code{cpo.build} code via these parameters. The return value of \code{cpo.build} must be a \code{CPO}, which will then be used on the data.
 #'
@@ -158,7 +158,7 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoCase = function(par.set = makeParamSet(), par.vals = list(), export = list(),
+cpoCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = list(),
                    dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE,
                    properties.data = NULL, properties.adding = NULL, properties.needed = NULL,
@@ -168,7 +168,7 @@ cpoCase = function(par.set = makeParamSet(), par.vals = list(), export = list(),
                    affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
   dataformat = match.arg(dataformat)
 
-  constructed = constructCPOList(export)
+  constructed = constructCPOList(export.cpos)
 
   ctinfo = collectCPOTypeInfo(constructed)
 
@@ -180,7 +180,7 @@ cpoCase = function(par.set = makeParamSet(), par.vals = list(), export = list(),
   paramset.pass.on = par.set
   paramvals.pass.on = insert(getParamSetDefaults(paramset.pass.on), par.vals)
   assertSubset(names(paramvals.pass.on), getParamIds(paramset.pass.on))
-  if (length({name.collision = intersect(getParamIds(paramset.pass.on), names(export))})) {
+  if (length({name.collision = intersect(getParamIds(paramset.pass.on), names(constructed))})) {
     stopf("Names of cpo.build function arguments and export elements clash: %s", collapse(name.collision, sep = ", "))
   }
 
@@ -202,7 +202,7 @@ cpoCase = function(par.set = makeParamSet(), par.vals = list(), export = list(),
     }
   }
 
-  required.arglist = lapply(c(getParamIds(paramset.pass.on), export), function(dummy) substitute())
+  required.arglist = lapply(c(getParamIds(paramset.pass.on), names(constructed)), function(dummy) substitute())
   required.arglist = insert(required.arglist, pv.pass.on)
   required.arglist$data = substitute()
   required.arglist$target = substitute()
@@ -273,7 +273,7 @@ constructCPOList = function(cpos) {
     }
   })
 
-  setNames(constructed), names(cpos))
+  setNames(constructed, names(cpos))
 }
 
 # Given a list of constructed CPOs, return information about commonalities

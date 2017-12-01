@@ -1,7 +1,7 @@
 # makeCPO.R contains all CPO constructor functions, that are used both
 # internally and are exported for user use.
 
-#' @include listCPO.R parameters.R properties.R
+#' @include listCPO.R parameters.R properties.R callInterface.R
 
 cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks
@@ -78,6 +78,7 @@ makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = l
 #' @rdname makeCPO
 #' @export
 makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = list(), dataformat = c("df.all", "task"),
+                              dataformat.factor.with.ordered = TRUE,
                    export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
@@ -88,7 +89,8 @@ makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = lis
 
   makeCPOGeneral(cpo.type = "retrafoless",
     cpo.name = cpo.name, par.set = par.set, par.vals = par.vals,
-    dataformat = dataformat, fix.factors = fix.factors,
+    dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+    fix.factors = fix.factors,
     export.params = export.params, properties.data = properties.data,
     properties.adding = properties.adding, properties.needed = properties.needed,
     properties.target = properties.target,
@@ -256,10 +258,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   # for most cases, *.extended  work the same as the simple equivalents
   cpo.type = gsub(".extended", "", cpo.type.extended, fixed = TRUE)
 
-
   assertString(cpo.name)
-
-  assertFlag(constant.invert)
 
   assertList(par.vals, names = "unique")
   assertFlag(dataformat.factor.with.ordered)
@@ -276,6 +275,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   export.params = params$export.params
 
   if (cpo.type == "target") {
+    assertFlag(constant.invert)
     assertCharacter(predict.type.map, any.missing = FALSE, names = "unique")
   } else {
     # for feature operating CPOs, this is the identity.
@@ -502,14 +502,14 @@ assembleProperties = function(properties.data, properties.needed, properties.add
 # @return [list]. list(proper, sometimes) the properties split up.
 handleSometimesProps = function(props) {
   pname = as.character(substitute(props))
-  props.sometimes = grep("\.sometimes$", props, value = TRUE)
-  props = grep("\.sometimes$", props, value = TRUE, invert = TRUE)
+  props.sometimes = grep("\\.sometimes$", props, value = TRUE)
+  props = grep("\\.sometimes$", props, value = TRUE, invert = TRUE)
   props.sometimes = sub(".sometimes", "", props.sometimes)
   if (length({bad.props = intersect(props, props.sometimes)})) {
     stopf("'%s' occurred in %s with '.sometimes' but also without.",
       collapse(bad.props, "', '"), pname)
   }
-  list(proper = props, sometimes = sometimes)
+  list(proper = props, sometimes = props.sometimes)
 }
 
 
@@ -601,7 +601,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     if (!stateless) {
       required.arglist$control = substitute()
     }
-    if (cpo.type %in% "target", "target.extended") {
+    if (cpo.type %in% c("target", "target.extended")) {
       required.arglist$target = substitute()
     }
     cpo.retrafo = makeFunction(cpo.retrafo, required.arglist, env = eval.env)
@@ -654,7 +654,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
 
   cpo.funs = function.interface(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert)
 
-  cpo.origs = lapply(fnames, get)  # cpo.trafo, cpo.retrafo, ...
+  cpo.origs = lapply(fnames, get, envir = environment())  # cpo.trafo, cpo.retrafo, ...
   names(cpo.origs) = paste0(names(cpo.origs), ".orig")  # rename to cpo.trafo.orig, ...
 
   control.type = list()

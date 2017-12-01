@@ -28,12 +28,14 @@ compose CPOs that have clashing parameter names.
 }
 \seealso{
 Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
+  \code{\link{getCPOId}}, \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}}
+  \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getOrigialCPO}},
+  \code{\link{getOriginalCPOConstructor}}
 
 Other CPO ID related: \code{\link{getCPOId}}
 }

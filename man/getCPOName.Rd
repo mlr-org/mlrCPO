@@ -2,13 +2,13 @@
 % Please edit documentation in R/properties.R
 \name{getCPOName}
 \alias{getCPOName}
-\alias{getCPOName.CPOTrainedPrimitive}
+\alias{getCPOName.CPOTrained}
 \alias{getCPOName.CPOConstructor}
 \title{Get the CPO object's Name}
 \usage{
 getCPOName(cpo)
 
-\method{getCPOName}{CPOTrainedPrimitive}(cpo)
+\method{getCPOName}{CPOTrained}(cpo)
 
 \method{getCPOName}{CPOConstructor}(cpo)
 }
@@ -28,39 +28,44 @@ of a CPO.
 }
 \seealso{
 Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOObjectType}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
+  \code{\link{getCPOId}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
+  \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getOrigialCPO}},
+  \code{\link{getOriginalCPOConstructor}},
+  \code{\link{setCPOId}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOObjectType}},
+  \code{\link{clearRI}}, \code{\link{getCPOClass}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
-  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getCPOTrainedState}},
+  \code{\link{getOrigialCPO}}, \code{\link{is.retrafo}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
 Other inverter related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOObjectType}},
+  \code{\link{clearRI}}, \code{\link{getCPOClass}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
-  \code{\link{getRetrafoState}}, \code{\link{is.inverter}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getCPOTrainedState}},
+  \code{\link{getOrigialCPO}}, \code{\link{is.inverter}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
 Other CPOConstructor related: \code{\link{CPOConstructor}},
+  \code{\link{getCPOClass}},
+  \code{\link{getOriginalCPOConstructor}},
   \code{\link{makeCPO}}, \code{\link{print.CPOConstructor}}
 }

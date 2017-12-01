@@ -52,7 +52,7 @@ cpoCbind = function(..., .cpos = list()) {
   cpos = c(cpos, .cpos)
 
   assertList(cpos, types = "CPO", any.missing = FALSE)  # FIXME: require databound
-  collectedprops = collectProperties(cpos, do.intersect = TRUE)
+# TODO  collectedprops = collectProperties(cpos, do.intersect = TRUE)
 
   # the graph representing the operations being performed.
   # types: SOURCE, CPO, CBIND. SOURCE has no parents, CPO has only one parent.
@@ -464,4 +464,4 @@ synchronizeGraph = function(cpograph) {
   newgraph
 }
 
-registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")
+# TODO registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")

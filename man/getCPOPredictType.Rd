@@ -59,38 +59,38 @@ CPOs that are not Target Operating always have the \code{predict.type} of:
 }
 \seealso{
 Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOId}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
+  \code{\link{getCPOId}}, \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOProperties}}, \code{\link{setCPOId}}
-
-Other CPO classifications: \code{\link{CPO}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOObjectType}},
-  \code{\link{getCPOOperatingType}}
+  \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getOrigialCPO}},
+  \code{\link{getOriginalCPOConstructor}},
+  \code{\link{setCPOId}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{clearRI}}, \code{\link{getCPOClass}},
+  \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOProperties}},
-  \code{\link{getRetrafoState}}, \code{\link{is.retrafo}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getCPOTrainedState}},
+  \code{\link{getOrigialCPO}}, \code{\link{is.retrafo}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
 Other inverter related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}},
-  \code{\link{getCPOInvertCapability}},
-  \code{\link{getCPOName}}, \code{\link{getCPOObjectType}},
+  \code{\link{clearRI}}, \code{\link{getCPOClass}},
+  \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOProperties}},
-  \code{\link{getRetrafoState}}, \code{\link{is.inverter}},
+  \code{\link{getCPOTrainedCapability}},
+  \code{\link{getCPOTrainedState}},
+  \code{\link{getOrigialCPO}}, \code{\link{is.inverter}},
   \code{\link{makeRetrafoFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

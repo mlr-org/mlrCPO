@@ -47,6 +47,7 @@ ByteCompile: yes
 Version: 0.2
 Collate: 
     'auxiliary.R'
+    'callInterface.R'
     'FormatCheck.R'
     'callCPO.R'
     'properties.R'
@@ -72,10 +73,12 @@ Collate:
     'CPO_scaleRange.R'
     'CPO_select.R'
     'CPO_spatialSign.R'
+    'CPO_wrap.R'
     'NULLCPO.R'
     'RetrafoState.R'
     'attributes.R'
     'auxhelp.R'
+    'composeProperties.R'
     'doublecaret.R'
     'inverter.R'
     'learner.R'

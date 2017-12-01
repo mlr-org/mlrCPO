@@ -57,7 +57,7 @@ getCPOTrainedState.CPOTrainedPrimitive = function(trained.object) {
   }
 
   if (is.retrafo) {
-    res$data = c(trained.object$element$[c("shapeinfo.input", "shapeinfo.output")])  # nolint
+    res$data = c(trained.object$element[c("shapeinfo.input", "shapeinfo.output")])  # nolint
   } else {
     res$data = list(truth = trained.object$element$truth, task.desc = trained.object$element$task.desc)
   }

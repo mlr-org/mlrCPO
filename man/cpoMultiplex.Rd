@@ -12,10 +12,16 @@ cpoMultiplex(cpos, selected.cpo = NULL, id = NULL,
   affect.pattern.fixed = FALSE)
 }
 \arguments{
-\item{cpos}{[\code{list} of (\code{CPO} | \code{CPOConstructor})]\cr
-The CPOs to multiplex. If this is a named list, the
-names must be unique and represent the IDs that will
-be given to the CPOs upon construction.}
+\item{cpos}{[\code{list} of (\code{\link{CPO}} | \code{\link{CPOConstructor}})]\cr
+  The CPOs to multiplex. If this is a named list, the
+  names must be unique and represent the index by which
+  \code{selected.cpo} selects CPOs. They are also the IDs that will
+  be given to the CPOs upon construction. If the list is not named,
+  the IDs (or default names, in case of \code{\link{CPOConstructor}}s),
+  are used instead, and need to be unique.
+
+  All \code{\link{CPO}}s in the list must either be all Feature Operation CPOs,
+  all Target Operation CPOs performing the same conversion, or all Retrafoless CPOs.}
 
 \item{selected.cpo}{[\code{character(1)}]\cr
 Selected CPO. Will default to the first item of \code{cpos}
@@ -43,7 +49,8 @@ Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuot
 to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}

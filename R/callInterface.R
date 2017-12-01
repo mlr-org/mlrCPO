@@ -32,7 +32,7 @@ makeCallRetrafoless = function(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.inv
       state.invert = NULL)
   }
   list(cpo.trafo = cpo.trafo,
-    cpo.retrafo = NULL
+    cpo.retrafo = NULL,
     cpo.invert = NULL)
 }
 

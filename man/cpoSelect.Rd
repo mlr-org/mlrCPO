@@ -2,12 +2,22 @@
 % Please edit documentation in R/CPO_select.R
 \name{cpoSelect}
 \alias{cpoSelect}
+\alias{cpoSelectFreeProperties}
 \title{Drop All Columns Except Certain Selected Ones from Data}
 \usage{
 cpoSelect(type = character(0), index = integer(0), names = character(0),
   pattern = NULL, pattern.ignore.case = FALSE, pattern.perl = FALSE,
   pattern.fixed = FALSE, invert = FALSE, id = NULL,
   export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.names = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
+
+cpoSelectFreeProperties(type = character(0), index = integer(0),
+  names = character(0), pattern = NULL, pattern.ignore.case = FALSE,
+  pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE,
+  id = NULL, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -71,7 +81,8 @@ Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuot
 to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
@@ -102,6 +113,11 @@ the created \code{\link{CPO}}.
 Select columns by type or name. The parameters \dQuote{type} and
 \dQuote{pattern} are additive; if both are given, all column that match
 either will be returned.
+
+\code{cpoSelectFreeProperties} behaves just as \code{cpoSelect}, with the additional function
+that it is treated like a \code{\link{CPO}} that removes all data properties from the data.
+This disables the internal property check and can be useful when trying to compose \code{\link{CPO}}s
+that do not have compatible properties.
 }
 \section{General CPO info}{
 
