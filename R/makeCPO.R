@@ -230,12 +230,12 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
   if (predict.type.map["response"] != "response") {
     # the lower learner must provide what we need for 'response' prediction.
     # alternatively, we could drop the requirement that every learner / CPO must always be able to deliver response.
-    properties.needed = c(properties.needed, unname(predict.type.map["response"]))
+    properties.needed %c=% unname(predict.type.map["response"])
     # TODO: we may loosen this requirement and only have it set to "sometimes".
   }
 
-  properties.adding = c(properties.adding, setdiff(names(predict.type.map), c("response", unname(predict.type.map))))
-  properties.target = c(properties.target, setdiff(names(predict.type.map), "response"))
+  properties.adding %c=% setdiff(names(predict.type.map), c("response", unname(predict.type.map)))
+  properties.target %c=% setdiff(names(predict.type.map), "response")
 
   list(properties.adding = properties.adding, properties.needed = properties.needed,
     properties.target = properties.target, predict.type.map = predict.type.map,
@@ -466,7 +466,7 @@ assembleProperties = function(properties.data, properties.needed, properties.add
     }
     properties.handling = union(properties.handling, type.from)
   } else {
-    properties.handling = c(properties.handling, cpo.predict.properties)
+    properties.handling %c=% cpo.predict.properties
   }
 
   aux = handleSometimesProps(properties.needed)

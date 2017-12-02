@@ -289,7 +289,7 @@ printGraph = function(children, descriptions, width = getOption("width")) {
     current = queue[1]
     queue = queue[-1]
     ordereds[curidx] = current
-    curidx = curidx + 1
+    curidx %+=% 1
 
     candidates = children[[current]]
     for (cand in candidates) {

@@ -546,9 +546,9 @@ getColIndices = function(data, type, index, names, pattern, invert, pattern.igno
   if (length(badnames)) {
     stopf("Column%s not found: %s", ifelse(length(badnames) > 1, "s", ""), collapse(badnames, sep = ", "))
   }
-  index = c(index, setdiff(match(names, names(data)), index))
+  index %c=% setdiff(match(names, names(data)), index)
 
-  index = c(index, setdiff(which(matchcols), index))
+  index %c=% setdiff(which(matchcols), index)
 
   if (invert) {
     index = setdiff(seq_along(data), index)
@@ -764,7 +764,7 @@ splitIndata = function(data, dataformat, strict.factors, create.reduced) {
       indata
     }
     names(reduced.indata) = paste0(names(reduced.indata), ".reduced")
-    indata = c(indata, reduced.indata)
+    indata %c=% reduced.indata
   }
   list(indata = indata, tempdata = tempdata)
 }
@@ -829,8 +829,8 @@ recombineLL = function(olddata, newdata, targetnames, strict.factors, subset.ind
         splittype, name)
     }
     if (!identical(splitargetnames[[splittype]], names(newdata[[splittype]]))) {
-      namesorder = setdiff(namesorder, c(splitargetnames[[splittype]]))
-      namesorder = c(namesorder, c(names(newdata[[splittype]])))
+      namesorder = setdiff(namesorder, splitargetnames[[splittype]])
+      namesorder %c=% names(newdata[[splittype]])
     }
   }
 

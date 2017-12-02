@@ -6,22 +6,22 @@
 # increment by
 #
 # This is the C `+=` operator
-`%+=%` = function(t, s) eval.parent(substitute(t <- t + s))
+`%+=%` = function(t, s) eval.parent(substitute({t = t + s}))
 
 # decrement by
 #
 # This is the C `-=` operator
-`%-=%` = function(t, m) eval.parent(substitute(t <- t - m))
+`%-=%` = function(t, m) eval.parent(substitute({t = t - m}))
 
 # append
 #
 # X %c=% Y --> X = c(X, Y)
-`%c=%` = function(t, a) eval.parent(substitute(t <- c(t, a)))
+`%c=%` = function(t, a) eval.parent(substitute({t = c(t, a)}))
 
 # union
 #
 # X %union=% Y --> X = union(X, Y)
-`%union=%` = function(t, a) eval.parent(substitute(t <- union(t, a)))
+`%union=%` = function(t, a) eval.parent(substitute({t = union(t, a)}))
 
 #################################
 # Printing                      #
