@@ -68,7 +68,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
   makeWrappingCPOConstructor(function(data, target, selected.cpo, ...) {
       cpo = constructed[[selected.cpo]]
       cpo = setHyperPars(cpo, par.vals = list(...)[getParamIds(getParamSet(cpo))])
-    }, paramset, paramvals, props.creator, ctinfo)
+    }, paramset, paramvals, props.creator, ctinfo, "multiplex")
 }
 #' @export
 #' @rdname makeCPOMultiplex
@@ -180,7 +180,7 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
   }
 
   if (length({badreserved = intersect(reserved.params, getParamIds(paramset.pass.on))})) {
-    stopf("Parameter names '%s' cannot be used, since they are reserved.", collapse(badreserved, "', '"))
+    stopf("Reserved parameter name(s) '%s' cannot be used.", collapse(badreserved, "', '"))
   }
 
   paramset.others = do.call(base::c, lapply(constructed, getParamSet))
@@ -219,12 +219,92 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
     },
     c(paramset.pass.on, paramset.others),
     c(paramvals.pass.on, paramvals.others),
-    props.creator, ctinfo)
+    props.creator, ctinfo, "case")
 }
 #' @export
 #' @rdname makeCPOCase
 cpoCase = makeFauxCPOConstructor(mlrCPO::makeCPOCase, "case", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
+
+#' @title Transform CPO Hyperparameters.
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Transforms hyperparameters, or establishes dependencies between them.
+#' The \code{\link{CPO}} given to \code{cpoTransformParams} gets wrapped
+#' inside a new \code{\link{CPO}} with different hyperparameters. The parameters
+#' for which a transformation is given are not exported (unless also given
+#' in \code{additional.parameters}).
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The CPO to use. Currently this may only have a single \link{OperatingType}.
+#' @param transformations [named \code{list} of \code{language}]\cr
+#'   This list is contains \code{\link[base]{expression}}s or \code{\link[base:substitute]{quote}}s
+#'   that are evaluated in the context of the \emph{externally given} hyperparameters and
+#'   then give the values of the internal hyperparameters. The name of each list element
+#'   determines to what hyperparameter of \code{cpo} the result of the expression is written.
+#'
+#'   Expressions can not depend on the results of other expressions.
+#'
+#'   Hyperparameters of \code{cpo} named in this list are not exported by the TransformParams CPO. It is,
+#'   however, possible to create synonymous parameters in \code{additional.parameters}.
+#' @param additional.parameters [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
+#'   Additional parameters to create, on which expressions in \code{transformations} may depend.
+#'   They may contain the same names as \code{transformations}, but may not have names of hyperparameters
+#'   of \code{cpo} that are \emph{not} in \code{transformations}.
+#' @param par.vals [\code{list}]\cr
+#'   Optional default values of parameters in \code{additional.parameters}. These override the ParamSet's
+#'   default values. Default is \code{list()}. These must only concern parameters in \code{additional.parameters},
+#'   not the ones in \code{cpo}.
+#' @template cpo_doc_outro
+#' @family special CPOs
+#' @export
+cpoTransformParams = function(cpo, transformations, additional.parameters = makeParamSet(), par.vals = list()) {
+  assertClass(additional.parameters, "ParamSet")
+  assertList(transformations, names = "unique")
+  assert(all(sapply(transformations, is.language)))
+  assertClass(cpo, "CPO")
+  assertList(par.vals, names = "unique")
+  assertSubset(names(par.vals), getParamIds(additional.parameters))
+
+  ctinfo = collectCPOTypeInfo(constructed)
+
+  orig.param.ids = getParamIds(getParamSet(cpo))
+  exp.params$pars = dropNamed(getParamSet(cpo)$pars, names(transformations))
+
+  exp.par.vals = dropNamed(getHyperPars(cpo), names(transformations))
+
+  if (length({badparams = intersect(getParamIds(additional.parameters), getParamIds(exp.params))})) {
+    stop("Parameter(s) '%s' of cpo listed in additional.parameters. That is only allowed if for parameters that also occur as names of transformations.",
+      collapse(badparams, "', '"))
+  }
+
+  if (length({notfound = setdiff(names(transformations), orig.param.ids)})) {
+    stop("transformations element(s) '%s' not parameter of cpo.",
+      collapse(notfound, "', '"))
+  }
+
+  exp.params %c=% additional.parameters
+  exp.par.vals %c=% par.vals
+
+  if (length({badreserved = intersect(reserved.params, getParamIds(exp.params))})) {
+    stopf("Reserved parameter name(s) '%s' cannot be used.", collapse(badreserved, "', '"))
+  }
+
+  props.creator = propertiesToMakeCPOProperties(getCPOProperties(cpo, get.internal = TRUE))
+
+  enclosing = parent.frame()
+
+  makeWrappingCPOConstructor(function(data, target, ...) {
+      pv = list(...)
+      otherpv = lapply(transformations, eval, envir = pv, enclos = enclosing)
+      pv = insert(pv, otherpv)[orig.param.ids]
+      setHyperPars(cpo, pv)
+    },
+    exp.params, exp.par.vals, props.creator, ctinfo, "transformparams")(id = NULL)
+}
+registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "meta", NULL, "Transform a CPO's Hyperparameters.")
 
 # Given a list of CPOs, construct them and make sure they are uniquely named
 #
@@ -452,10 +532,15 @@ collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
 # @param paramset [ParamSet] parameters to use
 # @param paramvals [named list] default parameter values
 # @param props.creator [list] list of properties.data, properties.adding, properties.needed, properties.target
-makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.creator, ctinfo) {
+# @param cpo.name [character(1)] name of the new CPO
+makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.creator, ctinfo, cpo.name) {
   assertFunction(cpo.selector)
   cpo.trafo = function(data, ...) {
     cpo = cpo.selector(data, ...)
+    if (!identical({badop = getCPOOperatingType(cpo)}, ctinfo$otype) && length(badop) > 0) {
+      stopf("meta CPO got a CPO with operating type '%s', when only '%s' was allowed.",
+        collapse(badop, "', '"), ctionfo$otype)
+    }
     res = data %>>% cpo
     control = list(retrafo = retrafo(res), inverter = inverter(res))
     control.invert = inverter(res)
@@ -478,7 +563,7 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
     target = makeCPOExtendedTargetOp,
     retrafoless = makeCPORetrafoless)
 
-  arguments = list(cpo.name = "multiplex", par.set = paramset, par.vals = paramvals,
+  arguments = list(cpo.name = cpo.name, par.set = paramset, par.vals = paramvals,
     dataformat = "task")
 
   arguments.addnl = switch(ctinfo$otype,
