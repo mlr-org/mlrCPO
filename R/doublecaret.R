@@ -28,11 +28,30 @@
 #'
 #' The \code{\%<<\%} operator is synonymous with \code{\%>>\%} with source and sink argument swapped.
 #'
+#' The \code{\%>|\%} and \code{\%|<\%} operators perform piping followed by application of \code{\link{retrafo}}.
+#' The \code{\%>|\%} evaluates the expression to its right before the expression to its left, so it may be
+#' used in the most natural way without parentheses:
+#'
+#' \code{data %>|% cpo1 %>>% cpo2}
+#'
+#' is the same as
+#'
+#' \code{retrafo(data %>>% cpo1 %>>% cpo2)}.
+#'
+#'
 #' The \code{\%<>>\%} and \code{\%<<<\%} operators perform the piping operation and assign the result
 #' to the left hand variable. This way it is possible to apply a \code{\link{CPO}}, or to
 #' attach a \code{\link{CPO}} to a \code{\link[mlr:makeLearner]{Learner}}, and just keep the resulting
 #' object. The assignment operators evaluate their right hand side before their left hand side, so
-#' it is possible to build long chains thatend up writing to the leftmost variable.
+#' it is possible to build long chains that end up writing to the leftmost variable. Therefore the expression
+#'
+#' \code{data %<>>% cpo1 %<>>% cpo2 %>>% cpo3}
+#'
+#' is the same as
+#'
+#' \code{cpo1 = cpo1 %>>% cpo2 %>>% cpo3
+#'
+#' data = data %>>% cpo1}.
 #'
 #' @param cpo1 [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The source object.
@@ -109,6 +128,28 @@
   op = `internal%>>%`
   cpo1 = cpo1  # don't want the expression of cpo1 in following substitute
   eval.parent(substitute({ cpo2 = op(cpo1, cpo2) }), n = 4)
+}
+
+#' @rdname grapes-greater-than-greater-than-grapes
+#' @export
+`%>|%` = function(cpo1, cpo2) {
+  eval(deferAssignmentOperator(substitute(cpo1 %>|% cpo2)))
+}
+
+# %>|% is rewritten to internal%>|%
+`internal%>|%` = function(cpo1, cpo2) {
+  retrafo(`internal%>>%`(cpo1, cpo2))
+}
+
+#' @rdname grapes-greater-than-greater-than-grapes
+#' @export
+`%|<%` = function(cpo2, cpo1) {
+  eval(deferAssignmentOperator(substitute(cpo2 %|<% cpo1)))
+}
+
+# %|<% is rewritten to internal%|<%
+`internal%|<%` = function(cpo2, cpo1) {
+  retrafo(`internal%>>%`(cpo1, cpo2))
 }
 
 #' @export
@@ -201,10 +242,10 @@
 #
 # @param expr [language] the expression to parse
 # @return [list]. list(operator, lhs, rhs)
-defas.assignment.ops = list(quote(`%<>>%`), quote(`%<<<%`))
-defas.assignment.repl = list(quote(`internal%<>>%`), quote(`internal%<<<%`))
-defas.deferred.ops = list(quote(`%>>%`), quote(`%<<%`))
-defas.deferred.repl = list(quote(`internal%>>%`), quote(`internal%<<%`))
+defas.assignment.ops = list(quote(`%<>>%`), quote(`%<<<%`), quote(`%>|%`))
+defas.assignment.repl = list(quote(`internal%<>>%`), quote(`internal%<<<%`), quote(`internal%>|%`))
+defas.deferred.ops = list(quote(`%>>%`), quote(`%<<%`), quote(`%|<%`))
+defas.deferred.repl = list(quote(`internal%>>%`), quote(`internal%<<%`), quote(`internal%|<%`))
 defas.triolist = list(NULL, NULL, NULL)
 defas.recurse.rewrite = function(expr) {
   ret = defas.triolist
