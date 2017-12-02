@@ -66,7 +66,7 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.d
 
   constructor = makeWrappingCPOConstructor(function(data, target, selected.cpo, ...) {
       cpo = constructed[[selected.cpo]]
-      cpo = setHyperPars(cpo, par.vals = list(...)[getParamIds(cpo)])
+      cpo = setHyperPars(cpo, par.vals = list(...)[getParamIds(getParamSet(cpo))])
     }, paramset, paramvals, props.creator, ctinfo)
 
   setCPOId(constructor(export = export,
