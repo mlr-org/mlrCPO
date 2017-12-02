@@ -1,4 +1,32 @@
 
+#################################
+# syntactic sugar               #
+#################################
+
+# increment by
+#
+# This is the C `+=` operator
+`%+=%` = function(t, s) eval.parent(substitute(t <- t + s))
+
+# decrement by
+#
+# This is the C `-=` operator
+`%-=%` = function(t, m) eval.parent(substitute(t <- t - m))
+
+# append
+#
+# X %c=% Y --> X = c(X, Y)
+`%c=%` = function(t, a) eval.parent(substitute(t <- c(t, a)))
+
+# union
+#
+# X %union=% Y --> X = union(X, Y)
+`%union=%` = function(t, a) eval.parent(substitute(t <- union(t, a)))
+
+#################################
+# Printing                      #
+#################################
+
 # deparseJoin: deparse, but work with longer than 500 char expressions, mostly.
 # Note that this is a heuristic for user messages only, the result can not be
 # parsed again!
@@ -14,6 +42,11 @@ deparseJoin = function(what, sep = " ") {
 namedVecToString = function(vec) {
   paste0("c(", collapse(paste(names(vec), sapply(vec, deparse, control = NULL), sep = " = "), sep = ", "), ")")
 }
+
+
+#################################
+# AST Manipulation              #
+#################################
 
 # Search for references to variables (not function) named in 'pattern'
 # return TRUE if any were found, FALE otherwise.
@@ -83,6 +116,10 @@ renameNonfunctionNames = function(expr, translate) {
   return(expr)
 }
 
+#################################
+# Other                         #
+#################################
+
 # use BBmisc's "requirePackages" for the package(s) listed by the CPO as required.
 # @param cpo [CPOPrimitive] the CPO of which the package to load
 # @return NULL
@@ -104,13 +141,6 @@ firstNonNull = function(...) {
   NULL
 }
 
-# check global flag whether to enforce property compliance when combining CPOs or
-# checking CPO input or output data.
-# @return [logical(1)] whether to enforce property compliance
-isPropertyStrict = function() {
-  getMlrOption("cpo.property.strict", TRUE)
-}
-
 # get an option set for mlr. E.g. whether hyperparameter bounds checking is on or off.
 # This re-implements mlr:::getMlrOption
 # @param name [charcter(1)] name of the option, within the "mlr" namespace
@@ -125,4 +155,11 @@ getMlrOption = function(name, default = NULL) {
 # @return [logical(1)] whether the task has weights
 hasTaskWeights = function(task) {
   !is.null(task$weights)
+}
+
+# check global flag whether to enforce property compliance when combining CPOs or
+# checking CPO input or output data.
+# @return [logical(1)] whether to enforce property compliance
+isPropertyStrict = function() {
+  getMlrOption("cpo.property.strict", TRUE)
 }

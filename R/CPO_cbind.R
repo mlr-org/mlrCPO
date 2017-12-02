@@ -5,10 +5,10 @@
 #' @template cpo_doc_intro
 #'
 #' @description
-#' Build a CPO that represents the operations of its input parameters,
+#' Build a \code{\link{CPO}} that represents the operations of its input parameters,
 #' performed in parallel and put together column wise.
 #'
-#' For example, to construct a \code{\link{Task}} that contains the original
+#' For example, to construct a \code{\link[mlr]{Task}} that contains the original
 #' data, as well as the data after scaling, one could do
 #'
 #' \code{task \%>>\% cpoCbind(NULLCPO, cpoScale())}
@@ -19,7 +19,7 @@
 #' \preformatted{
 #'       ,-C--E-.
 #'      /    /   \
-#' A---B ---D-----F---G
+#' A---B----D-----F---G
 #' }
 #' one coul use the code
 #' \preformatted{
@@ -29,7 +29,7 @@
 #' result = cpoCbind(route1, route2) \%>>\% F \%>>\% G
 #' }
 #'
-#' cpoCbind finds common paths among its arguments and combines them into one operation.
+#' \code{cpoCbind} finds common paths among its arguments and combines them into one operation.
 #' This saves computation and makes it possible for one exported hyperparameter to
 #' influence multiple of \code{cpoCbind}'s inputs. However, if you want to use the same
 #' operation with different parameters on different parts of \code{cpoCbind} input,
@@ -37,12 +37,13 @@
 #' with the same IDs (or both with IDs absent) but different parameter settings or different
 #' parameter exportations occur, an error will be thrown.
 #'
-#' @param ... [\code{CPO}]\cr
-#'   The CPOs to cbind. Named arguments will result in the respective
+#' @param ... [\code{\link{CPO}}]\cr
+#'   The \code{\link{CPO}}s to cbind. These must be Feature Operation CPOs.
+#'   Named arguments will result in the respective
 #'   columns being prefixed with the name. This is highly recommended if there
 #'   is any chance of name collision otherwise. it is possible to use the same
-#'   name multiple times.
-#' @param .cpos [\code{list} of \code{CPO}]\cr
+#'   name multiple times (provided the resulting column names don't clash).
+#' @param .cpos [\code{list} of \code{\link{CPO}}]\cr
 #'   Alternatively, give the CPOs to cbind as a list. Default is \code{list()}.
 #' @template cpo_doc_outro
 #' @family special CPOs
@@ -51,10 +52,18 @@ cpoCbind = function(..., .cpos = list()) {
   cpos = list(...)
   cpos = c(cpos, .cpos)
 
-  assertList(cpos, types = "CPO", any.missing = FALSE)  # FIXME: require databound
-# TODO  collectedprops = collectProperties(cpos, do.intersect = TRUE)
+  assertList(cpos, types = "CPO", any.missing = FALSE)
 
-  # the graph representing the operations being performed.
+  if (length({badtype = setdiff(unique(sapply(constructed, getCPOOperatingType)), "feature")})) {
+    stopf("cpoCbind can only handle Feature Operation CPOs, but found CPOs with Operating Types '%s'",
+      collapse(badtype, "', '"))
+  }
+
+  props = collectProperties(cpos, "cbind")
+  props.creator = propertiesToMakeCPOProperties(props, "feature")
+
+  # the graph representing the operations being performed; see makeCPOGraphItem for more info.
+  # In short:
   # types: SOURCE, CPO, CBIND. SOURCE has no parents, CPO has only one parent.
   # 'parents', 'children' identify other items by their index in the 'cpograph' list
   # items in graph are sorted so that parents always come before children, with the
@@ -63,15 +72,12 @@ cpoCbind = function(..., .cpos = list()) {
 
   dangling = setNames(integer(0), character(0))
   for (cidx in seq_along(cpos)) {
-    cname = names(cpos)[cidx]
-    if (is.null(cname)) {
-      cname = ""
-    }
-    newcpos = as.list(cpos[[cidx]])
+    cname = firstNonNull(names(cpos)[cidx], "")
+    newcpos = as.list(cpos[[cidx]])  # split into list of primitive CPOs
     curparent = 1L
     for (cpoprim in newcpos) {
       if ("CPOCbind" %in% class(cpoprim)) {
-        cpograph = uniteGraph(cpograph, curparent, cpoprim$par.vals[[".CPO"]], getHyperPars(cpoprim))
+        cpograph = uniteGraph(cpograph, curparent, cpoprim$unexported.pars[[".CPO"]], getHyperPars(cpoprim))
       } else {
         cpograph = c(cpograph, list(makeCPOGraphItem(type = "CPO", parents = curparent, children = integer(0), content = cpoprim)))
         cpograph[[curparent]]$children = c(cpograph[[curparent]]$children, length(cpograph))
