@@ -5,6 +5,9 @@
 #'
 #' @template cpo_doc_intro
 #'
+#' \code{makeCPOMultiplex} creates a \code{\link{CPOConstructor}}, \code{cpoMultiplex}
+#' \emph{is} a \code{\link{CPOConstructor}}.
+#'
 #' @param cpos [\code{list} of (\code{\link{CPO}} | \code{\link{CPOConstructor}})]\cr
 #'   The CPOs to multiplex. If this is a named list, the
 #'   names must be unique and represent the index by which
@@ -21,9 +24,7 @@
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.default",
-    affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
-    affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
+makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
   assertList(cpos, c("CPO", "CPOConstructor"), min.len = 1)
 
   constructed = constructCPOList(cpos)
@@ -64,20 +65,14 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.d
   props = collectProperties(constructed, "multiplex")
   props.creator = propertiesToMakeCPOProperties(props, ctinfo$otype)
 
-  constructor = makeWrappingCPOConstructor(function(data, target, selected.cpo, ...) {
+  makeWrappingCPOConstructor(function(data, target, selected.cpo, ...) {
       cpo = constructed[[selected.cpo]]
       cpo = setHyperPars(cpo, par.vals = list(...)[getParamIds(getParamSet(cpo))])
     }, paramset, paramvals, props.creator, ctinfo)
-
-  setCPOId(constructor(export = export,
-    affect.type = affect.type, affect.index = affect.index,
-    affect.names = affect.names, affect.pattern = affect.pattern,
-    affect.invert = affect.invert,
-    affect.pattern.ignore.case = affect.pattern.ignore.case,
-    affect.pattern.perl = affect.pattern.perl,
-    affect.pattern.fixed = affect.pattern.fixed),
-    id = id)  # allow NULL id for multiplexer
 }
+#' @export
+#' @rdname makeCPOMultiplex
+cpoMultiplex = makeFauxCPOConstructor(mlrCPO::makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
 #' @title Build data-dependent CPOs
@@ -88,6 +83,9 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' The meta CPO which determines what CPO to apply to a data depending on
 #' a provided function. Many parameters coincide with the parameters of \code{\link{makeCPO}},
 #' it is suggested to read the relevant parameter description there.
+#'
+#' \code{makeCPOCase} creates a \code{\link{CPOConstructor}}, while \code{cpoCase} can be
+#' used as \code{\link{CPOConstructor}} itself.
 #'
 #' @param par.set [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
 #'   Parameters (additionally to the exported CPOs) of the CPO. Default is the empty ParamSet.
@@ -158,14 +156,11 @@ registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "A
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = list(),
+makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = list(),
                    dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE,
                    properties.data = NULL, properties.adding = NULL, properties.needed = NULL,
-                   properties.target = NULL, cpo.build,
-                   id = NULL, export = "export.default",
-                   affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
-                   affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
+                   properties.target = NULL, cpo.build) {
   dataformat = match.arg(dataformat)
 
   constructed = constructCPOList(export.cpos)
@@ -212,7 +207,7 @@ cpoCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = li
     index = integer(0), names = character(0), pattern = NULL, invert = FALSE, pattern.ignore.case = FALSE,
     pattern.perl = FALSE, pattern.fixed = FALSE)
 
-  constructor = makeWrappingCPOConstructor(function(data, target, ...) {
+  makeWrappingCPOConstructor(function(data, target, ...) {
       args = list(...)
       buildfunargs = c(args[getParamIds(paramset.pass.on)],
         lapply(constructed, function(cpo) {
@@ -225,16 +220,11 @@ cpoCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = li
     c(paramset.pass.on, paramset.others),
     c(paramvals.pass.on, paramvals.others),
     props.creator, ctinfo)
-
-  setCPOId(constructor(export = export,
-    affect.type = affect.type, affect.index = affect.index,
-    affect.names = affect.names, affect.pattern = affect.pattern,
-    affect.invert = affect.invert,
-    affect.pattern.ignore.case = affect.pattern.ignore.case,
-    affect.pattern.perl = affect.pattern.perl,
-    affect.pattern.fixed = affect.pattern.fixed),
-    id = id)  # allow NULL id for multiplexer
 }
+#' @export
+#' @rdname makeCPOCase
+cpoCase = makeFauxCPOConstructor(mlrCPO::makeCPOCase, "case", "other", default.id.null = TRUE)
+registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
 
 # Given a list of CPOs, construct them and make sure they are uniquely named
 #
@@ -501,3 +491,52 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
   constructor = do.call(maker, c(arguments, arguments.addnl, props.creator))
 }
 
+
+# takes a function that creates a CPOConstructor, and turns this function into
+# a CPOConstructor. It thus makes it possible to handle the 'constructorconstructor'
+# like a normal CPOConstructor.
+#
+#
+# @param constructorconstructor [function] a function that returns a CPOConstructor
+# @param cpo.name [character(1)] the cpo name
+# @param cpo.type.extended [character(1)] one of "target", "feature", "target.extended", "feature.extended", "retrafoless", "other"
+#   What should the CPO be printed as?
+# @param trafo.funs [list] list with names cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, and the same suffixed
+#   with '.orig': For printing.
+# @param default.id.null [logical(1)] whether to set the ID of the created CPO to NULL.
+# @return [CPOConstructor].
+makeFauxCPOConstructor = function(constructorconstructor, cpo.name, cpo.type.extended, trafo.funs = list(), default.id.null = FALSE) {
+  assertString(cpo.name)
+  assertChoice(cpo.type.extended, c("target", "feature", "target.extended", "feature.extended", "retrafoless", "other"))
+  constructor = function(id = NULL, export = "export.default",
+           affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
+           affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
+    cc = constructorconstructor
+    constconstcall = dropNamed(match.call(), const.params)
+    constconstcall[[1]] = substitute(cc)
+    cpoconst = eval.parent(constconstcall)
+
+    constcall = dropNamed(match.call(), constconst.params)
+    constcall[[1]] = substitute(cpoconst)
+    newcpo = eval.parent(constcall)
+    newcpo$old.constructor = newcpo$constructor
+    newcpo$constructor = constructor
+    if (default.id.null) {
+      newcpo = setCPOId(newcpo, NULL)
+    }
+    addClasses(newcpo, "FauxCPOConstructed")
+  }
+  const.params = names(formals(constructor))
+
+  constconst.params = names(formals(constructorconstructor))
+
+  formals(constructor) = as.pairlist(c(formals(constructorconstructor), formals(constructor)))
+
+  constructor = addClasses(constructor, "CPOConstructor")
+  constructor
+}
+
+#' @export
+identicalCPO.FauxCPOConstructed = function(cpo1, cpo2) {
+  identical(cpo1$old.constructor, cpo2$old.constructor)
+}

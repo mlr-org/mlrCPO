@@ -401,6 +401,34 @@ getOriginalCPOConstructor = function(cpo) {
 }
 
 
+#' @title Check whether two CPO are fundamentally the same.
+#'
+#' @description
+#' Check whether two \code{\link{CPO}} perform the same operation. This
+#' compares the inner workings of a \code{\link{CPO}}, but not the hyperparameter,
+#' hyperparameter-export, or \code{affect.*} settings of the \code{\link{CPO}}.
+#'
+#' Internally, this checks whether the \code{\link{CPOConstructor}} used to create
+#' the two \code{\link{CPO}}s is identical. When creating new \code{\link{CPOConstructor}}s with
+#' \code{\link{makeCPO}} and related functions, it may be necessary to overload this function,
+#' if the resulting \code{\link{CPO}}s should be differentiated in a different way.
+#'
+#' This function is used in \code{\link{cpoCbind}} to check for equality of underlying
+#' \code{\link{CPO}}s.
+#'
+#' @param cpo1 [\code{\link{CPO}}]\cr
+#'   The \code{\link{CPO}} to compare.
+#' @param cpo2 [\code{\link{CPO}}]\cr
+#'   The \code{\link{CPO}} to compare.
+#' @return [\code{logical(1)}]. \code{TRUE} if the \code{\link{CPO}}s are fundamentally
+#'   the same.
+#' @family CPO lifecycle related
+#' @family CPOConstructor related
+#' @export
+identicalCPO = function(cpo1, cpo2) {
+  UseMethod("identicalCPO")
+}
+
 # Param Sets and related
 
 #' @export
@@ -657,3 +685,21 @@ getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
   stop("Compound CPOs have no affect arguments.")
 }
 
+#' @export
+identicalCPO.CPOPrimitive = function(cpo1, cpo2) {
+  assertClass(cpo2, "CPO")
+  "CPOPrimitive" %in% class(cpo2) &&
+    identical(environment(getOriginalCPOConstructor(cpo1)),
+      environment(getOriginalCPOConstructor(cpo2)))
+}
+
+#' @export
+identicalCPO.CPO = function(cpo1, cpo2) {
+  assertClass(cpo2, "CPO")
+  cpo1list = as.list(cpo1)
+  cpo2list = as.list(cpo2)
+  (length(cpo1list) == length(cpo2list)) &&
+    all(sapply(seq_along(cpo1), function(idx) {
+      identicalCPO(cpo1list[[idx]], cpo2list[[idx]])
+    }))
+}

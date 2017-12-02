@@ -33,7 +33,8 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
 
     relfuns = switch(type.extended,
       feature = allfuns[1:2], target = allfuns, retrafoless = allfuns[1],
-      feature.extended = allfuns[1:2], target.extended = allfuns[-3])
+      feature.extended = allfuns[1:2], target.extended = allfuns[-3],
+      other = list())  # for fauxCPOConstructors that don't fit in any of these roles.
     relfunlist = lapply(relfuns, function(x) tf[[paste0(x, ".orig")]])
     if (type.extended %in% c("trafo", "retrafo")) {
       name(relfunlist)[1] = "train"

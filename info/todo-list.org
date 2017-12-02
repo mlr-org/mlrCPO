@@ -28,6 +28,7 @@
   - [X] make the printers work
   - [X] set CPOConstructor for multiplex cpos etc.
   - [ ] repair cpoCbind
+  - [ ] sapply replacement
   - [ ] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)
   - [ ] learner wrapping cpo:
