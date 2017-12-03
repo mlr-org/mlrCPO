@@ -27,13 +27,12 @@
   - [X] make invert() etc work
   - [X] make the printers work
   - [X] set CPOConstructor for multiplex cpos etc.
-  - [ ] repair cpoCbind
+  - [X] repair cpoCbind
   - [ ] sapply replacement
   - [ ] caching CPO
-  - [ ] hyperparameter transforming cpo wrapper
+  - [ ] Title case or no title case
+  - [X] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)
-  - [ ] learner wrapping cpo:
-      input -[X]-> cluster. training by data %>>% X. prediction by [dummy] -> inverter(preddata %>>% retrafo(MODEL))
   - [ ] make tests work
   - [ ] new tests
 - [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
@@ -83,6 +82,8 @@
 - [ ] cpoNAIndicators
 - [ ] cpoMergeSmallLevels
 - [ ] cpo crossval
+  - [ ] learner wrapping cpo:
+    input -[X]-> cluster. training by data %>>% X. prediction by [dummy] -> inverter(preddata %>>% retrafo(MODEL))
 ** news
 - [ ] colApplyCPO
 - [ ] cpoRangeScale

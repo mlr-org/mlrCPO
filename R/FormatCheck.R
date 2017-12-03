@@ -724,7 +724,9 @@ subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
     # subsetTask, but keep everything in order
     new.subset.index = featIndexToTaskIndex(subset.index, indata)
     indata.data = getTaskData(indata)
-    indata = changeData(indata, indata.data[new.subset.index])
+    if (!identical(as.integer(new.subset.index), seq.along(indata.data))) {
+      indata = changeData(indata, indata.data[new.subset.index])
+    }
   } else {
     subset.selector$data = indata
     subset.index = do.call(getColIndices, subset.selector)

@@ -306,6 +306,75 @@ cpoTransformParams = function(cpo, transformations, additional.parameters = make
 }
 registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "meta", NULL, "Transform a CPO's Hyperparameters.")
 
+
+#' @title Caches The Result of CPO Transformations
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Given a \code{\link{CPO}} to wrap, this caches an intermediate result (in fact, the \code{\link{retrafo}} object) whenever the
+#' CPO is applied to a Task or data.frame. This can reduce computation
+#' time when the same CPO is often applied to the same data, e.g. in a
+#' resampling or tuning evaluation.
+#'
+#' The hyperparameters of the CPO are not exported, since in many cases changing the
+#' hyperparameters will also change the result and would defeat the point of caching.
+#' To switch between different settings of the same \code{\link{CPO}}, consider using
+#' \code{\link{cpoMultiplex}}.
+#'
+#' The cache is kept in an \code{\link[base]{environment}}; therefore, it does not
+#' communicate with other threads or processes when using parallelization at a
+#' level before the cache gets filled.
+#'
+#' Caching needs the \sQuote{digest} package to be installed.
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The \code{\link{CPO}} to wrap. The \code{\link{CPO}} may only have a single
+#'   \code{\link{OperatingType}}.
+#' @param cache.entries [\code{numeric(1)}]\cr
+#'   Number of entries in the least recently used cache.
+cpoCache = function(cpo, cache.entries = 1024) {
+  usage.counter = 0
+  usage.tracker = numeric(cache.entries)
+  cache = vector("list", cache.entries)
+  cache.index = setNames(as.list(seq_len(cache.entries)), rep("", cache.entries))
+
+  assertClass(cpo, "CPO")
+
+  ctinfo = collectCPOTypeInfo(constructed)
+
+  props.creator = propertiesToMakeCPOProperties(getCPOProperties(cpo, get.internal = TRUE))
+
+  makeWrappingCPOConstructor(function(data, target, ...) {
+      td = getTaskDesc(data)
+      if (!td$has.blocking && !td$has.weights) {
+        if (!is.null(td$positive)) {
+          entry = paste0("hash.", digest::digest(td$positive, algo = "sha512"))
+        } else {
+          entry = "hash"
+        }
+        if (is.null(data$env[[entry]])) {
+          data$env[[entry]] = digest::digest(data$env$data, algo = "sha512")
+        }
+        hash = data$env[[entry]]
+      } else {
+        # include weights & blocking
+        hash = digest::digest(data, algo = "sha512")
+      }
+      if (is.null({index = cache.index[[hash]]})) {
+        index = which.min(usage.tracker)
+        names(cache.index)[index] = hash
+        # TODO: duplicating some work here, the makeWrappingCPOConstructor interface needs to change slightly
+        cache[[index]] = retrafo(cpo %>>% data)
+      }
+      usage.counter %+=% 1
+      usage.tracker[index] = usage.counter
+      cache[[index]]
+    },
+    makeParamSet(), list(), props.creator, ctinfo, "cache", packages = "digest")(id = NULL)
+}
+registerCPO(list(name = "cpoCache", cponame = "cache"), "meta", NULL, "Cache a CPO's results.")
+
 # Given a list of CPOs, construct them and make sure they are uniquely named
 #
 # Helper function for multiplexer etc, so the 'cpos' parameter behaves as
@@ -533,7 +602,8 @@ collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
 # @param paramvals [named list] default parameter values
 # @param props.creator [list] list of properties.data, properties.adding, properties.needed, properties.target
 # @param cpo.name [character(1)] name of the new CPO
-makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.creator, ctinfo, cpo.name) {
+# @param ... [any] optional additional parameters to makeCPO*
+makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.creator, ctinfo, cpo.name, ...) {
   assertFunction(cpo.selector)
   cpo.trafo = function(data, ...) {
     cpo = cpo.selector(data, ...)
@@ -542,7 +612,12 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
         collapse(badop, "', '"), ctionfo$otype)
     }
     res = data %>>% cpo
-    control = list(retrafo = retrafo(res), inverter = inverter(res))
+    if (is.retrafo(cpo)) {
+      retr = cpo
+    } else {
+      retr = retrafo(res)
+    }
+    control = list(retrafo = retr, inverter = inverter(res))
     control.invert = inverter(res)
     clearRI(res)
   }
@@ -573,7 +648,7 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
       predict.type.map = ctinfo$predict.type, constant.invert = ctinfo$constant.invert),
     retrafoless = list(cpo.trafo = cpo.trafo))
 
-  constructor = do.call(maker, c(arguments, arguments.addnl, props.creator))
+  constructor = do.call(maker, c(arguments, arguments.addnl, props.creator, list(...)))
 }
 
 
