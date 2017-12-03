@@ -430,7 +430,7 @@ makeInvertCall = function(cpo.trafo, cpo.invert) {
 # @param source.name [character(1)] the name where the function comes from, for message printing
 # @return [invisible(NULL)]
 checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
-  assert(length(requiredargs >= 1))
+  assert(length(requiredargs) >= 1)
   if (is.null(fun)) {
     stopf("%s did not create a %s function.", source.name, fun.name)
   }
@@ -484,7 +484,7 @@ clearEnv = function(env) {
 # @param source.name [character(1)] name of the function that created env
 # @return [any]. env[[var]]
 getVarCreated = function(env, var, source.name) {
-  if (var %nin% env) {
+  if (var %nin% names(env)) {
     stopf("CPO's %s did not create a '%s' object.", source.name, var)
   }
   env[[var]]

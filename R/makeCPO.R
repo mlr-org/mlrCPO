@@ -470,11 +470,11 @@ assembleProperties = function(properties.data, properties.needed, properties.add
   }
 
   aux = handleSometimesProps(properties.needed)
-  properties.needed = aux$props
+  properties.needed = aux$proper
   properties.needed.max = c(properties.needed, aux$sometimes)
 
   aux = handleSometimesProps(properties.adding)
-  properties.adding.min = aux$props
+  properties.adding.min = aux$proper
   properties.adding = c(properties.adding.min, aux$sometimes)
 
   assertSubset(properties.adding, properties.handling)
@@ -567,7 +567,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   # evaluate expressions that are not headless functions
   for (eval.name in fnames) {
     expr = get(eval.name)
-    if (!(is.recursive(expr) && length(expr) > 1 && identical(expr[[1]], quote(`{`)))) {
+    if (!(is.recursive(expr) && !is.function(expr) && identical(expr[[1]], quote(`{`)))) {
       assign(eval.name, eval(expr, envir = eval.env))
     }
   }
@@ -696,7 +696,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
 # @return [function] a function which can handle arguments as requested by `required.arglist` and either has the function
 #   body or is the function defined by `expr`.
 makeFunction = function(expr, required.arglist, env = parent.frame()) {
-  if (is.recursive(expr) && length(expr) > 1 && identical(expr[[1]], quote(`{`))) {
+  if (is.recursive(expr) && !is.function(expr) && identical(expr[[1]], quote(`{`))) {
     # we have a headless list of expressions
     # so we build our own function
     args = as.pairlist(required.arglist)

@@ -197,7 +197,8 @@ callCPO.CPOPipeline = function(cpo, data, build.retrafo, prev.retrafo, build.inv
 # @return [list] list(data, inverter)
 callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
 
-  assertClass(retrafo, "CPORetrafo")
+
+  assert(checkClass(retrafo, "RetrafoElement"), checkClass(retrafo, "InverterElement"))
   cpo = retrafo$cpo
 
   if (!is.null(retrafo$prev.retrafo)) {
@@ -211,7 +212,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   tin = prepareRetrafoInput(data, cpo$dataformat, cpo$strict.factors, cpo$properties.raw,
     retrafo$shapeinfo.input, cpo$operating.type, cpo$name)
 
-  if (operating.type == "target" && !build.inverter && is.null(tin$indata$target)) {
+  if (cpo$operating.type == "target" && !build.inverter && is.null(tin$indata$target)) {
     # neither data to modify nor an inverter to build
     return(list(data = data, inverter = prev.inverter))
   }
@@ -219,7 +220,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   tin$indata$state = retrafo$state
   result = do.call(cpo$trafo.funs$cpo.retrafo, insert(getBareHyperPars(cpo), tin$indata))
 
-  if (operating.type != "target" || !is.null(tin$indata$target)) {
+  if (cpo$operating.type != "target" || !is.null(tin$indata$target)) {
     # in retrafo we forgive the creation of 'missings', unless they are in adding.min
     properties.needed = cpo$properties$needed.max
     properties.adding = cpo$properties$adding.min
@@ -228,7 +229,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
     }
 
     data = handleRetrafoOutput(result$result, tin, properties.needed,
-      properties.adding, cpo$convertto, cpo$shapeinfo.output)
+      properties.adding, cpo$convertto, retrafo$shapeinfo.output)
   }
 
   if (build.inverter && cpo$operating.type == "target") {

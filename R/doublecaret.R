@@ -84,10 +84,12 @@
   # deferAssignmentOperator call so that %<>>% etc. is evaluated last.
   # it rewrites `%>>%` etc. operators to `internal%>>%` functions and
   # calls the rewritten statement.
-  eval(deferAssignmentOperator(substitute(cpo1 %>>% cpo2)))
+  eval.parent(deferAssignmentOperator(substitute(cpo1 %>>% cpo2)))
 }
 
 # %>>% is rewritten to internal%>>%
+#' @export
+#' @keywords internal
 `internal%>>%` = function(cpo1, cpo2) {
   UseMethod("%>>%")
 }
@@ -95,10 +97,12 @@
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%<<%` = function(cpo2, cpo1) {
-  eval(deferAssignmentOperator(substitute(cpo2 %<<% cpo1)))
+  eval.parent(deferAssignmentOperator(substitute(cpo2 %<<% cpo1)))
 }
 
 # %<<% is rewritten to internal%<<%
+#' @export
+#' @keywords internal
 `internal%<<%` = function(cpo2, cpo1) {
   `internal%>>%`(cpo1, cpo2)
 }
@@ -106,36 +110,38 @@
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%<>>%` = function(cpo1, cpo2) {
-  eval(deferAssignmentOperator(substitute(cpo1 %<>>% cpo2)))
+  eval.parent(deferAssignmentOperator(substitute(cpo1 %<>>% cpo2)))
 }
 
 # %<>>% is rewritten to internal%<>>%
+#' @export
+#' @keywords internal
 `internal%<>>%` = function(cpo1, cpo2) {
-  op = `internal%>>%`
-  cpo2 = cpo2  # don't want the expression of cpo2 in following substitute
-  eval.parent(substitute({ cpo1 = op(cpo1, cpo2) }), n = 4)
+  eval.parent(substitute({ cpo1 = `internal%>>%`(cpo1, cpo2) }))
 }
 
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%<<<%` = function(cpo2, cpo1) {
-  eval(deferAssignmentOperator(substitute(cpo2 %<<<% cpo1)))
+  eval.parent(deferAssignmentOperator(substitute(cpo2 %<<<% cpo1)))
 }
 
 # %<<<% is rewritten to internal%<<<%
+#' @export
+#' @keywords internal
 `internal%<<<%` = function(cpo2, cpo1) {
-  op = `internal%>>%`
-  cpo1 = cpo1  # don't want the expression of cpo1 in following substitute
-  eval.parent(substitute({ cpo2 = op(cpo1, cpo2) }), n = 4)
+  eval.parent(substitute({ cpo2 = `internal%>>%`(cpo1, cpo2) }))
 }
 
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%>|%` = function(cpo1, cpo2) {
-  eval(deferAssignmentOperator(substitute(cpo1 %>|% cpo2)))
+  eval.parent(deferAssignmentOperator(substitute(cpo1 %>|% cpo2)))
 }
 
 # %>|% is rewritten to internal%>|%
+#' @export
+#' @keywords internal
 `internal%>|%` = function(cpo1, cpo2) {
   retrafo(`internal%>>%`(cpo1, cpo2))
 }
@@ -143,10 +149,12 @@
 #' @rdname grapes-greater-than-greater-than-grapes
 #' @export
 `%|<%` = function(cpo2, cpo1) {
-  eval(deferAssignmentOperator(substitute(cpo2 %|<% cpo1)))
+  eval.parent(deferAssignmentOperator(substitute(cpo2 %|<% cpo1)))
 }
 
 # %|<% is rewritten to internal%|<%
+#' @export
+#' @keywords internal
 `internal%|<%` = function(cpo2, cpo1) {
   retrafo(`internal%>>%`(cpo1, cpo2))
 }

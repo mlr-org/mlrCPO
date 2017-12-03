@@ -15,6 +15,8 @@ devtools::load_all("..", export_all = FALSE)
 devtools::load_all("..", export_all = FALSE)
 
 devtools::build_vignettes("..")
+
+
 devtools::load_all("..")
 
 
@@ -23,13 +25,18 @@ devtools::load_all("..")
 
 
 options(error = dump.frames)
+options(max.print=20)
+
+
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 
 devtools::load_all("..")
 
+devtools::test(pkg = "..", reporter = MinimalReporter)
 
+devtools::test(pkg = "..", filter = "basic", reporter = StopReporter)
+devtools::test(pkg = "..", filter = "basic", reporter = CheckReporter)
 
-devtools::test(pkg = "..", filter = "basic")
 devtools::test(pkg = "..", filter = "affect")
 devtools::test(pkg = "..", filter = "properties")
 devtools::test(pkg = "..", filter = "tuning")

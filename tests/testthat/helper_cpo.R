@@ -12,10 +12,10 @@ makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
-    .properties = .properties, .properties.adding = .properties.adding,
-    .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
 }
 
 
@@ -28,10 +28,10 @@ makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list()
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
-    .properties = .properties, .properties.adding = .properties.adding,
-    .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
 }
 
 
@@ -437,7 +437,7 @@ cpo.df5r = makeRegrTask(data = cpo.df5, target = "N1")
 
 # some old test functions were using cpoPca with center and scale
 
-cpoPcaLegacy = makeCPOExtended("pca", center = TRUE: logical, scale = FALSE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
+cpoPcaLegacy = makeCPOExtendedTrafo("pca", pSS(center = TRUE: logical, scale = FALSE: logical), dataformat = "numeric", cpo.trafo = {  # nolint
   pcr = prcomp(as.matrix(data), center = center, scale. = scale)
   data = as.data.frame(pcr$x)
   control = list(rotation = pcr$rotation, center = pcr$center, scale = pcr$scale)

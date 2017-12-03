@@ -32,7 +32,7 @@
 prepareTrafoInput = function(indata, dataformat, strict.factors, allowed.properties, subset.selector, capture.factors, operating.type, name) {
   assert(checkClass(indata, "data.frame"), checkClass(indata, "Task"))
 
-  subset.info = subsetIndata(indata, subset.selector, allowed.properties, "trafo")
+  subset.info = subsetIndata(indata, subset.selector, allowed.properties, "trafo", name)
   indata = subset.info$indata
 
   shapeinfo = makeInputShapeInfo(indata, capture.factors)
@@ -122,13 +122,13 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
 
   if (!is.null(task)) {
     subset.info = subsetIndata(task, shapeinfo.input$subset.selector,
-      allowed.properties, "retrafo")
+      allowed.properties, "retrafo", name)
     origdata = subset.info$origdata
     indata = subset.info$indata
     assertShapeConform(getTaskData(indata, target.extra = TRUE)$data, shapeinfo.input, strict.factors, name)
   } else {
     subset.info = subsetIndata(indata, shapeinfo.input$subset.selector,
-      allowed.properties, "retrafo")
+      allowed.properties, "retrafo", name)
     indata = subset.info$indata
     assertShapeConform(indata, shapeinfo.input, strict.factors, name)
   }
@@ -152,7 +152,8 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   list(indata = indata, properties = subset.info$properties, task = task,
     private = list(tempdata = split.data$tempdata, subset.index = subset.info$subset.index,
       origdata = origdata, dataformat = dataformat, strict.factors = strict.factors,
-      name = name, operating.type = operating.type, origdatatype = origdatatype))
+      name = name, operating.type = operating.type, origdatatype = origdatatype,
+      target = target))
 }
 
 # Do the check of the trafo's return value
@@ -175,7 +176,7 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
   strict.factors = ppr$strict.factors
   operating.type = ppr$operating.type
   name = ppr$name
-  subset.index = prepared.input$subset.index  # index into olddata columns: the columns actually selected by 'affect.*' parameters
+  subset.index = ppr$subset.index  # index into olddata columns: the columns actually selected by 'affect.*' parameters
 
   if (operating.type != "target") {
     # for dataformat 'factor', 'numeric' etc, combine the return object of the function with
@@ -196,7 +197,7 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
     recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
   }
 
-  checkOutputProperties(outdata, recombined, prepared.input$properties, properties.needed, properties.adding, operating.type, "trafo")
+  checkOutputProperties(outdata, recombined, prepared.input$shapeinfo$target, prepared.input$properties, properties.needed, properties.adding, operating.type, "trafo", name)
 
   if (dataformat %in% c("df.all", "task")) {
     # in this case, take shape info with 'target' separated
@@ -227,12 +228,13 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
 #        This imposes the same structure on the retrafo return value.
 # @return [list] the data resulting from the CPO retrafo operation
 handleRetrafoOutput = function(outdata, prepared.input, properties.needed, properties.adding, convertto, shapeinfo.output) {
-  ppr = prepared.input$prepared.input
+  ppr = prepared.input$private
   olddata = ppr$origdata  # incoming data that was already given to prepareRetrafoInput as 'indata'
   dataformat = ppr$dataformat
   strict.factors = ppr$strict.factors
   subset.index = ppr$subset.index  # index into olddata columns: the columns actually selected by 'affect.*' parameters
   operating.type = ppr$operating.type
+  targetnames = names(ppr$target)
   name = ppr$name
 
   if (operating.type != "target") {
@@ -251,17 +253,16 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
       dataformat = "df.features"
     }
     if (ppr$origdatatype == "data.frame") {
-      if (any(shapeinfo.output$target %in% names(olddata))) {
-        assert(all(shapeinfo.output$target %in% names(olddata)))  # we also check this in prepareRetrafoInput
-        targetcols = shapeinfo.output$target
+      if (any(targetnames %in% names(olddata))) {
+        assert(all(targetnames %in% names(olddata)))  # we also check this in prepareRetrafoInput
       }
-      recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, targetcols, name)
+      recombined = recombinedf(olddata, outdata, dataformat, strict.factors, subset.index, targetnames, name)
     } else {
       recombined = recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, FALSE, name = name)
     }
   }
 
-  checkOutputProperties(outdata, recombined, prepared.input$properties, properties.needed, properties.adding, operating.type, "retrafo")
+  checkOutputProperties(outdata, recombined, targetnames, prepared.input$properties, properties.needed, properties.adding, operating.type, "retrafo", name)
 
   # check the shape of outdata is as expected
   shapeinfo.output$target = NULL
@@ -353,10 +354,13 @@ getTaskProperties = function(data) {
 # This may be a Task, data.frame, or list of data.frames
 # (as used with dataformat "split").
 # @param data [list | data.frame | Task] The data to get properties of
+# @param ignore.cols [character] names of columns to ignore, only for data.frame
 # @return [character] same as of getTaskProperties
-getGeneralDataProperties = function(data) {
-  if ("Task" %in% data && !is.data.frame(data)) {
+getGeneralDataProperties = function(data, ignore.cols = character(0)) {
+  if ("Task" %nin% class(data) && !is.data.frame(data)) {
     unique(unlist(lapply(data, getTaskProperties)))
+  } else if (is.data.frame(data)) {
+    getTaskProperties(dropNamed(data, ignore.cols))
   } else {
     getTaskProperties(data)
   }
@@ -419,10 +423,11 @@ makeInputShapeInfo = function(indata, capture.factors) {
   if ("Task" %in% class(indata)) {
     ret = makeShapeInfo(getTaskData(indata, target.extra = TRUE)$data)
     ret$target = getTaskTargetNames(indata)
-    res$type = getTaskDesc(indata)$type
+    ret$type = getTaskDesc(indata)$type
   } else {
     ret = makeShapeInfo(indata)
-    res$type = "cluster"
+    ret$target = character(0)
+    ret$type = "cluster"
   }
   if (capture.factors) {
     ret$factor.levels = Filter(function(x) !is.null(x), lapply(indata, levels))
@@ -442,7 +447,7 @@ makeOutputShapeInfo = function(outdata) {
   } else if ("Task" %in% class(outdata)) {
     res = makeShapeInfo(getTaskData(outdata, target.extra = TRUE)$data)
     res$target = getTaskTargetNames(outdata)
-    res$type = getTaskDesc(indata)$type
+    res$type = getTaskDesc(outdata)$type
   } else {
     # data is split by type, so we get the shape of each of the constituents
     res = lapply(outdata, makeShapeInfo)
@@ -453,6 +458,7 @@ makeOutputShapeInfo = function(outdata) {
 # check properties of data returned by trafo or retrafo function
 # @param outdata [data.frame | Task | list] data returned by (re)trafo function (after rebuildOutdata)
 # @param recombined [data.frame | Task] recombined data as will be returned to the user
+# @param target.names [character] names of target columns
 # @param input.properties [character] input properties as determined by prepare***Input
 # @param properties.needed [character] which properties are 'needed' by the subsequent data handler.
 #   Therefore, these properties may be present in `outdata` even though there were not in the input data.
@@ -460,12 +466,13 @@ makeOutputShapeInfo = function(outdata) {
 #   to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
 # @param operating.type [character(1)] operating type of cpo, one of 'target', 'feature', 'retrafoless'
 # @param whichfun [character(1)] name of the CPO stage
+# @param name [character(1)] name of the CPO
 # @return [invisible(NULL)]
-checkOutputProperties = function(outdata, recombined, input.properties, properties.needed, properties.adding, operating.type, whichfun) {
+checkOutputProperties = function(outdata, recombined, target.names, input.properties, properties.needed, properties.adding, operating.type, whichfun, name) {
   # allowed.properties: allowed properties of `outdata`. That is the union of the CPO's 'properties.needed' field and the properties already present in 'indata'
   allowed.properties = union(input.properties, properties.needed)
   present.properties = if (operating.type == "feature") {
-    getGeneralDataProperties(outdata)
+    getGeneralDataProperties(outdata, target.names)
   } else {
     getTaskProperties(recombined)
   }
@@ -475,6 +482,10 @@ checkOutputProperties = function(outdata, recombined, input.properties, properti
     # because of affect.*-subsetting which could be present in 'present.properties'
     # so we remove all feature properties here.
     present.properties = setdiff(present.properties, cpo.dataproperties)
+  } else if (operating.type == "feature") {
+    # remove properties of the target that are picked up by getGeneralDataProperties but
+    # are not relevant.
+    present.properties = setdiff(present.properties, cpo.all.target.properties)
   }
   assertPropertiesOk(present.properties, allowed.properties, whichfun, "out", name)
   assertPropertiesOk(present.properties, setdiff(allowed.properties, properties.adding), whichfun, "adding", name)
@@ -715,8 +726,9 @@ splitdf = function(df, dataformat, strict.factors) {
 # @param subset.selector [list] information about 'affect.*' parameters that determine which subset of 'indata' is affected
 # @param allowed.properties [character] allowed properties of `indata`
 # @param whichfun [character(1)] name of the CPO stage
+# @param cpo.name [character(1)] name of the CPO
 # @return [list] list(origdata, indata, subset.index, properties)
-subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
+subsetIndata = function(indata, subset.selector, allowed.properties, whichfun, cpo.name) {
   origdata = indata
   if ("Task" %in% class(indata)) {
     subset.selector$data = getTaskData(indata, target.extra = TRUE)$data
@@ -724,7 +736,7 @@ subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
     # subsetTask, but keep everything in order
     new.subset.index = featIndexToTaskIndex(subset.index, indata)
     indata.data = getTaskData(indata)
-    if (!identical(as.integer(new.subset.index), seq.along(indata.data))) {
+    if (!identical(as.integer(new.subset.index), seq_along(indata.data))) {
       indata = changeData(indata, indata.data[new.subset.index])
     }
   } else {
@@ -734,7 +746,7 @@ subsetIndata = function(indata, subset.selector, allowed.properties, whichfun) {
   }
 
   present.properties = getTaskProperties(indata)
-  assertPropertiesOk(present.properties, allowed.properties, "trafo", "in", name)
+  assertPropertiesOk(present.properties, allowed.properties, "trafo", "in", cpo.name)
 
   list(origdata = origdata, indata = indata, subset.index = subset.index,
     properties = present.properties)
