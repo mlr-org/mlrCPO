@@ -2,7 +2,7 @@
 % Please edit documentation in R/learner.R
 \name{getLearnerCPO}
 \alias{getLearnerCPO}
-\title{Get the CPO Associated with a Learner.}
+\title{Get the CPO Associated with a Learner}
 \usage{
 getLearnerCPO(learner, warn.buried = TRUE)
 }

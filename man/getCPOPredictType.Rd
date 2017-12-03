@@ -4,7 +4,7 @@
 \alias{getCPOPredictType}
 \alias{PredictType}
 \alias{getCPOPredictType.CPOTrained}
-\title{Get the CPO \code{predict.type}.}
+\title{Get the CPO \code{predict.type}}
 \usage{
 getCPOPredictType(cpo)
 

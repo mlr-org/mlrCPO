@@ -3,7 +3,7 @@
 \name{cpoImpute}
 \alias{cpoImpute}
 \alias{cpoImputeAll}
-\title{Impute and re-impute data}
+\title{Impute and Re-Impute Data}
 \usage{
 cpoImpute(target.cols = character(0), classes = list(), cols = list(),
   dummy.classes = character(0), dummy.cols = character(0),
@@ -180,8 +180,8 @@ data features are affected by default.
 
 \seealso{
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
-  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -207,13 +207,14 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoImpactEncodeClassif}},
   \code{\link{cpoImpactEncodeRegr}},
   \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
+  \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 
 Other impute: \code{\link{cpoImputeConstant}},
   \code{\link{cpoImputeHist}},

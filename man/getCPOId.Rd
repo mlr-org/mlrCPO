@@ -2,7 +2,7 @@
 % Please edit documentation in R/properties.R
 \name{getCPOId}
 \alias{getCPOId}
-\title{Get the ID of a CPO object.}
+\title{Get the ID of a CPO Object}
 \usage{
 getCPOId(cpo)
 }

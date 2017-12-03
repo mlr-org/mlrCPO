@@ -30,7 +30,7 @@
   - [X] repair cpoCbind
   - [X] sapply replacement
   - [X] caching CPO
-  - [ ] Title case or no title case
+  - [X] Title case or no title case
   - [X] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)
   - [ ] make tests work

@@ -4,6 +4,8 @@ library("roxygen2")
 
 roxygenise("..")
 
+debugger()
+
 devtools::load_all("../../ParamHelpers")
 devtools::load_all("../../mlr")
 

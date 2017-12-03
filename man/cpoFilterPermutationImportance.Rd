@@ -2,25 +2,11 @@
 % Please edit documentation in R/CPO_filterFeatures.R
 \name{cpoFilterPermutationImportance}
 \alias{cpoFilterPermutationImportance}
-\title{Filter features: permutation.importance}
+\title{Filter Features: \dQuote{permutation.importance}}
 \usage{
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
   imp.learner, contrast = function (x, y)  {     x - y }, measure = NULL,
-  aggregation = structure(function (x, ...)  standardGeneric("mean"), generic
-  = structure("mean", package = "base"), package = "base", group = list(),
-  valueClass = character(0), signature = "x", default = structure(function (x,
-  ...)  UseMethod("mean"), target = structure("ANY", class =
-  structure("signature", package = "methods"), .Names = "x", package =
-  "methods"), defined = structure("ANY", class = structure("signature", package
-  = "methods"), .Names = "x", package = "methods"), generic = structure("mean",
-  package = "base"), class = structure("derivedDefaultMethod", package =
-  "methods")), skeleton = (structure(function (x, ...)  UseMethod("mean"),
-  target = structure("ANY", class = structure("signature", package = "methods"),
-  .Names = "x", package = "methods"), defined = structure("ANY", class =
-  structure("signature", package = "methods"), .Names = "x", package =
-  "methods"), generic = structure("mean", package = "base"), class =
-  structure("derivedDefaultMethod", package = "methods")))(x, ...), class =
-  structure("standardGeneric", package = "methods")), nmc = 50,
+  aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
   replace = FALSE, id = NULL, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
   affect.names = character(0), affect.pattern = NULL,
@@ -157,8 +143,8 @@ Other filter: \code{\link{cpoFilterAnova}},
   \code{\link{cpoFilterVariance}}
 
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
-  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -184,11 +170,12 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoImpactEncodeRegr}},
   \code{\link{cpoImpute}},
   \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
+  \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxhelp.R
 \name{CPO}
 \alias{CPO}
-\title{Composable Preprocessing Operators.}
+\title{Composable Preprocessing Operators}
 \description{
 Composable Preprocessing Operators, or \code{CPO}, are the central entity provided by the \code{mlrCPO} package.
 CPOs can perform operations on a \code{\link[base]{data.frame}} or a \code{\link[mlr]{Task}}, for the latter even
@@ -65,7 +65,7 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{attachCPO}}, \code{\link{composeCPO}},
   \code{\link{getCPOClass}}, \code{\link{getOrigialCPO}},
   \code{\link{getOriginalCPOConstructor}},
-  \code{\link{makeCPO}}
+  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 
 Other operators: \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},

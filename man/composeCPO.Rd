@@ -49,5 +49,5 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{\%>>\%}}, \code{\link{attachCPO}},
   \code{\link{getCPOClass}}, \code{\link{getOrigialCPO}},
   \code{\link{getOriginalCPOConstructor}},
-  \code{\link{makeCPO}}
+  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 }

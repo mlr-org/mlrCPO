@@ -31,7 +31,7 @@ parameterClashAssert = function(obj1, obj2, name1, name2) {
 # @param par.set [ParamSet] parameter set to subset by
 # @return [list] subset of `par.vals`
 subsetParams = function(par.vals, par.set) {
-  par.vals[intersect(names(par.vals), getParamIds(par.set)))]
+  par.vals[intersect(names(par.vals), getParamIds(par.set))]
 }
 
 # check that all parameters are feasible according to their limits

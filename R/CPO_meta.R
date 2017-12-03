@@ -1,10 +1,11 @@
 
-#' @include makeCPO.R
+#' @include makeCPO.R fauxCPOConstructor.R
 
 #' @title CPO Multiplexer
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' \code{makeCPOMultiplex} creates a \code{\link{CPOConstructor}}, \code{cpoMultiplex}
 #' \emph{is} a \code{\link{CPOConstructor}}.
 #'
@@ -72,7 +73,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
 }
 #' @export
 #' @rdname makeCPOMultiplex
-cpoMultiplex = makeFauxCPOConstructor(mlrCPO::makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)
+cpoMultiplex = makeFauxCPOConstructor(makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
 #' @title Build Data-Dependent CPOs
@@ -223,7 +224,7 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
 }
 #' @export
 #' @rdname makeCPOCase
-cpoCase = makeFauxCPOConstructor(mlrCPO::makeCPOCase, "case", "other", default.id.null = TRUE)
+cpoCase = makeFauxCPOConstructor(makeCPOCase, "case", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
 
 #' @title Transform CPO Hyperparameters
@@ -536,7 +537,10 @@ propertiesToMakeCPOProperties = function(properties, operation = c("feature", "t
     one = intersect(one, subset.adding.needed)
     two = intersect(two, subset.adding.needed)
     sym.setdiff = c(setdiff(one, two), setdiff(two, one))
-    c(intersect(one, two), paste0(sym.setdiff, ".sometimes"))
+    if (length(sym.setdiff)) {
+      sym.setdiff = paste0(sym.setdiff, ".sometimes")
+    }
+    c(intersect(one, two), sym.setdiff)
   }
 
   list(properties.data = intersect(properties$handling, cpo.dataproperties),
@@ -565,6 +569,14 @@ propertiesToMakeCPOProperties = function(properties, operation = c("feature", "t
 collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
   coltype = match.arg(coltype)
 
+  if (!length(clist)) {
+    am = switch(coltype, multiplex = character(0),
+      cbind = cpo.dataproperties)
+    return(list(handling = cpo.all.properties,
+      adding = am, adding.min = am,
+      needed = character(0), needed.max = character(0)))
+  }
+
   allprops = lapply(clist, getCPOProperties)
 
   # *A*pply *S*etop to *S*ublist
@@ -580,13 +592,14 @@ collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
     Reduce(setop, extractSubList(allprops, sublist, simplify = FALSE), initial)
   }
 
+
   if (coltype == "multiplex") {
     when.to.union = c("handling", "adding", "needed.max")
   } else {
     when.to.union = c("needed", "needed.max")
   }
-  lapply(c("handling", "adding", "adding.min", "needed", "needed.max"),
-    function(x) ass(x, x %in% when.to.union))
+  sapply(c("handling", "adding", "adding.min", "needed", "needed.max"),
+    function(x) ass(x, x %in% when.to.union), simplify = FALSE)
 }
 
 # Build a CPOConstructor that wraps a CPO
@@ -649,54 +662,4 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
     retrafoless = list(cpo.trafo = cpo.trafo))
 
   constructor = do.call(maker, c(arguments, arguments.addnl, props.creator, list(...)))
-}
-
-
-# takes a function that creates a CPOConstructor, and turns this function into
-# a CPOConstructor. It thus makes it possible to handle the 'constructorconstructor'
-# like a normal CPOConstructor.
-#
-#
-# @param constructorconstructor [function] a function that returns a CPOConstructor
-# @param cpo.name [character(1)] the cpo name
-# @param cpo.type.extended [character(1)] one of "target", "feature", "target.extended", "feature.extended", "retrafoless", "other"
-#   What should the CPO be printed as?
-# @param trafo.funs [list] list with names cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, and the same suffixed
-#   with '.orig': For printing.
-# @param default.id.null [logical(1)] whether to set the ID of the created CPO to NULL.
-# @return [CPOConstructor].
-makeFauxCPOConstructor = function(constructorconstructor, cpo.name, cpo.type.extended, trafo.funs = list(), default.id.null = FALSE) {
-  assertString(cpo.name)
-  assertChoice(cpo.type.extended, c("target", "feature", "target.extended", "feature.extended", "retrafoless", "other"))
-  constructor = function(id = NULL, export = "export.default",
-           affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
-           affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
-    cc = constructorconstructor
-    constconstcall = dropNamed(match.call(), const.params)
-    constconstcall[[1]] = substitute(cc)
-    cpoconst = eval.parent(constconstcall)
-
-    constcall = dropNamed(match.call(), constconst.params)
-    constcall[[1]] = substitute(cpoconst)
-    newcpo = eval.parent(constcall)
-    newcpo$old.constructor = newcpo$constructor
-    newcpo$constructor = constructor
-    if (default.id.null) {
-      newcpo = setCPOId(newcpo, NULL)
-    }
-    addClasses(newcpo, "FauxCPOConstructed")
-  }
-  const.params = names(formals(constructor))
-
-  constconst.params = names(formals(constructorconstructor))
-
-  formals(constructor) = as.pairlist(c(formals(constructorconstructor), formals(constructor)))
-
-  constructor = addClasses(constructor, "CPOConstructor")
-  constructor
-}
-
-#' @export
-identicalCPO.FauxCPOConstructed = function(cpo1, cpo2) {
-  identical(cpo1$old.constructor, cpo2$old.constructor)
 }

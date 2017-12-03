@@ -4,7 +4,7 @@
 \alias{getCPOName}
 \alias{getCPOName.CPOTrained}
 \alias{getCPOName.CPOConstructor}
-\title{Get the CPO object's Name}
+\title{Get the CPO Object's Name}
 \usage{
 getCPOName(cpo)
 
@@ -67,5 +67,6 @@ Other inverter related: \code{\link{CPOTrained}},
 Other CPOConstructor related: \code{\link{CPOConstructor}},
   \code{\link{getCPOClass}},
   \code{\link{getOriginalCPOConstructor}},
-  \code{\link{makeCPO}}, \code{\link{print.CPOConstructor}}
+  \code{\link{identicalCPO}}, \code{\link{makeCPO}},
+  \code{\link{print.CPOConstructor}}
 }

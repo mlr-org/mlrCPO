@@ -2,7 +2,7 @@
 % Please edit documentation in R/listCPO.R
 \name{listCPO}
 \alias{listCPO}
-\title{List all built-in CPOs}
+\title{List all Built-in CPOs}
 \usage{
 listCPO()
 }

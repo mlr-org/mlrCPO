@@ -2,7 +2,7 @@
 % Please edit documentation in R/operators.R
 \name{applyCPO}
 \alias{applyCPO}
-\title{Apply a CPO to Data.}
+\title{Apply a CPO to Data}
 \usage{
 applyCPO(cpo, task)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/properties.R
 \name{setCPOId}
 \alias{setCPOId}
-\title{Set the ID of a CPO object.}
+\title{Set the ID of a CPO Object}
 \usage{
 setCPOId(cpo, id)
 }

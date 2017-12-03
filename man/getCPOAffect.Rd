@@ -2,7 +2,7 @@
 % Please edit documentation in R/properties.R
 \name{getCPOAffect}
 \alias{getCPOAffect}
-\title{Get the Selection Arguments for Affected CPOs.}
+\title{Get the Selection Arguments for Affected CPOs}
 \usage{
 getCPOAffect(cpo, drop.defaults = TRUE)
 }

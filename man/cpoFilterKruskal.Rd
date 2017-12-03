@@ -2,7 +2,7 @@
 % Please edit documentation in R/CPO_filterFeatures.R
 \name{cpoFilterKruskal}
 \alias{cpoFilterKruskal}
-\title{Filter features: kruskal.test}
+\title{Filter Features: \dQuote{kruskal.test}}
 \usage{
 cpoFilterKruskal(perc = NULL, abs = NULL, threshold = NULL, id = NULL,
   export = "export.default", affect.type = NULL,
@@ -127,8 +127,8 @@ Other filter: \code{\link{cpoFilterAnova}},
   \code{\link{cpoFilterVariance}}
 
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
-  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -154,11 +154,12 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoImpactEncodeRegr}},
   \code{\link{cpoImpute}},
   \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
+  \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }

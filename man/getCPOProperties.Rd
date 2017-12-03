@@ -4,7 +4,7 @@
 \alias{getCPOProperties}
 \alias{CPOProperties}
 \alias{getCPOProperties.CPOTrained}
-\title{Get the Properties of the Given CPO Object.}
+\title{Get the Properties of the Given CPO Object}
 \usage{
 getCPOProperties(cpo, only.data = FALSE, get.internal = FALSE)
 

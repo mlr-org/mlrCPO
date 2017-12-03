@@ -1,4 +1,4 @@
-#' @include CPO_meta.R
+#' @include CPO_meta.R operators.R NULLCPO.R
 
 #' @title \dQuote{cbind} the Result of Multiple CPOs
 #'
@@ -52,14 +52,6 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
   cpos = c(list(...), .cpos)
 
   assertList(cpos, types = "CPO", any.missing = FALSE)
-
-
-  # TODO: do this at the end; if there are common elements at the beginning of the chain,
-  # its not so much of a problem.
-  if (length({badtype = setdiff(unique(unlist(lapply(constructed, getCPOOperatingType))), "feature")})) {
-    stopf("cpoCbind can only handle Feature Operation CPOs, but found CPOs with Operating Types '%s'",
-      collapse(badtype, "', '"))
-  }
 
   props = collectProperties(cpos, "cbind")
   props.creator = propertiesToMakeCPOProperties(props, "feature")
@@ -122,7 +114,13 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
     }
 
     allcpos = extractSubList(Filter(function(x) x$type == "CPO", graph), "content", simplify = FALSE)
-    par.set = do.call(base::c, lapply(allcpos, getParamSet))
+
+    if (length({badtype = setdiff(unique(unlist(lapply(allcpos, getCPOOperatingType))), "feature")})) {
+      stopf("cpoCbind can only handle Feature Operation CPOs, but found CPOs with Operating Types '%s'",
+        collapse(badtype, "', '"))
+    }
+
+    par.set = c(makeParamSet(), do.call(base::c, lapply(allcpos, getParamSet)))
     par.vals = do.call(base::c, lapply(allcpos, getHyperPars))
     export.params = getParamIds(par.set)  # don't export the .CPO
     par.set %c=% makeParamSet(makeUntypedLearnerParam(".CPO"))
@@ -146,7 +144,6 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
       })(), "CPOCbind")
   }))
 }
-registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")
 
 # Iterate through the graph objects in order of dependency, apply each CPO to the data.
 applyGraph = function(graph, data, is.trafo, args) {
@@ -438,14 +435,11 @@ cascadeGraph = function(cpograph) {
   # first we just split up the graph
   dummy.source = makeCPOGraphItem(type = "SOURCE", parents = integer(0), children = integer(0), content = NULL)
   graphs = list()  # list of graphs
-  curgraph = list(cpograph[[1]])  # the current collection of graph vertices
-  lookahead = max(cpograph[[1]]$children)    # the last vertex that still needs to be included in 'curgraph'
+  curgraph = NULL  # the current collection of graph vertices
+  lookahead = 0    # the last vertex that still needs to be included in 'curgraph'
   offset = 0L  # how much to subtract from parents / children
               # pointers to make them local to their subgraph in curgraph
   for (idx in seq_along(cpograph)) {
-    if (idx == 1) {
-      next
-    }
     next.elt = cpograph[[idx]]
     next.children = next.elt$children
 
@@ -457,7 +451,10 @@ cascadeGraph = function(cpograph) {
       }
       next.elt$children = integer(0)
       curgraph %c=% list(next.elt)
-      graphs %c=% list(curgraph)
+      if (idx > 1) {
+        # the first item should not go heere
+        graphs %c=% list(curgraph)
+      }
       curgraph = list(dummy.source)
       offset = idx - 1L  # because of 1-based arrays: the 'idx' element becomes element no 1 in the new graph
       curgraph[[1]]$children = next.children - offset
@@ -468,7 +465,8 @@ cascadeGraph = function(cpograph) {
     }
     lookahead = max(lookahead, next.children)
   }
-  c(graphs, list(curgraph))
+  assert(length(curgraph) == 1)
+  graphs
 }
 
 #################################
@@ -504,7 +502,9 @@ print.CPOCbind = function(x, verbose = FALSE, width = getOption("width"), ...) {
   })
   offset = length(graph) + 1
   children = lapply(graph[-1], function(x) offset - setdiff(x$parents, 1))
-  printGraph(rev(children), rev(descriptions), width)
+  if (length(children)) {
+    printGraph(rev(children), rev(descriptions), width)
+  }
 }
 
 # pretty-print the graph of a cpoCbind object.
@@ -618,3 +618,4 @@ printGraph = function(children, descriptions, width = getOption("width")) {
   }
 }
 
+registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/CPO_missingIndicators.R
 \name{cpoMissingIndicators}
 \alias{cpoMissingIndicators}
-\title{Convert Data into Factors indicating Missing Data}
+\title{Convert Data into Factors Indicating Missing Data}
 \usage{
 cpoMissingIndicators(force.dummies = FALSE, id = NULL,
   export = "export.default", affect.type = NULL,
@@ -99,8 +99,8 @@ data features are affected by default.
 
 \seealso{
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
-  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -126,11 +126,11 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoImpactEncodeClassif}},
   \code{\link{cpoImpactEncodeRegr}},
   \code{\link{cpoImpute}}, \code{\link{cpoModelMatrix}},
-  \code{\link{cpoMultiplex}}, \code{\link{cpoPca}},
-  \code{\link{cpoProbEncode}},
+  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }

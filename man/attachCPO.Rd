@@ -2,7 +2,7 @@
 % Please edit documentation in R/operators.R
 \name{attachCPO}
 \alias{attachCPO}
-\title{Attach a CPO to a Learner.}
+\title{Attach a CPO to a Learner}
 \usage{
 attachCPO(cpo, learner)
 }
@@ -34,7 +34,7 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{\%>>\%}}, \code{\link{composeCPO}},
   \code{\link{getCPOClass}}, \code{\link{getOrigialCPO}},
   \code{\link{getOriginalCPOConstructor}},
-  \code{\link{makeCPO}}
+  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 
 Other CPOLearner related: \code{\link{CPOLearner}},
   \code{\link{getLearnerBare}}, \code{\link{getLearnerCPO}}

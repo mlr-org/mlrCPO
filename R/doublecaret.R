@@ -32,11 +32,11 @@
 #' The \code{\%>|\%} evaluates the expression to its right before the expression to its left, so it may be
 #' used in the most natural way without parentheses:
 #'
-#' \code{data %>|% cpo1 %>>% cpo2}
+#' \code{data \%>|\% cpo1 \%>>\% cpo2}
 #'
 #' is the same as
 #'
-#' \code{retrafo(data %>>% cpo1 %>>% cpo2)}.
+#' \code{retrafo(data \%>>\% cpo1 \%>>\% cpo2)}.
 #'
 #'
 #' The \code{\%<>>\%} and \code{\%<<<\%} operators perform the piping operation and assign the result
@@ -45,13 +45,12 @@
 #' object. The assignment operators evaluate their right hand side before their left hand side, so
 #' it is possible to build long chains that end up writing to the leftmost variable. Therefore the expression
 #'
-#' \code{data %<>>% cpo1 %<>>% cpo2 %>>% cpo3}
+#' \code{data \%<>>\% cpo1 \%<>>\% cpo2 \%>>\% cpo3}
 #'
 #' is the same as
 #'
-#' \preformatted{cpo1 = cpo1 %>>% cpo2 %>>% cpo3
-#'
-#' data = data %>>% cpo1}.
+#' \preformatted{cpo1 = cpo1 \%>>\% cpo2 \%>>\% cpo3
+#' data = data \%>>\% cpo1}
 #'
 #' @param cpo1 [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The source object.

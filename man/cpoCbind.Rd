@@ -2,18 +2,19 @@
 % Please edit documentation in R/CPO_cbind.R
 \name{cpoCbind}
 \alias{cpoCbind}
-\title{\dQuote{cbind} the Result of multiple CPOs}
+\title{\dQuote{cbind} the Result of Multiple CPOs}
 \usage{
-cpoCbind(..., .cpos = list())
+cpoCbind(..., .cpos = list(), .dedup.cols = FALSE)
 }
 \arguments{
-\item{...}{[\code{CPO}]\cr
-The CPOs to cbind. Named arguments will result in the respective
+\item{...}{[\code{\link{CPO}}]\cr
+The \code{\link{CPO}}s to cbind. These must be Feature Operation CPOs.
+Named arguments will result in the respective
 columns being prefixed with the name. This is highly recommended if there
 is any chance of name collision otherwise. it is possible to use the same
-name multiple times.}
+name multiple times (provided the resulting column names don't clash).}
 
-\item{.cpos}{[\code{list} of \code{CPO}]\cr
+\item{.cpos}{[\code{list} of \code{\link{CPO}}]\cr
 Alternatively, give the CPOs to cbind as a list. Default is \code{list()}.}
 
 \item{id}{[\code{character(1)}]\cr
@@ -67,10 +68,10 @@ This is a \code{\link{CPOConstructor}} to be used to create a
 \code{\link{CPO}}. It is called like any R function and returns
 the created \code{\link{CPO}}.
 
-Build a CPO that represents the operations of its input parameters,
+Build a \code{\link{CPO}} that represents the operations of its input parameters,
 performed in parallel and put together column wise.
 
-For example, to construct a \code{\link{Task}} that contains the original
+For example, to construct a \code{\link[mlr]{Task}} that contains the original
 data, as well as the data after scaling, one could do
 
 \code{task \%>>\% cpoCbind(NULLCPO, cpoScale())}
@@ -81,7 +82,7 @@ To get networks, e.g. of the form
 \preformatted{
       ,-C--E-.
      /    /   \
-A---B ---D-----F---G
+A---B----D-----F---G
 }
 one coul use the code
 \preformatted{
@@ -91,13 +92,13 @@ route2 = cpoCbind(route1, initcpo \%>>\% C) \%>>\% E
 result = cpoCbind(route1, route2) \%>>\% F \%>>\% G
 }
 
-cpoCbind finds common paths among its arguments and combines them into one operation.
+\code{cpoCbind} finds common paths among its arguments and combines them into one operation.
 This saves computation and makes it possible for one exported hyperparameter to
 influence multiple of \code{cpoCbind}'s inputs. However, if you want to use the same
 operation with different parameters on different parts of \code{cpoCbind} input,
 you must give these operations different IDs. If CPOs that could represent an identical CPO,
-with the same IDs (or both with IDs absent) but different parameter settings or different
-parameter exportations occur, an error will be thrown.
+with the same IDs (or both with IDs absent) but different parameter settings, \code{affect.*} settings
+or different parameter exportations occur, an error will be thrown.
 }
 \section{General CPO info}{
 
@@ -125,7 +126,7 @@ data features are affected by default.
 
 \seealso{
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCase}},
+  \code{\link{cpoAsNumeric}},
   \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
@@ -153,14 +154,16 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoImpactEncodeRegr}},
   \code{\link{cpoImpute}},
   \code{\link{cpoMissingIndicators}},
-  \code{\link{cpoModelMatrix}}, \code{\link{cpoMultiplex}},
-  \code{\link{cpoPca}}, \code{\link{cpoProbEncode}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
+  \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
-  \code{\link{cpoWrap}}
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 
-Other special CPOs: \code{\link{cpoCase}},
-  \code{\link{cpoMultiplex}}, \code{\link{cpoWrap}}
+Other special CPOs: \code{\link{cpoTransformParams}},
+  \code{\link{cpoWrap}}, \code{\link{makeCPOCase}},
+  \code{\link{makeCPOMultiplex}}
 }
