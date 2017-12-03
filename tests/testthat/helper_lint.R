@@ -80,14 +80,16 @@ if (isLintrVersionOk() && require("lintr", quietly = TRUE) && require("rex", qui
   spaces.left.parentheses.linter = function(source_file) {
         lapply(lintr:::ids_with_token(source_file, "'('"), function(id) {
           parsed = source_file$parsed_content[id, ]
-          terminal.tokens.before = source_file$parsed_content$token[source_file$parsed_content$line1 ==
+          terminal.before = source_file$parsed_content[source_file$parsed_content$line1 ==
               parsed$line1 & source_file$parsed_content$col1 <
-              parsed$col1 & source_file$parsed_content$terminal]
-          last.type = tail(terminal.tokens.before, n = 1)
+              parsed$col1 & source_file$parsed_content$terminal, ]
+          last.before = tail(terminal.before, n = 1)
+          last.type = last.before$token
           is.function = length(last.type) %!=% 0L && (last.type %in%
               c("SYMBOL_FUNCTION_CALL", "FUNCTION", "'}'", "')'",
                   "']'"))
-          if (!is.function) {
+          is.unary.minus = last.type == "'-'" && sum(source_file$parsed_content$parent == last.before$parent) == 2
+          if (!is.function && !is.unary.minus) {
               line = source_file$lines[as.character(parsed$line1)]
               before.operator = substr(line, parsed$col1 - 1L,
                   parsed$col1 - 1L)
