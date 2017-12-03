@@ -75,7 +75,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
 cpoMultiplex = makeFauxCPOConstructor(mlrCPO::makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
-#' @title Build data-dependent CPOs
+#' @title Build Data-Dependent CPOs
 #'
 #' @template cpo_doc_intro
 #'
@@ -307,7 +307,7 @@ cpoTransformParams = function(cpo, transformations, additional.parameters = make
 registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "meta", NULL, "Transform a CPO's Hyperparameters.")
 
 
-#' @title Caches The Result of CPO Transformations
+#' @title Caches the Result of CPO Transformations
 #'
 #' @template cpo_doc_intro
 #'

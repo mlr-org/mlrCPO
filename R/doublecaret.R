@@ -49,7 +49,7 @@
 #'
 #' is the same as
 #'
-#' \code{cpo1 = cpo1 %>>% cpo2 %>>% cpo3
+#' \preformatted{cpo1 = cpo1 %>>% cpo2 %>>% cpo3
 #'
 #' data = data %>>% cpo1}.
 #'

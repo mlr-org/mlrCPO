@@ -1,4 +1,4 @@
-#' @title Create a "model matrix" from the data given a formula
+#' @title Create a \dQuote{Model Matrix} from the Data Given a Formula
 #'
 #' @template cpo_doc_intro
 #'

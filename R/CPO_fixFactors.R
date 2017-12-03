@@ -1,5 +1,5 @@
 
-#' @title Clean up Factorial Features.
+#' @title Clean Up Factorial Features
 #'
 #' @template cpo_doc_intro
 #'

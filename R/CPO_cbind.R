@@ -1,6 +1,6 @@
 #' @include CPO_meta.R
 
-#' @title \dQuote{cbind} the Result of multiple CPOs
+#' @title \dQuote{cbind} the Result of Multiple CPOs
 #'
 #' @template cpo_doc_intro
 #'

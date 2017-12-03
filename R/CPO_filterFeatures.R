@@ -1,6 +1,6 @@
 .FilterRegister = get(".FilterRegister", envir = getNamespace("mlr"))  # nolint
 
-#' @title Filter features by thresholding filter values.
+#' @title Filter Features by Thresholding Filter Values
 #'
 #' @template cpo_doc_intro
 #'
@@ -75,7 +75,7 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
     })
 }
 
-#' @title Filter features: mrmr
+#' @title Filter Features: \dQuote{mrmr}
 #'
 #' @template cpo_doc_intro
 #'
@@ -90,7 +90,7 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
 cpoFilterMrmr = declareFilterCPO("mrmr") # nolint  #  missing parameters
 registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features using 'minimum redundancy, maximum relevance'.")
 
-#' @title Filter features: carscore
+#' @title Filter Features: \dQuote{carscore}
 #'
 #' @template cpo_doc_intro
 #'
@@ -106,7 +106,7 @@ registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features usin
 cpoFilterCarscore = declareFilterCPO("carscore", diagonal = FALSE: logical)  # nolint # missing parameter 'lambda'
 registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features using correlation-adjusted marginal correlation.")
 
-#' @title Filter features: randomForestSRC.rfsrc
+#' @title Filter Features: \dQuote{randomForestSRC.rfsrc}
 #'
 #' @template cpo_doc_intro
 #'
@@ -124,7 +124,7 @@ cpoFilterRfSRCImportance = declareFilterCPO("randomForestSRC.rfsrc") #,  # nolin
 #  method = "permute": discrete[permute, random, anti, permute.ensemble, random.ensemble, anti.ensemble])  # missing parameters
 registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter features using randomForestSRC.rfsrc.")
 
-#' @title Filter features: randomForestSRC.var.select
+#' @title Filter Features: \dQuote{randomForestSRC.var.select}
 #'
 #' @template cpo_doc_intro
 #'
@@ -139,7 +139,7 @@ registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter fe
 cpoFilterRfSRCMinDepth = declareFilterCPO("randomForestSRC.var.select")  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
 registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter features using randomForestSRC minimal depth.")
 
-#' @title Filter features: cforest.importance
+#' @title Filter Features: \dQuote{cforest.importance}
 #'
 #' @template cpo_doc_intro
 #'
@@ -156,7 +156,7 @@ registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter feat
 cpoFilterRfCImportance = declareFilterCPO("cforest.importance", mtry = 5: integer[1, ])  # nolint  # missing parameters
 registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter features using party::cforest variable importance.")
 
-#' @title Filter features: randomForest.importance
+#' @title Filter Features: \dQuote{randomForest.importance}
 #'
 #' @template cpo_doc_intro
 #'
@@ -174,7 +174,7 @@ registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter feat
 cpoFilterRfImportance = declareFilterCPO("randomForest.importance")  #, method = "oob.accuracy": discrete[oob.accuracy, node.impurity])  # nolint  # missing parameters
 registerCPO(cpoFilterRfImportance, "featurefilter", "specialised", "Filter features using randomForest variable importance.")
 
-#' @title Filter features: linear.correlation
+#' @title Filter Features: \dQuote{linear.correlation}
 #'
 #' @template cpo_doc_intro
 #'
@@ -187,7 +187,7 @@ registerCPO(cpoFilterRfImportance, "featurefilter", "specialised", "Filter featu
 cpoFilterLinearCorrelation = declareFilterCPO("linear.correlation")  # nolint
 registerCPO(cpoFilterLinearCorrelation, "featurefilter", "specialised", "Filter features using Pearson correlation.")
 
-#' @title Filter features: rank.correlation
+#' @title Filter Features: \dQuote{rank.correlation}
 #'
 #' @template cpo_doc_intro
 #'
@@ -200,7 +200,7 @@ registerCPO(cpoFilterLinearCorrelation, "featurefilter", "specialised", "Filter 
 cpoFilterRankCorrelation = declareFilterCPO("rank.correlation")  # nolint
 registerCPO(cpoFilterRankCorrelation, "featurefilter", "specialised", "Filter features using Spearman correlation.")
 
-#' @title Filter features: information.gain
+#' @title Filter Features: \dQuote{information.gain}
 #'
 #' @template cpo_doc_intro
 #'
@@ -213,7 +213,7 @@ registerCPO(cpoFilterRankCorrelation, "featurefilter", "specialised", "Filter fe
 cpoFilterInformationGain = declareFilterCPO("information.gain")  # nolint
 registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter features using entropy-based information gain.")
 
-#' @title Filter features: gain.ratio
+#' @title Filter Features: \dQuote{gain.ratio}
 #'
 #' @template cpo_doc_intro
 #'
@@ -226,7 +226,7 @@ registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter fe
 cpoFilterGainRatio = declareFilterCPO("gain.ratio")  # nolint
 registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features using entropy-based information gain ratio")
 
-#' @title Filter features: symmetrical.uncertainty
+#' @title Filter Features: \dQuote{symmetrical.uncertainty}
 #'
 #' @template cpo_doc_intro
 #'
@@ -239,7 +239,7 @@ registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features
 cpoFilterSymmetricalUncertainty = declareFilterCPO("symmetrical.uncertainty")  # nolint
 registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Filter features using entropy-based symmetrical uncertainty")
 
-#' @title Filter features: chi.squared
+#' @title Filter Features: \dQuote{chi.squared}
 #'
 #' @template cpo_doc_intro
 #'
@@ -256,7 +256,7 @@ registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Fi
 cpoFilterChiSquared = declareFilterCPO("chi.squared")  # nolint
 registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter features using chi-squared test.")
 
-#' @title Filter features: relief
+#' @title Filter Features: \dQuote{relief}
 #'
 #' @template cpo_doc_intro
 #'
@@ -280,7 +280,7 @@ registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter feature
 cpoFilterRelief = declareFilterCPO("relief")  # nolint # missing parameters
 registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features using the ReliefF algorithm.")
 
-#' @title Filter features: oneR
+#' @title Filter Features: \dQuote{oneR}
 #'
 #' @template cpo_doc_intro
 #'
@@ -296,7 +296,7 @@ registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features us
 cpoFilterOneR = declareFilterCPO("oneR")  # nolint
 registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features using the OneR learner.")
 
-#' @title Filter features: univariate.model.score
+#' @title Filter Features: \dQuote{univariate.model.score}
 #'
 #' @template cpo_doc_intro
 #'
@@ -325,7 +325,7 @@ cpoFilterUnivariate = declareFilterCPO("univariate.model.score",  # nolint
       makeUntypedLearnerParam("perf.resampling", NULL)))
 registerCPO(cpoFilterUnivariate, "featurefilter", "specialised", "Filter features using the predictiveness using a given learner.")
 
-#' @title Filter features: anova.test
+#' @title Filter Features: \dQuote{anova.test}
 #'
 #' @template cpo_doc_intro
 #'
@@ -339,7 +339,7 @@ registerCPO(cpoFilterUnivariate, "featurefilter", "specialised", "Filter feature
 cpoFilterAnova = declareFilterCPO("anova.test")  # nolint
 registerCPO(cpoFilterAnova, "featurefilter", "specialised", "Filter features using analysis of variance.")
 
-#' @title Filter features: kruskal.test
+#' @title Filter Features: \dQuote{kruskal.test}
 #'
 #' @template cpo_doc_intro
 #'
@@ -356,7 +356,7 @@ registerCPO(cpoFilterAnova, "featurefilter", "specialised", "Filter features usi
 cpoFilterKruskal = declareFilterCPO("kruskal.test")  # nolint
 registerCPO(cpoFilterKruskal, "featurefilter", "specialised", "Filter features using the Kruskal-Wallis rank sum test.")
 
-#' @title Filter features: variance
+#' @title Filter Features: \dQuote{variance}
 #'
 #' @template cpo_doc_intro
 #'
@@ -370,7 +370,7 @@ registerCPO(cpoFilterKruskal, "featurefilter", "specialised", "Filter features u
 cpoFilterVariance = declareFilterCPO("variance")  # nolint
 registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features using feature variance.")
 
-#' @title Filter features: permutation.importance
+#' @title Filter Features: \dQuote{permutation.importance}
 #'
 #' @template cpo_doc_intro
 #'

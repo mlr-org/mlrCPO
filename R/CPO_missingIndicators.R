@@ -1,4 +1,4 @@
-#' @title Convert Data into Factors indicating Missing Data
+#' @title Convert Data into Factors Indicating Missing Data
 #'
 #' @template cpo_doc_intro
 #'

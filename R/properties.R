@@ -1,7 +1,7 @@
 # properties.R contains getXXX and setXXX functions that apply to CPO objects.
 #' @include callCPO.R
 
-#' @title Get the CPO object's Name
+#' @title Get the CPO Object's Name
 #'
 #' @description
 #' Return the name associated with a \code{\link{CPO}} operation. This name
@@ -19,7 +19,7 @@ getCPOName = function(cpo) {
   UseMethod("getCPOName")
 }
 
-#' @title Set the ID of a CPO object.
+#' @title Set the ID of a CPO Object.
 #'
 #' @description
 #' Sets the \emph{id} of a \code{\link{CPO}}. Setting the id
@@ -52,7 +52,7 @@ setCPOId.default = function(cpo, id) {
 }
 
 
-#' @title Get the ID of a CPO object.
+#' @title Get the ID of a CPO Object.
 #'
 #' @description
 #' Gets the \emph{id} of a \code{\link{CPO}}. The id can be set
@@ -383,7 +383,7 @@ getOrigialCPO = function(cpo) {
   UseMethod("getOrigialCPO")
 }
 
-#' @title Get CPOConstructor Used to create a CPO object.
+#' @title Get the CPOConstructor Used to Create a CPO Object.
 #'
 #' @description
 #' Get the \code{\link{CPOConstructor}} used to create a \code{\link{CPO}} or \code{\link{CPOTrained}} object.
@@ -401,7 +401,7 @@ getOriginalCPOConstructor = function(cpo) {
 }
 
 
-#' @title Check whether two CPO are fundamentally the same.
+#' @title Check Whether Two CPO are Fundamentally the Same
 #'
 #' @description
 #' Check whether two \code{\link{CPO}} perform the same operation. This

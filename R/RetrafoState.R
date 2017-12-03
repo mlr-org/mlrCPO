@@ -20,7 +20,7 @@
 #'
 #' The object can be slightly modified and used to create a new
 #' CPOTrained object using \code{\link{makeCPOTrainedFromState}}.
-
+#'
 #' @param trained.object [\code{CPOTrained}]\cr
 #'   The object to get the state of.
 #' @return [\code{list}]. A named list, containing the complete internal state of the \code{\link{CPOTrained}}.

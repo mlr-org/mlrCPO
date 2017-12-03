@@ -1,4 +1,4 @@
-#' @title Drop constant or near-constant Features.
+#' @title Drop Constant or Near-Constant Features
 #'
 #' @template cpo_doc_intro
 #'

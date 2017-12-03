@@ -1,5 +1,5 @@
 
-#' @title Impute and re-impute data
+#' @title Impute and Re-Impute Data
 #'
 #' @template cpo_doc_intro
 #'

@@ -1,4 +1,4 @@
-#' @title Construct a CPO for PCA preprocessing
+#' @title Construct a CPO for PCA Preprocessing
 #'
 #' @template cpo_doc_intro
 #'

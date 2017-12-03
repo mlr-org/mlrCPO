@@ -1,4 +1,4 @@
-#' @title Construct a CPO for scaling / centering
+#' @title Construct a CPO for Scaling / Centering
 #'
 #' @template cpo_doc_intro
 #'

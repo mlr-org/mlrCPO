@@ -5,7 +5,7 @@
 ### Generics                   ###
 ##################################
 
-#' @title Get the Retransformation or Inversion Function from a Resulting Object.
+#' @title Get the Retransformation or Inversion Function from a Resulting Object
 #'
 #' @description
 #' When applying a \code{\link{CPO}} to a \code{\link[base]{data.frame}} or \code{\link[mlr]{Task}},

@@ -157,7 +157,7 @@ composeCPO.CPO = function(cpo1, cpo2) {
 ### CPO Trafo Splitting        ###
 ##################################
 
-#' @title Split a Pipeline Into Its Constituents.
+#' @title Split a Pipeline into Its Constituents
 #'
 #' @description
 #' Split a compound \code{\link{CPO}} or \code{\link{CPOTrained}} into a list of its constituent parts.
@@ -314,7 +314,7 @@ as.list.CPOTrained = function(x, ...) {
 ### Chaining                   ###
 ##################################
 
-#' @title Turn a \code{list} of CPOs Into a Single Chained One.
+#' @title Turn a \code{list} of CPOs into a Single Chained One
 #'
 #' @description
 #' Chain a list of preprocessing operators, or retrafo objects, turning \code{list(a, b, c)} into

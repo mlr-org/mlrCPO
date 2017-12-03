@@ -40,7 +40,7 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
   invisible(NULL)
 }
 
-#' @title List all built-in CPOs
+#' @title List all Built-in CPOs
 #'
 #' @description
 #' Return a \code{data.frame} with the columns \dQuote{name},
