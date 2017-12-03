@@ -25,7 +25,7 @@ devtools::load_all("..")
 
 
 options(error = dump.frames)
-options(max.print=20)
+options(max.print = 20)
 
 
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
@@ -44,7 +44,6 @@ devtools::test(pkg = "..", filter = "filter")
 devtools::test(pkg = "..", filter = "impute")
 devtools::test(pkg = "..", filter = "concrete")
 devtools::test(pkg = "..", filter = "meta")
-
 devtools::test(pkg = "..", filter = "cbind")
 
 
@@ -88,7 +87,7 @@ getLearnerType(makeLearner("classif.logreg"))
 #####
 # try to find out what return values different learners use
 
-ll = listLearners(create=TRUE)
+ll = listLearners(create = TRUE)
 
 tasks = list(classif = pid.task, regr = bh.task, surv = lung.task, cluster = mtcars.task, multilabel = agri.task)
 

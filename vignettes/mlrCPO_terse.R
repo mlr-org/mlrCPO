@@ -141,12 +141,12 @@
 #      target[[1]] = log(target[[1]])
 #      target
 #    }, cpo.retrafo = { print(match.call()) })
-#  
-#  
+#
+#
 #  log.retrafo = retrafo(bh.task %>>% logtransform())  # get a target-bound retrafo
 #  getCPOKind(log.retrafo)  # logtransform is *stateless*, so it is a retrafo *and* an inverter
 #  getCPOBound(log.retrafo)
-#  
+#
 #  inverter(bh.task %>>% log.retrafo)
 
 ## ---- eval = FALSE-------------------------------------------------------
@@ -365,12 +365,12 @@
 ## ------------------------------------------------------------------------
 #  (clrn = cpoModelMatrix() %>>% makeLearner("classif.logreg"))
 #  getParamSet(clrn)
-#  
+#
 #  ps = makeParamSet(
 #      makeDiscreteParam(
 #          "model.matrix.formula",
 #          values = list(first = ~0 + ., second = ~0 + .^2, third = ~0 + .^3)))
-#  
+#
 #  tuneParams(clrn, pid.task, cv5, par.set = ps,
 #             control = makeTuneControlGrid(),
 #             show.info=TRUE)
@@ -394,7 +394,7 @@
 #          "gain.ratio.perc",
 #          values = list(0.333, 0.667, 1.0)),
 #      makeDiscreteParam("teststat", values = c("quad", "max")))
-#  
+#
 #  tuneParams(tlrn, pid.task, cv5, par.set = ps2,
 #             control = makeTuneControlGrid())
 

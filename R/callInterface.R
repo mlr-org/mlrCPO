@@ -62,7 +62,7 @@ makeTrafoCallFeatureOpSimple = function(cpo.trafo, cpo.retrafo) {
     cpo.trafo = captureEnvWrapper(cpo.trafo)
     # functional, cannot be stateless
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
-      .ENV = NULL
+      .ENV = NULL  # nolint
       cpo.retrafo = cpo.trafo(data = data, target = target, ...)
       checkFunctionReturn(cpo.retrafo, "data", "cpo.retrafo", "cpo.train")
       clearEnv(.ENV)
@@ -95,7 +95,7 @@ makeTrafoCallFeatureOpSimple = function(cpo.trafo, cpo.retrafo) {
 makeTrafoCallFeatureOpExtended = function(cpo.trafo, cpo.retrafo) {
   cpo.trafo = captureEnvWrapper(cpo.trafo)
   function(data.reduced, target.reduced, build.inverter, ...) {
-    .ENV = NULL
+    .ENV = NULL  # nolint
     result = cpo.trafo(...)
     if (is.null(cpo.retrafo)) {
       # functional
@@ -192,7 +192,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
       target.reduced = if (dataformat %in% c("df.all", "task")) data else target
 
-      .ENV = NULL
+      .ENV = NULL  # nolint
       cpo.trafo(data = data, target = target, ...)
       clearEnv(.ENV)
 
@@ -210,7 +210,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
         if (is.null(cpo.invert)) {
           # functional invert --> need to capture .ENV
           inv.control.target = captureEnvWrapper(inv.control.target)
-          .ENV = NULL
+          .ENV = NULL  # nolint
         }
 
         state = list(cpo.retrafo = cpo.retrafo,
@@ -240,7 +240,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
       if (constant.invert) {
         state.invert = state
       } else if (build.inverter) {
-        .ENV = NULL
+        .ENV = NULL  # nolint
         state.invert = cpo.train.invert(data = data.reduced, control = state, ...)
         if (is.null(cpo.invert)) {
           # functional invert
@@ -295,7 +295,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
       if (constant.invert) {
         state.invert = NULL
       } else {
-        .ENV = NULL
+        .ENV = NULL  # nolint
         # if cpo.invert is functional, we need to delete the call's
         # 'target' and 'data' variables. If cpo.train.invert was given
         # functionally, it was wrapped in makeTrafoCallTargetOpSimple already.
@@ -328,7 +328,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
 makeTrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert) {
   cpo.trafo = captureEnvWrapper(cpo.trafo)
   function(data, target, data.reduced, target.reduced, build.inverter, ...) {
-    .ENV = NULL
+    .ENV = NULL  # nolint
     result = cpo.trafo(data = data, target = target, ...)
     clearEnv(result)
     if (is.null(cpo.retrafo)) {
@@ -366,7 +366,7 @@ makeRetrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert, c
     if (is.null(target) && constant.invert) {
       return(list(result = NULL, state.invert = NULL))
     }
-    .ENV = NULL
+    .ENV = NULL  # nolint
     if (is.null(cpo.retrafo)) {
       if (!constant.invert) {
         state = captureEnvWrapper(state)

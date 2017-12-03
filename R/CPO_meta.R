@@ -73,7 +73,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
 }
 #' @export
 #' @rdname makeCPOMultiplex
-cpoMultiplex = makeFauxCPOConstructor(makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)
+cpoMultiplex = makeFauxCPOConstructor(makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)  # nolint
 registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
 #' @title Build Data-Dependent CPOs
@@ -224,7 +224,7 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
 }
 #' @export
 #' @rdname makeCPOCase
-cpoCase = makeFauxCPOConstructor(makeCPOCase, "case", "other", default.id.null = TRUE)
+cpoCase = makeFauxCPOConstructor(makeCPOCase, "case", "other", default.id.null = TRUE)  # nolint
 registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
 
 #' @title Transform CPO Hyperparameters

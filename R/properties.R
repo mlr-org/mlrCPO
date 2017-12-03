@@ -500,7 +500,7 @@ getCPOProperties.CPO = function(cpo, only.data = FALSE, get.internal = FALSE) {
 #' @family inverter related
 #' @rdname getCPOProperties
 #' @export
-getCPOProperties.CPOTrained = getCPOProperties.CPO
+getCPOProperties.CPOTrained = getCPOProperties.CPO  # nolint
 
 # CPO ID, NAME
 
@@ -513,7 +513,7 @@ getCPOName.CPO = function(cpo) {
 #' @family inverter related
 #' @rdname getCPOName
 #' @export
-getCPOName.CPOTrained = getCPOName.CPO
+getCPOName.CPOTrained = getCPOName.CPO  # nolint
 
 #' @family CPOConstructor related
 #' @rdname getCPOName
@@ -649,7 +649,7 @@ getCPOPredictType.CPO = function(cpo) {
 #' @family inverter related
 #' @rdname getCPOPredictType
 #' @export
-getCPOPredictType.CPOTrained = getCPOPredictType.CPO
+getCPOPredictType.CPOTrained = getCPOPredictType.CPO  # nolint
 
 
 # Normalize "affect.*" arguments of CPOs

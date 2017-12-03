@@ -1,7 +1,7 @@
 
 
 # we create two very similar CPOs, so write out the arguments here and do.call them later.
-cpoSelect.callargs = alist(
+cpoSelect.callargs = alist(  # nolint
     cpo.name = "select",
     par.set = c(
         pSSLrn(type = list(): discrete[numeric, ordered, factor, other]^NA,

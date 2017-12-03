@@ -36,7 +36,7 @@ the returned data set will have a \code{\link{CPORetrafo}} and
 \code{\link{CPOInverter}} object attached to it, which can be retrieved using \code{\link{retrafo}} and \code{\link{inverter}}.
 These can be used to perform the same transformation on new data, or to invert a prediction made with the transformed data.
 
-An applied \code{\link{CPO}} can change the content of feature columns, target columns of Tasks,
+An applied \code{\link{CPO}} can change the content of feature columns, target columns of Tasks,
 and may even change the number of rows of a given data set.
 }
 
