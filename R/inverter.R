@@ -229,7 +229,7 @@ sanitizePrediction = function(data, type, predict.type) {
   assertChoice(type, cpo.tasktypes)
   assertChoice(predict.type, cpo.predict.types)
   if (is.data.frame(data)) {
-    if (length(unique(sapply(data, function(x) class(x)[1]))) != 1) {
+    if (length(unique(vcapply(data, function(x) class(x)[1]))) != 1) {
       stop("Prediction had columns of multiple modes.")
     }
     if (ncol(data) > 1) {

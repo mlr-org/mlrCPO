@@ -211,7 +211,7 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
   # check predict.type.map
   if (is.list(predict.type.map)) {
     # turn named list into named character
-    predict.type.map = sapply(predict.type.map, identity)
+    predict.type.map = vcapply(predict.type.map, identity)
   }
   if (!isTRUE(checkCharacter(predict.type.map, any.missing = FALSE, min.len = 1, names = "unique"))) {
     stop("predict.type.map argument is not, and could not be converted into, a uniquely named character vector.")

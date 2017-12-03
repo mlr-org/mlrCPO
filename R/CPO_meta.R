@@ -50,7 +50,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
         par$requires = substitute(selected.cpo == n && oreq, subst)
       }
       par
-    })
+    }, simplify = FALSE)
     ps
   })
 
@@ -263,7 +263,7 @@ registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO
 cpoTransformParams = function(cpo, transformations, additional.parameters = makeParamSet(), par.vals = list()) {
   assertClass(additional.parameters, "ParamSet")
   assertList(transformations, names = "unique")
-  assert(all(sapply(transformations, is.language)))
+  assert(all(vlapply(transformations, is.language)))
   assertClass(cpo, "CPO")
   assertList(par.vals, names = "unique")
   assertSubset(names(par.vals), getParamIds(additional.parameters))
@@ -391,7 +391,7 @@ constructCPOList = function(cpos) {
       } else if (is.nullcpo(c)) {
         getCPOName(c)
       } else {
-        collapse(sapply(as.list(c), getCPOId), ".")
+        collapse(vcapply(as.list(c), function(x) firstNonNull(getCPOId(x), getCPOName(x))), ".")
       }
     })
   }
@@ -438,7 +438,7 @@ collectCPOTypeInfo = function(constructed) {
   predict.type = character(0)
   ##
   # get operating type
-  otype = unique(sapply(constructed, getCPOOperatingType))
+  otype = unique(unlist(lapply(constructed, getCPOOperatingType)))
   if (length(otype) > 1) {
     stopf("cpoMultiplex can only handle CPOs with all the same OperatingType, but found CPOs with Operating Types '%s'",
       collapse(otype, "', '"))

@@ -267,7 +267,7 @@ composeCPO.CPOTrained = function(cpo1, cpo2) {
 # @param name1 debug name of first CPO
 # @param name2 debug name of second CPO
 chainPredictType = function(pt1, pt2, name1, name2) {
-  result = sapply(pt1, function(x) unname(pt2[x]))
+  result = vcapply(pt1, function(x) unname(pt2[x]))
   result = result[!is.na(result)]
   if (isPropertyStrict() && !length(result)) {
     # So this is a bit of a weird situation: The CPO chain would work for trafo AND retrafo, but not for predictions.

@@ -29,7 +29,7 @@ cpoDropConstants = makeCPO("dropconst",  # nolint
     ignore.na = FALSE: logical),
   dataformat = "df.features",
   cpo.train = {
-    sapply(data, function(col) {
+    vlapply(data, function(col) {
       if (ignore.na) {
         col = col[!(is.na(col) | is.nan(col))]
       }

@@ -56,7 +56,7 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
 
   # TODO: do this at the end; if there are common elements at the beginning of the chain,
   # its not so much of a problem.
-  if (length({badtype = setdiff(unique(sapply(constructed, getCPOOperatingType)), "feature")})) {
+  if (length({badtype = setdiff(unique(unlist(lapply(constructed, getCPOOperatingType))), "feature")})) {
     stopf("cpoCbind can only handle Feature Operation CPOs, but found CPOs with Operating Types '%s'",
       collapse(badtype, "', '"))
   }
@@ -176,7 +176,7 @@ applyGraph = function(graph, data, is.trafo, args) {
           datas = lapply(datas, function(x) getTaskData(x, target.extra = TRUE)$data)
         }
         assert(length(datas) == length(curgi$content))
-        assert(!any(sapply(datas, is.null)))
+        assert(!any(vlapply(datas, is.null)))
         datas = lapply(seq_along(datas), function(i) {
           df = data.frame(datas[[i]])
           prefix = curgi$content[i]
@@ -494,7 +494,7 @@ print.CPOCbind = function(x, verbose = FALSE, width = getOption("width"), ...) {
   }
   graph = x$unexported.pars[[".CPO"]]
   par.vals = getHyperPars(x)
-  descriptions = sapply(graph[-1], function(x) {
+  descriptions = vcapply(graph[-1], function(x) {
     cont = x$content
     switch(x$type, CBIND = paste0("CBIND[", collapse(cont), "]"),
       CPO = {
@@ -567,7 +567,7 @@ printGraph = function(children, descriptions, width = getOption("width")) {
     lanes[lane.out] = ifelse(length(children[[current]]), current, 0)
     first.interesting.lane = min(lanes.in, lane.out)
     last.interesting.lane = max(lanes.in, lane.out)
-    outputchr = collapse(sapply(seq_along(lanes), function(li) {
+    outputchr = collapse(vcapply(seq_along(lanes), function(li) {
       lane = lanes[li]
       if (li == lane.out) {
         chr1 = "O"

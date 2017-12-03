@@ -21,7 +21,7 @@ cpoMissingIndicators = makeCPO("missingindicators",  # nolint
   properties.needed = "factors",
   properties.adding = c("numerics", "ordered", "missings"),
   cpo.train = {
-    sapply(data, function(x) any(is.na(x)))
+    vlapply(data, function(x) any(is.na(x)))
   },
   cpo.retrafo = {
     data = data[force.dummies | control]

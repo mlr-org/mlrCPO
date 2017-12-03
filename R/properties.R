@@ -699,7 +699,7 @@ identicalCPO.CPO = function(cpo1, cpo2) {
   cpo1list = as.list(cpo1)
   cpo2list = as.list(cpo2)
   (length(cpo1list) == length(cpo2list)) &&
-    all(sapply(seq_along(cpo1), function(idx) {
+    all(vlapply(seq_along(cpo1), function(idx) {
       identicalCPO(cpo1list[[idx]], cpo2list[[idx]])
     }))
 }

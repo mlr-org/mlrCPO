@@ -23,7 +23,7 @@
 print.CPOConstructor = function(x, verbose = FALSE, ...) {
   assertFlag(verbose)
   args = dropNamed(formals(x), reserved.params)
-  argvals = sapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
+  argvals = vcapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)
   if (verbose) {
@@ -87,14 +87,14 @@ print.CPO = function(x, verbose = FALSE, ...) {
   }
   isprim = "CPOPrimitive" %in% class(x)
   pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
-  argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
+  argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
   template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
   catf(template, x$debug.name, argstring, newline = FALSE)
   if (isprim && length({unexport = x$unexported.pars})) {
-      catf("[not exp'd: %s]", paste(names(unexport), sapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
+      catf("[not exp'd: %s]", paste(names(unexport), vcapply(unexport, convertToShortString), sep = " = ", collapse = ", "), newline = FALSE)
   }
   if (isprim && length({affect = getCPOAffect(x)})) {
-    catf(" [%s]", paste(names(affect), sapply(affect, convertToShortString), sep = " = ", collapse = ", "))
+    catf(" [%s]", paste(names(affect), vcapply(affect, convertToShortString), sep = " = ", collapse = ", "))
   } else {
     cat("\n")
   }
@@ -127,7 +127,7 @@ print.CPOTrained = function(x, ...) {
     }
     first = FALSE
     pv = getHyperPars(primitive)
-    argstring = paste(names(pv), sapply(pv, convertToShortString), sep = " = ", collapse = ", ")
+    argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
     pcap = getCPOTrainedCapability(primitive)
     if (pcap["invert"] > 0) {
       fromto = c(primitive$convertfrom, primitive$convertto)

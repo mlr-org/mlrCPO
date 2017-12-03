@@ -40,7 +40,7 @@ deparseJoin = function(what, sep = " ") {
 # for pretty printing named vectors
 # will not work for contents of `vec` that are longer than 60 characters.
 namedVecToString = function(vec) {
-  paste0("c(", collapse(paste(names(vec), sapply(vec, deparse, control = NULL), sep = " = "), sep = ", "), ")")
+  paste0("c(", collapse(paste(names(vec), vcapply(vec, deparse, control = NULL), sep = " = "), sep = ", "), ")")
 }
 
 

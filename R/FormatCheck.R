@@ -803,7 +803,7 @@ recombineLL = function(olddata, newdata, targetnames, strict.factors, subset.ind
   unsubsetdata = olddata[-subset.index]
   olddata = olddata[subset.index]
 
-  dfs = sapply(newdata, is.data.frame)
+  dfs = vlapply(newdata, is.data.frame)
   if (any(!dfs)) {
     is.plur = sum(!dfs) > 1
     stopf("Return of %s element%s %s %s not a data.frame.", name, ifelse(is.plur, "s", ""),

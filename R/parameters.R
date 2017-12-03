@@ -88,7 +88,7 @@ convertNamesToItemsDVP = function(par.vals, par.set) {
     if (par$type != "discretevector") {
       next
     }
-    if (!all(sapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
+    if (!all(vlapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
       next
     }
     if (!is.character(par.vals[[n]])) {
@@ -118,10 +118,10 @@ convertItemsToNamesDVP = function(par.vals, par.set) {
     if (par$type != "discretevector") {
       next
     }
-    if (!all(sapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
+    if (!all(vlapply(names(par$values), function(nn) identical(par$values[[nn]], nn)))) {
       next
     }
-    if (all(sapply(par.vals[[n]], is.character))) {
+    if (all(vlapply(par.vals[[n]], is.character))) {
       par.vals[[n]] = as.character(par.vals[[n]])
     }
   }

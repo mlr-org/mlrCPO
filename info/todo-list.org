@@ -28,8 +28,8 @@
   - [X] make the printers work
   - [X] set CPOConstructor for multiplex cpos etc.
   - [X] repair cpoCbind
-  - [ ] sapply replacement
-  - [ ] caching CPO
+  - [X] sapply replacement
+  - [X] caching CPO
   - [ ] Title case or no title case
   - [X] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)

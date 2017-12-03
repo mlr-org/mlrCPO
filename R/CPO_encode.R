@@ -19,7 +19,7 @@ cpoProbEncode = makeCPO("prob.encode",  # nolint
   cpo.train = {
     lapply(data, function(col)
       sapply(levels(target[[1]]), function(tl)
-        sapply(c(levels(col), NA), function(cl)
+        vnapply(c(levels(col), NA), function(cl)
           mean(target[[1]][is.na(cl) | col == cl] == tl))))
   },
   cpo.retrafo = {
@@ -59,7 +59,7 @@ cpoImpactEncodeClassif = makeCPO("impact.encode.classif",  # nolint
       sapply(levels(target[[1]]), function(tl) {
         tprop = mean(target[[1]] == tl)
         tplogit = log(tprop / (1 - tprop))
-        sapply(c(levels(col), NA), function(cl) {
+        vnapply(c(levels(col), NA), function(cl) {
           condprob = (sum(target[[1]][is.na(cl) | col == cl] == tl) + smoothing) / (sum(is.na(cl) | col == cl) + 2 * smoothing)
           cplogit = log(condprob / (1 - condprob))
           cplogit - tplogit
@@ -101,7 +101,7 @@ cpoImpactEncodeRegr = makeCPO("impact.encode.regr",  # nolint
   cpo.train = {
     meanimp = mean(target[[1]])
     lapply(data, function(col)
-      c(sapply(levels(col), function(lvl) {
+      c(vnapply(levels(col), function(lvl) {
         (sum(target[[1]][col == lvl]) + smoothing * meanimp) / (sum(col == lvl) + smoothing) - meanimp
       }), .TEMP.MISSING = meanimp))
   }, cpo.retrafo = {
