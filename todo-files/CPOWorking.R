@@ -34,9 +34,7 @@ devtools::load_all("..")
 
 devtools::test(pkg = "..", reporter = MinimalReporter)
 
-devtools::test(pkg = "..", filter = "basic", reporter = StopReporter)
-devtools::test(pkg = "..", filter = "basic", reporter = CheckReporter)
-
+devtools::test(pkg = "..", filter = "basic")
 devtools::test(pkg = "..", filter = "affect")
 devtools::test(pkg = "..", filter = "properties")
 devtools::test(pkg = "..", filter = "tuning")

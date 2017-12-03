@@ -45,15 +45,15 @@ getCPOTrainedState.CPOTrainedPrimitive = function(trained.object) {
   is.retrafo = getCPOClass(trained.object) == "CPORetrafo"
 
   if (is.retrafo) {
-    res = getPrettyState(trained.object$element$state, cpo$control.type$retrafo, FALSE)
-    if (trained.object$capabilities["invert"] == 1) {
+    res = getPrettyState(trained.object$element$state, cpo, cpo$control.type$retrafo, FALSE)
+    if (trained.object$capability["invert"] == 1) {
       # also has an inverter state
-      res$target = getPrettyState(trained.object$element$state.invert, cpo$control.type$invert, TRUE, TRUE)
+      res$target = getPrettyState(trained.object$element$state.invert, cpo, cpo$control.type$invert, TRUE, TRUE)
     }
   } else {
     # inverter
     assert(cpo$operating.type == "target")
-    res = getPrettyState(trained.object$element$state, cpo$control.type$invert, TRUE)
+    res = getPrettyState(trained.object$element$state, cpo, cpo$control.type$invert, TRUE)
   }
 
   if (is.retrafo) {
@@ -150,10 +150,10 @@ getPrettyState = function(state, cpo, statekind = c("functional", "object", "dua
     res = functionToObjectState(state, fun.name, cpo$debug.name)
   } else if (statekind == "object") {
     if (only.basic) {
-      res = retrafo.object$state
+      res = state
     } else {
       res = getBareHyperPars(cpo)
-      res$control = retrafo.object$state
+      res$control = state
     }
   } else {  # statekind == "dual.functional"
     res = functionToObjectState(state$cpo.retrafo, "cpo.retrafo", cpo$debug.name)

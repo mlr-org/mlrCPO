@@ -1,7 +1,17 @@
 
 # helper objects for cpo tests in test_base_cpo
 
-# emulate makeCPOObject, makeFunctionalObject
+# sorted list, needed for comparison when order doesn't matter.
+slist = function(...) {
+  l = list(...)
+  if (!is.null(names(l))) {
+    l[sort(names(l))]
+  } else {
+    l
+  }
+}
+
+# emulate makeCPOObject, makeFunctionalObject, makeCPOExtended
 
 makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                              .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
@@ -34,16 +44,29 @@ makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list()
     properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
 }
 
+makeCPOExtended = function(.cpo.name, ..., .par.set = makeParamSet(), .par.vals = list(),
+                           .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
+                           .properties = c("numerics", "factors", "ordered", "missings"),
+                           .properties.adding = character(0), .properties.needed = character(0),
+                           cpo.trafo, cpo.retrafo) {
+  .par.set = c(pSSLrn(..., .pss.env = parent.frame()), .par.set)
+
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
+}
+
 
 dummylearnercpo = makeRLearnerClassif("dummylearnercpo", package = character(0), par.set = makeParamSet(makeIntegerLearnerParam("dummy.model")),
   properties = c("twoclass", "multiclass", "numerics", "factors", "ordered"))
 dummylearnercpo$fix.factors.prediction = TRUE
 
-
+globalenv = new.env(parent = emptyenv())
 
 # this list is written using '<<-' to communicate the state inside
 # a function during execution to the "outside"
-cpotest.parvals = list()
+globalenv$cpotest.parvals = list()
 
 # simple learner that writes the first data element it receives to cpotest.parvals
 testlearnercpo = makeRLearnerClassif("testlearnercpo", package = character(0), par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both"),
@@ -64,7 +87,7 @@ predictLearner.testlearnercpo = function(.learner, .model, .newdata, env, ...) {
 registerS3method("trainLearner", "testlearnercpo", trainLearner.testlearnercpo)
 registerS3method("predictLearner", "testlearnercpo", predictLearner.testlearnercpo)
 
-testlearnercpo = setHyperPars(testlearnercpo, env = environment(trainLearner.testlearnercpo))
+testlearnercpo = setHyperPars(testlearnercpo, env = globalenv)
 
 # dummy regression learner
 testregrcpo = makeRLearnerRegr("testregrcpo", package = character(0), par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both")),

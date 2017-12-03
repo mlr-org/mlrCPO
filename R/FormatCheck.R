@@ -989,7 +989,7 @@ featIndexToTaskIndex = function(feat.index, task) {
 recombinedf = function(df, newdata, dataformat = c("df.features", "split", "df.all", "task"), strict.factors, subset.index, targetcols, name) {
 # otherwise it contains the columns removed from the DF because they were target columns.
   dataformat = match.arg(dataformat)
-  if (dataformat %in% c("most", "all")) {
+  if (dataformat == "split") {
     return(recombineLL(df, newdata, targetcols, strict.factors, subset.index, name))
   } else if (dataformat == "task") {
     assertClass(newdata, "Task")
