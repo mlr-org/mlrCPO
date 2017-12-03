@@ -34,8 +34,8 @@
 #' influence multiple of \code{cpoCbind}'s inputs. However, if you want to use the same
 #' operation with different parameters on different parts of \code{cpoCbind} input,
 #' you must give these operations different IDs. If CPOs that could represent an identical CPO,
-#' with the same IDs (or both with IDs absent) but different parameter settings or different
-#' parameter exportations occur, an error will be thrown.
+#' with the same IDs (or both with IDs absent) but different parameter settings, \code{affect.*} settings
+#' or different parameter exportations occur, an error will be thrown.
 #'
 #' @param ... [\code{\link{CPO}}]\cr
 #'   The \code{\link{CPO}}s to cbind. These must be Feature Operation CPOs.
@@ -48,12 +48,14 @@
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoCbind = function(..., .cpos = list()) {
-  cpos = list(...)
-  cpos = c(cpos, .cpos)
+cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
+  cpos = c(list(...), .cpos)
 
   assertList(cpos, types = "CPO", any.missing = FALSE)
 
+
+  # TODO: do this at the end; if there are common elements at the beginning of the chain,
+  # its not so much of a problem.
   if (length({badtype = setdiff(unique(sapply(constructed, getCPOOperatingType)), "feature")})) {
     stopf("cpoCbind can only handle Feature Operation CPOs, but found CPOs with Operating Types '%s'",
       collapse(badtype, "', '"))
@@ -70,34 +72,35 @@ cpoCbind = function(..., .cpos = list()) {
   # "SOURCE" item at position 1.
   cpograph = list(makeCPOGraphItem(type = "SOURCE", parents = integer(0), children = integer(0), content = NULL))
 
-  dangling = setNames(integer(0), character(0))
+  # iterate through the single elements of 'cpos' and insert them in the graph one by one
+  dangling = integer(0)  # "loose ends" in the graph
   for (cidx in seq_along(cpos)) {
     cname = firstNonNull(names(cpos)[cidx], "")
     newcpos = as.list(cpos[[cidx]])  # split into list of primitive CPOs
     curparent = 1L
     for (cpoprim in newcpos) {
       if ("CPOCbind" %in% class(cpoprim)) {
+        # the element was a CPOCbind itself, so we insert its whole graph
         cpograph = uniteGraph(cpograph, curparent, cpoprim$unexported.pars[[".CPO"]], getHyperPars(cpoprim))
       } else {
-        cpograph = c(cpograph, list(makeCPOGraphItem(type = "CPO", parents = curparent, children = integer(0), content = cpoprim)))
-        cpograph[[curparent]]$children = c(cpograph[[curparent]]$children, length(cpograph))
+        # any other element just gets a new element added to the cpograph
+        cpograph %c=% list(makeCPOGraphItem(type = "CPO", parents = curparent, children = integer(0), content = cpoprim))
+        cpograph[[curparent]]$children %c=% length(cpograph)
       }
       curparent = length(cpograph)
     }
-    if (length(newcpos)) {
-      dangling = c(dangling, length(cpograph))
-    } else {
-      dangling = c(dangling, 1L)
-    }
-    names(dangling)[length(dangling)] = cname
+    dangling %c=% c(cname = curparent)
   }
-  cpograph = c(cpograph, list(makeCPOGraphItem(type = "CBIND", parents = unname(dangling), children = integer(0), content = names(dangling))))
+  # the last element of the graph is the cbind element that ties all loose ends together
+  cpograph %c=% list(makeCPOGraphItem(type = "CBIND", parents = unname(dangling), children = integer(0), content = names2(dangling)))
+  # the last element is therefore a child of all loose ends
   for (d in dangling) {
-    cpograph[[d]]$children = c(cpograph[[d]]$children, length(cpograph))
+    cpograph[[d]]$children %c=% length(cpograph)
   }
-  dupparents = dangling[dangling %in% dangling[duplicated(dangling)]]
-  dupnames = unique(names(dupparents)[duplicated(names(dupparents))])
-  if (length(dupnames)) {
+
+  # check that if there is the same input (usually through NULLCPO), the names are different
+  dupparents = names2(dangling)[dangling %in% dangling[duplicated(dangling)]]
+  if (length({dupnames = unique(dupparents[duplicated(dupparents)])})) {
     stopf("Duplicating inputs must always have different names, but there are duplicated entries %s.",
       ifelse(all(dupnames == ""), "which are unnamed", collapse(Filter(function(x) x != "", dupnames), sep = ", ")))
   }
@@ -106,28 +109,44 @@ cpoCbind = function(..., .cpos = list()) {
     cpograph = synchronizeGraph(cpograph)
   }
 
-  allcpos = lapply(Filter(function(x) x$type == "CPO", cpograph), function(x) x$content)
-  par.set = do.call(base::c, lapply(allcpos, getParamSet))
-  par.vals = do.call(base::c, lapply(allcpos, getHyperPars))
-  par.set = c(par.set, makeParamSet(makeUntypedLearnerParam(".CPO")))
-  par.vals = c(par.vals, list(.CPO = cpograph))
+  cgraphs = cascadeGraph(cpograph)
 
-  control = NULL  # pacify static code analyser
+  pipeCPO(lapply(cgraphs, function(graph) {
+    assert(graph[[1]]$type == "SOURCE")
+    if (graph[[length(graph)]]$type != "CBIND") {
+      # The graph is only a single CPO
+      assert(length(graph) == 2)
+      assert(identical(graph[[2]]$parents, 1L))
+      assertClass(graph[[2]]$content, "CPO")
+      return(graph[[2]]$content)
+    }
 
-  addClasses(setCPOId(makeCPOExtendedTrafo("cbind", par.set = par.set, par.vals = par.vals, dataformat = "task",
-    properties.data = collectedprops$data,
-    properties.adding = collectedprops$adding,
-    properties.needed = collectedprops$needed,
-    properties.target = collectedprops$target,
-    cpo.trafo = function(data, target, .CPO, ...) {
-      args = list(...)
-      ag = applyGraph(.CPO, data, TRUE, args)
-      control = ag$graph
-      ag$data
-    }, cpo.retrafo = function(data, control, ...) {
-      applyGraph(control, data, FALSE, NULL)$data
-    })(), NULL), "CPOCbind")
+    allcpos = extractSubList(Filter(function(x) x$type == "CPO", graph), "content", simplify = FALSE)
+    par.set = do.call(base::c, lapply(allcpos, getParamSet))
+    par.vals = do.call(base::c, lapply(allcpos, getHyperPars))
+    export.params = getParamIds(par.set)  # don't export the .CPO
+    par.set %c=% makeParamSet(makeUntypedLearnerParam(".CPO"))
+    par.vals %c=% list(.CPO = graph)
+
+    control = NULL  # pacify static code analyser
+
+    addClasses(makeCPOExtendedTrafo("cbind", par.set, par.vals, dataformat = "task",
+      properties.data = props.creator$properties.data,
+      export.params = export.params,
+      properties.adding = props.creator$properties.adding,
+      properties.needed = props.creator$properties.needed,
+      properties.target = props.creator$properties.target,
+      cpo.trafo = function(data, target, .CPO, ...) {
+        args = list(...)
+        ag = applyGraph(.CPO, data, TRUE, args)
+        control = ag$graph
+        ag$data
+      }, cpo.retrafo = function(data, control, ...) {
+        applyGraph(control, data, FALSE, NULL)$data
+      })(), "CPOCbind")
+  }))
 }
+registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")
 
 # Iterate through the graph objects in order of dependency, apply each CPO to the data.
 applyGraph = function(graph, data, is.trafo, args) {
@@ -198,33 +217,6 @@ applyGraph = function(graph, data, is.trafo, args) {
   }
 }
 
-#' @export
-# This is more for debugging; the user should not see the "graph" in itself
-# (and uses only print.CPOCbind), since the graph itself is hidden quite deeply.
-print.CPOGraphItem = function(x, ...) {
-  catf("CPOGraphItem [%s] %s P[%s] C[%s]", x$type,
-    switch(x$type, SOURCE = "", CPO = getCPOName(x$content), CBIND = paste0("{", collapse(x$content), "}"), "INVALID"),
-    collapse(x$parents), collapse(x$children))
-}
-
-#' @export
-# print the CPOCbind object, including the graph.
-print.CPOCbind = function(x, ...) {
-  NextMethod("print")
-  par.vals = getHyperPars(x)
-  graph = par.vals$.CPO
-  descriptions = sapply(graph[-1], function(x) {
-    switch(x$type, CBIND = paste0("CBIND[", collapse(x$content), "]"),
-      CPO = {
-        cpo = x$content
-        cpo = setHyperPars(cpo, par.vals = par.vals[intersect(names(par.vals), names(getParamSet(cpo)$pars))])
-        utils::capture.output(print(x$content))
-      }, "INVALID")
-  })
-  offset = length(graph) + 1
-  children = lapply(graph[-1], function(x) offset - setdiff(x$parents, 1))
-  printGraph(rev(children), rev(descriptions))
-}
 
 # Creator for a single graph item used in CPOCbind.
 # type is 'SOURCE' (the data goes in here; a graph has only one of these. has no parents, one or more children.),
@@ -250,9 +242,269 @@ makeCPOGraphItem = function(type, parents, children, content) {
 #' @export
 setCPOId.CPOCbind = function(cpo, id) {
   if (!is.null(id)) {
-    stop("Cannot set CPO ID of CPOCbind object.")
+    stop("Cannot set CPO ID of a CPOCbind object.")
   }
   cpo
+}
+
+
+# This connects two cpoCbind operations together.
+# If CBIND_1 is a graph {(SOURCE -> CPOA -> SINK), (SOURCE -> CPOB -> SINK)}
+# and CBIND_2 is a graph {(SOURCE -> CPOC -> SINK), (SOURCE -> CBIND_1 (!!!) -> SINK)}
+# then we incorporate the graph of CBIND_1 into CBIND_2 to get
+# {(SOURCE -> CPOC -> SINK), (SOURCE -> CPOA -> SINK), (SOURCE -> CPOB -> SINK)}.
+# In pictures:
+#
+#  CBIND_1:    ,-> CPOA -.
+#             /           \
+#    SOURCE -:             :-> SINK
+#             \           /
+#              `-> CPOB -'
+#
+#  CBIND_2:    ,-> CPOC ----.
+#             /              \
+#    SOURCE -:                :-> SINK
+#             \              /
+#              `-> CBIND_1 -'
+#                          (!!!)
+#
+#  -->
+#
+#              ,-> CPOC ---.
+#             /             \
+#    SOURCE -+---> CPOA--.   >-> SINK
+#             \           >-'
+#              `-> CPOB -'
+#
+# Graphs that have been 'united' also need to be 'synchronized' (see `synchronizeGraph`) to detect duplicate entries
+# to not compute them twice. (E.g. if CBIND_2 had 'CPOB' instead of 'CPOC', the 'CPOB' would only be invoked once
+# and its result written twice.)
+# @param cpograph [list of CPOGraphItem] the "parent" graph where the `childgraph` should be included
+# @param sourceIdx [numeric(1)] the index into `cpograph` of the element that will be the data source for `childgraph`
+# @param childgraph [list of CPOGraphItem] the "child" graph to add to `cpograph`
+# @param par.vals [list] list of parameter values to set `childgraph` elements to
+# @return [list of CPOGraphItem] the updated graph.
+uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
+  idxoffset = length(cpograph) - 1  # all indices of childgraph get shifted by this much. '-1' because of 1-based arrays
+
+  for (cidx in seq_along(childgraph)) {
+    if (cidx == 1) {  # skip "SOURCE" element
+      next
+    }
+    newidx = cidx + idxoffset
+    childitem = childgraph[[cidx]]
+    for (pidx in seq_along(childitem$parents)) {
+      parent = childitem$parents[pidx]
+      if (parent == 1) {
+        cpograph[[sourceIdx]]$children %c=% newidx
+        childitem$parents[pidx] = sourceIdx
+      } else {
+        childitem$parents[pidx] = parent + idxoffset
+      }
+    }
+    childitem$children %+=% idxoffset
+
+    if ("CPO" %in% class(childitem$content)) {
+      childitem$content = setHyperPars(childitem$content, par.vals = subsetParams(par.vals, getParamSet(childitem$content)))
+    }
+    childgraph[[cidx]] = childitem
+  }
+  c(cpograph, childitem[-1])
+}
+
+# This checks the graph for operations that can be combined into one operation.
+# If we have e.g.
+# SOURCE -+-> CPOA -> CPOB -.
+#          \                 \
+#           `-> CPOA -> CPOC -+-> SINK
+# then we will find CPOA to be a duplicate and get the graph
+# SOURCE -> CPOA -+-> CPOB -.
+#                  \         \
+#                   `-> CPOC -+-> SINK
+# @param cpograph [list of CPOGraphItem] the graph to simplify
+# @return [list of CPOGraphItem] the simplified graph
+synchronizeGraph = function(cpograph) {
+  newgraph = list()  # the new synchronized graph is built gradually
+  for (oldgraph.index in seq_along(cpograph)) {
+    # we step through the old graph and move every element
+    # to the end of 'newgraph' that does
+    # not have an equivalent sibling already in 'newgraph'.
+    # Whenever we do that, we overwrite the slot in the old
+    # graph with an integer pointing to the position in newgraph
+    # that we moved the item to.
+    # Therefore, 'cpograph' is a list of CPOGraphItem for indices
+    # >= oldgraph.index, and a list of numbers pointing to newgraph
+    # for indices < oldgraph.index.
+    graphitem = cpograph[[oldgraph.index]]
+    # we delete the $children slot and add the children whenever
+    # we add them to newgraph.
+    graphitem$children = integer(0)
+    # need to update the $parents slot to point to the right positions
+    # in newgraph:
+    graphitem$parents = viapply(graphitem$parents, function(i) cpograph[[i]])
+    if (oldgraph.index == 1) {
+      assert(length(graphitem$parents) == 0)  # source has no parents
+      siblings = integer(0)
+    } else {
+      assert(length(graphitem$parents) > 0)  # nonsource has at least one parent
+      siblings = newgraph[[graphitem$parents[1]]]$children
+    }
+    # see if graphitem equals one of its siblings. We need only to check the first paren'ts siblings,
+    # since equality <=> same parents
+    matchingsib = 0
+    for (s in siblings) {
+      # note that 'siblings' is a $children slot from a newgraph element.
+      # therefore it points to newgraph items that have been added before
+      # graphitem.
+      sib = newgraph[[s]]
+      # now we check equivalence
+      if (sib$type != graphitem$type) {
+        next
+      }
+      assertChoice(sib$type, c("CPO", "CBIND"))  # "SOURCE" is not the sibling of any element
+      if (sib$type == "CPO") {
+        scpo = sib$content
+        gcpo = graphitem$content
+        # for CPO, check equality of underlying cpo and of id
+        # The last one is necessary for meta-CPOs like multiplex or cpoCase.
+        # When these values differ, the CPOs are unambiguously different.
+        if (identicalCPO(scpo, gcpo) && !identical(getCPOId(scpo), getCPOId(gcpo))) {
+          next
+        }
+
+        # Now we compare differences that are close enough that (1) it is questionable whether they are
+        # intentional and (2) hyperparameter clashes could happen.
+        # Compare: different hyperparameters, affect args, unexported args
+        if (!identical(getHyperPars(scpo), getHyperPars(gcpo))) {
+          stopf("Error: Two CPOS %s are ambiguously identical but have different hyperparameter settings.",
+                scpo$debug.name)
+        }
+        if (!identical(getCPOAffect(scpo), getCPOAffect(gcpo))) {
+          stopf("Error: Two CPOS %s are ambiguously identical but have different affect.* settings.",
+                scpo$debug.name)
+        }
+        if (!identical(scpo$unexported.pars, gcpo$unexported.pars)) {
+          stopf("Error: Two CPOS %s are ambiguously identical but have different unexported arguments.",
+                scpo$debug.name)
+        }
+        # TODO: whenever more distinguishing hidden state comes along, it needs to be checked here.
+        # assert(identical(scpo, gcpo))
+      } else { # CBIND
+        # cbinds are identical if their parents are identical and the names are identical
+        if (!identical(sib$content, graphitem$content)) {
+          next
+        }
+        if (!identical(sib$parents, graphitem$parents)) {
+          # TODO: test whether this is actually reachable.
+          next
+        }
+      }
+      assert(!matchingsib || matchingsib == s)  # the new sibs are supposed to be unique each (otherwise we missed an opportunity to sync)
+      matchingsib = s
+    }
+    if (matchingsib) {
+      # the item is replaced by matchingsib: Therefore
+      # we don't copy the item, but just let the cpograph
+      # item of this element point to the newgraph item
+      # of the matchingsib.
+      cpograph[[oldgraph.index]] = matchingsib
+    } else {
+      newgraph %c=% list(graphitem)
+      curidx = length(newgraph)
+      for (p in graphitem$parents) {
+        newgraph[[p]]$children %c=% curidx
+      }
+      cpograph[[oldgraph.index]] = curidx
+    }
+  }
+  newgraph
+}
+
+# split the graph into vertices that can be CPOs on their own.
+# E.g.
+#
+# CPOA -+---> CPOB ---+-> CPOD
+#        \           /
+#         `-> CPOC -'
+# -->
+#  /    \     /   ,-> CPOB -.    \     /    \
+# | CPOA | + | -<:           :>-> | + | CPOD |
+#  \    /     \   `-> CPOC -'    /     \    /
+#
+# @param cpograph [list of CPOGraphItem] The graph
+# @return [list of list of CPOGraphItem] The smallest constituents of the graph
+#   able to be CPOs on their own.
+cascadeGraph = function(cpograph) {
+  # first we just split up the graph
+  dummy.source = makeCPOGraphItem(type = "SOURCE", parents = integer(0), children = integer(0), content = NULL)
+  graphs = list()  # list of graphs
+  curgraph = list(cpograph[[1]])  # the current collection of graph vertices
+  lookahead = max(cpograph[[1]]$children)    # the last vertex that still needs to be included in 'curgraph'
+  offset = 0L  # how much to subtract from parents / children
+              # pointers to make them local to their subgraph in curgraph
+  for (idx in seq_along(cpograph)) {
+    if (idx == 1) {
+      next
+    }
+    next.elt = cpograph[[idx]]
+    next.children = next.elt$children
+
+    next.elt$parents %-=% offset
+    assertInteger(next.elt$parents, lower = 1)
+    if (lookahead <= idx) {
+      if (length(next.children)) {
+        assert(min(next.children) == idx + 1)
+      }
+      next.elt$children = integer(0)
+      curgraph %c=% list(next.elt)
+      graphs %c=% list(curgraph)
+      curgraph = list(dummy.source)
+      offset = idx - 1L  # because of 1-based arrays: the 'idx' element becomes element no 1 in the new graph
+      curgraph[[1]]$children = next.children - offset
+      assertInteger(curgraph[[1]]$children, lower = 2)
+    } else {
+      next.elt$children %-=% offset
+      curgraph %c=% list(next.elt)
+    }
+    lookahead = max(lookahead, next.children)
+  }
+  c(graphs, list(curgraph))
+}
+
+#################################
+# Printing                      #
+#################################
+
+#' @export
+# This is more for debugging; the user should not see the "graph" in itself
+# (and uses only print.CPOCbind), since the graph itself is hidden quite deeply.
+print.CPOGraphItem = function(x, ...) {
+  # "CPOGraphItem [<<name>>] P[<<indices of parents>>] C[<<indices of children>>]"
+  catf("CPOGraphItem [%s] %s P[%s] C[%s]", x$type,
+    switch(x$type, SOURCE = "", CPO = getCPOName(x$content), CBIND = paste0("{", collapse(x$content), "}"), "INVALID"),
+    collapse(x$parents), collapse(x$children))
+}
+
+#' @export
+# print the CPOCbind object, including the graph.
+print.CPOCbind = function(x, verbose = FALSE, width = getOption("width"), ...) {
+  NextMethod("print")
+  if (!verbose) {
+    return(invisible(NULL))
+  }
+  graph = x$unexported.pars[[".CPO"]]
+  par.vals = getHyperPars(x)
+  descriptions = sapply(graph[-1], function(x) {
+    cont = x$content
+    switch(x$type, CBIND = paste0("CBIND[", collapse(cont), "]"),
+      CPO = {
+        cont = setHyperPars(cont, par.vals = subsetParams(par.vals, getParamSet(cont)))
+        utils::capture.output(print(cont))
+      }, "INVALID")
+  })
+  offset = length(graph) + 1
+  children = lapply(graph[-1], function(x) offset - setdiff(x$parents, 1))
+  printGraph(rev(children), rev(descriptions), width)
 }
 
 # pretty-print the graph of a cpoCbind object.
@@ -295,7 +547,7 @@ printGraph = function(children, descriptions, width = getOption("width")) {
     for (cand in candidates) {
       parents[[cand]] = setdiff(parents[[cand]], current)
       if (!length(parents[[cand]])) {
-        queue = c(queue, cand)
+        queue %c=% cand
       }
     }
 
@@ -310,7 +562,7 @@ printGraph = function(children, descriptions, width = getOption("width")) {
     second.candidates = which(lanes == 0)
     lane.out = c(first.candidates, second.candidates)[1]
     if (lane.out == length(lanes)) {
-      lanes = c(lanes, 0)
+      lanes %c=% 0
     }
     lanes[lane.out] = ifelse(length(children[[current]]), current, 0)
     first.interesting.lane = min(lanes.in, lane.out)
@@ -366,108 +618,3 @@ printGraph = function(children, descriptions, width = getOption("width")) {
   }
 }
 
-# This connects two cpoCbind operations together.
-# If CBIND_1 is a graph (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK)
-# and CBIND_2 is a graph (SOURCE -> CPOC -> SINK) and (SOURCE -> CBIND_1 (!!!) -> SINK)
-# then we here we incorporate the graph of CBIND_1 into CBIND_2 to get
-# (SOURCE -> CPOC -> SINK), (SOURCE -> CPOA -> SINK) and (SOURCE -> CPOB -> SINK).
-# Graphs that have been 'united' also need to be 'synchronized' (see `synchronizeGraph`) to remove duplicate entries.
-# @param cpograph [list of CPOGraphItem] the "parent" graph where the `childgraph` should be included
-# @param sourceIdx [numeric(1)] the index into `cpograph` of the element that will be the data source for `childgraph`
-# @param childgraph [list of CPOGraphItem] the "child" graph to add to `cpograph`
-# @param par.vals [list] list of parameter values to set `childgraph` elements to
-# @return [list of CPOGraphItem] the updated graph.
-uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
-  idxoffset = length(cpograph) - 1
-
-  for (cidx in seq_along(childgraph)) {
-    if (cidx == 1) {  # skip "SOURCE" element
-      next
-    }
-    newidx = cidx + idxoffset
-    childitem = childgraph[[cidx]]
-    for (pidx in seq_along(childitem$parents)) {
-      parent = childitem$parents[pidx]
-      if (parent == 1) {
-        cpograph[[sourceIdx]]$children = c(cpograph[[sourceIdx]]$children, newidx)
-        childitem$parents[pidx] = sourceIdx
-      } else {
-        childitem$parents[pidx] = idxoffset + parent
-      }
-    }
-    childitem$children = childitem$children + idxoffset
-
-    if ("CPO" %in% class(childitem$content)) {
-      childitem$content = setHyperPars(childitem$content, par.vals = par.vals[intersect(names(par.vals), names(getParamSet(childitem$content)$pars))])
-    }
-    cpograph = c(cpograph, list(childitem))
-  }
-  cpograph
-}
-
-# This checks the graph for operations that can be combined into one operation.
-# If we have e.g.
-# SOURCE -+-> CPOA -> CPOB -.
-#          \                 \
-#           `-> CPOA -> CPOC -+-> SINK
-# then we will find CPOA to be a duplicate and get the graph
-# SOURCE -> CPOA -+-> CPOB -.
-#                  \         \
-#                   `-> CPOC -+-> SINK
-# @param cpograph [list of CPOGraphItem] the graph to simplify
-# @return [list of CPOGraphItem] the simplified graph
-synchronizeGraph = function(cpograph) {
-  newgraph = list()
-  for (oldgraph.index in seq_along(cpograph)) {
-    graphitem = cpograph[[oldgraph.index]]
-    graphitem$children = integer(0)
-    graphitem$parents = viapply(graphitem$parents, function(i) cpograph[[i]])
-    if (oldgraph.index == 1) {
-      assert(length(graphitem$parents) == 0)
-      siblings = integer(0)
-    } else {
-      assert(length(graphitem$parents) > 0)
-      siblings = newgraph[[graphitem$parents[1]]]$children
-    }
-    # see if graphitem equals one of its siblings. We need only to check the first paren'ts siblings,
-    # since equality <=> same parents
-    matchingsib = 0
-    for (s in siblings) {
-      sib = newgraph[[s]]
-      if (sib$type != graphitem$type) {
-        next
-      }
-      assertChoice(sib$type, c("CPO", "CBIND"))
-      if (sib$type == "CPO") {
-        if (getCPOName(sib$content) != getCPOName(graphitem$content) || !identical(getCPOId(sib$content), getCPOId(graphitem$content))) {
-          next
-        }
-        if (!identical(getHyperPars(sib$content), getHyperPars(graphitem$content))) {
-          stopf("Error: Two CPOS %s are ambiguously identical but have different hyperparameter settings.",
-                sib$content$debug.name)
-        }
-        # FIXME: whenever more distinguishing hidden state comes along, it needs to be checked here.
-        assert(identical(sib$content, graphitem$content))
-      } else { # CBIND
-        if (!identical(sib$content, graphitem$content)) {
-          next
-        }
-      }
-      assert(!matchingsib || matchingsib == s)  # the new sibs are supposed to be unique each (otherwise we missed an opportunity to sync)
-      matchingsib = s
-    }
-    if (matchingsib) {
-      cpograph[[oldgraph.index]] = matchingsib
-    } else {
-      newgraph = c(newgraph, list(graphitem))
-      curidx = length(newgraph)
-      for (p in graphitem$parents) {
-        newgraph[[p]]$children = c(newgraph[[p]]$children, curidx)
-      }
-      cpograph[[oldgraph.index]] = curidx
-    }
-  }
-  newgraph
-}
-
-# TODO registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")

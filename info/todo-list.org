@@ -29,6 +29,7 @@
   - [X] set CPOConstructor for multiplex cpos etc.
   - [ ] repair cpoCbind
   - [ ] sapply replacement
+  - [ ] caching CPO
   - [ ] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)
   - [ ] learner wrapping cpo:
