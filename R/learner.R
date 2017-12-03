@@ -177,7 +177,7 @@ removeHyperPars.CPOLearner = function(learner, ids) {
 ### CPO-Learner Disassembly    ###
 ##################################
 
-#' @title Get the CPO Associated with a Learner.
+#' @title Get the CPO Associated with a Learner
 #'
 #' @description
 #' Returns the (outermost) chain of \code{\link{CPO}}s that are part of a \code{\link[mlr:makeLearner]{Learner}}. This is useful to inspect the
@@ -224,7 +224,7 @@ getLearnerCPO = function(learner, warn.buried = TRUE) {
   result
 }
 
-#' @title Get the Learner with the CPOs Removed.
+#' @title Get the Learner with the CPOs Removed
 #'
 #' @description
 #' Get the bare \code{\link[mlr:makeLearner]{Learner}} without the \code{\link{CPO}}s that were previously added.

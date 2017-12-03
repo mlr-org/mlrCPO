@@ -77,7 +77,7 @@
 #' @name CPOConstructor
 NULL
 
-#' @title Composable Preprocessing Operators.
+#' @title Composable Preprocessing Operators
 #'
 #' @description
 #' Composable Preprocessing Operators, or \code{CPO}, are the central entity provided by the \code{mlrCPO} package.
@@ -134,7 +134,7 @@ NULL
 #' @name CPO
 NULL
 
-#' @title CPO Learner Object.
+#' @title CPO Learner Object
 #'
 #' @description
 #' CPO Learners are created when a \code{\link{CPO}} gets attached to an mlr-\code{\link[mlr:makeLearner]{Learner}} object. The resulting

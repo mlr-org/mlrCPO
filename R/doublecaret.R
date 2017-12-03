@@ -4,7 +4,7 @@
 ### %>>% Operator              ###
 ##################################
 
-#' @title CPO Composition / Attachment / Application Operator.
+#' @title CPO Composition / Attachment / Application Operator
 #'
 #' @description
 #' This operator \dQuote{pipes} data from the source into the sink object.

@@ -19,7 +19,7 @@ getCPOName = function(cpo) {
   UseMethod("getCPOName")
 }
 
-#' @title Set the ID of a CPO Object.
+#' @title Set the ID of a CPO Object
 #'
 #' @description
 #' Sets the \emph{id} of a \code{\link{CPO}}. Setting the id
@@ -52,7 +52,7 @@ setCPOId.default = function(cpo, id) {
 }
 
 
-#' @title Get the ID of a CPO Object.
+#' @title Get the ID of a CPO Object
 #'
 #' @description
 #' Gets the \emph{id} of a \code{\link{CPO}}. The id can be set
@@ -73,7 +73,7 @@ getCPOId = function(cpo) {
   UseMethod("getCPOId")
 }
 
-#' @title Get the Properties of the Given CPO Object.
+#' @title Get the Properties of the Given CPO Object
 #'
 #' @description
 #' The properties of a \code{\link{CPO}} object determine the kind of data the CPO will be able to handle, and how
@@ -134,7 +134,7 @@ getCPOProperties = function(cpo, only.data = FALSE, get.internal = FALSE) {
   UseMethod("getCPOProperties")
 }
 
-#' @title Get the Selection Arguments for Affected CPOs.
+#' @title Get the Selection Arguments for Affected CPOs
 #'
 #' @description
 #' Get the \code{affect.*} arguments from when the \code{\link{CPO}} was constructed. These
@@ -154,7 +154,7 @@ getCPOAffect = function(cpo, drop.defaults = TRUE) {
   UseMethod("getCPOAffect")
 }
 
-#' @title Get the CPO Class.
+#' @title Get the CPO Class
 #'
 #' @description
 #' Gets the relevant \code{\link{CPO}} class that distinguishes between steps in a CPO's
@@ -187,7 +187,7 @@ getCPOClass = function(cpo) {
   UseMethod("getCPOClass")
 }
 
-#' @title Get the CPOTrained's Capabilities.
+#' @title Get the CPOTrained's Capabilities
 #'
 #' @description
 #' While \code{\link{CPOInverter}} is only used for inversion,
@@ -253,7 +253,7 @@ getCPOTrainedCapability = function(cpo) {
   UseMethod("getCPOTrainedCapability")
 }
 
-#' @title Get the CPO \code{predict.type}.
+#' @title Get the CPO \code{predict.type}
 #'
 #' @description
 #' Get the possible predict.types a \code{\link{CPO}} is able to handle.
@@ -362,7 +362,7 @@ getCPOOperatingType = function(cpo) {
   UseMethod("getCPOOperatingType")
 }
 
-#' @title Get CPO Used to Train a Retrafo / Inverter.
+#' @title Get CPO Used to Train a Retrafo / Inverter
 #'
 #' @description
 #' Get the \code{\link{CPO}} used to create a \code{\link{CPOTrained}} object. The
@@ -383,7 +383,7 @@ getOrigialCPO = function(cpo) {
   UseMethod("getOrigialCPO")
 }
 
-#' @title Get the CPOConstructor Used to Create a CPO Object.
+#' @title Get the CPOConstructor Used to Create a CPO Object
 #'
 #' @description
 #' Get the \code{\link{CPOConstructor}} used to create a \code{\link{CPO}} or \code{\link{CPOTrained}} object.

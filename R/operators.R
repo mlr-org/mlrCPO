@@ -46,7 +46,7 @@ composeCPO = function(cpo1, cpo2) {
   UseMethod("composeCPO")
 }
 
-#' @title Attach a CPO to a Learner.
+#' @title Attach a CPO to a Learner
 #'
 #' @description
 #' A \code{\link{CPO}} object can be attached to a \code{\link[mlr:makeLearner]{Learner}} object to create a
@@ -71,7 +71,7 @@ attachCPO = function(cpo, learner) {
   UseMethod("attachCPO")
 }
 
-#' @title Apply a CPO to Data.
+#' @title Apply a CPO to Data
 #'
 #' @description
 #' The given transformation will be applied to the data in the given \code{\link[mlr]{Task}} or \code{\link[base]{data.frame}}.

@@ -3,7 +3,7 @@
 ### Printing                   ###
 ##################################
 
-#' @title Print CPO Objects.
+#' @title Print CPO Objects
 #'
 #' @description
 #' Prints a simple representation of a \code{\link{CPOConstructor}},

@@ -161,7 +161,7 @@ declareImputeFunction = function(name, method, additional.params, types = NULL) 
     })
 }
 
-#' @title Perform Imputation with Constant Value.
+#' @title Perform Imputation with Constant Value
 #'
 #' @template impute_doc_intro
 #'
@@ -172,7 +172,7 @@ declareImputeFunction = function(name, method, additional.params, types = NULL) 
 cpoImputeConstant = declareImputeFunction("constant", imputeConstant, makeParamSet(makeUntypedLearnerParam("const")))  # nolint
 registerCPO(cpoImputeConstant, "imputation", "specialised", "Imputation using a constant value.")
 
-#' @title Perform Imputation with Median Value.
+#' @title Perform Imputation with Median Value
 #'
 #' @template impute_doc_intro
 #'
@@ -181,7 +181,7 @@ registerCPO(cpoImputeConstant, "imputation", "specialised", "Imputation using a 
 cpoImputeMedian = declareImputeFunction("median", imputeMedian, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMedian, "imputation", "specialised", "Imputation using the median.")
 
-#' @title Perform Imputation with Mean Value.
+#' @title Perform Imputation with Mean Value
 #'
 #' @template impute_doc_intro
 #'
@@ -190,7 +190,7 @@ registerCPO(cpoImputeMedian, "imputation", "specialised", "Imputation using the 
 cpoImputeMean = declareImputeFunction("mean", imputeMean, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMean, "imputation", "specialised", "Imputation using the mean.")
 
-#' @title Perform Imputation with Mode Value.
+#' @title Perform Imputation with Mode Value
 #'
 #' @template impute_doc_intro
 #'
@@ -199,7 +199,7 @@ registerCPO(cpoImputeMean, "imputation", "specialised", "Imputation using the me
 cpoImputeMode = declareImputeFunction("mode", imputeMode, makeParamSet())  # nolint
 registerCPO(cpoImputeMode, "imputation", "specialised", "Imputation using the mode.")
 
-#' @title Perform Imputation with Multiple of Minimum.
+#' @title Perform Imputation with Multiple of Minimum
 #'
 #' @template impute_doc_intro
 #'
@@ -213,7 +213,7 @@ registerCPO(cpoImputeMode, "imputation", "specialised", "Imputation using the mo
 cpoImputeMin = declareImputeFunction("min", imputeMin, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMin, "imputation", "specialised", "Imputation using constant values shifted below the minimum.")
 
-#' @title Perform Imputation with Multiple of Minimum.
+#' @title Perform Imputation with Multiple of Minimum
 #'
 #' @template impute_doc_intro
 #'
@@ -227,7 +227,7 @@ registerCPO(cpoImputeMin, "imputation", "specialised", "Imputation using constan
 cpoImputeMax = declareImputeFunction("max", imputeMax, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constant values shifted above the maximum.")
 
-#' @title Perform Imputation with Uniformly Random Values.
+#' @title Perform Imputation with Uniformly Random Values
 #'
 #' @template impute_doc_intro
 #'
@@ -248,7 +248,7 @@ cpoImputeUniform = declareImputeFunction("uniform", imputeUniform, {  # nolint
 }, "numerics")
 registerCPO(cpoImputeUniform, "imputation", "specialised", "Imputation using uniformly distributed random values.")
 
-#' @title Perform Imputation with Normally Distributed Random Values.
+#' @title Perform Imputation with Normally Distributed Random Values
 #'
 #' @template impute_doc_intro
 #'
@@ -267,7 +267,7 @@ cpoImputeNormal = declareImputeFunction("normal", imputeNormal, {  # nolint
 }, "numerics")
 registerCPO(cpoImputeNormal, "imputation", "specialised", "Imputation using normally distributed random values.")
 
-#' @title Perform Imputation with Random Values.
+#' @title Perform Imputation with Random Values
 #'
 #' @template impute_doc_intro
 #'
@@ -287,7 +287,7 @@ cpoImputeHist = declareImputeFunction("hist", imputeHist, pSSLrn(breaks = "Sturg
   use.mids = TRUE: logical))
 registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random values with probabilities approximating the data.")
 
-#' @title Perform Imputation with an \code{mlr} \code{Learner}.
+#' @title Perform Imputation with an \code{mlr} \code{Learner}
 #'
 #' @template impute_doc_intro
 #'

@@ -226,7 +226,7 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
 cpoCase = makeFauxCPOConstructor(mlrCPO::makeCPOCase, "case", "other", default.id.null = TRUE)
 registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
 
-#' @title Transform CPO Hyperparameters.
+#' @title Transform CPO Hyperparameters
 #'
 #' @template cpo_doc_intro
 #'

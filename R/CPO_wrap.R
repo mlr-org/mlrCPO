@@ -1,5 +1,5 @@
 
-#' @title CPO Wrapper.
+#' @title CPO Wrapper
 #'
 #' @template cpo_doc_intro
 #'

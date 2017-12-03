@@ -140,7 +140,7 @@ inverter = function(data) {
   UseMethod("inverter<-")
 }
 
-#' @title Clear Retrafo and Inverter Attributes.
+#' @title Clear Retrafo and Inverter Attributes
 #'
 #' @description
 #' When applying \code{\link{CPO}}s to data, the operation entails

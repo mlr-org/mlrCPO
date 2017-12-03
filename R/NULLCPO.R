@@ -3,7 +3,7 @@
 # If a generic concerns itself mostly with NULLCPO, it should probably
 # go here, and *not* in other files that it might also touch (e.g. printing).
 
-#' @title CPO Composition Neutral Element.
+#' @title CPO Composition Neutral Element
 #'
 #' @description
 #' \code{NULLCPO} is the neutral element of \code{\link{CPO}} and \code{\link{CPOTrained}} composition when using
@@ -26,7 +26,7 @@
 NULLCPO = makeS3Obj(c("NULLCPO", "CPOPrimitive", "CPORetrafo", "CPOInverter", "CPOTrained", "CPO"))  # nolint
 
 
-#' @title Check for NULLCPO.
+#' @title Check for NULLCPO
 #'
 #' @description
 #' Check whether the given object is a \code{\link{NULLCPO}}.
@@ -41,7 +41,7 @@ is.nullcpo = function(x) {  # nolint
 }
 
 
-#' @title NULLCPO to NULL.
+#' @title NULLCPO to NULL
 #'
 #' @description
 #' Convert \code{\link{NULLCPO}} to \code{NULL}, leave other values intact.
@@ -59,7 +59,7 @@ nullcpoToNull = function(cpo) {
 }
 
 
-#' @title NULL to NULLCPO.
+#' @title NULL to NULLCPO
 #'
 #' @description
 #' Convert \code{NULL} to \code{\link{NULLCPO}}, leave other values intact.
