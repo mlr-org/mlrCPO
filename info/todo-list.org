@@ -9,7 +9,7 @@
 - [X] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
 - [X] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
 - [X] document that index with cpoSelect and affect.* is always relative do data cols only
-- [-] plan for today:
+- [X] plan for today:
   - [X] callCPO should call retrafo / inverter properly
   - [X] retrafo chaining should work again
   - [X] predict.type of cpotrained
@@ -33,11 +33,8 @@
   - [X] Title case or no title case
   - [X] hyperparameter transforming cpo wrapper
   - [X] a %>|% b --> retrafo(a %>>% b)
-  - [ ] make tests work
-  - [ ] new tests
-- [ ] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
-- [ ] roxygen-document internal functions
-- [ ] option to drop 'truth' columns
+  - [X] make tests work
+- [X] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 ** test todo
 - [ ] convertNamesToItems, ItemsToNames
 - [ ] on.par.out.of.bounds setting
@@ -53,12 +50,14 @@
 - [ ] text output lines may be longer.
 - [ ] plural s unification
 - [ ] centralize output strings
+- [ ] roxygen-document internal functions
 ** Features
 - [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
 - [X] listCPO() nicer print
 - [ ] exporting / fixing / hiding hyperparameters needs to handle requirements.
 - [ ] cpoCbind: prevent copies
 - [ ] check shapeinfo when reattaching retrafos
+- [ ] option to drop 'truth' columns
 - [X] meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
   - [X] properties.needed is the union of all properties.needed, properties and properties.adding are intersections
   - [X] optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.

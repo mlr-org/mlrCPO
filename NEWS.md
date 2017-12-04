@@ -1,6 +1,6 @@
 
 # mlrCPO 0.2
-* making retrafoless and target operating CPOs work
+* refactoring retrafoless and target operating CPOs (they still don't work)
 * standardised file names
 * much improved documentation
 * more coherent `makeCPO*` functions
