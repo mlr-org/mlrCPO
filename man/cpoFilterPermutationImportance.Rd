@@ -5,8 +5,8 @@
 \title{Filter Features: \dQuote{permutation.importance}}
 \usage{
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
-  imp.learner, contrast = function (x, y)  {     x - y }, measure = NULL,
-  aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
+  imp.learner, contrast = function(x, y) {     x - y }, measure = NULL,
+  aggregation = function(x, ...) UseMethod("mean"), nmc = 50,
   replace = FALSE, id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,

@@ -283,6 +283,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   properties.list = assembleProperties(properties.data, properties.needed, properties.adding, properties.target, cpo.type, type.from, type.to)
 
   funargs = lapply(par.set$pars, function(dummy) substitute())
+
   funargs = insert(funargs, par.vals)
 
   trafo.funs = constructTrafoFunctions(funargs, cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, parent.frame(2),
@@ -425,7 +426,21 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     requireCPOPackages(cpo)
     setCPOId(cpo, id)  # this also adjusts par.set and par.vals
   })
-  cpo.constructor = addClasses(eval(call("function", as.pairlist(funargs), funbody)), "CPOConstructor")
+
+  # the following is necessary since codoc complains otherwise. The reason is:
+  # When one *usually* writes a function out that has a function default parameter (e.g. function(a = function() {}) ), then
+  # this function is stored in the formals() of that function as a *call* object (i.e. the AST representing the function).
+  # However, funargs so far contains the function as a *closure* object, which we get from evaluating the call / promise.
+  # Therefore we need to turn the function back into a call object here.
+  funargs.nofun = lapply(funargs, function(x) {
+    if (is.function(x)) {
+      call("function", formals(x), body(x))
+    } else {
+      x
+    }
+  })
+
+  cpo.constructor = addClasses(eval(call("function", as.pairlist(funargs.nofun), funbody)), "CPOConstructor")
   cpo.constructor
 }
 
