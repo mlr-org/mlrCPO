@@ -15,7 +15,7 @@ test_that("cpoPca test", {
 
   prc = prcomp(iris[1:4], center = FALSE)
 
-  expect_equal(getRetrafoState(ret)$control$rotation, prc$rotation)
+  expect_equal(getCPOTrainedState(ret)$control$rotation, prc$rotation)
 
   expect_equal(getTaskData(iris.task %>>% cpoPca(), target.extra = TRUE)$data,
                as.data.frame(prcomp(iris[1:4], center = FALSE, scale. = FALSE)$x))
@@ -43,8 +43,8 @@ test_that("cpoScale test", {
   scld = scale(iris[1:4])
   # last iteration of the loop above has both 'center' and 'scale' set to TRUE
   # otherwise, the following wouldn't work
-  expect_equal(getRetrafoState(ret)$control$center, attr(scld, "scaled:center"))
-  expect_equal(getRetrafoState(ret)$control$scale, attr(scld, "scaled:scale"))
+  expect_equal(getCPOTrainedState(ret)$control$center, attr(scld, "scaled:center"))
+  expect_equal(getCPOTrainedState(ret)$control$scale, attr(scld, "scaled:scale"))
 
   expect_equal(getTaskData(iris.task %>>% cpoScale(center = FALSE), target.extra = TRUE)$data,
                as.data.frame(scale(iris[1:4], center = FALSE)))

@@ -122,9 +122,9 @@ test_that("CPO Impute data frame", {
 
   data2 = data[1:5, ]
   x = data2 %>>% cpoImpute(target = target, dummy.classes = c("numeric", "logical", "factor"), force.dummies = TRUE)
-  expect_true(setequal(getRetrafoState(retrafo(x))$control$dummies, c("f", "x", "y")))
+  expect_true(setequal(getCPOTrainedState(retrafo(x))$control$dummies, c("f", "x", "y")))
   x = data2 %>>% cpoImpute(target = target, dummy.classes = c("numeric", "logical", "factor"), force.dummies = FALSE)
-  expect_true(setequal(getRetrafoState(retrafo(x))$control$dummies, character(0)))
+  expect_true(setequal(getCPOTrainedState(retrafo(x))$control$dummies, character(0)))
 })
 
 test_that("CPO ImputeWrapper", {

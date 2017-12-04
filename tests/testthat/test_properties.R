@@ -44,12 +44,12 @@ test_that("attaching cpo with mismatching properties gives error", {
       cpogen("propertytest", type, pss(), cponoop, cponoop, "task", properties, adding, needed)(...)
     }
 
-    expect_set_equal(getRestrictedCPOProperties(propercpo(c("numerics", "factors")))$properties, c("numerics", "factors"))
+    expect_set_equal(getRestrictedCPOProperties(propercpo(c("numerics", "factors")))$handling, c("numerics", "factors"))
 
-    expect_set_equal(getRestrictedCPOProperties(propercpo(c("numerics", "factors")) %>>% propercpo(c("factors", "ordered")))$properties, "factors")
+    expect_set_equal(getRestrictedCPOProperties(propercpo(c("numerics", "factors")) %>>% propercpo(c("factors", "ordered")))$handling, "factors")
 
     expect_set_equal(getRestrictedCPOProperties(propercpo(c("numerics", "factors"), "numerics") %>>%
-                                      propercpo(c("factors", "ordered")))$properties, c("factors", "numerics"))
+                                      propercpo(c("factors", "ordered")))$handling, c("factors", "numerics"))
 
     expect_error(propercpo("numerics", "factors"), "Must be a subset")
     expectCpo(propercpo(c("numerics", needed = "factors")))

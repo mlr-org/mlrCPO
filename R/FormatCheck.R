@@ -233,6 +233,10 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
   targetnames = names(ppr$target)
   name = ppr$name
 
+  # whether to ignore target columns of shapeinfo.output
+  # (needed when dataformat differs between trafo & retrafo)
+  drop.shapeinfo.target = dataformat %in% c("df.all", "task")
+
   if (operating.type != "target") {
     # tempdata: incoming data that was given to prepareRetrafoInput as 'indata', after subsetting according to 'affect.*' parameters
     outdata = rebuildOutdata(outdata, ppr$tempdata, dataformat)
@@ -261,14 +265,13 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
   checkOutputProperties(outdata, recombined, targetnames, prepared.input$properties, properties.needed, properties.adding, operating.type, "retrafo", name)
 
   # check the shape of outdata is as expected
-  shapeinfo.output$target = NULL
   if (dataformat == "split") {
-    assertSetEqual(names(outdata), names(shapeinfo.output))
+    assertSetEqual(names(outdata), setdiff(names(shapeinfo.output), "target"))
     for (n in names(outdata)) {
       assertShapeConform(outdata[[n]], shapeinfo.output[[n]], strict.factors, name)
     }
   } else {
-    assertShapeConform(outdata, shapeinfo.output, strict.factors, name)
+    assertShapeConform(outdata, shapeinfo.output, strict.factors, name, ignore.target = drop.shapeinfo.target)
   }
   assertTargetShapeConform(recombined, shapeinfo.output, operating.type)
 
@@ -370,8 +373,14 @@ getGeneralDataProperties = function(data, ignore.cols = character(0)) {
 # @param strict.factors [logical(1)] whether to check for 'ordered' as a type differing from 'factor'
 # @param name [character(1)] name of the CPO currently being run, for error and debug printing
 # @param retrafoless [logical(1)] whether this is the trafo result of a retrafoless CPO. Default FALSE.
+# @param ignore.target [logical(1)] whether to ignore columns that have the same name as the target
+#   column(s) declared in the $target slot. Default FALSE.
 # @return [invisible(NULL)]
-assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless = FALSE) {
+assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless = FALSE, ignore.target = FALSE) {
+  if (ignore.target && !is.null(shapeinfo$target)) {
+    shapeinfo$colnames = setdiff(shapeinfo$colnames, shapeinfo$target)
+    shapeinfo$coltypes = dropNamed(shapeinfo$coltypes, shapeinfo$target)
+  }
   if (!identical(names2(df), shapeinfo$colnames)) {
     stopf("Error in CPO %s: column name mismatch between training and test data.\nWas %s during training, is %s now.",
           name, collapse(shapeinfo$colnames, sep = ", "), collapse(names(df), sep = ", "))
@@ -733,8 +742,8 @@ splitdf = function(df, dataformat, strict.factors) {
     task = list(data = makeClusterTask(data = df, fixup.data = "no"), target = character(0)),
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
-    split = list(data = splitColsByType(colsplit), df),
-    target = df[, character(0), drop = FALSE])
+    split = list(data = splitColsByType(colsplit, df),
+      target = df[, character(0), drop = FALSE]))
 }
 
 # Take subset of data according to 'affect.*' parameters

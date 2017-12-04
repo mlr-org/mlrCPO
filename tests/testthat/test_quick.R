@@ -18,7 +18,7 @@ test_that("getLearnerCPO, getLearnerBare: hyperparameter changes propagate", {
 
   model = train(c2, cpo.df1c)
 
-  rts = lapply(as.list(retrafo(model)), getRetrafoState)
+  rts = lapply(as.list(retrafo(model)), getCPOTrainedState)
 
   expect_equal(rts[[1]]$summand, 10)
 
@@ -76,13 +76,13 @@ test_that("functional cpo 'data' is removed from functional environment; warning
     data
     }, cpo.retrafo = NULL)
 
-  expect_warning({ret = retrafo(cpo.df1 %>>% cpo(1))}, "references a 'data' variable")
+  expect_warning({ret = retrafo(cpo.df1 %>>% cpo(1))}, "references a data variable")
 
   expect_equal(cpo.df1 %>>% ret, cpo.df1)
 
 })
 
-test_that("functional retrafo recursion after getRetrafoState works", {
+test_that("functional retrafo recursion after getCPOTrainedState works", {
 
   cpo = makeCPOExtended("testrecursion", test: integer[, ], .dataformat = "df.all", cpo.trafo = {
     addendum = 1
@@ -106,11 +106,11 @@ test_that("functional retrafo recursion after getRetrafoState works", {
 
   expect_equal(df %>>% ret, data.frame(a = 4:6, b = 3:5))
 
-  state = getRetrafoState(ret)
+  state = getCPOTrainedState(ret)
 
   state$addendum = -1
 
-  expect_equal(df %>>% makeRetrafoFromState(cpo, state), data.frame(a = 4:6, b = (-3):(-1)))
+  expect_equal(df %>>% makeCPOTrainedFromState(cpo, state), data.frame(a = 4:6, b = (-3):(-1)))
 
 })
 
@@ -156,21 +156,21 @@ test_that("cpo state if cpo.retrafo missing from cpo.retrafo env;  fails if cpo.
 
   ret = retrafo(cpo.df1 %>>% cpo(1))
   expect_equal(cpo.df1 %>>% ret, cpo.df1)
-  expect_equal(cpo.df1 %>>% makeRetrafoFromState(cpo, getRetrafoState(ret)), cpo.df1)
+  expect_equal(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), cpo.df1)
 
   df = data.frame(a = 1)
   ret = retrafo(df %>>% cpo(2))
   expect_equal(df %>>% ret, df)
   df = data.frame(a = 2)
-  expect_equal(df %>>% makeRetrafoFromState(cpo, getRetrafoState(ret)), df)
+  expect_equal(df %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), df)
 
   ret = retrafo(cpo.df1 %>>% cpo(3))
   expect_equal(cpo.df1 %>>% ret, cpo.df1)
-  expect_error(cpo.df1 %>>% makeRetrafoFromState(cpo, getRetrafoState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
+  expect_error(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
 
   ret = retrafo(cpo.df1 %>>% cpo(4))
   expect_equal(cpo.df1 %>>% ret, cpo.df1)
-  expect_error(cpo.df1 %>>% makeRetrafoFromState(cpo, getRetrafoState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
+  expect_error(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
 
 })
 
