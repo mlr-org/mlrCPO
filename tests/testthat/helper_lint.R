@@ -5,7 +5,7 @@ isLintrVersionOk = function(error.if.not = FALSE) {
   lintr.ver = try(packageVersion("lintr"), silent = TRUE)
   lintr.required = "1.0.0.9001"
   if (inherits(lintr.ver, "try-error")) {
-    msg = "lintr is not installed."
+    msg = sprintf("lintr is not installed: %s", BBmisc::printToChar(lintr.ver))
   } else {
     if (package_version(lintr.ver) >= package_version(lintr.required)) {
       return(TRUE)
