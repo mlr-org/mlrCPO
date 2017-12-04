@@ -42,7 +42,8 @@ Suggests:
     FSelector,
     e1071,
     DiscriMiner,
-    digest
+    digest,
+    lintr
 LazyData: yes
 ByteCompile: yes
 Version: 0.2
