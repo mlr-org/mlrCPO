@@ -596,7 +596,7 @@ getCPOTrainedCapability.CPOTrained = function(cpo) {
 # original CPO, CPOConstructor
 
 #' @export
-getOriginalCPO.CPOTrainedPrimitive = function(cpo) {
+getCPOTrainedCPO.CPOTrainedPrimitive = function(cpo) {
   cpo$element$cpo
 }
 

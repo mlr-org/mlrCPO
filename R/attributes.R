@@ -111,7 +111,7 @@
 #' trained = trained.tmp %>>% cpoScale()
 #'
 #' reFun2 = retrafo(trained)
-#' predicted = getTaskData(reimpute(reFun1(preddat), imp$desc),
+#' predicted = getTaskData(reimpute(preddat %>>% reFun1, imp$desc),
 #'   target.extra = TRUE)$data %>>% reFun2
 #' @name CPOTrained
 NULL

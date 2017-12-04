@@ -56,6 +56,7 @@
 #'   The source object.
 #' @param cpo2 [\code{\link{CPO}} | \code{\link{CPOTrained}} | \code{\link[mlr:makeLearner]{Learner}}]\cr
 #'   The sink object.
+#' @return [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}].
 #'
 #' @family operators
 #' @family retrafo related
@@ -84,12 +85,21 @@
   # deferAssignmentOperator call so that %<>>% etc. is evaluated last.
   # it rewrites `%>>%` etc. operators to `internal%>>%` functions and
   # calls the rewritten statement.
-  eval.parent(deferAssignmentOperator(substitute(cpo1 %>>% cpo2)))
+  return(eval.parent(deferAssignmentOperator(substitute(cpo1 %>>% cpo2))))
+  UseMethod("%>>%")  # for roxygen2 to recognize %>>% as an S3 generic
 }
 
 # %>>% is rewritten to internal%>>%
-#' @export
+#' @title Internally Used \code{\%>>\%} Operators
+#'
+#' @description
+#' These functions are used internally as replacements of the
+#' \code{\link{\%>>\%}} operators. This replacement is necessary
+#' to enable right-associativity of some operators.
+#' @inheritParams %>>%
+#' @return [\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}].
 #' @keywords internal
+#' @export
 `internal%>>%` = function(cpo1, cpo2) {
   UseMethod("%>>%")
 }
@@ -101,8 +111,8 @@
 }
 
 # %<<% is rewritten to internal%<<%
+#' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
-#' @keywords internal
 `internal%<<%` = function(cpo2, cpo1) {
   `internal%>>%`(cpo1, cpo2)
 }
@@ -114,8 +124,8 @@
 }
 
 # %<>>% is rewritten to internal%<>>%
+#' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
-#' @keywords internal
 `internal%<>>%` = function(cpo1, cpo2) {
   eval.parent(substitute({ cpo1 = `internal%>>%`(cpo1, cpo2) }))
 }
@@ -127,8 +137,8 @@
 }
 
 # %<<<% is rewritten to internal%<<<%
+#' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
-#' @keywords internal
 `internal%<<<%` = function(cpo2, cpo1) {
   eval.parent(substitute({ cpo2 = `internal%>>%`(cpo1, cpo2) }))
 }
@@ -140,8 +150,8 @@
 }
 
 # %>|% is rewritten to internal%>|%
+#' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
-#' @keywords internal
 `internal%>|%` = function(cpo1, cpo2) {
   retrafo(`internal%>>%`(cpo1, cpo2))
 }
@@ -153,8 +163,8 @@
 }
 
 # %|<% is rewritten to internal%|<%
+#' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
-#' @keywords internal
 `internal%|<%` = function(cpo2, cpo1) {
   retrafo(`internal%>>%`(cpo1, cpo2))
 }

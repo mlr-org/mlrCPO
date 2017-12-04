@@ -47,6 +47,7 @@ LazyData: yes
 ByteCompile: yes
 Version: 0.2
 Collate: 
+    'CPOHelp.R'
     'auxiliary.R'
     'callInterface.R'
     'FormatCheck.R'

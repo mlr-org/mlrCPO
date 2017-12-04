@@ -513,7 +513,7 @@
 #' # an example constant feature remover CPO
 #' constFeatRem = makeCPO("constFeatRem",
 #'  dataformat = "df.features",
-#'  cpo.trafo = function(data, target) {
+#'  cpo.train = function(data, target) {
 #'    names(Filter(function(x) {  # names of columns to keep
 #'        length(unique(x)) > 1
 #'      }, data))
@@ -523,7 +523,7 @@
 #' # alternatively:
 #' constFeatRem = makeCPO("constFeatRem",
 #'   dataformat = "df.features",
-#'   cpo.trafo = function(data, target) {
+#'   cpo.train = function(data, target) {
 #'     cols.keep = names(Filter(function(x) {
 #'         length(unique(x)) > 1
 #'       }, data))
