@@ -289,7 +289,7 @@ getBareHyperPars = function(cpo, include.unexported = TRUE) {
   args = cpo$par.vals
   namestranslation = setNames(names2(cpo$bare.par.set$pars),
     names(cpo$par.set$pars))
-  ret = c(setNames(args, namestranslation[names(args)]), if (include.unexported) cpo$unexported.args)
+  ret = c(setNames(args, namestranslation[names(args)]), if (include.unexported) cpo$unexported.pars)
   if (!length(ret)) {
     namedList()
   } else {

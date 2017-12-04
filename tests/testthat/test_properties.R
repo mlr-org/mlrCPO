@@ -300,7 +300,7 @@ test_that("returning properties that are not allowed is detected", {
         expect_equal(makepcpo(split, "numerics", astask, "numerics", "numerics", inretrafo = TRUE), list("numerics", "numerics"))
 
 
-        expect_error(makepcpo(split, "factors", astask, "numerics", "factors", inretrafo = TRUE, retrafoprops = "numerics"),
+        expect_error(makepcpo(split, "factors", astask, "numerics", c("factors", "numerics"), inretrafo = TRUE, retrafoprops = "numerics"),
           "mismatches between training and test data.")
 
         if (split != "all") {
@@ -330,8 +330,17 @@ test_that("returning properties that are not allowed is detected", {
             needed = "ordered", adding = "factors", inretrafo = TRUE, convertinretrafo = FALSE),
             "retrafo.*factors.*adding")
         }
-        expect_error(makepcpo(split, "factors", astask, "missings", c("numerics", "factors", "ordered", "missings"), inretrafo = TRUE),
-          "retrafo.*missings.*properties.needed")
+
+        # we tolerate missings generated in the retrafo step
+        makepcpo(split, "factors", astask, "missings", c("numerics", "factors", "ordered", "missings"), inretrafo = TRUE)
+
+        expect_error(makepcpo(split, "numerics", astask, "factors", c("numerics", "factors", "ordered", "missings"), inretrafo = TRUE),
+          "retrafo.*factors.*properties.needed")
+        expect_error(makepcpo(split, "factors", astask, "numerics", c("numerics", "factors", "ordered", "missings"), inretrafo = TRUE),
+          "retrafo.*numerics.*properties.needed")
+        expect_error(makepcpo(split, "factors", astask, "ordered", c("numerics", "factors", "ordered", "missings"), inretrafo = TRUE),
+          "retrafo.*ordered.*properties.needed")
+
 
         expect_equal(makepcpo(split, "factors", astask, "missings", c("numerics", "factors", "ordered", "missings"), needed = "missings", inretrafo = TRUE),
           list("factors", c("factors", "missings")))

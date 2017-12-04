@@ -11,7 +11,7 @@ test_that("filterFeatures default test", {
     "univariate.model.score", "permutation.importance",
     "univariate", "rf.importance", "rf.min.depth"))
   for (filter in filter.list.classif) {
-    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select")) {  # crash on my machine for some reason.
+    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select", "auc")) {  # crash on my machine for some reason.
       next
     }
     set.seed(123)
@@ -19,6 +19,18 @@ test_that("filterFeatures default test", {
     result2 = multiclass.task %>>% retrafo(result1)
     set.seed(123)
     filtered = filterFeatures(task = multiclass.task, method = filter, perc = 0.5)
+    expect_equal(getTaskData(result1), getTaskData(result2))
+    expect_equal(getTaskData(result1), getTaskData(filtered))
+  }
+  for (filter in filter.list.classif) {
+    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select")) {  # crash on my machine for some reason.
+      next
+    }
+    set.seed(123)
+    result1 = binaryclass.task %>>% cpoFilterFeatures(method = filter, perc = 0.5)
+    result2 = binaryclass.task %>>% retrafo(result1)
+    set.seed(123)
+    filtered = filterFeatures(task = binaryclass.task, method = filter, perc = 0.5)
     expect_equal(getTaskData(result1), getTaskData(result2))
     expect_equal(getTaskData(result1), getTaskData(filtered))
   }

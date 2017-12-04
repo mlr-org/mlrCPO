@@ -48,12 +48,15 @@ makeCPOExtended = function(.cpo.name, ..., .par.set = makeParamSet(), .par.vals 
                            .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
                            .properties = c("numerics", "factors", "ordered", "missings"),
                            .properties.adding = character(0), .properties.needed = character(0),
+                           .properties.target = c(cpo.tasktypes, cpo.targetproperties),
+                           .fix.factors = FALSE,
                            cpo.trafo, cpo.retrafo) {
   .par.set = c(pSSLrn(..., .pss.env = parent.frame()), .par.set)
 
   eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
     par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
-    properties.data = .properties, properties.adding = .properties.adding,
+    properties.data = .properties, properties.adding = .properties.adding, properties.target = .properties.target,
+    fix.factors = .fix.factors,
     properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
 }
 
@@ -301,7 +304,7 @@ datasplitToDataformat = function(datasplit) {
     onlyfactor = "factor",
     target = "df.features",
     datasplit),
-    dataformat.factor.with.ordered = datasplit %in% c("most", "factor"))
+    dataformat.factor.with.ordered = datasplit %nin% c("all", "ordered", "onlyfactor"))
 }
 
 cpogen = function(name, type = c("o", "f"), ps, trafo, retrafo, datasplit,

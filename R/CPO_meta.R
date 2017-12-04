@@ -198,11 +198,16 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
     }
   }
 
-  required.arglist = lapply(c(getParamIds(paramset.pass.on), names(constructed)), function(dummy) substitute())
-  required.arglist = insert(required.arglist, pv.pass.on)
+  required.arglist = sapply(c(getParamIds(paramset.pass.on), names(constructed)), function(dummy) substitute(), simplify = FALSE)
+  required.arglist = insert(required.arglist, paramvals.pass.on)
   required.arglist$data = substitute()
   required.arglist$target = substitute()
-  buildfun = makeFunction(substitute(cpo.build), required.arglist, env = parent.frame())
+
+  cpo.build.expr = substitute(cpo.build)
+  if (!(is.recursive(cpo.build.expr) && !is.function(cpo.build.expr) && identical(cpo.build.expr[[1]], quote(`{`)))) {
+    cpo.build.expr = cpo.build
+  }
+  buildfun = makeFunction(cpo.build.expr, required.arglist, env = parent.frame())
 
   fullaffect = list(type = c("numeric", "factor", "ordered", "other"),
     index = integer(0), names = character(0), pattern = NULL, invert = FALSE, pattern.ignore.case = FALSE,
@@ -215,8 +220,8 @@ makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos 
           setHyperPars(cpo, par.vals = args[getParamIds(getParamSet(cpo))])
         }))
       indata = prepareTrafoInput(data, dataformat, !dataformat.factor.with.ordered,
-        cpo.all.properties, fullaffect, FALSE, "case")$indata
-      do.call(buildfun, c(buildfunargs, list(data = indata, target = target)))
+        cpo.all.properties, fullaffect, FALSE, "feature", "case")$indata
+      do.call(buildfun, c(buildfunargs, list(data = indata$data, target = indata$target)))
     },
     c(paramset.pass.on, paramset.others),
     c(paramvals.pass.on, paramvals.others),
@@ -577,7 +582,7 @@ collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
       needed = character(0), needed.max = character(0)))
   }
 
-  allprops = lapply(clist, getCPOProperties)
+  allprops = lapply(clist, getCPOProperties, get.internal = TRUE)
 
   # *A*pply *S*etop to *S*ublist
   # do.union TRUE -> union, otherwise intersection
@@ -630,7 +635,7 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
     } else {
       retr = retrafo(res)
     }
-    control = list(retrafo = retr, inverter = inverter(res))
+    control = retr
     control.invert = inverter(res)
     clearRI(res)
   }

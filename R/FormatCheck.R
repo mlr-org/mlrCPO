@@ -772,7 +772,7 @@ subsetIndata = function(indata, subset.selector, allowed.properties, whichfun, c
   }
 
   present.properties = getTaskProperties(indata)
-  assertPropertiesOk(present.properties, allowed.properties, "trafo", "in", cpo.name)
+  assertPropertiesOk(present.properties, allowed.properties, whichfun, "in", cpo.name)
 
   list(origdata = origdata, indata = indata, subset.index = subset.index,
     properties = present.properties)

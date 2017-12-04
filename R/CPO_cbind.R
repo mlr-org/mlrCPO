@@ -65,7 +65,7 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
   cpograph = list(makeCPOGraphItem(type = "SOURCE", parents = integer(0), children = integer(0), content = NULL))
 
   # iterate through the single elements of 'cpos' and insert them in the graph one by one
-  dangling = integer(0)  # "loose ends" in the graph
+  dangling = setNames(integer(0), character(0))  # "loose ends" in the graph
   for (cidx in seq_along(cpos)) {
     cname = firstNonNull(names(cpos)[cidx], "")
     newcpos = as.list(cpos[[cidx]])  # split into list of primitive CPOs
@@ -81,10 +81,11 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
       }
       curparent = length(cpograph)
     }
-    dangling %c=% c(cname = curparent)
+    names(curparent) = cname
+    dangling %c=% curparent
   }
   # the last element of the graph is the cbind element that ties all loose ends together
-  cpograph %c=% list(makeCPOGraphItem(type = "CBIND", parents = unname(dangling), children = integer(0), content = names2(dangling)))
+  cpograph %c=% list(makeCPOGraphItem(type = "CBIND", parents = unname(dangling), children = integer(0), content = names(dangling)))
   # the last element is therefore a child of all loose ends
   for (d in dangling) {
     cpograph[[d]]$children %c=% length(cpograph)
@@ -94,7 +95,7 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
   dupparents = names2(dangling)[dangling %in% dangling[duplicated(dangling)]]
   if (length({dupnames = unique(dupparents[duplicated(dupparents)])})) {
     stopf("Duplicating inputs must always have different names, but there are duplicated entries %s.",
-      ifelse(all(dupnames == ""), "which are unnamed", collapse(Filter(function(x) x != "", dupnames), sep = ", ")))
+      ifelse(all(is.na(dupnames)), "which are unnamed", collapse(Filter(function(x) !is.na(x), dupnames), sep = ", ")))
   }
 
   if (length(cpos)) {
@@ -141,7 +142,7 @@ cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
         ag$data
       }, cpo.retrafo = function(data, control, ...) {
         applyGraph(control, data, FALSE, NULL)$data
-      })(), "CPOCbind")
+      })(id = NULL), "CPOCbind")
   }))
 }
 
@@ -306,7 +307,7 @@ uniteGraph = function(cpograph, sourceIdx, childgraph, par.vals) {
     }
     childgraph[[cidx]] = childitem
   }
-  c(cpograph, childitem[-1])
+  c(cpograph, childgraph[-1])
 }
 
 # This checks the graph for operations that can be combined into one operation.
@@ -365,7 +366,7 @@ synchronizeGraph = function(cpograph) {
         # for CPO, check equality of underlying cpo and of id
         # The last one is necessary for meta-CPOs like multiplex or cpoCase.
         # When these values differ, the CPOs are unambiguously different.
-        if (identicalCPO(scpo, gcpo) && !identical(getCPOId(scpo), getCPOId(gcpo))) {
+        if (!identicalCPO(scpo, gcpo) || !identical(getCPOId(scpo), getCPOId(gcpo))) {
           next
         }
 
@@ -486,11 +487,13 @@ print.CPOGraphItem = function(x, ...) {
 #' @export
 # print the CPOCbind object, including the graph.
 print.CPOCbind = function(x, verbose = FALSE, width = getOption("width"), ...) {
+  graph = x$unexported.pars[[".CPO"]]
+  x$unexported.pars = NULL
+  x$unexported.par.set = NULL
   NextMethod("print")
   if (!verbose) {
     return(invisible(NULL))
   }
-  graph = x$unexported.pars[[".CPO"]]
   par.vals = getHyperPars(x)
   descriptions = vcapply(graph[-1], function(x) {
     cont = x$content

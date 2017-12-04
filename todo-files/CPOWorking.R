@@ -34,20 +34,36 @@ devtools::load_all("..")
 
 devtools::test(pkg = "..", reporter = MinimalReporter)
 
-devtools::test(pkg = "..", filter = "basic")
-devtools::test(pkg = "..", filter = "affect")
-devtools::test(pkg = "..", filter = "properties")
-devtools::test(pkg = "..", filter = "tuning")
-devtools::test(pkg = "..", filter = "datasplit")
-devtools::test(pkg = "..", filter = "quick")
-devtools::test(pkg = "..", filter = "filter")
-devtools::test(pkg = "..", filter = "impute")
-devtools::test(pkg = "..", filter = "concrete")
-devtools::test(pkg = "..", filter = "meta")
-devtools::test(pkg = "..", filter = "cbind")
+
+# all tests:
+devtools::test(pkg = "..", filter = "affect")       # [ 00 ]
+devtools::test(pkg = "..", filter = "basic")        # [ 00 ]
+devtools::test(pkg = "..", filter = "cbind")        # [ 05 ]
+devtools::test(pkg = "..", filter = "concrete")     # [ 00 ]
+devtools::test(pkg = "..", filter = "datasplit")    # [ 00 ]
+devtools::test(pkg = "..", filter = "filter")       # [ 00 ]
+devtools::test(pkg = "..", filter = "impute")       # [ 00 ]
+devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
+devtools::test(pkg = "..", filter = "meta")         # [ 00 ]
+devtools::test(pkg = "..", filter = "properties")   # [ 00 ]
+devtools::test(pkg = "..", filter = "quick")        # [ 00 ]
+devtools::test(pkg = "..", filter = "tuning")       # [ 00 ]
 
 
-devtools::test(pkg = "..", filter = "lint")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

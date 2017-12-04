@@ -4,10 +4,10 @@ context("cpo cbind")
 
 test_that("cbind building works", {
 
-  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO)$par.vals$.CPO), 3)
-  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO)$par.vals$.CPO[[3]]$parents), 2)
+  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO)$unexported.pars$.CPO), 3)
+  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO)$unexported.pars$.CPO[[3]]$parents), 2)
 
-  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO, copy = NULLCPO)$par.vals$.CPO[[3]]$parents), 3)
+  expect_equal(length(cpoCbind(cpomultiplier.nt.o(), NULLCPO, copy = NULLCPO)$unexported.pars$.CPO[[3]]$parents), 3)
 
 
   twice = cpoCbind(cpomultiplier.nt.o(), cpomultiplier.nt.o())
@@ -32,7 +32,7 @@ test_that("cbind building works", {
   result = cpoCbind(route1, route2, route3)
 
   # expected length: 1 source, 5 CPOs, 5 CBINDs ==> 12
-  expect_length(result$par.vals$.CPO, 12)
+  expect_length(result$unexported.pars$.CPO, 12)
 
 
   expect_error(cpoCbind(NULLCPO, NULLCPO), "Duplicating inputs.*unnamed")

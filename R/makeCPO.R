@@ -293,7 +293,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
   trafo.funs$control.type = NULL
 
 
-  funargs = insert(funargs, list(id = NULL, export = "export.default"))
+  funargs = insert(funargs, list(id = substitute(), export = "export.default"))
   default.affect.args = list(affect.type = NULL, affect.index = integer(0),
     affect.names = character(0), affect.pattern = NULL, affect.invert = FALSE,
     affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
@@ -316,7 +316,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     nondefault.args = args
     args = insert(funargs, args)
     id = args$id
-    if (is.null(id)) {
+    if (missing(id)) {
       id = cpo.name
     }
     args$id = NULL

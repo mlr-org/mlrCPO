@@ -118,6 +118,7 @@ makeCPOTrainedFromState = function(constructor, state, get.inverter = FALSE) {
     target = state$target
     state$target = NULL
     converted = convertPrettyState(bare, state, "cpo.retrafo", bare$control.type$retrafo)
+    bare = converted$bare
     if (bare$operating.type == "target" && bare$constant.invert) {
       assert(bare$control.type$retrafo != "dual.functional")
       state.invert = convertPrettyState(bare, target, "cpo.invert", bare$control.type$invert, TRUE)$newstate
@@ -190,7 +191,6 @@ functionToObjectState = function(fun, name, cpo.name) {
 # @return [function] a function with the state as its innermost environment
 objectStateToFunction = function(state, name) {
   assertSubset(name, names(state))
-  bare$par.vals = list()
 
   newstate = state[[name]]
   # update newstate's environment to actually contain the
