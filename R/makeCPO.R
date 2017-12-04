@@ -171,7 +171,6 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
     task.type.out = task.type.in
   }
 
-  assertChoice(type, cpo.tasktypes)
   assertSubset(properties.target, c(cpo.tasktypes, cpo.targetproperties))
 
   assertChoice(task.type.out, cpo.tasktypes)
@@ -567,6 +566,10 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   # evaluate expressions that are not headless functions
   for (eval.name in fnames) {
     expr = get(eval.name)
+    if (missing(expr)) {
+      stopf("%s is missing", if (eval.name == "cpo.trafo" && cpo.type %in% c("feature", "target"))
+          "cpo.train" else eval.name)
+    }
     if (!(is.recursive(expr) && !is.function(expr) && identical(expr[[1]], quote(`{`)))) {
       assign(eval.name, eval(expr, envir = eval.env))
     }
@@ -592,9 +595,6 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   # build and check cpo.retrafo
   if (!is.null(cpo.retrafo)) {
     assert(cpo.type != "retrafoless")  # retrafoless cpo must have cpo.retrafo = NULL, should be enforced by API
-    if (cpo.type == "target" && constant.invert) {
-      stop("Target Operating CPO with constant.invert == TRUE must not have cpo.retrafo = NULL.")
-    }
 
     required.arglist = funargs
     required.arglist$data = substitute()
@@ -607,7 +607,10 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     cpo.retrafo = makeFunction(cpo.retrafo, required.arglist, env = eval.env)
   } else if (stateless) {
     stop("One of cpo.train or cpo.retrafo must be non-NULL, since one cannot have a stateless functional CPO.")
+  } else if (cpo.type == "target" && constant.invert) {
+    stop("Target Operating CPO with constant.invert == TRUE must not have cpo.retrafo = NULL.")
   }
+
 
   ###
   # build and check cpo.train.invert

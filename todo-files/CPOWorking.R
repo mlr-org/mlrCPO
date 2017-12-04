@@ -38,7 +38,7 @@ devtools::test(pkg = "..", reporter = MinimalReporter)
 # all tests:
 devtools::test(pkg = "..", filter = "affect")       # [ 00 ]
 devtools::test(pkg = "..", filter = "basic")        # [ 00 ]
-devtools::test(pkg = "..", filter = "cbind")        # [ 05 ]
+devtools::test(pkg = "..", filter = "cbind")        # [ 00 ]
 devtools::test(pkg = "..", filter = "concrete")     # [ 00 ]
 devtools::test(pkg = "..", filter = "datasplit")    # [ 00 ]
 devtools::test(pkg = "..", filter = "filter")       # [ 00 ]
