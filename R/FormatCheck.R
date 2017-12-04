@@ -199,14 +199,10 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
 
   checkOutputProperties(outdata, recombined, prepared.input$shapeinfo$target, prepared.input$properties, properties.needed, properties.adding, operating.type, "trafo", name)
 
-  if (dataformat %in% c("df.all", "task")) {
-    # in this case, take shape info with 'target' separated
-    shapeinfo = makeOutputShapeInfo(recombined)
-  } else {
-    shapeinfo = makeOutputShapeInfo(outdata)
-  }
-  if ("Task" %in% class(olddata)) {
-    shapeinfo$target = getTaskTargetNames(olddata)
+  shapeinfo = makeOutputShapeInfo(outdata)
+
+  if ("Task" %in% class(recombined)) {
+    shapeinfo$target = getTaskTargetNames(recombined)
   }
 
   list(outdata = recombined, shapeinfo = shapeinfo)
@@ -274,6 +270,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
   } else {
     assertShapeConform(outdata, shapeinfo.output, strict.factors, name)
   }
+  assertTargetShapeConform(recombined, shapeinfo.output, operating.type)
 
   if (operating.type == "target" && ppr$origdatatype == "data.frame") {
     # input was a data.frame (with target columns), so we return da data.frame (with target columns)
@@ -401,6 +398,26 @@ assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless =
       stopf("Error in CPO %s: Type%s of column%s %s mismatch%s between training and test data.", name,
         plurs, plurs, collapse(names(indata)[typemismatch], sep = ", "), singes)
     }
+  }
+}
+
+# give error when shape recorded 'target' differs from task target
+#
+# only target column names are compared. This is needed for target
+# operation CPOs changing target names. If data is not a Task
+# or the operating.type is 'target', this does nothing.
+#
+# @param data [Task | data.frame] the Task.
+# @param shapeinfo [ShapeInfo] a ShapeInfo
+# @param operating.type [character(1)] operating type: "target", "feature", or "retrafoless"
+# @return [invisible(NULL)]
+assertTargetShapeConform = function(data, shapeinfo, operating.type) {
+  if ("Task" %nin% class(data) || operating.type != "target") {
+    return(invisible(NULL))
+  }
+  if (!identical({newtarget = getTaskTargetNames(data)}, shapeinfo$target)) {
+    stopf("Error in CPO %s: Target name(s) after retrafo differ(s) from target name(s) after trafo. Was '%s', is now '%s'",
+      collapse(newtarget, "', '"), collapse(shapeinfo$target, "', '"))
   }
 }
 
