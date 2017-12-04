@@ -312,7 +312,7 @@ fixFactorsTask.Task = function(data, levels) {
 # @return [character] a subset of c("numerics", "factors", "ordered", "missings")
 getDataProperties = function(data, targetnames) {
   if (is.data.frame(data)) {
-    td = makeTaskDescInternal(NULL, NULL, data, targetnames, NULL, NULL)
+    td = makeTaskDescInternal(NULL, NULL, data, targetnames, NULL, NULL, FALSE)
   } else {
     assertClass(data, "Task")
     td = getTaskDesc(data)
