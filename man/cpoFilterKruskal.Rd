@@ -4,7 +4,7 @@
 \alias{cpoFilterKruskal}
 \title{Filter Features: \dQuote{kruskal.test}}
 \usage{
-cpoFilterKruskal(perc = NULL, abs = NULL, threshold = NULL, id = NULL,
+cpoFilterKruskal(perc = NULL, abs = NULL, threshold = NULL, id,
   export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,

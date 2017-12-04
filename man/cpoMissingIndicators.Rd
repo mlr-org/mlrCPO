@@ -4,12 +4,11 @@
 \alias{cpoMissingIndicators}
 \title{Convert Data into Factors Indicating Missing Data}
 \usage{
-cpoMissingIndicators(force.dummies = FALSE, id = NULL,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoMissingIndicators(force.dummies = FALSE, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{force.dummies}{[\code{logical(1)}]\cr

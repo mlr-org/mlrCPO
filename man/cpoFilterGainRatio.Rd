@@ -4,7 +4,7 @@
 \alias{cpoFilterGainRatio}
 \title{Filter Features: \dQuote{gain.ratio}}
 \usage{
-cpoFilterGainRatio(perc = NULL, abs = NULL, threshold = NULL, id = NULL,
+cpoFilterGainRatio(perc = NULL, abs = NULL, threshold = NULL, id,
   export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,

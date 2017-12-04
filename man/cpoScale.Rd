@@ -4,12 +4,11 @@
 \alias{cpoScale}
 \title{Construct a CPO for Scaling / Centering}
 \usage{
-cpoScale(center = TRUE, scale = TRUE, id = NULL,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoScale(center = TRUE, scale = TRUE, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{center}{[\code{logical(1)}]\cr

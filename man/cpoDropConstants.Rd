@@ -4,8 +4,8 @@
 \alias{cpoDropConstants}
 \title{Drop Constant or Near-Constant Features}
 \usage{
-cpoDropConstants(rel.tol = 1e-08, abs.tol = 1e-08, ignore.na = FALSE,
-  id = NULL, export = "export.default", affect.type = NULL,
+cpoDropConstants(rel.tol = 1e-08, abs.tol = 1e-08, ignore.na = FALSE, id,
+  export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,

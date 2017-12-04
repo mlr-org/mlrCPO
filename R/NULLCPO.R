@@ -163,12 +163,12 @@ getCPOOperatingType.NULLCPO = function(cpo) {
 }
 
 #' @export
-getOriginalCPO.NULLCPO = function(cpo) {
+getCPOTrainedCPO.NULLCPO = function(cpo) {
   NULLCPO
 }
 
 #' @export
-getOriginalCPOConstructor.NULLCPO = function(cpo) {
+getCPOConstructor.NULLCPO = function(cpo) {
   stop("No CPOConstructor for NULLCPO.")
 }
 

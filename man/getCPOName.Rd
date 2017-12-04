@@ -29,14 +29,12 @@ of a CPO.
 \seealso{
 Other getters and setters: \code{\link{CPO}},
   \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOId}},
+  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{setCPOId}}
+  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
@@ -66,7 +64,7 @@ Other inverter related: \code{\link{CPOTrained}},
 
 Other CPOConstructor related: \code{\link{CPOConstructor}},
   \code{\link{getCPOClass}},
-  \code{\link{getOriginalCPOConstructor}},
+  \code{\link{getCPOConstructor}},
   \code{\link{identicalCPO}}, \code{\link{makeCPO}},
   \code{\link{print.CPOConstructor}}
 }

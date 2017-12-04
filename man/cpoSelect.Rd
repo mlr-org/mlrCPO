@@ -7,17 +7,16 @@
 \usage{
 cpoSelect(type = character(0), index = integer(0), names = character(0),
   pattern = NULL, pattern.ignore.case = FALSE, pattern.perl = FALSE,
-  pattern.fixed = FALSE, invert = FALSE, id = NULL,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+  pattern.fixed = FALSE, invert = FALSE, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 
 cpoSelectFreeProperties(type = character(0), index = integer(0),
   names = character(0), pattern = NULL, pattern.ignore.case = FALSE,
-  pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE,
-  id = NULL, export = "export.default", affect.type = NULL,
+  pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE, id,
+  export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,

@@ -396,8 +396,8 @@ getOrigialCPO = function(cpo) {
 #' @family CPO lifecycle related
 #' @family CPOConstructor related
 #' @export
-getOriginalCPOConstructor = function(cpo) {
-  UseMethod("getOriginalCPOConstructor")
+getCPOConstructor = function(cpo) {
+  UseMethod("getCPOConstructor")
 }
 
 
@@ -601,27 +601,27 @@ getOrigialCPO.CPOTrainedPrimitive = function(cpo) {
 }
 
 #' @export
-getOriginalCPO.CPOTrained = function(cpo) {
-  getOriginalCPO(cpo$prev.retrafo) %>>% cpo$cpo
+getCPOTrainedCPO.CPOTrained = function(cpo) {
+  getCPOTrainedCPO(cpo$prev.retrafo) %>>% cpo$cpo
 }
 
 #' @export
-getOriginalCPOConstructor.CPOPrimitive = function(cpo) {
+getCPOConstructor.CPOPrimitive = function(cpo) {
   cpo$constructor
 }
 
 #' @export
-getOriginalCPOConstructor.CPOTrainedPrimitive = function(cpo) {
-  getOriginalCPOConstructor(getOriginalCPO(cpo))
+getCPOConstructor.CPOTrainedPrimitive = function(cpo) {
+  getCPOConstructor(getCPOTrainedCPO(cpo))
 }
 
 #' @export
-getOriginalCPOConstructor.CPOTrained = function(cpo) {
+getCPOConstructor.CPOTrained = function(cpo) {
   stop("Compound CPOTrained cannot be queried for the CPOConstructor.")
 }
 
 #' @export
-getOriginalCPOConstructor.CPO = function(cpo) {
+getCPOConstructor.CPO = function(cpo) {
   stop("Compound CPO cannot be queried for the CPOConstructor.")
 }
 
@@ -689,8 +689,8 @@ getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
 identicalCPO.CPOPrimitive = function(cpo1, cpo2) {
   assertClass(cpo2, "CPO")
   "CPOPrimitive" %in% class(cpo2) &&
-    identical(environment(getOriginalCPOConstructor(cpo1)),
-      environment(getOriginalCPOConstructor(cpo2)))
+    identical(environment(getCPOConstructor(cpo1)),
+      environment(getCPOConstructor(cpo2)))
 }
 
 #' @export

@@ -4,7 +4,7 @@
 \alias{cpoFilterAnova}
 \title{Filter Features: \dQuote{anova.test}}
 \usage{
-cpoFilterAnova(perc = NULL, abs = NULL, threshold = NULL, id = NULL,
+cpoFilterAnova(perc = NULL, abs = NULL, threshold = NULL, id,
   export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,

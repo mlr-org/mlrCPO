@@ -32,9 +32,10 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
   \code{\link{CPO}}, \code{\link{NULLCPO}},
   \code{\link{\%>>\%}}, \code{\link{composeCPO}},
-  \code{\link{getCPOClass}}, \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+  \code{\link{getCPOClass}},
+  \code{\link{getCPOConstructor}},
+  \code{\link{getOrigialCPO}}, \code{\link{identicalCPO}},
+  \code{\link{makeCPO}}
 
 Other CPOLearner related: \code{\link{CPOLearner}},
   \code{\link{getLearnerBare}}, \code{\link{getLearnerCPO}}

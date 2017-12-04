@@ -4,12 +4,11 @@
 \alias{cpoDummyEncode}
 \title{CPO Dummy Encoder}
 \usage{
-cpoDummyEncode(reference.cat = FALSE, id = NULL,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoDummyEncode(reference.cat = FALSE, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{reference.cat}{[\code{logical}]\cr

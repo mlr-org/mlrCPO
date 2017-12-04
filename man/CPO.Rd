@@ -63,9 +63,10 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
   \code{\link{attachCPO}}, \code{\link{composeCPO}},
-  \code{\link{getCPOClass}}, \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+  \code{\link{getCPOClass}},
+  \code{\link{getCPOConstructor}},
+  \code{\link{getOrigialCPO}}, \code{\link{identicalCPO}},
+  \code{\link{makeCPO}}
 
 Other operators: \code{\link{\%>>\%}},
   \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
@@ -73,15 +74,14 @@ Other operators: \code{\link{\%>>\%}},
   \code{\link{pipeCPO}}
 
 Other getters and setters: \code{\link{getCPOAffect}},
-  \code{\link{getCPOClass}}, \code{\link{getCPOId}},
+  \code{\link{getCPOClass}},
+  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
   \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{setCPOId}}
+  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
 
 Other CPO classifications: \code{\link{getCPOClass}},
   \code{\link{getCPOOperatingType}},

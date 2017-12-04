@@ -73,13 +73,12 @@ Their compliance is checked by the CPO framework, so a CPO that doesn't conform 
 \seealso{
 Other getters and setters: \code{\link{CPO}},
   \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOId}}, \code{\link{getCPOName}},
+  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
+  \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{setCPOId}}
+  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},

@@ -25,13 +25,12 @@ see the parameter documentation there.
 }
 \seealso{
 Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOClass}}, \code{\link{getCPOId}},
+  \code{\link{getCPOClass}},
+  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
   \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{setCPOId}}
+  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
 }

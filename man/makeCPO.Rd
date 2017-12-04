@@ -613,9 +613,9 @@ constFeatRem = makeCPO("constFeatRem",
 }
 \seealso{
 Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOClass}}, \code{\link{getCPOName}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{identicalCPO}},
+  \code{\link{getCPOClass}},
+  \code{\link{getCPOConstructor}},
+  \code{\link{getCPOName}}, \code{\link{identicalCPO}},
   \code{\link{print.CPOConstructor}}
 
 Other CPO lifecycle related: \code{\link{CPOConstructor}},
@@ -623,7 +623,6 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{CPO}}, \code{\link{NULLCPO}},
   \code{\link{\%>>\%}}, \code{\link{attachCPO}},
   \code{\link{composeCPO}}, \code{\link{getCPOClass}},
-  \code{\link{getOrigialCPO}},
-  \code{\link{getOriginalCPOConstructor}},
-  \code{\link{identicalCPO}}
+  \code{\link{getCPOConstructor}},
+  \code{\link{getOrigialCPO}}, \code{\link{identicalCPO}}
 }

@@ -7,11 +7,11 @@
 cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
   imp.learner, contrast = function (x, y)  {     x - y }, measure = NULL,
   aggregation = function (x, ...)  UseMethod("mean"), nmc = 50,
-  replace = FALSE, id = NULL, export = "export.default",
-  affect.type = NULL, affect.index = integer(0),
-  affect.names = character(0), affect.pattern = NULL,
-  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
-  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+  replace = FALSE, id, export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.names = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{perc}{[\code{numeric(1)}]\cr
