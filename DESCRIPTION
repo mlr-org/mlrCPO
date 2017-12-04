@@ -41,32 +41,54 @@ Suggests:
     Rfast,
     FSelector,
     e1071,
-    DiscriMiner
+    DiscriMiner,
+    digest,
+    lintr
 LazyData: yes
 ByteCompile: yes
-Version: 0.1
+Version: 0.2
 Collate: 
-    'CPOAuxiliary.R'
+    'CPOHelp.R'
+    'auxiliary.R'
+    'callInterface.R'
     'FormatCheck.R'
     'callCPO.R'
-    'CPO_operators.R'
-    'generics.R'
+    'properties.R'
     'parameters.R'
     'listCPO.R'
     'makeCPO.R'
-    'CPO_meta.R'
-    'CPOCbind.R'
-    'CPOLearner.R'
-    'CPO_concrete.R'
-    'CPO_filterFeatures.R'
-    'CPO_impute.R'
+    'CPO_applyFun.R'
+    'CPO_asNumeric.R'
+    'operators.R'
     'NULLCPO.R'
+    'fauxCPOConstructor.R'
+    'CPO_meta.R'
+    'CPO_cbind.R'
+    'CPO_collapseFact.R'
+    'CPO_dropConstants.R'
+    'CPO_encode.R'
+    'CPO_filterFeatures.R'
+    'CPO_fixFactors.R'
+    'CPO_impute.R'
+    'CPO_missingIndicators.R'
+    'CPO_modelMatrix.R'
+    'CPO_pca.R'
+    'CPO_quantileBinNumerics.R'
+    'CPO_scale.R'
+    'CPO_scaleMaxAbs.R'
+    'CPO_scaleRange.R'
+    'CPO_select.R'
+    'CPO_spatialSign.R'
+    'CPO_wrap.R'
     'RetrafoState.R'
     'attributes.R'
+    'auxhelp.R'
+    'composeProperties.R'
     'doublecaret.R'
     'inverter.R'
+    'learner.R'
+    'makeCPOHelp.R'
     'print.R'
     'zzz.R'
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
-

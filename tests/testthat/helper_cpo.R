@@ -1,7 +1,17 @@
 
 # helper objects for cpo tests in test_base_cpo
 
-# emulate makeCPOObject, makeFunctionalObject
+# sorted list, needed for comparison when order doesn't matter.
+slist = function(...) {
+  l = list(...)
+  if (!is.null(names(l))) {
+    l[sort(names(l))]
+  } else {
+    l
+  }
+}
+
+# emulate makeCPOObject, makeFunctionalObject, makeCPOExtended
 
 makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
                              .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
@@ -12,10 +22,10 @@ makeCPOObject = function(.cpo.name, ..., .par.set = NULL, .par.vals = list(),
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
-    .properties = .properties, .properties.adding = .properties.adding,
-    .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
 }
 
 
@@ -28,10 +38,26 @@ makeCPOFunctional = function(.cpo.name, ..., .par.set = NULL, .par.vals = list()
     .par.set = pSSLrn(..., .pss.env = parent.frame())
   }
 
-  eval.parent(substitute(makeCPOExtended(.cpo.name = .cpo.name,
-    .par.set = .par.set, .par.vals = .par.vals, .dataformat = .dataformat, .dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
-    .properties = .properties, .properties.adding = .properties.adding,
-    .properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = NULL)))
+}
+
+makeCPOExtended = function(.cpo.name, ..., .par.set = makeParamSet(), .par.vals = list(),
+                           .dataformat = "df.all", .dataformat.factor.with.ordered = TRUE,
+                           .properties = c("numerics", "factors", "ordered", "missings"),
+                           .properties.adding = character(0), .properties.needed = character(0),
+                           .properties.target = c(cpo.tasktypes, cpo.targetproperties),
+                           .fix.factors = FALSE,
+                           cpo.trafo, cpo.retrafo) {
+  .par.set = c(pSSLrn(..., .pss.env = parent.frame()), .par.set)
+
+  eval.parent(substitute(makeCPOExtendedTrafo(cpo.name = .cpo.name,
+    par.set = .par.set, par.vals = .par.vals, dataformat = .dataformat, dataformat.factor.with.ordered = .dataformat.factor.with.ordered,
+    properties.data = .properties, properties.adding = .properties.adding, properties.target = .properties.target,
+    fix.factors = .fix.factors,
+    properties.needed = .properties.needed, cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo)))
 }
 
 
@@ -39,11 +65,11 @@ dummylearnercpo = makeRLearnerClassif("dummylearnercpo", package = character(0),
   properties = c("twoclass", "multiclass", "numerics", "factors", "ordered"))
 dummylearnercpo$fix.factors.prediction = TRUE
 
-
+globalenv = new.env(parent = emptyenv())
 
 # this list is written using '<<-' to communicate the state inside
 # a function during execution to the "outside"
-cpotest.parvals = list()
+globalenv$cpotest.parvals = list()
 
 # simple learner that writes the first data element it receives to cpotest.parvals
 testlearnercpo = makeRLearnerClassif("testlearnercpo", package = character(0), par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both"),
@@ -64,7 +90,7 @@ predictLearner.testlearnercpo = function(.learner, .model, .newdata, env, ...) {
 registerS3method("trainLearner", "testlearnercpo", trainLearner.testlearnercpo)
 registerS3method("predictLearner", "testlearnercpo", predictLearner.testlearnercpo)
 
-testlearnercpo = setHyperPars(testlearnercpo, env = environment(trainLearner.testlearnercpo))
+testlearnercpo = setHyperPars(testlearnercpo, env = globalenv)
 
 # dummy regression learner
 testregrcpo = makeRLearnerRegr("testregrcpo", package = character(0), par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both")),
@@ -278,7 +304,7 @@ datasplitToDataformat = function(datasplit) {
     onlyfactor = "factor",
     target = "df.features",
     datasplit),
-    dataformat.factor.with.ordered = datasplit %in% c("most", "factor"))
+    dataformat.factor.with.ordered = datasplit %nin% c("all", "ordered", "onlyfactor"))
 }
 
 cpogen = function(name, type = c("o", "f"), ps, trafo, retrafo, datasplit,
@@ -437,7 +463,7 @@ cpo.df5r = makeRegrTask(data = cpo.df5, target = "N1")
 
 # some old test functions were using cpoPca with center and scale
 
-cpoPcaLegacy = makeCPOExtended("pca", center = TRUE: logical, scale = FALSE: logical, .dataformat = "numeric", cpo.trafo = {  # nolint
+cpoPcaLegacy = makeCPOExtendedTrafo("pca", pSS(center = TRUE: logical, scale = FALSE: logical), dataformat = "numeric", cpo.trafo = {  # nolint
   pcr = prcomp(as.matrix(data), center = center, scale. = scale)
   data = as.data.frame(pcr$x)
   control = list(rotation = pcr$rotation, center = pcr$center, scale = pcr$scale)

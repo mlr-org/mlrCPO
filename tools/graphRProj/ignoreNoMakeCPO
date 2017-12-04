@@ -1,0 +1,13 @@
+firstNonNull
+getMlrOption
+is\.nullcpo
+nullToNullcpo
+nullcpoToNull
+registerCPO
+CPO_[a-zA-Z0-9_.]*\.R
+print
+isPropertyStrict
+getCPO
+NULLCPO.R
+callInterface.R
+FormatCheck.R

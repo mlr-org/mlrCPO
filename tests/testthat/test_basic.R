@@ -56,15 +56,15 @@ test_that("CPO with no parameters don't crash", {
 
 test_that("CPO parameters behave as expected", {
 
-  cpotest.parvals = list()
-  cpotest.parvals2 = list()
-  cpotest.parvals3 = list()
+  globalenv$cpotest.parvals = list()
+  globalenv$cpotest.parvals2 = list()
+  globalenv$cpotest.parvals3 = list()
 
   cpof = makeCPOFunctional("testCPOF",
     a: integer[, ], b = 1: integer[, ], c = 1: integer[, ], d: integer[, ], e: integer[, ],
     .par.vals = list(a = 1, b = 2, d = 1),
     cpo.trafo = {
-      cpotest.parvals <<- list(a = a, b = b, c = c, d = d, e = e)  # nolint
+      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -72,7 +72,7 @@ test_that("CPO parameters behave as expected", {
   cpo2f = makeCPOFunctional("testCPO2F",
     a: numeric[, ], z: integer[, ], model = TRUE: logical,
     cpo.trafo = {
-      cpotest.parvals2 <<- list(a = a, z = z)  # nolint
+      globalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -80,7 +80,7 @@ test_that("CPO parameters behave as expected", {
   cpo3f = makeCPOFunctional("testCPO3F",
     f: integer[, ],
     cpo.trafo = {
-      cpotest.parvals3 <<- c(cpotest.parvals3, f)  # nolint
+      globalenv$cpotest.parvals3 = c(globalenv$cpotest.parvals3, f)  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -89,7 +89,7 @@ test_that("CPO parameters behave as expected", {
     a: integer[, ], b = 1: integer[, ], c = 1: integer[, ], d: integer[, ], e: integer[, ],
     .par.vals = list(a = 1, b = 2, d = 1),
     cpo.trafo = {
-      cpotest.parvals <<- list(a = a, b = b, c = c, d = d, e = e)  # nolint
+      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
       control = 0
       data
     },
@@ -100,7 +100,7 @@ test_that("CPO parameters behave as expected", {
   cpo2o = makeCPOObject("testCPO2O",
     a: numeric[, ], z: integer[, ], model = TRUE: logical,
     cpo.trafo = {
-      cpotest.parvals2 <<- list(a = a, z = z)  # nolint
+      globalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
       control = 0
         data
     },
@@ -111,7 +111,7 @@ test_that("CPO parameters behave as expected", {
   cpo3o = makeCPOObject("testCPO3O",
     f: integer[, ],
     cpo.trafo = {
-      cpotest.parvals3 <<- c(cpotest.parvals3, f)  # nolint
+      globalenv$cpotest.parvals3 = c(globalenv$cpotest.parvals3, f)  # nolint
       control = 0
       data
     },
@@ -150,9 +150,9 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     train(setHyperPars(cpo.learner, par.vals = addid(id1, list(e = 900))), pid.task)
-    expect_identical(cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
+    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
     # parameters of cpo with id
     expect_identical(getHyperPars(cpo(id = "x")), list(x.a = 1, x.b = 2, x.c = 1, x.d = 1))
@@ -173,9 +173,9 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(cpo.learner, pid.task), "Parameter (y\\.)?e .*missing")
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     train(setHyperPars(cpo.learner, y.e = 901), pid.task)
-    expect_identical(cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 901))
+    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 901))
 
     expect_error(setCPOId(cpo.obj %>>% cpo3(), "testx"), "Cannot set ID of compound CPO")
 
@@ -194,23 +194,23 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(setHyperPars(lrn, fst.e = 90), pid.task), "Parameters? (2nd\\.)?z.*missing")
 
-    cpotest.parvals <<- list()  # nolint
-    cpotest.parvals2 <<- list()  # nolint
-    cpotest.parvals3 <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
+    globalenv$cpotest.parvals2 = list()  # nolint
+    globalenv$cpotest.parvals3 = list()  # nolint
     train(setHyperPars(lrn, fst.e = 90, `2nd.a` = 9000, `2nd.z` = -10, thrd.f = 222), pid.task)
-    expect_identical(cpotest.parvals, list(a = 3, b = 2, c = 1, d = 1, e = 90))
-    expect_identical(cpotest.parvals2, list(a = 9000, z = -10))
-    expect_identical(cpotest.parvals3, list(222))
+    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 2, c = 1, d = 1, e = 90))
+    expect_identical(globalenv$cpotest.parvals2, list(a = 9000, z = -10))
+    expect_identical(globalenv$cpotest.parvals3, list(222))
 
     # multiple instances of the same CPO
-    cpotest.parvals3 <<- list()  # nolint
+    globalenv$cpotest.parvals3 = list()  # nolint
     train(cpo3(id = "a", 100) %>>% cpo3(id = "b", 10) %>>% cpo3(20) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(cpotest.parvals3, list(100, 10, 20))
+    expect_identical(globalenv$cpotest.parvals3, list(100, 10, 20))
 
-    cpotest.parvals3 <<- list()  # nolint
+    globalenv$cpotest.parvals3 = list()  # nolint
     lrn = cpo3(id = "a") %>>% cpo3(id = "b", 10) %>>% cpo3(id = "x") %>>% makeLearner("classif.logreg")
     train(setHyperPars(lrn, a.f = 1000, x.f = 99), pid.task)
-    expect_identical(cpotest.parvals3, list(1000, 10, 99))
+    expect_identical(globalenv$cpotest.parvals3, list(1000, 10, 99))
   }
 
   testCPO(cpof, cpo2f, cpo3f)
@@ -355,7 +355,7 @@ test_that("discrete parameters work well", {
   cpof = makeCPOFunctional("testCPOF",
     a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
     cpo.trafo = {
-      cpotest.parvals <<- list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
+      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -363,7 +363,7 @@ test_that("discrete parameters work well", {
   cpoo = makeCPOObject("testCPOO",
     a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
     cpo.trafo = {
-      cpotest.parvals <<- list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
+      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       control = 0
       data
     },
@@ -372,13 +372,13 @@ test_that("discrete parameters work well", {
     })
 
   testCPO = function(cpo) {
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     train(cpo(TRUE, "a", e = list(function() 1, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(cpotest.parvals, list(a = TRUE, b = "a", c = 1, d = c(TRUE, TRUE), e = c(1, 1)))
+    expect_identical(globalenv$cpotest.parvals, list(a = TRUE, b = "a", c = 1, d = c(TRUE, TRUE), e = c(1, 1)))
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     train(cpo(TRUE, 1, e = list(function() Y, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(cpotest.parvals, list(a = TRUE, b = 1, c = 1, d = c(TRUE, TRUE), e = c(2, 1)))
+    expect_identical(globalenv$cpotest.parvals, list(a = TRUE, b = 1, c = 1, d = c(TRUE, TRUE), e = c(2, 1)))
   }
 
   testCPO(cpof)
@@ -387,27 +387,27 @@ test_that("discrete parameters work well", {
 
 test_that("preprocessing actually changes data", {
 
-  cpotest.parvals <<- list()  # nolint
+  globalenv$cpotest.parvals = list()  # nolint
   t = train(testlearnercpo, testtaskcpo)
   predict(t, testtaskcpo2)
-  expect_equal(cpotest.parvals, list(1, 3))
+  expect_equal(globalenv$cpotest.parvals, list(1, 3))
 
   testCPO = function(cpoMultiplier, cpoAdder) {
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     t = train(testlearnercpo, testtaskcpo)
     predict(t, testtaskcpo2)
-    expect_identical(cpotest.parvals, list(1, 3))
+    expect_identical(globalenv$cpotest.parvals, list(1, 3))
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoMultiplier(10) %>>% testlearnercpo, testtaskcpo), testtaskcpo2)
-    expect_identical(cpotest.parvals, list(10, 0.3))
+    expect_identical(globalenv$cpotest.parvals, list(10, 0.3))
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoAdder(3) %>>% testlearnercpo, testtaskcpo), testtaskcpo2)
-    expect_identical(cpotest.parvals, list(4, -1.5))
+    expect_identical(globalenv$cpotest.parvals, list(4, -1.5))
 
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoAdder(3) %>>%
                   cpoMultiplier(3) %>>%
                   cpoAdder(2, id = "second") %>>%
@@ -419,7 +419,7 @@ test_that("preprocessing actually changes data", {
     #   first adder gets a meandata of 1.5, second adder gets meandata of 13.5
     # Prediction:
     #   c(3, 4) - 3 - 1.5, / 3, - 2 - 13.5, / 10 -> c(-1.6, -1.57)
-    expect_identical(cpotest.parvals, list(140, -1.6))
+    expect_identical(globalenv$cpotest.parvals, list(140, -1.6))
   }
 
   testCPO(cpomultiplier.task.f, cpoadder.task.f)
@@ -444,39 +444,39 @@ test_that("CPO trafo functions work", {
   expect_class(makeCPOFunctional("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(a, ...) { }), "CPOConstructor")
 
-  cpotest.parvals = list()
+  globalenv$cpotest.parvals = list()
   t = train(makeCPOObject("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(data, target, b, ...) {
-      cpotest.parvals <<- list(b, list(...))  # nolint
+      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
       control = 0
       data
     }, cpo.retrafo = function(data, b, ...) {
-      cpotest.parvals <<- list(b, list(...))  # nolint
+      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
       data
     })(1, 2) %>>% makeLearner("classif.logreg"), pid.task)
 
-  expect_identical(cpotest.parvals, list(2, list(a = 1)))
+  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1)))
 
-  cpotest.parvals = list()
+  globalenv$cpotest.parvals = list()
   predict(t, pid.task)
-  expect_identical(cpotest.parvals, list(2, list(a = 1, control = 0)))
+  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1, control = 0)))
 
-  cpotest.parvals = list()
+  globalenv$cpotest.parvals = list()
   t = train(makeCPOFunctional("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(data, target, b, ...) {
-      cpotest.parvals <<- list(b, list(...))  # nolint
+      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
       cpo.retrafo = function(data, ...) {
-        cpotest.parvals <<- list(b, list(...))  # nolint
+        globalenv$cpotest.parvals = list(b, slist(...))  # nolint
         data
       }
       data
     })(1, 2) %>>% makeLearner("classif.logreg"), pid.task)
 
-  expect_identical(cpotest.parvals, list(2, list(a = 1)))
+  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1)))
 
-  cpotest.parvals = list()
+  globalenv$cpotest.parvals = list()
   predict(t, pid.task)
-  expect_identical(cpotest.parvals, list(2, list()))
+  expect_identical(globalenv$cpotest.parvals, list(2, list()))
 
 })
 
@@ -590,10 +590,10 @@ test_that("retrafo accessor does what it is supposed to do", {
 
   expect_equal(getTaskData(pid.task %>>% retrafo(transformed)), getTaskData(transformed))
 
-  cpotest.parvals <<- list()  # nolint
+  globalenv$cpotest.parvals = list()  # nolint
   t = train(testlearnercpo, testtaskcpo)
   predict(t, testtaskcpo2)
-  expect_identical(cpotest.parvals, list(1, 3))
+  expect_identical(globalenv$cpotest.parvals, list(1, 3))
 
   f1 = function(data, target, args) {
     data[[1]] = data[[1]] * 10
@@ -632,54 +632,54 @@ test_that("retrafo accessor does what it is supposed to do", {
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
 
     # short chain, learner model
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     m = train(cpoadder(10) %>>% testlearnercpo, testtaskcpo)
 
-    expect_equal(cpotest.parvals, list(11))
+    expect_equal(globalenv$cpotest.parvals, list(11))
     expect_equal(getTaskData(testtaskcpo2 %>>% retrafo(m))$A, c(-8.5, -7.5))
     expect_equal((testdfcpo2 %>>% retrafo(m))$A, c(-8.5, -7.5))
     predict(m, testtaskcpo2)
-    expect_equal(cpotest.parvals, list(11, -8.5))
+    expect_equal(globalenv$cpotest.parvals, list(11, -8.5))
 
 
     # long chain, learner model
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")) %>>%
               ((cpoadder(-10, id = "thd") %>>% cpomultiplier(2, id = "frth")) %>>% testlearnercpo), testtaskcpo)
 
-    expect_equal(cpotest.parvals,  list(24))
+    expect_equal(globalenv$cpotest.parvals,  list(24))
     expect_equal(getTaskData(testtaskcpo2 %>>% retrafo(m))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     predict(m, testtaskcpo2)
-    expect_equal(cpotest.parvals, list(24, ((3 - 10 - 1.5) / 2 + 10 - 23) / 2))
+    expect_equal(globalenv$cpotest.parvals, list(24, ((3 - 10 - 1.5) / 2 + 10 - 23) / 2))
 
     # message when learner contains something else
     # THIS WILL NOT WORK WHEN PREPROC WRAPPERS ARE GONE!
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")) %>>%
               ((cpoadder(-10, id = "thd") %>>% cpomultiplier(2, id = "frth")) %>>% wrappedlearner), testtaskcpo)
-    expect_equal(cpotest.parvals, list(240))
+    expect_equal(globalenv$cpotest.parvals, list(240))
 
     expect_message({ retr = retrafo(m) }, "has some wrappers besides CPOs", all = TRUE)
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     predict(m, testtaskcpo2)
-    expect_equal(cpotest.parvals, list(240, (((3 - 10 - 1.5) / 2 + 10 - 23) / 2) / 10))
+    expect_equal(globalenv$cpotest.parvals, list(240, (((3 - 10 - 1.5) / 2 + 10 - 23) / 2) / 10))
 
     # warning when learner contains buried CPOs
     # THIS WILL NOT HAPPEN WHEN PREPROC WRAPPERS ARE GONE!
     buriedlearner = makePreprocWrapper(cpoadder(-10, id = "thd") %>>% (cpomultiplier(2, id = "frth") %>>% testlearnercpo),
       train = f1, predict = f2, par.set = makeParamSet(), par.vals = list())
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% (cpomultiplier(2, id = "snd")) %>>% buriedlearner), testtaskcpo)
-    expect_equal(cpotest.parvals, list((11 * 2 * 10 - 10) * 2))
+    expect_equal(globalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2))
 
     expect_warning({ retr = retrafo(m) }, "has some CPOs wrapped by other wrappers", all = TRUE)
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2))
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2))
     predict(m, testtaskcpo2)
-    expect_equal(cpotest.parvals, list((11 * 2 * 10 - 10) * 2, (((3 - 10 - 1.5) / 2 / 10 + 10 - 230) / 2)))
+    expect_equal(globalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2, (((3 - 10 - 1.5) / 2 / 10 + 10 - 230) / 2)))
   }
 
   testCPO(cpoadder.f, cpomultiplier.f)
@@ -711,9 +711,9 @@ test_that("functional trafo and retrafo return values are checked", {
   })
 
   expect_class(pid.task %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE), "Task")
-  expect_error(pid.task %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>% cpobad.trafo.f(TRUE), "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
-  expect_error(pid.task %>>% cpoone.f(TRUE) %>>% cpobad.trafo.f(TRUE) %>>% cpotwo.f(TRUE), "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
-  expect_error(pid.task %>>% cpobad.trafo.f(TRUE) %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE), "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+  expect_error(pid.task %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>% cpobad.trafo.f(TRUE), "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+  expect_error(pid.task %>>% cpoone.f(TRUE) %>>% cpobad.trafo.f(TRUE) %>>% cpotwo.f(TRUE), "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+  expect_error(pid.task %>>% cpobad.trafo.f(TRUE) %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE), "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
 
   expect_class({res = pid.task %>>% cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>% cpobad.retrafo.f(TRUE)}, "Task")
   expect_error(pid.task %>>% retrafo(res), "badretrafo .*must return a data.frame")
@@ -727,13 +727,13 @@ test_that("functional trafo and retrafo return values are checked", {
   expect_class(train(cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>% makeLearner("classif.logreg"), pid.task), "WrappedModel")
   expect_error(train(cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>%
                      cpobad.trafo.f(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+    "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
   expect_error(train(cpoone.f(TRUE) %>>% cpobad.trafo.f(TRUE) %>>%
                      cpotwo.f(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+    "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
   expect_error(train(cpobad.trafo.f(TRUE) %>>% cpoone.f(TRUE) %>>%
                      cpotwo.f(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
+    "CPO badtrafo cpo\\.trafo .*cpo.trafo must return a data.frame")
 
 
   expect_class({res = train(cpoone.f(TRUE) %>>% cpotwo.f(TRUE) %>>% cpobad.retrafo.f(TRUE) %>>%
@@ -777,9 +777,9 @@ test_that("object based trafo and retrafo return values are checked", {
   })
 
   expect_class(pid.task %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE), "Task")
-  expect_error(pid.task %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>% cpobad.trafo.o(TRUE), "badtrafo cpo\\.trafo did not create a 'control'")
-  expect_error(pid.task %>>% cpoone.o(TRUE) %>>% cpobad.trafo.o(TRUE) %>>% cpotwo.o(TRUE), "badtrafo cpo\\.trafo did not create a 'control'")
-  expect_error(pid.task %>>% cpobad.trafo.o(TRUE) %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE), "badtrafo cpo\\.trafo did not create a 'control'")
+  expect_error(pid.task %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>% cpobad.trafo.o(TRUE), "CPO's cpo\\.trafo did not create a 'control'")
+  expect_error(pid.task %>>% cpoone.o(TRUE) %>>% cpobad.trafo.o(TRUE) %>>% cpotwo.o(TRUE), "CPO's cpo\\.trafo did not create a 'control'")
+  expect_error(pid.task %>>% cpobad.trafo.o(TRUE) %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE), "CPO's cpo\\.trafo did not create a 'control'")
 
   expect_class({res = pid.task %>>% cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>% cpobad.retrafo.o(TRUE)}, "Task")
   expect_error(pid.task %>>% retrafo(res), "badretrafo .*must return a data.frame")
@@ -793,13 +793,13 @@ test_that("object based trafo and retrafo return values are checked", {
   expect_class(train(cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>% makeLearner("classif.logreg"), pid.task), "WrappedModel")
   expect_error(train(cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>%
                      cpobad.trafo.o(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo did not create a 'control'")
+    "CPO's cpo\\.trafo did not create a 'control'")
   expect_error(train(cpoone.o(TRUE) %>>% cpobad.trafo.o(TRUE) %>>%
                      cpotwo.o(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo did not create a 'control'")
+    "CPO's cpo\\.trafo did not create a 'control'")
   expect_error(train(cpobad.trafo.o(TRUE) %>>% cpoone.o(TRUE) %>>%
                      cpotwo.o(TRUE) %>>% makeLearner("classif.logreg"), pid.task),
-    "badtrafo cpo\\.trafo did not create a 'control'")
+    "CPO's cpo\\.trafo did not create a 'control'")
 
   expect_class({res = train(cpoone.o(TRUE) %>>% cpotwo.o(TRUE) %>>% cpobad.retrafo.o(TRUE) %>>%
                             makeLearner("classif.logreg"), pid.task)}, "WrappedModel")
@@ -878,15 +878,15 @@ test_that("retrafo catabolization and anabolization work", {
 
     rfclist = as.list(retrafochain)
 
-    expect_equal(getRetrafoState(rfclist[[1]])$factor, 2)
-    expect_equal(getRetrafoState(rfclist[[2]])$factor, 0.5)
-    expect_equal(getRetrafoState(rfclist[[3]])$summand, 10)
-    expect_equal(getRetrafoState(rfclist[[6]])$factor, -2)
+    expect_equal(getCPOTrainedState(rfclist[[1]])$factor, 2)
+    expect_equal(getCPOTrainedState(rfclist[[2]])$factor, 0.5)
+    expect_equal(getCPOTrainedState(rfclist[[3]])$summand, 10)
+    expect_equal(getCPOTrainedState(rfclist[[6]])$factor, -2)
 
-    rfclist.states = lapply(rfclist, getRetrafoState)
+    rfclist.states = lapply(rfclist, getCPOTrainedState)
 
     constructors = list(cpomultiplier, cpomultiplier, cpoadder, cpomultiplier, cpoadder, cpomultiplier, cpoadder, cpomultiplier)
-    rfclist2 = lapply(seq_along(constructors), function(idx) makeRetrafoFromState(constructors[[idx]], rfclist.states[[idx]]))
+    rfclist2 = lapply(seq_along(constructors), function(idx) makeCPOTrainedFromState(constructors[[idx]], rfclist.states[[idx]]))
 
     expect_equal(predict(pipeCPO(rfclist), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
     expect_equal(predict(pipeCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
@@ -896,7 +896,7 @@ test_that("retrafo catabolization and anabolization work", {
 
     rfclist.states2 = rfclist.states
     rfclist.states2[[1]]$factor = 4
-    rfclist2 = lapply(seq_along(constructors), function(idx) makeRetrafoFromState(constructors[[idx]], rfclist.states2[[idx]]))
+    rfclist2 = lapply(seq_along(constructors), function(idx) makeCPOTrainedFromState(constructors[[idx]], rfclist.states2[[idx]]))
     expect_equal(predict(pipeCPO(rfclist2), testdfcpo2)[[1]], (((c(3, 4) / 2 - 10 - 1.5) / 2 + 10 - 23) / -2 - 10 + 26) / 2)
 
     chain2 = pipeCPO(rfclist[c(1, 2, 3)]) %>>% pipeCPO(rfclist[c(4, 5, 6, 7, 8)])
@@ -936,7 +936,7 @@ test_that("retrafo catabolization and anabolization work", {
 
     expect_equal((testdfcpo2 %>>% (firsthalf %>>% secondhalf))[[1]], (((c(3, 4) - 20 - 1.5) / 2 + 10 - 43) / -2 - 10 + 3) / 2)
 
-    cpotest.parvals <<- list()  # nolint
+    globalenv$cpotest.parvals = list()  # nolint
     retrafos = list(
         (testdfcpo %>>% cpoadder(10, id = "fst")) %>>% cpomultiplier(2, id = "snd"),  # apply CPO twice
         testdfcpo %>>% (cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")),  # apply compound CPO
@@ -945,7 +945,7 @@ test_that("retrafo catabolization and anabolization work", {
         train(setHyperPars((cpoadder(1, id = "fst") %>>% cpomultiplier(1, id = "snd")), fst.summand = 10, snd.factor = 2) %>>%
               testlearnercpo, testtaskcpo))  # wrap with compound CPO
 
-    expect_equal(cpotest.parvals, list(22, 22))
+    expect_equal(globalenv$cpotest.parvals, list(22, 22))
 
 
     for (retgen in retrafos) {

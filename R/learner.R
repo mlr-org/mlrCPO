@@ -10,10 +10,13 @@
 # on in a learner with a long pipeline, relatively complicated.
 # Therefore, if the learner is already a CPOLearner, we just change the
 # attached CPO to a compound CPO.
+# @param cpo [CPO] a cpo to attach
+# @param learner [Learner] the learner to attach the CPO to
+# @return [CPOLearner] a learner with attached CPO
 #' @export
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
-  if (!learner$type %in% union(cpo$properties$properties.needed, setdiff(cpo$properties$properties, cpo$properties$properties.adding))) {
+  if (!learner$type %in% union(cpo$properties$needed, setdiff(cpo$properties$handling, cpo$properties$adding))) {
     stopf("Cannot combine CPO that outputs type %s with learner of type %s.",
       cpo$convertto, learner$type)
   }
@@ -48,16 +51,32 @@ attachCPO.CPO = function(cpo, learner) {
 # the learner has only one 'properties' slot, the CPO has more than one. Also, the CPOs
 # don't concern all properties a learner may have, so absence of a property in a CPO doesn't
 # necessarily mean that it needs to be removed from the learner.
+# @param cpo [CPO] a cpo to attach
+# @param learner [Learner] the learner to attach the CPO to
+# @return [character] properties calculated for the new learner when the cpo is attached
 compositeCPOLearnerProps = function(cpo, learner) {
   props = setdiff(getLearnerProperties(learner), "weights")
   props = union(props, getLearnerType(learner))
   # relevant: we only have an influence on these properties.
   relevant = c(cpo.dataproperties, cpo.targetproperties, cpo.tasktypes, "prob", "se")
   props.relevant = intersect(props, relevant)
-  props.relevant = compositeProperties(cpo$properties,
-    list(properties = props.relevant, properties.adding = character(0), properties.needed = character(0)),
-    cpo$debug.name, getLearnerName(learner))$properties  # checks for property problems automatically
-  c(props.relevant, setdiff(props, relevant))
+  props.relevant = composeProperties(cpo$properties,
+    list(handling = props.relevant, adding = character(0), needed = character(0),
+      adding.min = character(0), needed.max = character(0)),
+    cpo$debug.name, getLearnerName(learner))$handling  # checks for property problems automatically
+  newprops = c(props.relevant, setdiff(props, relevant))
+
+  # check whether the promised predict.types actually work
+  not.working.predict.types = Filter(function(ptype) {
+    cpo$predict.type[ptype] %nin% c(newprops, "response")
+  }, c("response", "prob", "se"))
+
+  if ("response" %in% not.working.predict.types) {
+    stopf("Cannot add CPO to Learner, since for 'response' prediction, the Learner must have '%s' prediction capability.",
+      cpo$predict.type["response"])
+  }
+
+  setdiff(newprops, not.working.predict.types)
 }
 
 # wraps around callCPO and makeChainModel
@@ -72,8 +91,7 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
 
   # note that an inverter for a model makes no sense, since the inverter is crucially bound to
   # the data that is supposed to be *predicted*.
-  retrafo(.task) = NULL
-  inverter(.task) = NULL
+  .task = clearRI(.task)
 
   transformed = callCPO(cpo, .task, TRUE, NULL, FALSE, NULL)
 
@@ -82,13 +100,16 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   model
 }
 
-# Wraps around callCPOTrained and invertCPO
+# Wraps around callCPORetrafo and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
-  retrafod = callCPOTrained(.model$learner.model$retrafo, .newdata, TRUE, NULL)
+  retrafod = callCPORetrafoElement(.model$learner.model$retrafo$element, .newdata, TRUE, NULL)
   prediction = NextMethod(.newdata = retrafod$data)
   if (!is.null(retrafod$inverter)) {
-    invertCPO(retrafod$inverter, prediction, .learner$predict.type)$new.prediction
+    # check prediction before we feed it to CPOs
+    prediction = checkPredictLearnerOutput(.learner$next.learner, .model$learner.model$next.model, prediction)
+    # invert
+    invertCPO(retrafod$inverter$element, prediction, .learner$predict.type)$new.prediction
   } else {
     prediction
   }
@@ -136,27 +157,45 @@ getLearnerProperties.CPOLearner = function(learner) {
 }
 
 # Shorthand function to get a name for a learner that can be printed in debug messages
+# @param learner [Learner] the learner to query
+# @return [character(1)] a shorthand identifier, e.g. for debug output
 getLearnerName = function(learner) {
   firstNonNull(learner$name, learner$shortname, learner$id)
+}
+
+#' @export
+removeHyperPars.CPOLearner = function(learner, ids) {
+  i = intersect(names(learner$par.vals), ids)
+  if (length(i) > 0) {
+    stopf("CPO Parameters (%s) can not be removed", collapse(i, sep = ", "))
+  }
+  learner$next.learner = removeHyperPars(learner$next.learner, ids)
+  learner
 }
 
 ##################################
 ### CPO-Learner Disassembly    ###
 ##################################
 
-#' @title Get the CPO associated with a learner
+#' @title Get the CPO Associated with a Learner
 #'
 #' @description
-#' Returns the (outermost) chain of CPOs that are part of a learner. This is useful to inspect the
+#' Returns the (outermost) chain of \code{\link{CPO}}s that are part of a \code{\link[mlr:makeLearner]{Learner}}. This is useful to inspect the
 #' preprocessing done by a learner object.
 #'
-#' If there are hidden CPOs (e.g. if \dQuote{learner} has CPOs, but is wrapped by a \code{TuneWrapper}),
-#' this function can not retrieve these CPOs, but it will emit a warning if \dQuote{warn.buried} is \dQuote{TRUE}.
+#' If there are hidden CPOs (e.g. if a learner has CPOs, but is then wrapped by a \code{TuneWrapper}),
+#' this function can not retrieve these CPOs, but it will emit a warning if \code{warn.buried} is \code{TRUE}.
 #'
-#' @param learner [\code{\link{Learner}}]\cr
+#' The retrieved CPOs will have the hyperparameter set according to the hyperparameter settings of the Learner.
+#'
+#' This function is complementary to \code{\link{getLearnerBare}}.
+#'
+#' @param learner [\code{\link[mlr:makeLearner]{Learner}}]\cr
 #'   The learner to query
 #' @param warn.buried [\code{logical(1)}]\cr
 #'   Whether to warn about CPOs that could not be retrieved.
+#' @return [\code{\link{CPO}}]. The (possibly composite) CPO found attached to \code{learner}.
+#' @family CPOLearner related
 #' @export
 getLearnerCPO = function(learner, warn.buried = TRUE) {
   checkLearner(learner)
@@ -185,17 +224,21 @@ getLearnerCPO = function(learner, warn.buried = TRUE) {
   result
 }
 
-#' @title Get the learner with the reachable CPOs removed
+#' @title Get the Learner with the CPOs Removed
 #'
 #' @description
-#' Get the bare Learner without the CPOs that were previously added.
+#' Get the bare \code{\link[mlr:makeLearner]{Learner}} without the \code{\link{CPO}}s that were previously added.
 #'
 #' It is still possible for the result to be a wrapped learner, e.g. a
 #' TuningWrapper wrapped learner. It is also possible that below the
-#' tuning wrapper, there are more CPOs. These will not be removed.
+#' tuning wrapper, there are more CPOs. These can and will not be removed.
 #'
-#' @param learner [\code{\link{Learner}}]\cr
+#' This function is complementary to \code{\link{getLearnerCPO}}.
+#'
+#' @param learner [\code{\link[mlr:makeLearner]{Learner}}]\cr
 #'   The learner to strip.
+#' @return [\code{\link[mlr:makeLearner]{Learner}}]. The learner without attached CPOs.
+#' @family CPOLearner related
 #' @export
 getLearnerBare = function(learner) {
   checkLearner(learner)
@@ -208,8 +251,10 @@ getLearnerBare = function(learner) {
   learner
 }
 
-# get CPO from learner
+# get CPO from learner, without recursing into deeper levels.
 # Care needs to be taken that the learner's parameter values that concern the CPO are kept.
+# @param learner [CPOLearner] the learner to get the CPO from
+# @return [CPO] the cpo of the given CPOLearner
 singleLearnerCPO = function(learner) {
   cpo = learner$cpo
   cpo$par.vals = subsetParams(learner$par.vals, cpo$par.set)
@@ -254,8 +299,11 @@ retrafo.CPOModel = function(data) {
   recurseRetrafo(data, NULL)
 }
 
-# get RETRAFO from mlr model
+# get RETRAFO from mlr model, without recursing into deeper levels.
 # possibly concatenate with another retrafo 'prev'
+# @param model [CPOModel] the model to query
+# @param prev [CPORetrafo | NULL] the retrafo to prepend, if any
+# @return [CPORetrafo] the CPORetrafo from `model`, concatenated with `prev` if available
 singleModelRetrafo = function(model, prev) {
   retrafo = model$learner.model$retrafo
   if (!is.null(prev)) {

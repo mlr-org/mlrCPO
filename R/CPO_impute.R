@@ -1,5 +1,7 @@
 
-#' @title Impute and re-impute data
+#' @title Impute and Re-Impute Data
+#'
+#' @template cpo_doc_intro
 #'
 #' @description
 #' Allows imputation of missing feature values through various techniques.
@@ -37,8 +39,6 @@
 #'   \item{recode.factor.levels [\code{logical(1)}]}{See argument.}
 #' }
 #'
-#' @template cpo_description
-#'
 #' @param target.cols [\code{character}]\cr
 #'   Name of the column(s) specifying the response.
 #'   Default is \code{character(0)}.
@@ -74,12 +74,11 @@
 #'   \code{lvls} (in the description object) and therefore match the levels of the
 #'   feature factor in the training data after imputation?.
 #'   Default is \code{TRUE}.
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 #' @family impute
-#' @family CPO
-cpoImpute = makeCPOExtended("impute", # nolint
-  .par.set = c(
+cpoImpute = makeCPOExtendedTrafo("impute", # nolint
+  par.set = c(
       makeParamSet(makeUntypedLearnerParam("target.cols", default = character(0)),
         makeUntypedLearnerParam("classes", default = list()),
         makeUntypedLearnerParam("cols", default = list()),
@@ -89,8 +88,8 @@ cpoImpute = makeCPOExtended("impute", # nolint
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-  .dataformat = "df.features", # no properties.adding 'missings', since we don't impute all cols
-  .properties.needed = "factors",
+  dataformat = "df.features", # no properties.adding 'missings', since we don't impute all cols
+  properties.needed = "factors",
   cpo.trafo = function(data, target, target.cols, ...) {
     impresult = impute(data, target.cols, ...)
     control = impresult[[2]]
@@ -103,8 +102,8 @@ registerCPO(cpoImpute, "imputation", "general", "General imputation CPO that use
 
 #' @rdname cpoImpute
 #' @export
-cpoImputeAll = makeCPOExtended("impute", # nolint
-  .par.set = c(
+cpoImputeAll = makeCPOExtendedTrafo("impute", # nolint
+  par.set = c(
       makeParamSet(makeUntypedLearnerParam("target.cols", default = character(0)),
         makeUntypedLearnerParam("classes", default = list()),
         makeUntypedLearnerParam("cols", default = list()),
@@ -114,8 +113,9 @@ cpoImputeAll = makeCPOExtended("impute", # nolint
         force.dummies = FALSE: logical,
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-  .dataformat = "df.features", .properties.adding = "missings",
-  .properties.needed = "factors",
+  dataformat = "df.features",
+  properties.adding = "missings",
+  properties.needed = "factors",
   cpo.trafo = function(data, target, target.cols, ...) {
     impresult = impute(data, target.cols, ...)
     control = impresult[[2]]
@@ -125,18 +125,22 @@ cpoImputeAll = makeCPOExtended("impute", # nolint
   })
 registerCPO(cpoImputeAll, "imputation", "general", "General imputation CPO that uses mlr::impute and checks that all columns were imputed.")
 
-# 'types':
-#   types == NULL: all types
-#   otherwise: subset of "numerics", "factors", "ordered"
+# Create the CPOConstructor for the given imputation method. The CPO performs the given imputation method
+# and has logical parameters 'impute.new.levels' and 'recode.factor.levels', besides additionally supplied parameters.
+# @param name [character(1)] the CPO name (default ID) of the CPO
+# @param method [function] imputation method
+# @param additional.params [ParamSet | NULL] additional parameter set to add to CPO
+# @param types [character | NULL] which types the CPO can operate on. NULL: all types, otherwise: subset of "numerics", "factors", "ordered"
+# @return [CPOConstructor] constructs a CPO that performs the given imputation operation.
 declareImputeFunction = function(name, method, additional.params, types = NULL) {
-  makeCPOExtended(paste0("impute.", name),
-    .par.set = c(additional.params,
+  makeCPOExtendedTrafo(paste0("impute.", name),
+    par.set = c(additional.params,
       pSSLrn(
         impute.new.levels = TRUE: logical,
         recode.factor.levels = TRUE: logical)),
-    .dataformat = "df.features",
-    .properties = c("missings", if (is.null(types)) c("numerics", "factors", "ordered") else types),
-    .properties.adding = "missings",
+    dataformat = "df.features",
+    properties.data = c("missings", if (is.null(types)) c("numerics", "factors", "ordered") else types),
+    properties.adding = "missings",
     cpo.trafo = function(data, target, impute.new.levels, recode.factor.levels, ...) {
       if (ncol(data) == 0) {
         control = "NOCOL"
@@ -157,90 +161,91 @@ declareImputeFunction = function(name, method, additional.params, types = NULL) 
     })
 }
 
-
-#' @title Impute and re-impute data
+#' @title Perform Imputation with Constant Value
 #'
-#' @description
-#' Allows imputation of missing feature values through various techniques.
-#' Note that you have the possibility to re-impute a data set
-#' in the same way as the imputation was performed during training.
-#' This especially comes in handy during resampling when one wants to perform the
-#' same imputation on the test set as on the training set.
+#' @template impute_doc_intro
 #'
-#' @details
-#' The description object contains these slots
-#' \describe{
-#'   \item{target [\code{character}]}{See argument.}
-#'   \item{features [\code{character}]}{Feature names (column names of \code{data}).},
-#'   \item{classes [\code{character}]}{Feature classes (storage type of \code{data}).}
-#'   \item{lvls [\code{named list}]}{Mapping of column names of factor features to their levels,
-#'     including newly created ones during imputation.}
-#'   \item{impute [\code{named list}]}{Mapping of column names to imputation functions.}
-#'   \item{dummies [\code{named list}]}{Mapping of column names to imputation functions.}
-#'   \item{impute.new.levels [\code{logical(1)}]}{See argument.}
-#'   \item{recode.factor.levels [\code{logical(1)}]}{See argument.}
-#' }
-#'
-#' @template cpo_description
-#'
-#' @param impute.new.levels [\code{logical(1)}]\cr
-#'   If new, unencountered factor level occur during reimputation,
-#'   should these be handled as NAs and then be imputed the same way?
-#'   Default is \code{TRUE}.
-#' @param recode.factor.levels [\code{logical(1)}]\cr
-#'   Recode factor levels after reimputation, so they match the respective element of
-#'   \code{lvls} (in the description object) and therefore match the levels of the
-#'   feature factor in the training data after imputation?.
-#'   Default is \code{TRUE}.
-#' @template arg_cpo_id
-#' @rdname CPOImputer
-#' @name CPOImputer
-#' @family impute
-#' @family CPO
-NULL
-
-#' @export
 #' @param const [any]\cr
 #'  Constant valued use for imputation.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeConstant = declareImputeFunction("constant", imputeConstant, makeParamSet(makeUntypedLearnerParam("const")))  # nolint
 registerCPO(cpoImputeConstant, "imputation", "specialised", "Imputation using a constant value.")
 
+#' @title Perform Imputation with Median Value
+#'
+#' @template impute_doc_intro
+#'
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
 #' @export
-#' @rdname CPOImputer
 cpoImputeMedian = declareImputeFunction("median", imputeMedian, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMedian, "imputation", "specialised", "Imputation using the median.")
 
+#' @title Perform Imputation with Mean Value
+#'
+#' @template impute_doc_intro
+#'
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
 #' @export
-#' @rdname CPOImputer
 cpoImputeMean = declareImputeFunction("mean", imputeMean, makeParamSet(), "numerics")  # nolint
 registerCPO(cpoImputeMean, "imputation", "specialised", "Imputation using the mean.")
 
+#' @title Perform Imputation with Mode Value
+#'
+#' @template impute_doc_intro
+#'
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
 #' @export
-#' @rdname CPOImputer
 cpoImputeMode = declareImputeFunction("mode", imputeMode, makeParamSet())  # nolint
 registerCPO(cpoImputeMode, "imputation", "specialised", "Imputation using the mode.")
 
-#' @export
+#' @title Perform Imputation with Multiple of Minimum
+#'
+#' @template impute_doc_intro
+#'
+#' @description
+#' This method imputes by the minimum value of each column, multiplied by a constant.
+#'
 #' @param multiplier [\code{numeric(1)}]\cr
 #'   Value that stored minimum or maximum is multiplied with when imputation is done.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeMin = declareImputeFunction("min", imputeMin, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMin, "imputation", "specialised", "Imputation using constant values shifted below the minimum.")
 
+#' @title Perform Imputation with Multiple of Minimum
+#'
+#' @template impute_doc_intro
+#'
+#' @description
+#' This method imputes by the maximum value of each column, multiplied by a constant.
+#'
+#' @param multiplier [\code{numeric(1)}]\cr
+#'   Value that stored minimum or maximum is multiplied with when imputation is done.
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
 #' @export
-#' @rdname CPOImputer
 cpoImputeMax = declareImputeFunction("max", imputeMax, pSSLrn(multiplier = 1: numeric[, ]), "numerics")  # nolint
 registerCPO(cpoImputeMax, "imputation", "specialised", "Imputation using constant values shifted above the maximum.")
 
-#' @export
+#' @title Perform Imputation with Uniformly Random Values
+#'
+#' @template impute_doc_intro
+#'
 #' @param min [\code{numeric(1)}]\cr
 #'   Lower bound for uniform distribution.
 #'   If NA (default), it will be estimated from the data.
 #' @param max [\code{numeric(1)}]\cr
 #'   Upper bound for uniform distribution.
 #'   If NA (default), it will be estimated from the data.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeUniform = declareImputeFunction("uniform", imputeUniform, {  # nolint
   ps = pSSLrn(min = 0: numeric[, ] [[special.vals = list(NA_real_)]],
     max = 0: numeric[, ] [[special.vals = list(NA_real_)]])
@@ -250,12 +255,17 @@ cpoImputeUniform = declareImputeFunction("uniform", imputeUniform, {  # nolint
 }, "numerics")
 registerCPO(cpoImputeUniform, "imputation", "specialised", "Imputation using uniformly distributed random values.")
 
-#' @export
+#' @title Perform Imputation with Normally Distributed Random Values
+#'
+#' @template impute_doc_intro
+#'
 #' @param mu [\code{numeric(1)}]\cr
 #'   Mean of normal distribution. If missing it will be estimated from the data.
 #' @param sd [\code{numeric(1)}]\cr
 #'   Standard deviation of normal distribution. If missing it will be estimated from the data.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeNormal = declareImputeFunction("normal", imputeNormal, {  # nolint
   ps = pSSLrn(mu = 0: numeric[, ] [[special.vals = list(NA_real_)]],
     sd = 0: numeric[, ] [[special.vals = list(NA_real_)]])
@@ -265,19 +275,31 @@ cpoImputeNormal = declareImputeFunction("normal", imputeNormal, {  # nolint
 }, "numerics")
 registerCPO(cpoImputeNormal, "imputation", "specialised", "Imputation using normally distributed random values.")
 
-#' @export
+#' @title Perform Imputation with Random Values
+#'
+#' @template impute_doc_intro
+#'
+#' @description
+#' This imputation method imputes with random values drawn from a distribution
+#' that approximates the data distribution as a histogram.
+#'
 #' @param breaks [\code{numeric(1)} | \dQuote{Sturges}]\cr
 #'  Number of breaks to use in \code{\link[graphics]{hist}}.
 #'  Defaults to auto-detection via \dQuote{Sturges}.
 #' @param use.mids [\code{logical(1)}]\cr
 #'  If \code{x} is numeric and a histogram is used, impute with bin mids (default)
 #'  or instead draw uniformly distributed samples within bin range.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeHist = declareImputeFunction("hist", imputeHist, pSSLrn(breaks = "Sturges": integer[1, ] [[special.vals = list("Sturges")]],  # nolint
   use.mids = TRUE: logical))
 registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random values with probabilities approximating the data.")
 
-#' @export
+#' @title Perform Imputation with an \code{mlr} \code{Learner}
+#'
+#' @template impute_doc_intro
+#'
 #' @param learner [\code{\link{Learner}} | \code{character(1)}]\cr
 #'  Supervised learner. Its predictions will be used for imputations.
 #'  If you pass a string the learner will be created via \code{\link{makeLearner}}.
@@ -286,7 +308,9 @@ registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random
 #'  Features to use in \code{learner} for prediction.
 #'  Default is \code{NULL} which uses all available features except the target column
 #'  of the original task.
-#' @rdname CPOImputer
+#' @template impute_doc_outro
+#' @template cpo_doc_outro
+#' @export
 cpoImputeLearner = declareImputeFunction("learner", imputeLearner, makeParamSet(makeUntypedLearnerParam("learner"),  # nolint
   makeUntypedLearnerParam("features", default = NULL)))
 registerCPO(cpoImputeLearner, "imputation", "specialised", "Imputation using the response of a classification or regression learner.")

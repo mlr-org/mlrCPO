@@ -35,35 +35,35 @@ test_that("cpo multiplexer", {
   newprops = getCPOProperties(cpoMultiplex(list(testa, testb)))
 
 
-  expect_set_equal(intersect(newprops$properties, cpo.dataproperties), c("numerics", "factors", "missings"))
+  expect_set_equal(intersect(newprops$handling, cpo.dataproperties), c("numerics", "factors", "missings"))
 
-  expect_set_equal(newprops$properties.adding, c("missings", "factors"))
+  expect_set_equal(newprops$adding, c("missings", "factors"))
 
-  expect_set_equal(newprops$properties.needed, "ordered")
+  expect_set_equal(newprops$needed, "ordered")
 
 
-  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
-  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), cpo.retrafo = { data }, cpo.trafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), cpo.retrafo = { data }, cpo.trafo = { data })
 
-  expect_set_equal(getCPOProperties(cpoMultiplex(list(ta, tb)))$properties, c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
+  expect_set_equal(getCPOProperties(cpoMultiplex(list(ta, tb)))$handling, c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
 
 })
 
 test_that("cpoCase", {
 
-  expect_set_equal(names(getParamSet(cpoCase(.export = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a }))$pars),
+  expect_set_equal(names(getParamSet(cpoCase(export.cpos = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a }))$pars),
     c("a.center", "a.scale", "b.center", "b.scale"))
-  expect_class(cpoCase(.export = list(a = cpoScale, b = cpoScale), cpo.build = { a }), "CPO")
-  expect_error(cpoCase(.export = list(a = cpoScale(id = "a"), a = cpoScale(id = "b")), cpo.build = { a }), "uniquely named")
+  expect_class(cpoCase(export.cpos = list(a = cpoScale, b = cpoScale), cpo.build = { a }), "CPO")
+  expect_error(cpoCase(export.cpos = list(a = cpoScale(id = "a"), a = cpoScale(id = "b")), cpo.build = { a }), "must be unique, but duplicates found")
 
 
-  expect_equal(getTaskData(iris.task %>>% cpoCase(.export = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a })),
+  expect_equal(getTaskData(iris.task %>>% cpoCase(export.cpos = list(cpoScale(id = "a"), cpoPcaLegacy(id = "b")), cpo.build = { a })),
     getTaskData(iris.task %>>% cpoScale()))
-  expect_equal(getTaskData(iris.task %>>% cpoCase(.export = list(cpoScale(id = "a", center = FALSE), cpoPcaLegacy(id = "b")), cpo.build = { a })),
+  expect_equal(getTaskData(iris.task %>>% cpoCase(export.cpos = list(cpoScale(id = "a", center = FALSE), cpoPcaLegacy(id = "b")), cpo.build = { a })),
     getTaskData(iris.task %>>% cpoScale(center = FALSE)))
 
 
-  multiplex.emu = cpoCase(selected.cpo = "a": discrete[a, b], .export = list(a = cpoScale(center = FALSE), b = cpoPcaLegacy(center = FALSE, scale = FALSE, id = "pcaX")),
+  multiplex.emu = cpoCase(pSS(selected.cpo = "a": discrete[a, b]), export.cpos = list(a = cpoScale(center = FALSE), b = cpoPcaLegacy(center = FALSE, scale = FALSE, id = "pcaX")),
     cpo.build = { switch(selected.cpo, a = a, b = b) })
 
   expect_equal(getTaskData(iris.task %>>% setHyperPars(multiplex.emu, selected.cpo = "b", pcaX.scale = TRUE)),
@@ -77,27 +77,27 @@ test_that("cpoCase", {
     .properties.adding = "factors", .properties.needed = c("missings", "ordered"), cpo.trafo = { }, cpo.retrafo = NULL)
 
 
-  newprops = getCPOProperties(cpoCase(.export = list(a = testa, b = testb), cpo.build = { a }))
+  newprops = getCPOProperties(cpoCase(export.cpos = list(a = testa, b = testb), cpo.build = { a }))
 
-  expect_set_equal(intersect(newprops$properties, cpo.dataproperties), c("numerics", "factors", "missings"))
+  expect_set_equal(intersect(newprops$handling, cpo.dataproperties), c("numerics", "factors", "missings"))
 
-  expect_set_equal(newprops$properties.adding, c("missings", "factors"))
+  expect_set_equal(newprops$adding, c("missings", "factors"))
 
-  expect_set_equal(newprops$properties.needed, "ordered")
+  expect_set_equal(newprops$needed, "ordered")
 
 
-  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
-  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), .trafo.type = "stateless", cpo.retrafo = NULL, cpo.trafo = { data })
+  ta = makeCPOExtended("testa", .properties.target = c("classif", "twoclass"), cpo.retrafo = { data }, cpo.trafo = { data })
+  tb = makeCPOExtended("testb", .properties.target = c("classif", "oneclass"), cpo.retrafo = { data }, cpo.trafo = { data })
 
-  expect_set_equal(getCPOProperties(cpoCase(.export = list(a = ta, b = tb), cpo.build = { a }))$properties,
+  expect_set_equal(getCPOProperties(cpoCase(export.cpos = list(a = ta, b = tb), cpo.build = { a }))$handling,
     c(cpo.dataproperties, cpo.predict.properties, "classif", "oneclass", "twoclass"))
 
 
   # data split
   for (split in c("task", "no", "target", "most", "all", "factor", "numeric", "ordered", "onlyfactor")) {
     strans = datasplitToDataformat(split)
-    checking.cpo = cpoCase(hastarget: logical, .dataformat = strans$dataformat,
-    .dataformat.factor.with.ordered = strans$dataformat.factor.with.ordered, cpo.build = function(data, target, hastarget) {
+    checking.cpo = cpoCase(pSS(hastarget: logical), dataformat = strans$dataformat,
+    dataformat.factor.with.ordered = strans$dataformat.factor.with.ordered, cpo.build = function(data, target, hastarget) {
       switch(split,
         task = {
           if (hastarget) {
@@ -153,8 +153,8 @@ test_that("cpoCase", {
   }
 
   # data dependent cpo
-  cpo = cpoCase(logical.param: logical,
-  .export = list(a = cpoScale(id = "scale"), b = cpoPcaLegacy(id = "pca", scale = FALSE, center = FALSE)),
+  cpo = cpoCase(pSS(logical.param: logical),
+  export.cpos = list(a = cpoScale(id = "scale"), b = cpoPcaLegacy(id = "pca", scale = FALSE, center = FALSE)),
   cpo.build = function(data, target, logical.param, a, b) {
     assert(is.nullcpo(retrafo(data)))
     if (logical.param || mean(data[[1]]) > 10) {

@@ -51,7 +51,7 @@ print(cpoPca, verbose = TRUE)  # verbose print includes function info
 ```{r}
 (cpo = cpoScale()) # construct CPO with default Hyperparameter values
 class(cpo)  # CPOs that are not compound are "CPOPrimitive"
-getCPOObjectType(cpo)  # Object type: CPO, CPOInverter, CPORetrafo, NULLCPO
+getCPOClass(cpo)  # CPO Class: CPO, CPOInverter, CPORetrafo, NULLCPO
 getCPOOperatingType(cpo)  # Operating on feature, target, both?
 print(cpo, verbose = TRUE)  # detailed printing
 ```
@@ -68,6 +68,7 @@ getCPOAffect(cpo)  # empty, since no affect set
 getCPOAffect(cpoPca(affect.pattern = "Width$"))
 getCPOProperties(cpo)  # see properties explanation below
 getCPOPredictType(cpo)
+getCPOConstructor(cpo)  # the constructor used to create the CPO
 ```
 
 #### Exporting Parameters
@@ -158,25 +159,25 @@ head(transformed)
 # General methods that work on retrafo
 getCPOName(ret)
 getHyperPars(ret)
-getCPOObjectType(ret)  # Object type: CPO, CPOInverter, CPORetrafo, NULLCPO
+getCPOClass(ret)  # CPO Class: CPO, CPOInverter, CPORetrafo, NULLCPO
 getCPOOperatingType(ret)  # Operating on feature, target, both?
 getCPOPredictType(ret)
-getCPOInvertCapability(ret)  # is it a retrafo, inverter, or hybrid?
+getCPOTrainedCapability(ret)  # can this be used for retrafo and/or invert?
 ```
 ```{r}
 # retrafos are stored as attributes
-attributes(transformed)
+attributes(transformed)$retrafo
 ```
 
 #### Retrafo Inspection
-`Retrafo` objects can be inspected using `getRetrafoState`. The state contains the hyperparameters, the `control` object (CPO dependent data representing the data information needed to re-apply the operation), and information about the `Task` / `data.frame` layout used for training (column names, column types) in `data$shapeinfo.input` and `data$shapeinfo.output`.
+`Retrafo` objects can be inspected using `getCPOTrainedState`. The state contains the hyperparameters, the `control` object (CPO dependent data representing the data information needed to re-apply the operation), and information about the `Task` / `data.frame` layout used for training (column names, column types) in `data$shapeinfo.input` and `data$shapeinfo.output`.
 
-The state can be manipulated and used to create new `Retrafo`s, using `makeRetrafoFromState`.
+The state can be manipulated and used to create new `Retrafo`s, using `makeCPOTrainedFromState`.
 
 ```{r}
-(state = getRetrafoState(retrafo(iris %>>% cpoScale())))
+(state = getCPOTrainedState(retrafo(iris %>>% cpoScale())))
 state$control$center[1] = 1000  # will now subtract 1000 from the first column
-new.retrafo = makeRetrafoFromState(cpoScale, state)
+new.retrafo = makeCPOTrainedFromState(cpoScale, state)
 head(iris %>>% new.retrafo)
 ```
 
@@ -220,16 +221,18 @@ pipeCPO(retrafolist)
 ### Inverter
 Inverters represent the operation of inverting transformations done to prediction columns. They are not usually exposed outside of `Learner` objects, but can be retrieved when retransformed data is tagged using `tagInverse`.
 
-Inverters are currently not fully functional.
+Inverters are not yet fully implemented.
 
 ```{r, eval = FALSE}
 # there is currently no example targetbound cpo
-logtransform = makeCPOTargetOpExtended("logtransform", .data.dependent = FALSE,
-  .stateless = TRUE, .type = "regr",
-  cpo.trafo = {
+logtransform = makeCPOTargetOp("logtransform",
+  properties.target = "regr", constant.invert = TRUE,
+  cpo.train = NULL,
+  cpo.train.invert = NULL,
+  cpo.retrafo = {
     target[[1]] = log(target[[1]])
     target
-  }, cpo.retrafo = { print(match.call()) })
+  }, cpo.invert = { exp(target) })
 
 
 log.retrafo = retrafo(bh.task %>>% logtransform())  # get a target-bound retrafo
@@ -240,7 +243,6 @@ inverter(bh.task %>>% log.retrafo)
 ```
 ```{r, eval = FALSE}
 inverter(tagInvert(bh.task) %>>% log.retrafo)
-# currently not implemented :-/
 ```
 
 Inverting is done with the `invert` function.
@@ -253,7 +255,7 @@ invert(retrafo(log.bh), log.prediction$data["response"])  # not implemented :-/
 ```
 
 ## CPO Properties
-CPOs contain information about the kind of data they can work with, and what kind of data they produce. `getCPOProperties` returns a list with the slots `properties`, `properties.data`, `properties.needed`, `properties.adding`, indicating the kind of data a CPO can handle, the kind of data it needs the data receiver (e.g. attached learner) to have, and the properties it adds to a given learner. An example is a CPO that converts factors to numerics: The receiving learner needs to handle numerics, so `properties.needed = "numerics"`, but it *adds* the ability to handle factors (since they are converted), so `properties.adding = c("factors", "ordered")`. `properties.data` is only different from `properties` if `affect.*` parameters are given. In that case, `properties.data` determines what properties the selected subset of columns must have.
+CPOs contain information about the kind of data they can work with, and what kind of data they produce. `getCPOProperties` returns a list with the slots `handling`, `adding`, `needed`, `properties$adding`, indicating the kind of data a CPO can handle, the kind of data it needs the data receiver (e.g. attached learner) to have, and the properties it adds to a given learner. An example is a CPO that converts factors to numerics: The receiving learner needs to handle numerics, so `properties$needed = "numerics"`, but it *adds* the ability to handle factors (since they are converted), so `properties$adding = c("factors", "ordered")`. `properties$data` is only different from `properties$handling` if `affect.*` parameters are given. In that case, `properties$data` determines what properties the selected subset of columns must have.
 
 ```{r, error = TRUE}
 getCPOProperties(cpoDummyEncode())
@@ -308,10 +310,10 @@ head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
 A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO's Hyperparameters are exported as well. This is a generalization of `cpoMultiplex`; however, `requires` of the involved parameters are not adjusted, since this is impossible in principle.
 
 ```{r}
-s.and.p = cpoCase(logical.param: logical,
-.export = list(cpoScale(id = "scale"), 
-  cpoPca(id = "pca")),
-cpo.build = function(data, target, logical.param, scale, pca) {
+s.and.p = cpoCase(pSS(logical.param: logical),
+  export.cpos = list(cpoScale(), 
+  cpoPca()),
+  cpo.build = function(data, target, logical.param, scale, pca) {
   if (logical.param || mean(data[[1]]) > 10) {
     scale %>>% pca
   } else {
@@ -544,7 +546,7 @@ names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
 ```{r}
 constFeatRem = makeCPO("constFeatRem",
   dataformat = "df.features",
-  cpo.trafo = function(data, target) {
+  cpo.train = function(data, target) {
     names(Filter(function(x) {  # names of columns to keep
         length(unique(x)) > 1
       }, data))
@@ -559,7 +561,7 @@ It is also possible to set `cpo.retrafo = NULL`. Then `cpo.trafo` must return a 
 ```{r}
 constFeatRem = makeCPO("constFeatRem",
   dataformat = "df.features",
-  cpo.trafo = function(data, target) {
+  cpo.train = function(data, target) {
     cols.keep = names(Filter(function(x) {
     length(unique(x)) > 1
       }, data))

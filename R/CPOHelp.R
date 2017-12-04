@@ -1,10 +1,9 @@
-#' @section General CPO Info
+# make a dummy documentation that all CPOs
+
+#' @title Dummy Function for Documentation Purposes
 #'
 #' @description
-#'   CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-#'   The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-#'   enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-#'   data features are affected by default.
+#' Not used.
 #'
 #' @param id [\code{character(1)}]\cr
 #'   id to use as prefix for the CPO's hyperparameters. this
@@ -25,7 +24,8 @@
 #'   Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
 #'   to not match by column type. Default is \code{NULL}.
 #' @param affect.index [\code{numeric}]\cr
-#'   Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.
+#'   Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+#'   (since target columns are always included). Default is \code{integer(0)}.
 #' @param affect.names [\code{character}]\cr
 #'   Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.
 #' @param affect.pattern [\code{character(1)} | \code{NULL}]\cr
@@ -38,3 +38,7 @@
 #'   Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.
 #' @param affect.pattern.fixed [\code{logical(1)}]\cr
 #'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.
+#' @keywords internal
+cpoTemplate = function(id, export, affect.type, affect.index, affect.name, affect.pattern, affect.invert, affect.pattern.ignore.case, affect.pattern.perl, affect.pattern.fixed) {
+  stop()
+}

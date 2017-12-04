@@ -620,8 +620,7 @@ test_that("format change between trafo and retrafo are detected", {
       expect_error(cpo.df1cc %>>% rt, "column name mismatch")
 
     }
-split = "no"
-type = "o"
+
     for (split in c("no", "task", "target")) {
 
       cpo = cpogen("formattest", type, pss(),

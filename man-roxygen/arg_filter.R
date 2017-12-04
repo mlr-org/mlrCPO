@@ -7,3 +7,4 @@
 #' @param threshold [\code{numeric(1)}]\cr
 #'   If set, select features whose score exceeds \code{threshold}.
 #'   Mutually exclusive with arguments \code{perc} and \code{abs}.
+#' @family filter

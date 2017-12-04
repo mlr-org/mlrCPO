@@ -1,6 +1,8 @@
 .FilterRegister = get(".FilterRegister", envir = getNamespace("mlr"))  # nolint
 
-#' @title Filter features by thresholding filter values.
+#' @title Filter Features by Thresholding Filter Values
+#'
+#' @template cpo_doc_intro
 #'
 #' @description
 #' First, calls \code{\link{generateFilterValuesData}}.
@@ -17,12 +19,11 @@
 #' @template arg_filter
 #' @param filter.args [\code{list}]\cr
 #'   Passed down to selected filter method. Default is \code{list()}.
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 #' @family filter
-#' @family CPO
-cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
-  .par.set = c(
+cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
+  par.set = c(
       makeParamSet(makeDiscreteLearnerParam("method", values = ls(.FilterRegister), default = "randomForestSRC.rfsrc"),
         makeUntypedLearnerParam("fval", default = NULL)),
       pSSLrn(
@@ -30,7 +31,7 @@ cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
           abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
           threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),
       makeParamSet(makeUntypedLearnerParam("filter.args", default = list()))),
-  .dataformat = "task",
+  dataformat = "task",
   cpo.trafo = function(data, target, method, fval, perc, abs, threshold, filter.args) {
     assertList(filter.args)
     fullargs = c(list(task = data, method = method, fval = fval, perc = perc, abs = abs, threshold = threshold), filter.args)
@@ -43,12 +44,13 @@ cpoFilterFeatures = makeCPOExtended("filterFeatures", #nolint
   })
 registerCPO(cpoFilterFeatures, "featurefilter", "general", "Filter features using a provided method.")
 
-
-declareFilterCPO = function(method, ..., .par.set = NULL) {
-  if (is.null(.par.set)) {
-    .par.set = pSSLrn(..., .pss.env = parent.frame())
-  }
-  .par.set = c(pSSLrn(
+# Creates a CPOConstructor for the given filter method
+# @param method [character(1)] the method name, as found in mlr:::.FilterRegister
+# @param ... parameters to use for the CPO, as used by ParamSet::pSSLrn
+# @param .par.set [ParamSet | NULL] additional parameter set to use
+# @return [CPOConstructor] A CPOConstructor that creates the CPO performing the `method`.
+declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
+  par.set = c(pSSLrn(...,
       perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
       abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
       threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),
@@ -56,8 +58,9 @@ declareFilterCPO = function(method, ..., .par.set = NULL) {
 
   methodobj = get(method, envir = .FilterRegister)
 
-  makeCPOExtended(method, .par.set = .par.set, .dataformat = "task", .properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
-    .packages = methodobj$pkg,
+  makeCPOExtendedTrafo(method, par.set = par.set, dataformat = "task",
+    properties.target = c(methodobj$supported.tasks, cpo.targetproperties),
+    packages = methodobj$pkg,
     cpo.trafo = function(data, target, perc, abs, threshold, ...) {
       filter.args = list(...)
       td = getTaskData(data, target.extra = TRUE)$data
@@ -72,33 +75,42 @@ declareFilterCPO = function(method, ..., .par.set = NULL) {
     })
 }
 
-#' @title Filter features: mrmr
+#' @title Filter Features: \dQuote{mrmr}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Minimum redundancy, maximum relevance filter \dQuote{mrmr} computes the
 #' mutual information between the target and each individual feature minus the
 #' average mutual information of previously selected features and this feature
 #' using the \pkg{mRMRe} package.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterMrmr = declareFilterCPO("mrmr") # nolint  #  missing parameters
 registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features using 'minimum redundancy, maximum relevance'.")
 
-#' @title Filter features: carscore
+#' @title Filter Features: \dQuote{carscore}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{carscore} determines the \dQuote{Correlation-Adjusted (marginal) coRelation
 #' scores} (short CAR scores). The CAR scores for a set of features are defined as the
 #' correlations between the target and the decorrelated features.
 #' @param diagonal [\code{logical(1)}]\cr
 #'   See the \code{carscore} help.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterCarscore = declareFilterCPO("carscore", diagonal = FALSE: logical)  # nolint # missing parameter 'lambda'
 registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features using correlation-adjusted marginal correlation.")
 
-#' @title Filter features: randomForestSRC.rfsrc
+#' @title Filter Features: \dQuote{randomForestSRC.rfsrc}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{randomForestSRC.rfsrc} computes the importance of random forests
 #' fitted in package \pkg{randomForestSRC}. The concrete method is selected via
 #' the \code{method} parameter. Possible values are \code{permute} (default), \code{random},
@@ -106,26 +118,32 @@ registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features 
 #' See the VIMP section in the docs for \code{\link[randomForestSRC]{rfsrc}} for
 #' details.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRfSRCImportance = declareFilterCPO("randomForestSRC.rfsrc") #,  # nolint
 #  method = "permute": discrete[permute, random, anti, permute.ensemble, random.ensemble, anti.ensemble])  # missing parameters
 registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter features using randomForestSRC.rfsrc.")
 
-#' @title Filter features: randomForestSRC.var.select
+#' @title Filter Features: \dQuote{randomForestSRC.var.select}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{randomForestSRC.var.select} uses the minimal depth variable
 #' selection proposed by Ishwaran et al. (2010) (\code{method = "md"}) or a
 #' variable hunting approach (\code{method = "vh"} or \code{method = "vh.vimp"}).
 #' The minimal depth measure is the default.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRfSRCMinDepth = declareFilterCPO("randomForestSRC.var.select")  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
 registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter features using randomForestSRC minimal depth.")
 
-#' @title Filter features: cforest.importance
+#' @title Filter Features: \dQuote{cforest.importance}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Permutation importance of random forests fitted in package \pkg{party}.
 #' The implementation follows the principle of mean decrese in accuracy used
 #' by the \pkg{randomForest} package (see description of \dQuote{randomForest.importance})
@@ -133,13 +151,16 @@ registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter feat
 #' @param mtry [\code{integer(1)}]\cr
 #'   Number of features to draw during feature bagging
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRfCImportance = declareFilterCPO("cforest.importance", mtry = 5: integer[1, ])  # nolint  # missing parameters
 registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter features using party::cforest variable importance.")
 
-#' @title Filter features: randomForest.importance
+#' @title Filter Features: \dQuote{randomForest.importance}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{randomForest.importance} makes use of the \code{\link[randomForest]{importance}}
 #' from package \pkg{randomForest}. The importance measure to use is selected via
 #' the \code{method} parameter:
@@ -148,63 +169,81 @@ registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter feat
 #'   \item{node.impurity}{Total decrease in node impurity.}
 #' }
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRfImportance = declareFilterCPO("randomForest.importance")  #, method = "oob.accuracy": discrete[oob.accuracy, node.impurity])  # nolint  # missing parameters
 registerCPO(cpoFilterRfImportance, "featurefilter", "specialised", "Filter features using randomForest variable importance.")
 
-#' @title Filter features: linear.correlation
+#' @title Filter Features: \dQuote{linear.correlation}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' The Pearson correlation between each feature and the target is used as an indicator
 #' of feature importance. Rows with NA values are not taken into consideration.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterLinearCorrelation = declareFilterCPO("linear.correlation")  # nolint
 registerCPO(cpoFilterLinearCorrelation, "featurefilter", "specialised", "Filter features using Pearson correlation.")
 
-#' @title Filter features: rank.correlation
+#' @title Filter Features: \dQuote{rank.correlation}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' The Spearman correlation between each feature and the target is used as an indicator
 #' of feature importance. Rows with NA values are not taken into consideration.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRankCorrelation = declareFilterCPO("rank.correlation")  # nolint
 registerCPO(cpoFilterRankCorrelation, "featurefilter", "specialised", "Filter features using Spearman correlation.")
 
-#' @title Filter features: information.gain
+#' @title Filter Features: \dQuote{information.gain}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{information.gain} uses the entropy-based information gain
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterInformationGain = declareFilterCPO("information.gain")  # nolint
 registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter features using entropy-based information gain.")
 
-#' @title Filter features: gain.ratio
+#' @title Filter Features: \dQuote{gain.ratio}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{gain.ratio} uses the entropy-based information gain ratio
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterGainRatio = declareFilterCPO("gain.ratio")  # nolint
 registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features using entropy-based information gain ratio")
 
-#' @title Filter features: symmetrical.uncertainty
+#' @title Filter Features: \dQuote{symmetrical.uncertainty}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{symmetrical.uncertainty} uses the entropy-based symmetrical uncertainty
 #' between each feature and target individually as an importance measure.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterSymmetricalUncertainty = declareFilterCPO("symmetrical.uncertainty")  # nolint
 registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Filter features using entropy-based symmetrical uncertainty")
 
-#' @title Filter features: chi.squared
+#' @title Filter Features: \dQuote{chi.squared}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' The chi-square test is a statistical test of independence to determine whether
 #' two variables are independent. Filter \dQuote{chi.squared} applies this
 #' test in the following way. For each feature the chi-square test statistic is
@@ -212,13 +251,16 @@ registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Fi
 #' variable. Low values of the test statistic indicate a poor relationship. High
 #' values, i.e., high dependency identifies a feature as more important.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterChiSquared = declareFilterCPO("chi.squared")  # nolint
 registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter features using chi-squared test.")
 
-#' @title Filter features: relief
+#' @title Filter Features: \dQuote{relief}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{relief} is based on the feature selection algorithm \dQuote{ReliefF}
 #' by Kononenko et al., which is a generalization of the orignal \dQuote{Relief}
 #' algorithm originally proposed by Kira and Rendell. Feature weights are initialized
@@ -233,42 +275,48 @@ registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter feature
 #' Kononenko, Igor et al. Overcoming the myopia of inductive learning algorithms
 #' with RELIEFF (1997), Applied Intelligence, 7(1), p39-55.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterRelief = declareFilterCPO("relief")  # nolint # missing parameters
 registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features using the ReliefF algorithm.")
 
-#' @title Filter features: oneR
+#' @title Filter Features: \dQuote{oneR}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{oneR} makes use of a simple \dQuote{One-Rule} (OneR) learner to
 #' determine feature importance. For this purpose the OneR learner generates one
 #' simple association rule for each feature in the data individually and computes
 #' the total error. The lower the error value the more important the correspoding
 #' feature.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterOneR = declareFilterCPO("oneR")  # nolint
 registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features using the OneR learner.")
 
-#' @title Filter features: univariate.model.score
+#' @title Filter Features: \dQuote{univariate.model.score}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' The \dQuote{univariate.model.score} feature filter resamples an \pkg{mlr}
 #' learner specified via \code{perf.learner} for each feature individually
 #' with randomForest from package \pkg{rpart} being the default learner.
 #' Further parameter are the resamling strategey \code{perf.resampling} and
 #' the performance measure \code{perf.measure}.
-#' @param perf.learner [\code{\link[mlr]{Learner}} | \code{NULL}]\cr
+#' @param perf.learner [\code{\link[mlr:makeLearner]{Learner}} | \code{NULL}]\cr
 #'   Learner to resample. If this is \code{NULL}, \code{regr.randomForest} is used.
 #'   Default is \code{NULL}.
-#' @param perf.measure [\code{\link[mlr]{Measure}} | \code{NULL}]\cr
+#' @param perf.measure [\code{\link[mlr:makeMeasure]{Measure}} | \code{NULL}]\cr
 #'   Measure to use for resampling. If this is \code{NULL}, the Task's default Measure is used.
 #'   Default is \code{NULL}.
 #' @param perf.resampling [\code{ResampleDesc} or \code{ResampleInstance}]\cr
 #'   Resampling strategy to use. If this is \code{NULL}, 2/3 holdout resampling is used.
 #'   Default is \code{NULL}.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterUnivariate = declareFilterCPO("univariate.model.score",  # nolint
   .par.set = makeParamSet(
@@ -277,19 +325,25 @@ cpoFilterUnivariate = declareFilterCPO("univariate.model.score",  # nolint
       makeUntypedLearnerParam("perf.resampling", NULL)))
 registerCPO(cpoFilterUnivariate, "featurefilter", "specialised", "Filter features using the predictiveness using a given learner.")
 
-#' @title Filter features: anova.test
+#' @title Filter Features: \dQuote{anova.test}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{anova.test} is based on the Analysis of Variance (ANOVA) between
 #' feature and class. The value of the F-statistic is used as a measure of feature
 #' importance.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterAnova = declareFilterCPO("anova.test")  # nolint
 registerCPO(cpoFilterAnova, "featurefilter", "specialised", "Filter features using analysis of variance.")
 
-#' @title Filter features: kruskal.test
+#' @title Filter Features: \dQuote{kruskal.test}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{kruskal.test} applies a Kruskal-Wallis rank sum test of the
 #' null hypothesis that the location parameters of the distribution of a feature
 #' are the same in each class and considers the test statistic as an variable
@@ -297,40 +351,46 @@ registerCPO(cpoFilterAnova, "featurefilter", "specialised", "Filter features usi
 #' case, i.e., the null hypothesis cannot be rejected, there is little evidence
 #' that the corresponding feature is suitable for classification.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterKruskal = declareFilterCPO("kruskal.test")  # nolint
 registerCPO(cpoFilterKruskal, "featurefilter", "specialised", "Filter features using the Kruskal-Wallis rank sum test.")
 
-#' @title Filter features: variance
+#' @title Filter Features: \dQuote{variance}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Simple filter based on the variance of the features indepentent of each other.
 #' Features with higher variance are considered more important than features with
 #' low importance.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterVariance = declareFilterCPO("variance")  # nolint
 registerCPO(cpoFilterVariance, "featurefilter", "specialised", "Filter features using feature variance.")
 
-#' @title Filter features: permutation.importance
+#' @title Filter Features: \dQuote{permutation.importance}
 #'
+#' @template cpo_doc_intro
+#'
+#' @description
 #' Filter \dQuote{permutation.importance} computes a loss function between predictions made by a
 #' learner before and after a feature is permuted.
-#' @param imp.learner [\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
+#' @param imp.learner [\code{\link[mlr:makeLearner]{Learner}} | \code{character(1)}]\cr
 #'   Specifies the learner to use when computing the permutation importance.
 #' @param contrast [\code{function}]\cr
 #'   Contrast: takes two numeric vectors and returns one (default is the difference).
 #' @param aggregation [\code{function}]\cr
 #'   Aggregation: takes a \code{numeric} and returns a \code{numeric(1)} (default is the mean).
-#' @param measure [\code{\link[mlr]{Measure}}]\cr
+#' @param measure [\code{\link[mlr:makeMeasure]{Measure}}]\cr
 #'   Measure to use. Defaults to the default measure of the task.
 #' @param nmc [\code{integer(1)}]\cr
 #' @param replace [\code{logical(1)}]\cr
 #'   Determines whether the feature being
 #'   permuted is sampled with or without replacement.
 #' @template arg_filter
-#' @template arg_cpo_id
+#' @template cpo_doc_outro
 #' @export
 cpoFilterPermutationImportance = declareFilterCPO("permutation.importance",  # nolint
   .par.set = makeParamSet(

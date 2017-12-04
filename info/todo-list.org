@@ -1,44 +1,94 @@
 * TO-DO:
-** CPOs
-- 'cat_P' class prevalence
-- 'interaction'
-- QR
-- spacialSign
-- kernelPCA (kernlab) kpca
-- ICA
-- converting features to nums:
-  - 'as.numeric'
-  - ordered -> factor
-  - ordered -> as.numeric
-  - contr.poly, etc.
-  - knn impute
-  - binning -> to ordereds, to numbers
-- cpoRecodeNums (mit konstante, mit maximum, ...)
-- cpoNAIndicators
-- cpoMergeSmallLevels
-- cpo crossval
-** Features
-- cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
-- listCPO() nicer print
-- exporting / fixing / hiding hyperparameters needs to handle requirements.
-- cpoCbind: prevent copies
-- check shapeinfo when reattaching retrafos
-- meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
-  - properties.needed is the union of all properties.needed, properties and properties.adding are intersections
-  - optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
-  - cpoApply must have all properties, all properties.adding, must ignore properties.needed
-** sources:
--  https://topepo.github.io/recipes/reference/index.html
--  https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+** changes
+- [X] retrafoless may not change column layout
+- [X] make retrafoless work
+- [X] make inverter work
+- [X] delete 'target' variable in functional CPOs
+- [X] refactor prepare trafo / retrafo to separate checking and splitting / uniting
+- [X] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
+- [X] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
+- [X] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
+- [X] document that index with cpoSelect and affect.* is always relative do data cols only
+- [X] plan for today:
+  - [X] callCPO should call retrafo / inverter properly
+  - [X] retrafo chaining should work again
+  - [X] predict.type of cpotrained
+  - [X] getoriginalcpo of objects restored from state documented as not having correct parameters
+  - [X] retrafo state should work again
+    - makeRetrafoFromState --> makeCPOTrainedFromState
+  - [X] see that getting operating type etc. works (also for NULLCPO)
+  - [X] properties: adding.min, needed.max
+    - [X] implement and document
+    - [X] for multiplexer etc
+    - [X] multiplexer: check for affect.*, be less restrictive
+    - [X] retrafo adds 'missings' to needed.max if not part of adding.min.
+  - [X] see that learner attachment etc still works
+  - [X] retrafo element change
+  - [X] make invert() etc work
+  - [X] make the printers work
+  - [X] set CPOConstructor for multiplex cpos etc.
+  - [X] repair cpoCbind
+  - [X] sapply replacement
+  - [X] caching CPO
+  - [X] Title case or no title case
+  - [X] hyperparameter transforming cpo wrapper
+  - [X] a %>|% b --> retrafo(a %>>% b)
+  - [X] make tests work
+- [X] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 ** test todo
-- convertNamesToItems, ItemsToNames
-- on.par.out.of.bounds setting
-- task types checked
-- retrafoless
-- simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
+- [ ] convertNamesToItems, ItemsToNames
+- [ ] on.par.out.of.bounds setting
+- [ ] task types checked
+- [ ] retrafoless
+- [ ] simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
+- [ ] test individual CPOs
+** cosmetic changes
+- [ ] call map
+- [ ] !..%in%.. -> %nin%
+- [ ] limit line length
+- [ ] use if ({ = }) more often
+- [ ] text output lines may be longer.
+- [ ] plural s unification
+- [ ] centralize output strings
+- [ ] roxygen-document internal functions
+** Features
+- [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
+- [X] listCPO() nicer print
+- [ ] exporting / fixing / hiding hyperparameters needs to handle requirements.
+- [ ] cpoCbind: prevent copies
+- [ ] check shapeinfo when reattaching retrafos
+- [ ] option to drop 'truth' columns
+- [X] meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
+  - [X] properties.needed is the union of all properties.needed, properties and properties.adding are intersections
+  - [X] optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
+  - [X] cpoApply must have all properties, all properties.adding, must ignore properties.needed
+- [X] %<>>% operator
+** CPOs
+- [ ] 'cat_P' class prevalence
+- [ ] 'interaction'
+- [ ] QR
+- [X] spatialSign
+- [ ] kernelPCA (kernlab) kpca
+- [ ] ICA
+- [-] converting features to nums:
+  - [X] 'as.numeric'
+  - [ ] ordered -> factor
+  - [ ] ordered -> as.numeric
+  - [ ] contr.poly, etc.
+  - [ ] knn impute
+  - [ ] binning -> to ordereds, to numbers
+- [ ] cpoRecodeNums (mit konstante, mit maximum, ...)
+- [ ] cpoNAIndicators
+- [ ] cpoMergeSmallLevels
+- [ ] cpo crossval
+  - [ ] learner wrapping cpo:
+    input -[X]-> cluster. training by data %>>% X. prediction by [dummy] -> inverter(preddata %>>% retrafo(MODEL))
 ** news
-- colApplyCPO
-- cpoRangeScale
-- impact encoding: level -> probability fuer jede klasse
-- 'cat_B' ('bayesian' logit) x_catB = logit(P[y==target|x]) - logit(P[y==target]
-- cpoDropConst
+- [ ] colApplyCPO
+- [ ] cpoRangeScale
+- [ ] impact encoding: level -> probability fuer jede klasse
+- [ ] 'cat_B' ('bayesian' logit) x_catB = logit(P[y==target|x]) - logit(P[y==target]
+- [ ] cpoDropConst
+** sources:
+- [ ]  https://topepo.github.io/recipes/reference/index.html
+- [ ]  https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/

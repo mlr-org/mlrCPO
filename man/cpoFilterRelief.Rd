@@ -2,16 +2,9 @@
 % Please edit documentation in R/CPO_filterFeatures.R
 \name{cpoFilterRelief}
 \alias{cpoFilterRelief}
-\title{Filter features: relief
-
-Filter \dQuote{relief} is based on the feature selection algorithm \dQuote{ReliefF}
-by Kononenko et al., which is a generalization of the orignal \dQuote{Relief}
-algorithm originally proposed by Kira and Rendell. Feature weights are initialized
-with zeros. Then for each instance \code{sample.size} instances are sampled,
-\code{neighbours.count} nearest-hit and nearest-miss neighbours are computed
-and the weight vector for each feature is updated based on these values.}
+\title{Filter Features: \dQuote{relief}}
 \usage{
-cpoFilterRelief(perc = NULL, abs = NULL, threshold = NULL, id = NULL,
+cpoFilterRelief(perc = NULL, abs = NULL, threshold = NULL, id,
   export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
@@ -53,7 +46,8 @@ Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuot
 to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
@@ -73,14 +67,43 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
-\description{
-CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
-  The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
-  enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
-  data features are affected by default.
+\value{
+[\code{\link{CPO}}].
 }
-\section{General CPO Info}{
-NA
+\description{
+This is a \code{\link{CPOConstructor}} to be used to create a
+\code{\link{CPO}}. It is called like any R function and returns
+the created \code{\link{CPO}}.
+
+Filter \dQuote{relief} is based on the feature selection algorithm \dQuote{ReliefF}
+by Kononenko et al., which is a generalization of the orignal \dQuote{Relief}
+algorithm originally proposed by Kira and Rendell. Feature weights are initialized
+with zeros. Then for each instance \code{sample.size} instances are sampled,
+\code{neighbours.count} nearest-hit and nearest-miss neighbours are computed
+and the weight vector for each feature is updated based on these values.
+}
+\section{General CPO info}{
+
+This function creates a CPO object, which can be applied to
+\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
+and other CPO objects using the \code{\link{\%>>\%}} operator.
+
+The parameters of this object can be changed after creation
+using the function \code{\link{setHyperPars}}. The other
+hyper-parameter manipulating functins, \code{\link{getHyperPars}}
+and \code{\link{getParamSet}} similarly work as one expects.
+
+If the \dQuote{id} parameter is given, the hyperparameters
+will have this id as aprefix; this will, however, not change
+the parameters of the creator function.
+}
+
+\section{Calling a \code{\link{CPOConstructor}}}{
+
+CPO constructor functions are called with optional values of parameters, and additional \dQuote{special} optional values.
+The special optional values are the \code{id} parameter, and the \code{affect.*} parameters. The \code{affect.*} parameters
+enable the user to control which subset of a given dataset is affected. If no \code{affect.*} parameters are given, all
+data features are affected by default.
 }
 
 \references{
@@ -89,4 +112,68 @@ Methods and a New Algorithm. AAAI-92 Proceedings.
 
 Kononenko, Igor et al. Overcoming the myopia of inductive learning algorithms
 with RELIEFF (1997), Applied Intelligence, 7(1), p39-55.
+}
+\seealso{
+Other filter: \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}}
+
+Other CPOs: \code{\link{cpoApplyFun}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
+  \code{\link{cpoDropConstants}},
+  \code{\link{cpoDummyEncode}},
+  \code{\link{cpoFilterAnova}},
+  \code{\link{cpoFilterCarscore}},
+  \code{\link{cpoFilterChiSquared}},
+  \code{\link{cpoFilterFeatures}},
+  \code{\link{cpoFilterGainRatio}},
+  \code{\link{cpoFilterInformationGain}},
+  \code{\link{cpoFilterKruskal}},
+  \code{\link{cpoFilterLinearCorrelation}},
+  \code{\link{cpoFilterMrmr}}, \code{\link{cpoFilterOneR}},
+  \code{\link{cpoFilterPermutationImportance}},
+  \code{\link{cpoFilterRankCorrelation}},
+  \code{\link{cpoFilterRfCImportance}},
+  \code{\link{cpoFilterRfImportance}},
+  \code{\link{cpoFilterRfSRCImportance}},
+  \code{\link{cpoFilterRfSRCMinDepth}},
+  \code{\link{cpoFilterSymmetricalUncertainty}},
+  \code{\link{cpoFilterUnivariate}},
+  \code{\link{cpoFilterVariance}},
+  \code{\link{cpoFixFactors}},
+  \code{\link{cpoImpactEncodeClassif}},
+  \code{\link{cpoImpactEncodeRegr}},
+  \code{\link{cpoImputeConstant}},
+  \code{\link{cpoImputeHist}},
+  \code{\link{cpoImputeLearner}},
+  \code{\link{cpoImputeMax}}, \code{\link{cpoImputeMean}},
+  \code{\link{cpoImputeMedian}},
+  \code{\link{cpoImputeMin}}, \code{\link{cpoImputeMode}},
+  \code{\link{cpoImputeNormal}},
+  \code{\link{cpoImputeUniform}}, \code{\link{cpoImpute}},
+  \code{\link{cpoMissingIndicators}},
+  \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
+  \code{\link{cpoProbEncode}},
+  \code{\link{cpoQuantileBinNumerics}},
+  \code{\link{cpoScaleMaxAbs}},
+  \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
+  \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
+  \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
+  \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }

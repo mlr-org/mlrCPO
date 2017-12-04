@@ -1,49 +1,415 @@
 
-#' @include makeCPO.R
+#' @include makeCPO.R fauxCPOConstructor.R
 
 #' @title CPO Multiplexer
 #'
-#' @template cpo_description
+#' @template cpo_doc_intro
 #'
-#' @param cpos [\code{list} of (\code{CPO} | \code{CPOConstructor})]\cr
+#' @description
+#' \code{makeCPOMultiplex} creates a \code{\link{CPOConstructor}}, \code{cpoMultiplex}
+#' \emph{is} a \code{\link{CPOConstructor}}.
+#'
+#' @param cpos [\code{list} of (\code{\link{CPO}} | \code{\link{CPOConstructor}})]\cr
 #'   The CPOs to multiplex. If this is a named list, the
-#'   names must be unique and represent the IDs that will
-#'   be given to the CPOs upon construction.
+#'   names must be unique and represent the index by which
+#'   \code{selected.cpo} selects CPOs. They are also the IDs that will
+#'   be given to the CPOs upon construction. If the list is not named,
+#'   the IDs (or default names, in case of \code{\link{CPOConstructor}}s),
+#'   are used instead, and need to be unique.
+#'
+#'   All \code{\link{CPO}}s in the list must either be all Feature Operation CPOs,
+#'   all Target Operation CPOs performing the same conversion, or all Retrafoless CPOs.
 #' @param selected.cpo [\code{character(1)}]\cr
 #'   Selected CPO. Will default to the first item of \code{cpos}
 #'   if \code{NULL}. Default is \code{NULL}.
-#' @template arg_cpo_id
-#' @family CPO
+#' @template cpo_doc_outro
+#' @family special CPOs
 #' @export
-cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.default",
-    affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
-    affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
-  assertList(cpos, c("CPO", "CPOConstructor"), min.len = 1)  # FIXME: require databound
+makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
+  assertList(cpos, c("CPO", "CPOConstructor"), min.len = 1)
+
+  constructed = constructCPOList(cpos)
+
+  # check selected.cpo parameter
+  if (is.null(selected.cpo)) {
+    selected.cpo = names(constructed)[1]
+  }
+  assertChoice(selected.cpo, names(constructed))
+
+
+  # make sure all CPOs have the same operating type, and if target op, also the same conversion.
+  ctinfo = collectCPOTypeInfo(constructed)
+
+  # construct combined parameter list, complete with 'requires' addition
+  param.list = lapply(names(constructed), function(n) {
+    ps = getParamSet(constructed[[n]])
+    ps$pars = sapply(ps$pars, function(par) {
+      if (is.null(par$requires)) {
+        par$requires = substitute(selected.cpo == n, list(n = n))
+      } else {
+        subst = list(n = n, oreq = par$requires)
+        par$requires = substitute(selected.cpo == n && oreq, subst)
+      }
+      par
+    }, simplify = FALSE)
+    ps
+  })
+
+  # conjoin all parameters
+  paramset = c(pSSLrn(selected.cpo = selected.cpo: discrete[names(constructed)]),
+    do.call(base::c, param.list))
+
+  # get the parameter values
+  paramvals = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
+
+
+  props = collectProperties(constructed, "multiplex")
+  props.creator = propertiesToMakeCPOProperties(props, ctinfo$otype)
+
+  makeWrappingCPOConstructor(function(data, target, selected.cpo, ...) {
+      cpo = constructed[[selected.cpo]]
+      cpo = setHyperPars(cpo, par.vals = list(...)[getParamIds(getParamSet(cpo))])
+    }, paramset, paramvals, props.creator, ctinfo, "multiplex")
+}
+#' @export
+#' @rdname makeCPOMultiplex
+cpoMultiplex = makeFauxCPOConstructor(makeCPOMultiplex, "multiplex", "other", default.id.null = TRUE)  # nolint
+registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
+
+#' @title Build Data-Dependent CPOs
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' The meta CPO which determines what CPO to apply to a data depending on
+#' a provided function. Many parameters coincide with the parameters of \code{\link{makeCPO}},
+#' it is suggested to read the relevant parameter description there.
+#'
+#' \code{makeCPOCase} creates a \code{\link{CPOConstructor}}, while \code{cpoCase} can be
+#' used as \code{\link{CPOConstructor}} itself.
+#'
+#' @param par.set [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
+#'   Parameters (additionally to the exported CPOs) of the CPO. Default is the empty ParamSet.
+#' @param par.vals [\code{list}]\cr
+#'   Named list of default parameter values for the CPO. These are used additionally to the
+#'   parameter default values of \code{par.set}. It is often more elegant to use
+#'   these default values, and not \code{par.vals}. Default is \code{list()}.
+#'   Default is \code{list()}.
+#' @param export.cpos [\code{list} of \code{CPO}]\cr
+#'   List of \code{CPO} objects that have their hyperparameters exported. If this is a named list, the
+#'   names must be unique and represent the parameter name by which
+#'   they are given to the \code{cpo.build} function. They are also the IDs that will
+#'   be given to the CPOs upon construction. If the list is not named,
+#'   the IDs (or default names, in case of \code{\link{CPOConstructor}}s),
+#'   are used instead, and need to be unique.
+#'
+#'   All \code{\link{CPO}}s in the list must either be all Feature Operation CPOs,
+#'   all Target Operation CPOs performing the same conversion, or all Retrafoless CPOs.
+#'
+#'   The \code{cpo.build} function needs to have an argument for each of the names in the list. The \code{CPO} objects
+#'   are pre-configured by the framework to have the hyperparameter settings as set by the ones exported by \code{cpoCase}.
+#'   Default is \code{list()}.
+#' @param dataformat [\code{character(1)}]\cr
+#'   Indicate what format the data should be as seen by \dQuote{cpo.build}. See the parameter in \code{\link{makeCPO}}
+#'   for details.
+#'
+#'   Note that if the \code{\link{CPO}}s in \code{export.cpos} are Retrafoless CPOs, this must be either \dQuote{task} or \dQuote{df.all}.
+#'   Default is \dQuote{df.features}.
+#' @param dataformat.factor.with.ordered [\code{logical(1)}]\cr
+#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. See the parameter in \code{\link{makeCPO}}.
+#'   Default is \code{TRUE}.
+#' @param properties.data [\code{character}]\cr
+#'   See the parameter in \code{\link{makeCPO}}.
+#'
+#'   The properties of the resulting \code{\link{CPO}} are calculated from the constituent \code{\link{CPO}}s automatically in the
+#'   most lenient way. If this parameter is not \code{NULL}, the calculated the given properties are used instead of the calculated properties.
+#'
+#'   Default is \code{NULL}.
+#' @param properties.adding [\code{character}]\cr
+#'   See the parameter in \code{\link{makeCPO}}.
+#'
+#'   The properties of the resulting \code{\link{CPO}} are calculated from the constituent \code{\link{CPO}}s automatically in the
+#'   most lenient way. If this parameter is not \code{NULL}, the calculated the given properties are used instead of the calculated properties.
+#'
+#'   Default is \code{NULL}.
+#' @param properties.needed [\code{character}]\cr
+#'   See the parameter in \code{\link{makeCPO}}.
+#'
+#'   The properties of the resulting \code{\link{CPO}} are calculated from the constituent \code{\link{CPO}}s automatically in the
+#'   most lenient way. If this parameter is not \code{NULL}, the calculated the given properties are used instead of the calculated properties.
+#'
+#'   Default is \code{NULL}.
+#' @param properties.target [\code{character}]\cr
+#'   See the parameter in \code{\link{makeCPO}}.
+#'
+#'   The properties of the resulting \code{\link{CPO}} are calculated from the constituent \code{\link{CPO}}s automatically in the
+#'   most lenient way. If this parameter is not \code{NULL}, the calculated the given properties are used instead of the calculated properties.
+#'
+#'   Default is \code{NULL}.
+#' @param cpo.build [\code{function}]\cr
+#'   This function works similar to \code{cpo.trafo} in \code{\link{makeCPO}}: It has the arguments \code{data}, \code{target}, one argument for each
+#'   hyperparameter declared in \code{par.set}. However, it also has one parameter for each entry in \code{export.cpos}, named by each item
+#'   in that list. The \code{cpoCase} framework supplies the pre-configured \code{CPO}s (pre-configured as the exported hyperparameters of \code{cpoCase}
+#'   demand) to the \code{cpo.build} code via these parameters. The return value of \code{cpo.build} must be a \code{CPO}, which will then be used on the data.
+#'
+#'   Just as \code{cpo.trafo} in \code{\link{makeCPO}}, this can also be a \sQuote{headless} function; it then must be written as an expression, starting
+#'   with a \code{\{}.
+#' @template cpo_doc_outro
+#' @family special CPOs
+#' @export
+makeCPOCase = function(par.set = makeParamSet(), par.vals = list(), export.cpos = list(),
+                   dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+                   dataformat.factor.with.ordered = TRUE,
+                   properties.data = NULL, properties.adding = NULL, properties.needed = NULL,
+                   properties.target = NULL, cpo.build) {
+  dataformat = match.arg(dataformat)
+
+  constructed = constructCPOList(export.cpos)
+
+  ctinfo = collectCPOTypeInfo(constructed)
+
+  if (ctinfo$otype == "retrafoless" && dataformat %nin% c("df.all", "task")) {
+    stopf("cpoCase was given retrafoless CPOs, so dataformat must be 'df.all' or 'task', but was '%s'.",
+      dataformat)
+  }
+
+  paramset.pass.on = par.set
+  paramvals.pass.on = insert(getParamSetDefaults(paramset.pass.on), par.vals)
+  assertSubset(names(paramvals.pass.on), getParamIds(paramset.pass.on))
+  if (length({name.collision = intersect(getParamIds(paramset.pass.on), names(constructed))})) {
+    stopf("Names of cpo.build function arguments and export elements clash: %s", collapse(name.collision, sep = ", "))
+  }
+
+  if (length({badreserved = intersect(reserved.params, getParamIds(paramset.pass.on))})) {
+    stopf("Reserved parameter name(s) '%s' cannot be used.", collapse(badreserved, "', '"))
+  }
+
+  paramset.others = do.call(base::c, lapply(constructed, getParamSet))
+  paramvals.others = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
+
+  # collect properties
+  props = collectProperties(constructed, "multiplex")
+  props.creator = propertiesToMakeCPOProperties(props, ctinfo$otype)
+  # if override given, overwrite collected properties
+  for (pkind in c("data", "adding", "needed", "target")) {
+    pfullkind = paste0("properties.", pkind)
+    if (!is.null(get(pfullkind))) {
+      props.creator[[pfullkind]] = get(pfullkind)
+    }
+  }
+
+  required.arglist = sapply(c(getParamIds(paramset.pass.on), names(constructed)), function(dummy) substitute(), simplify = FALSE)
+  required.arglist = insert(required.arglist, paramvals.pass.on)
+  required.arglist$data = substitute()
+  required.arglist$target = substitute()
+
+  cpo.build.expr = substitute(cpo.build)
+  if (!(is.recursive(cpo.build.expr) && !is.function(cpo.build.expr) && identical(cpo.build.expr[[1]], quote(`{`)))) {
+    cpo.build.expr = cpo.build
+  }
+  buildfun = makeFunction(cpo.build.expr, required.arglist, env = parent.frame())
+
+  fullaffect = list(type = c("numeric", "factor", "ordered", "other"),
+    index = integer(0), names = character(0), pattern = NULL, invert = FALSE, pattern.ignore.case = FALSE,
+    pattern.perl = FALSE, pattern.fixed = FALSE)
+
+  makeWrappingCPOConstructor(function(data, target, ...) {
+      args = list(...)
+      buildfunargs = c(args[getParamIds(paramset.pass.on)],
+        lapply(constructed, function(cpo) {
+          setHyperPars(cpo, par.vals = args[getParamIds(getParamSet(cpo))])
+        }))
+      indata = prepareTrafoInput(data, dataformat, !dataformat.factor.with.ordered,
+        cpo.all.properties, fullaffect, FALSE, "feature", "case")$indata
+      do.call(buildfun, c(buildfunargs, list(data = indata$data, target = indata$target)))
+    },
+    c(paramset.pass.on, paramset.others),
+    c(paramvals.pass.on, paramvals.others),
+    props.creator, ctinfo, "case")
+}
+#' @export
+#' @rdname makeCPOCase
+cpoCase = makeFauxCPOConstructor(makeCPOCase, "case", "other", default.id.null = TRUE)  # nolint
+registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO constructed depending on the data.")
+
+#' @title Transform CPO Hyperparameters
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Transforms hyperparameters, or establishes dependencies between them.
+#' The \code{\link{CPO}} given to \code{cpoTransformParams} gets wrapped
+#' inside a new \code{\link{CPO}} with different hyperparameters. The parameters
+#' for which a transformation is given are not exported (unless also given
+#' in \code{additional.parameters}).
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The CPO to use. Currently this may only have a single \link{OperatingType}.
+#' @param transformations [named \code{list} of \code{language}]\cr
+#'   This list is contains \code{\link[base]{expression}}s or \code{\link[base:substitute]{quote}}s
+#'   that are evaluated in the context of the \emph{externally given} hyperparameters and
+#'   then give the values of the internal hyperparameters. The name of each list element
+#'   determines to what hyperparameter of \code{cpo} the result of the expression is written.
+#'
+#'   Expressions can not depend on the results of other expressions.
+#'
+#'   Hyperparameters of \code{cpo} named in this list are not exported by the TransformParams CPO. It is,
+#'   however, possible to create synonymous parameters in \code{additional.parameters}.
+#' @param additional.parameters [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
+#'   Additional parameters to create, on which expressions in \code{transformations} may depend.
+#'   They may contain the same names as \code{transformations}, but may not have names of hyperparameters
+#'   of \code{cpo} that are \emph{not} in \code{transformations}.
+#' @param par.vals [\code{list}]\cr
+#'   Optional default values of parameters in \code{additional.parameters}. These override the ParamSet's
+#'   default values. Default is \code{list()}. These must only concern parameters in \code{additional.parameters},
+#'   not the ones in \code{cpo}.
+#' @template cpo_doc_outro
+#' @family special CPOs
+#' @export
+cpoTransformParams = function(cpo, transformations, additional.parameters = makeParamSet(), par.vals = list()) {
+  assertClass(additional.parameters, "ParamSet")
+  assertList(transformations, names = "unique")
+  assert(all(vlapply(transformations, is.language)))
+  assertClass(cpo, "CPO")
+  assertList(par.vals, names = "unique")
+  assertSubset(names(par.vals), getParamIds(additional.parameters))
+
+  ctinfo = collectCPOTypeInfo(list(cpo))
+
+  orig.param.ids = getParamIds(getParamSet(cpo))
+  exp.params$pars = dropNamed(getParamSet(cpo)$pars, names(transformations))
+
+  exp.par.vals = dropNamed(getHyperPars(cpo), names(transformations))
+
+  if (length({badparams = intersect(getParamIds(additional.parameters), getParamIds(exp.params))})) {
+    stop("Parameter(s) '%s' of cpo listed in additional.parameters. That is only allowed if for parameters that also occur as names of transformations.",
+      collapse(badparams, "', '"))
+  }
+
+  if (length({notfound = setdiff(names(transformations), orig.param.ids)})) {
+    stop("transformations element(s) '%s' not parameter of cpo.",
+      collapse(notfound, "', '"))
+  }
+
+  exp.params %c=% additional.parameters
+  exp.par.vals %c=% par.vals
+
+  if (length({badreserved = intersect(reserved.params, getParamIds(exp.params))})) {
+    stopf("Reserved parameter name(s) '%s' cannot be used.", collapse(badreserved, "', '"))
+  }
+
+  props.creator = propertiesToMakeCPOProperties(getCPOProperties(cpo, get.internal = TRUE))
+
+  enclosing = parent.frame()
+
+  makeWrappingCPOConstructor(function(data, target, ...) {
+      pv = list(...)
+      otherpv = lapply(transformations, eval, envir = pv, enclos = enclosing)
+      pv = insert(pv, otherpv)[orig.param.ids]
+      setHyperPars(cpo, pv)
+    },
+    exp.params, exp.par.vals, props.creator, ctinfo, "transformparams")(id = NULL)
+}
+registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "meta", NULL, "Transform a CPO's Hyperparameters.")
+
+
+#' @title Caches the Result of CPO Transformations
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Given a \code{\link{CPO}} to wrap, this caches an intermediate result (in fact, the \code{\link{retrafo}} object) whenever the
+#' CPO is applied to a Task or data.frame. This can reduce computation
+#' time when the same CPO is often applied to the same data, e.g. in a
+#' resampling or tuning evaluation.
+#'
+#' The hyperparameters of the CPO are not exported, since in many cases changing the
+#' hyperparameters will also change the result and would defeat the point of caching.
+#' To switch between different settings of the same \code{\link{CPO}}, consider using
+#' \code{\link{cpoMultiplex}}.
+#'
+#' The cache is kept in an \code{\link[base]{environment}}; therefore, it does not
+#' communicate with other threads or processes when using parallelization at a
+#' level before the cache gets filled.
+#'
+#' Caching needs the \sQuote{digest} package to be installed.
+#'
+#' @param cpo [\code{\link{CPO}}]\cr
+#'   The \code{\link{CPO}} to wrap. The \code{\link{CPO}} may only have a single
+#'   \code{\link{OperatingType}}.
+#' @param cache.entries [\code{numeric(1)}]\cr
+#'   Number of entries in the least recently used cache.
+cpoCache = function(cpo, cache.entries = 1024) {
+  usage.counter = 0
+  usage.tracker = numeric(cache.entries)
+  cache = vector("list", cache.entries)
+  cache.index = setNames(as.list(seq_len(cache.entries)), rep("", cache.entries))
+
+  assertClass(cpo, "CPO")
+
+  ctinfo = collectCPOTypeInfo(list(cpo))
+
+  props.creator = propertiesToMakeCPOProperties(getCPOProperties(cpo, get.internal = TRUE))
+
+  makeWrappingCPOConstructor(function(data, target, ...) {
+      td = getTaskDesc(data)
+      if (!td$has.blocking && !td$has.weights) {
+        if (!is.null(td$positive)) {
+          entry = paste0("hash.", digest::digest(td$positive, algo = "sha512"))
+        } else {
+          entry = "hash"
+        }
+        if (is.null(data$env[[entry]])) {
+          data$env[[entry]] = digest::digest(data$env$data, algo = "sha512")
+        }
+        hash = data$env[[entry]]
+      } else {
+        # include weights & blocking
+        hash = digest::digest(data, algo = "sha512")
+      }
+      if (is.null({index = cache.index[[hash]]})) {
+        index = which.min(usage.tracker)
+        names(cache.index)[index] = hash
+        # TODO: duplicating some work here, the makeWrappingCPOConstructor interface needs to change slightly
+        cache[[index]] = retrafo(cpo %>>% data)
+      }
+      usage.counter %+=% 1
+      usage.tracker[index] = usage.counter
+      cache[[index]]
+    },
+    makeParamSet(), list(), props.creator, ctinfo, "cache", packages = "digest")(id = NULL)
+}
+registerCPO(list(name = "cpoCache", cponame = "cache"), "meta", NULL, "Cache a CPO's results.")
+
+# Given a list of CPOs, construct them and make sure they are uniquely named
+#
+# Helper function for multiplexer etc, so the 'cpos' parameter behaves as
+# one expects.
+# @param cpos [list of CPO | CPOConstructor] possibly named list of CPOs
+# @return cpos [named list of CPO]. uniquely named list of constructed CPOs
+constructCPOList = function(cpos) {
+  # get names, if not given
   has.names = !is.null(names(cpos))
   if (!has.names) {
     names(cpos) = sapply(cpos, function(c) {
       if ("CPOConstructor" %in% class(c)) {
         getCPOName(c)
-      } else if ("CPOPrimitive" %in% class(c)) {
-        firstNonNull(getCPOId(c), getCPOName(c))
+      } else if (is.nullcpo(c)) {
+        getCPOName(c)
       } else {
-        c = as.list(c)[[1]]
-        firstNonNull(getCPOId(c), getCPOName(c))
+        collapse(vcapply(as.list(c), function(x) firstNonNull(getCPOId(x), getCPOName(x))), ".")
       }
     })
   }
-  dupnames = unique(names(cpos)[duplicated(names(cpos))])
-  if (length(dupnames)) {
+
+  # check for duplicate names
+  if (length({dupnames = unique(names(cpos)[duplicated(names(cpos))])})) {
     stopf("%s must be unique, but duplicates found: %s",
           ifelse(has.names, "names of parameter 'cpos'", "CPO types given"), collapse(dupnames, sep = ", "))
   }
   assertList(cpos, names = "unique")
 
-  if (is.null(selected.cpo)) {
-    selected.cpo = names(cpos)[1]
-  }
-  assertChoice(selected.cpo, names(cpos))
-
+  # construct CPOs, if necessary
   constructed = lapply(names(cpos), function(n) {
     if ("CPOConstructor" %in% class(cpos[[n]])) {
       cpos[[n]](id = n)
@@ -51,264 +417,254 @@ cpoMultiplex = function(cpos, selected.cpo = NULL, id = NULL, export = "export.d
       cpos[[n]]
     }
   })
-  names(constructed) = names(cpos)
 
-  paramset.list = do.call(base::c, lapply(names(constructed), function(n) {
-    ps = getParamSet(constructed[[n]])
-    ps$pars = lapply(ps$pars, function(p) {
-      if (is.null(p$requires)) {
-        p$requires = substitute(selected.cpo == n, list(n = n))
-      } else {
-        p$requires = substitute((selected.cpo == n) && (otherreq), list(n = n, otherreq = p$requires))
-      }
-      p
-    })
-    ps
-  }))
-
-  paramset = c(pSSLrn(selected.cpo = selected.cpo: discrete[names(cpos)]), paramset.list)
-
-  pv = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
-
-  pr = collectProperties(constructed)
-
-  rl = makeCPOExtended("multiplex", .par.set = paramset, .par.vals = pv, .dataformat = "task", .properties = pr$properties, .properties.adding = pr$properties.adding,
-          .properties.needed = pr$properties.needed, .properties.target = pr$properties.target, cpo.trafo = function(data, target, selected.cpo, ...) {
-            cpo = constructed[[selected.cpo]]
-            cpo = setHyperPars(cpo, par.vals = list(...)[names(getParamSet(cpo)$pars)])
-            res = data %>>% cpo
-            control = retrafo(res)
-            retrafo(res) = NULL
-            res
-          }, cpo.retrafo = function(data, control, ...) { data %>>% control })
-  setCPOId(rl(export = export, affect.type = affect.type, affect.index = affect.index, affect.names = affect.names, affect.pattern = affect.pattern,
-    affect.invert = affect.invert, affect.pattern.ignore.case = affect.pattern.ignore.case, affect.pattern.perl = affect.pattern.perl,
-    affect.pattern.fixed = affect.pattern.fixed), id = id)  # allow NULL id for multiplexer
+  setNames(constructed, names(cpos))
 }
-registerCPO(list(name = "cpoMultiplex", cponame = "multiplex"), "meta", NULL, "Apply one of a given set of CPOs, each having their hyperparameters exported.")
 
-#' @title CPO Wrapper
-#'
-#' Applies the \code{CPO} that is given to the \code{CPO} hyperparameter.
-#'
-#' @template cpo_description
-#'
-#' @param cpo [\code{CPO}]\cr
-#'   The CPO to wrap.
-#' @template arg_cpo_id
-#' @family CPO
-#' @export
-cpoWrap = makeCPOExtended("wrap", .par.set = makeParamSet(makeUntypedLearnerParam("cpo")), .dataformat = "task",  # nolint
-                   cpo.trafo = { control = retrafo({res = data %>>% cpo}) ; res }, cpo.retrafo = { data %>>% control })
-# FIXME: require databound
-registerCPO(cpoWrap, "meta", NULL, "Apply a freely chosen CPOs, without exporting its hyperparameters.")
-
-
-
-#' @title Build data-dependent CPOs
-#'
-#' @description
-#' The meta CPO which determines what CPO to apply to a data depending on
-#' a provided function
-#'
-#' @param ...
-#'   Parameters of the CPO, in the format of \code{\link[ParamHelpers]{pSS}}.
-#' @param .par.set [\code{ParamSet}]\cr
-#'   Optional parameter set. If this is not \code{NULL}, the \dQuote{...} parameters are ignored.
-#'   Default is \code{NULL}.
-#' @param .par.vals [\code{list}]\cr
-#'   Named list of default parameter values for the CPO. These are used additionally to the
-#'   parameter default values in \dQuote{...} and \code{.par.set}. It is preferred to use
-#'   these default values, and not \code{.par.vals}. Default is \code{list()}.
-#' @param .export [\code{list} of \code{CPO}]\cr
-#'   List of \code{CPO} objects that have their hyperparameters exported. If this is not a named list, the item's \code{\link{getCPOId}}
-#'   is used for names. The \code{cpo.build} function needs to have an argument for each of the names in the list. The \code{CPO} objects
-#'   are pre-configured by the framework to have the hyperparameter settings as set by the ones exported by \code{cpoCase}.
-#' @param .dataformat [\code{character(1)}]\cr
-#'   Indicate what format the data should be as seen by \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}. Possibilities are:
-#'   \tabular{lll}{
-#'     \bold{dataformat} \tab \bold{data}               \tab \bold{target}         \cr
-#'     df.all      \tab data.frame with target cols     \tab target colnames       \cr
-#'     df.features \tab data.frame without target       \tab data.frame of target  \cr
-#'     task        \tab full task                       \tab target colnames       \cr
-#'     split       \tab list of data.frames by type     \tab data.frame of target  \cr
-#'     [type]      \tab data.frame of [type] feats only \tab data.frame of target  \cr
-#'   }
-#'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}.\cr
-#'   For \code{.dataformat} \code{==} \dQuote{split}, the list has entries \dQuote{factor}, \dQuote{numeric},
-#'   \dQuote{other}, and possibly \dQuote{ordered}--the last one only present if \code{.dataformat.factor.with.ordered}
-#'   is \code{FALSE}.
-#'
-#'   If the CPO is a Target Operation CPO, the return value of both \dQuote{cpo.trafo} and \dQuote{cpo.retrafo}
-#'   must be either a task if \code{.dataformat} is \dQuote{task}, the complete (modified) data.frame
-#'   if \code{.dataformat} is \dQuote{df.all}, and a data.frame containing only the target column(s) otherwise.
-#'   Default is \dQuote{df.features}.
-#'
-#'   If the CPO is a Feature Operation CPO, then the return value must be in the same format as the one requested.
-#'   E.g. if \code{.dataformat} is \dQuote{split}, the return value must be a named list with entries \dQuote{numeric},
-#'   \dQuote{factor}, and \dQuote{other}. The types of the returned data may be arbitrary: In the given example,
-#'   the \dQuote{factor} slot of the returned list may contain numeric data. (Note however that if data is returned
-#'   that has a type not already present in the data, \dQuote{.properties.needed} must specify this.)
-#'
-#'   If \code{.dataformat} is either \dQuote{df.all} or \dQuote{task}, the
-#'   target column(s) in the returned value must be identical with the target column(s) given as input.
-#'
-#'   If \dQuote{.dataformat} is \dQuote{split}, the \dQuote{$numeric} slot of the returned
-#'   object may also be a \code{matrix}. If \dQuote{.dataformat} is \dQuote{numeric}, the returned object may also be a
-#'   matrix.
-#' @param .dataformat.factor.with.ordered [\code{logical(1)}]\cr
-#'   Whether to treat \code{ordered} typed features as \code{factor} typed features. This affects how \code{.dataformat} is handled, and only
-#'   has an effect if \code{dataformat} is \dQuote{split} or \dQuote{factor}.
-#' @param .properties [\code{character}]\cr
-#'   The kind if data that the CPO will be able to handle. This can be one or many of: \dQuote{numerics},
-#'   \dQuote{factors}, \dQuote{ordered}, \dQuote{missings}.
-#'   There should be a bias towards including properties. If a property is absent, the preproc
-#'   operator will reject the data. If an operation e.g. only works on numeric columns that have no
-#'   missings (like PCA), it is recommended to give all properties, ignore the columns that
-#'   are not numeric (using \dQuote{.dataformat} = \dQuote{split}), and giving an error when
-#'   there are missings in the numeric columns (since missings in factorial features are not a problem).
-#'   Defaults to the maximal set.
-#' @param .properties.adding [\code{character}]\cr
-#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs, and one or many of the same values as \dQuote{.properties.target}
-#'   for Target Operation CPOs. These properties get added to a Learner (or CPO) coming after / behind this CPO. When a CPO imputes missing values, for example,
-#'   this should be \dQuote{missings}. This must be a subset of \dQuote{.properties} or \dQuote{.properties.target}. Default is
-#'   \code{character(0)}.
-#' @param .properties.needed [\code{character}]\cr
-#'   Can be one or many of the same values as \dQuote{.properties} for Feature Operation CPOs,
-#'   and one or many of the same values as \dQuote{.properties.target}. These properties are required
-#'   from a Learner (or CPO) coming after / behind this CPO. E.g., when a CPO converts factors to
-#'   numerics, this should be \dQuote{numerics} (and \dQuote{.properties.adding} should be \dQuote{factors}).
-#'   Default is \code{character(0)}.
-#' @param .properties.target [\code{character}]\cr
-#'   For Feature Operation CPOs, this can be one or many of \dQuote{cluster}, \dQuote{classif}, \dQuote{multilabel}, \dQuote{regr}, \dQuote{surv},
-#'   \dQuote{oneclass}, \dQuote{twoclass}, \dQuote{multiclass}. Just as \code{.properties}, it
-#'   indicates what kind of data a CPO can work with. Data given as data.frame needs the \dQuote{cluster} property. Default is the maximal set.
-#'
-#'   For Target Operation CPOs, this should only be given if the CPO operates on classification tasks. It must then be a subset of \dQuote{oneclass},
-#'   \dQuote{twoclass}, or \dQuote{multiclass}. Otherwise, it should be \code{character(0)}. Default is \code{character(0)}.
-#' @param cpo.build [\code{function}]\cr
-#'   This function works similar to \code{cpo.trafo} in \code{\link{makeCPO}}: It has the arguments \code{data}, \code{target}, one argument for each
-#'   hyperparameter declared in \code{.par.set} or \code{...}. However, it also has one parameter for each entry in \code{.export}, named as each item
-#'   name in that list. The \code{cpoCase} framework supplies the pre-configured \code{CPO}s (pre-configured as the exported hyperparameters of \code{cpoCase}
-#'   demand) to the \code{cpo.build} code via these parameters. The return value of \code{cpo.build} must be a \code{CPO}, which will then be used on the data.
-#' @family CPO
-#' @export
-cpoCase = function(..., .par.set = NULL, .par.vals = list(), .export = list(),
-                   .dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
-                   .dataformat.factor.with.ordered = TRUE,
-                   .properties = NULL, .properties.adding = NULL, .properties.needed = NULL,
-                   .properties.target = NULL, cpo.build) {
-  .dataformat = match.arg(.dataformat)
-  if (is.null(names(.export))) {
-    names(.export) = sapply(.export, function(c) {
-      if ("CPOConstructor" %in% class(c)) {
-        stopf("If .export has no names, all CPOs must be constructed. %s is not.",
-          getCPOName(c))
-      } else if ("CPOPrimitive" %in% class(c)) {
-        id = getCPOId(c)
-        if (is.null(id)) {
-          stopf("If .export has no names, all CPOs must have (unique) IDs.")
-        }
-        id
-      } else {
-        stopf("If .export has no names, compound CPOs can't be given.")
-      }
-    })
+# Given a list of constructed CPOs, return information about commonalities
+#
+# cpoMultiplexer, cpoCase must both make sure that all passed CPOs behave the
+# same (i.e. all the same OperatingType, all the same conversion etc.
+#
+# This function (1) checks these are the same, (2) gives warnings for small
+# misalignments (e.g. a predict.type that only some of the CPOs can do), and
+# (3) returns a list of common properties.
+#
+# @param constructed [list of CPO] the CPOs to collect
+# @return [list]:
+#   list(otype [character(1)] operating type: target, feature, retrafoless
+#        convertfrom, convertto [character(1)] task type to convert from / to
+#        constant.invert [logical(1)] whether invert is constant for ALL cpos
+#        predict.type [named character] predict type map
+#   )
+collectCPOTypeInfo = function(constructed) {
+  convertfrom = NULL
+  convertto = NULL
+  constant.invert = TRUE
+  predict.type = character(0)
+  ##
+  # get operating type
+  otype = unique(unlist(lapply(constructed, getCPOOperatingType)))
+  if (length(otype) > 1) {
+    stopf("cpoMultiplex can only handle CPOs with all the same OperatingType, but found CPOs with Operating Types '%s'",
+      collapse(otype, "', '"))
   }
-  assertList(.export, types = c("CPO", "CPOConstructor"), names = "unique")  # FIXME: target bound separately
+  if (length(otype) == 0) {  # happens with NULLCPO
+    otype = "feature"
+  }
 
-  constructed = lapply(names(.export), function(n) {
-    if ("CPOConstructor" %in% class(.export[[n]])) {
-      .export[[n]](id = n)
-    } else {
-      .export[[n]]
+  if (otype == "target") {
+    ##
+    # get convertfrom
+    convertfrom = unique(extractSubList(constructed, "convertfrom"))
+    if (length(convertfrom) > 1) {
+      stopf("cpoMultiplex can only handle target operation CPOs that perform all the same conversion, but found CPOs with different input types '%s'",
+        collapse(convertfrom, "', '"))
     }
-  })
-  names(constructed) = names(.export)
+    assert(length(convertfrom) == 1)
 
-  if (is.null(.par.set)) {
-    .par.set = pSSLrn(..., .pss.env = parent.frame())
-  }
+    ##
+    # get convertto
+    convertto = unique(extractSubList(constructed, "convertto"))
+    if (length(convertto) > 1) {
+      stopf("cpoMultiplex can only handle target operation CPOs that perform all the same conversion, but found CPOs with different output types '%s'",
+        collapse(convertto, "', '"))
+    }
+    assert(length(convertto) == 1)
 
-  paramset.pass.on = .par.set
-  pv.pass.on = insert(getParamSetDefaults(paramset.pass.on), .par.vals)
-  if (length(paramset.pass.on$pars)) {
-    assertSubset(names(pv.pass.on), names(paramset.pass.on$pars))
-  } else {
-    assert(length(pv.pass.on) == 0)
-  }
-  name.collision = intersect(names(paramset.pass.on$pars), names(.export))
-  if (length(name.collision)) {
-    stopf("Names of cpo.build function arguments and .export elements clash: %s", collapse(name.collision, sep = ", "))
-  }
+    ##
+    # get constant.invert
+    constant.invert = Reduce(`&&`, extractSubList(constructed, "constant.invert"))
 
-  paramset.others = do.call(base::c, lapply(names(constructed), function(n) getParamSet(constructed[[n]])))
-  pv.others = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
-
-
-  pr = collectProperties(constructed)
-  .properties = firstNonNull(.properties.adding, pr$properties, (cpo.dataproperties))
-  .properties.adding = firstNonNull(.properties.adding, pr$properties.adding, character(0))
-  .properties.needed = firstNonNull(.properties.needed, pr$properties.needed, character(0))
-  .properties.target = firstNonNull(.properties.target, pr$properties.target, c(cpo.targetproperties, cpo.tasktypes))
-
-  required.arglist = lapply(c(paramset.pass.on$pars, .export), function(dummy) substitute())
-  required.arglist = insert(required.arglist, pv.pass.on)
-  required.arglist$data = substitute()
-  required.arglist$target = substitute()
-
-  buildfun = makeFunction(substitute(cpo.build), required.arglist, env = parent.frame())
-
-  fullaffect = list(type = c("numeric", "factor", "ordered", "other"),
-    index = integer(0), names = character(0), pattern = NULL, invert = FALSE, pattern.ignore.case = FALSE,
-    pattern.perl = FALSE, pattern.fixed = FALSE)
-
-  if (.dataformat == "split") {
-    .dataformat = ifelse(.dataformat.factor.with.ordered, "most", "all")
-  } else if (.dataformat == "factor" && !.dataformat.factor.with.ordered) {
-    .dataformat = "onlyfactor"
-  }
-
-  rl = makeCPOExtended("case", .par.set = c(paramset.pass.on, paramset.others), .par.vals = c(pv.pass.on, pv.others),
-    .dataformat = "task", .dataformat.factor.with.ordered = FALSE, .properties = .properties, .properties.adding = .properties.adding,
-    .properties.needed = .properties.needed, .properties.target = .properties.target,
-    cpo.trafo = function(data, target, ...) {
-      args = list(...)
-      buildfunargs = c(args[names(paramset.pass.on$pars)], lapply(.export, function(cpo)
-        setHyperPars(cpo, par.vals = args[names(getParamSet(cpo)$pars)])))
-      tin = prepareTrafoInput(data, .dataformat, c(.properties, .properties.target, cpo.predict.properties), fullaffect, FALSE, "case")
-
-      cpo = do.call(buildfun, insert(buildfunargs, tin$indata))
-      result = data %>>% cpo
-      control = retrafo(result)
-      retrafo(result) = NULL
-      result
-    },
-    cpo.retrafo = function(data, control, ...) {
-      data %>>% control
+    ##
+    # get predict.type
+    all.pt = names(cpo.identity.predict.type.map)
+    pmaps = sapply(constructed, function(cpo) {
+      getCPOPredictType(cpo)[all.pt]
     })
-  setCPOId(rl(), id = NULL)
+    rownames(pmaps) = all.pt
+
+    unique.transformations = names(Filter(function(x) x == 1,
+      apply(pmaps, function(x) length(unique(x)))))
+
+    if ("response" %nin% unique.transformations) {
+      stop("cpoMultiplex can not combine target operation CPOs that need different predict.type to predict response.")
+    }
+
+    impossible.transformations = names(Filter(function(x) x > 0,
+      apply(pmaps, function(x) sum(is.na(x)))))
+
+    assert("response" %nin% impossible.transformations)  # creator of CPO should ensure this.
+
+    if (length({nonunique = setdiff(all.pt, unique.transformations)})) {
+      # the unique transformations are either the same in all, or not present in any
+      # none of which would surprise the user.
+      messagef("cpoMultiplex dropping predict.type%s '%s', since constituent CPOs do not all have the ability, or disagree on the requirements.",
+        ifelse(length(nonunique) > 1, "s", ""), collapse(nonunique, "', '"))
+    }
+
+    possible.transformations = setdiff(unique.transformations, impossible.transformations)
+
+    predict.type = getCPOPredictType(constructed[[1]])[possible.transformations]
+    assert(!any(is.na(predict.type)))
+  }
+  list(otype = otype, convertfrom = convertfrom, convertto = convertto,
+    constant.invert = constant.invert, predict.type = predict.type)
 }
 
-# intersect: properties get intersected instead of union'd
-collectProperties = function(constructed, do.intersect = FALSE) {
-  oc = constructed
-  constructed = Filter(function(x) !is.nullcpo(x), constructed)
-  allprops = lapply(constructed, getCPOProperties, only.data = TRUE)
-  all.allprops = lapply(constructed, function(x) setdiff(getCPOProperties(x)$properties, c(cpo.dataproperties, cpo.predict.properties)))
 
-  if (do.intersect) {
-  list(
-      properties = Reduce(intersect, extractSubList(allprops, "properties", simplify = FALSE), cpo.dataproperties),
-      properties.needed = Reduce(union, extractSubList(allprops, "properties.needed", simplify = FALSE), character(0)),
-      properties.adding = Reduce(intersect, extractSubList(allprops, "properties.adding", simplify = FALSE),
-        if (!length(oc) || length(oc) > length(constructed)) character(0) else cpo.dataproperties),
-      properties.target = Reduce(intersect, all.allprops, c(cpo.tasktypes, cpo.targetproperties)))
+
+# Convert list of properties into the respective properties.* arguments of makeCPO*.
+#
+# complete with .sometimes for the setdiff between adding, and adding.min, or needed and needed.max.
+#
+# @param properties [CPO properties]
+# @param operation [character(1)] the operation type of the CPO to make(): one of "feature", "target", "retrafoless"
+# @return list(properties.data, properties.adding, properties.needed, properties.target)
+propertiesToMakeCPOProperties = function(properties, operation = c("feature", "target", "retrafoless")) {
+
+  operation = match.arg(operation)
+
+  assertSubset(properties$adding.min, properties$adding)
+  assertSubset(properties$needed, properties$needed.max)
+
+  if (operation == "target") {
+    permissible.adding.needed = c(cpo.targetproperties, cpo.tasktypes)
+    subset.adding.needed = cpo.targetproperties
   } else {
-    list(
-        properties = Reduce(union, extractSubList(allprops, "properties", simplify = FALSE)),
-        properties.needed = Reduce(intersect, extractSubList(allprops, "properties.needed", simplify = FALSE)),
-        properties.adding = Reduce(union, extractSubList(allprops, "properties.adding", simplify = FALSE)),
-        properties.target = Reduce(union, all.allprops))
+    permissible.adding.needed = cpo.dataproperties
+    subset.adding.needed = cpo.dataproperties
   }
+
+  toSometimes = function(one, two) {
+    assertSubset(one, permissible.adding.needed)
+    assertSubset(two, permissible.adding.needed)
+    one = intersect(one, subset.adding.needed)
+    two = intersect(two, subset.adding.needed)
+    sym.setdiff = c(setdiff(one, two), setdiff(two, one))
+    if (length(sym.setdiff)) {
+      sym.setdiff = paste0(sym.setdiff, ".sometimes")
+    }
+    c(intersect(one, two), sym.setdiff)
+  }
+
+  list(properties.data = intersect(properties$handling, cpo.dataproperties),
+    properties.adding = toSometimes(properties$adding.min, properties$adding),
+    properties.needed = toSometimes(properties$needed.max, properties$needed),
+    properties.target = intersect(properties$handling, c(cpo.tasktypes, cpo.targetproperties)))
+}
+
+# compute the combined properties of multiple CPOs
+#
+# There are two dual ways of combining CPOs: the multiplexer way, where
+# one out of many CPOs gets applied, and the cbind way, where all CPOs get
+# applied at the same time.
+#
+# Properties are handled in the following way:
+# property       multiplex      cbind
+# handling       union          intersect
+# adding         union          intersect
+# adding.min     intersect      intersect
+# needed         intersect      union
+# needed.max     union          union
+#
+# @param clist [list of CPO]
+# @param coltype [character(1)] one of "multiplex", "cbind"
+# @return [CPO properties] set according to the table above.
+collectProperties = function(clist, coltype = c("multiplex", "cbind")) {
+  coltype = match.arg(coltype)
+
+  if (!length(clist)) {
+    am = switch(coltype, multiplex = character(0),
+      cbind = cpo.dataproperties)
+    return(list(handling = cpo.all.properties,
+      adding = am, adding.min = am,
+      needed = character(0), needed.max = character(0)))
+  }
+
+  allprops = lapply(clist, getCPOProperties, get.internal = TRUE)
+
+  # *A*pply *S*etop to *S*ublist
+  # do.union TRUE -> union, otherwise intersection
+  ass = function(sublist, do.union) {
+    if (do.union) {
+      setop = union
+      initial = character(0)
+    } else {
+      setop = intersect
+      initial = cpo.all.properties
+    }
+    Reduce(setop, extractSubList(allprops, sublist, simplify = FALSE), initial)
+  }
+
+
+  if (coltype == "multiplex") {
+    when.to.union = c("handling", "adding", "needed.max")
+  } else {
+    when.to.union = c("needed", "needed.max")
+  }
+  sapply(c("handling", "adding", "adding.min", "needed", "needed.max"),
+    function(x) ass(x, x %in% when.to.union), simplify = FALSE)
+}
+
+# Build a CPOConstructor that wraps a CPO
+#
+# Helper function for cpoCase and multiplexer: Create a CPOConstructor that wraps
+# a free CPO.
+# @param cpo.selector [function] the function that selects the CPO
+# @param ctinfo: list(otype [character(1)] operating type
+#                     convertto [character(1)] if "target" otype: task type to convert to
+#                     predict.type [named character] if "target" otype: predict.type.map
+#                     constant.invert [logical(1)] whether to use constant inverter
+# @param paramset [ParamSet] parameters to use
+# @param paramvals [named list] default parameter values
+# @param props.creator [list] list of properties.data, properties.adding, properties.needed, properties.target
+# @param cpo.name [character(1)] name of the new CPO
+# @param ... [any] optional additional parameters to makeCPO*
+makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.creator, ctinfo, cpo.name, ...) {
+  assertFunction(cpo.selector)
+  cpo.trafo = function(data, ...) {
+    cpo = cpo.selector(data, ...)
+    if (!identical({badop = getCPOOperatingType(cpo)}, ctinfo$otype) && length(badop) > 0) {
+      stopf("meta CPO got a CPO with operating type '%s', when only '%s' was allowed.",
+        collapse(badop, "', '"), ctinfo$otype)
+    }
+    res = data %>>% cpo
+    if (is.retrafo(cpo)) {
+      retr = cpo
+    } else {
+      retr = retrafo(res)
+    }
+    control = retr
+    control.invert = inverter(res)
+    clearRI(res)
+  }
+  cpo.retrafo = function(data, control, ...) { data %>>% control }
+
+  cpo.retrafo.inverter = function(data, target, control, ...) {
+    res = target %>>% control
+    control.invert = inverter(res)
+    clearRI(res)
+  }
+
+  cpo.invert = function(target, predict.type, control) {
+    invertCPO(control$element, target, predict.type)
+  }
+
+  maker = switch(ctinfo$otype,
+    feature = makeCPOExtendedTrafo,
+    target = makeCPOExtendedTargetOp,
+    retrafoless = makeCPORetrafoless)
+
+  arguments = list(cpo.name = cpo.name, par.set = paramset, par.vals = paramvals,
+    dataformat = "task")
+
+  arguments.addnl = switch(ctinfo$otype,
+    feature = list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo),
+    target = list(cpo.trafo = cpo.trafo, cpo.retrafo = cpo.retrafo.inverter,
+      cpo.invert = cpo.invert, task.type.out = ctinfo$convertto,
+      predict.type.map = ctinfo$predict.type, constant.invert = ctinfo$constant.invert),
+    retrafoless = list(cpo.trafo = cpo.trafo))
+
+  constructor = do.call(maker, c(arguments, arguments.addnl, props.creator, list(...)))
 }
