@@ -90,7 +90,7 @@
 #'
 #' trained = traindat %>>% cpoPca()
 #' reFun = retrafo(trained)
-#' predicted = trained %>>% reFun
+#' predicted = preddat %>>% reFun
 #' head(getTaskData(predicted))
 #'
 #' # chaining works
@@ -112,7 +112,7 @@
 #'
 #' reFun2 = retrafo(trained)
 #' predicted = getTaskData(reimpute(reFun1(preddat), imp$desc),
-#'   target.extra = TRUE)$data) %>>% reFun2
+#'   target.extra = TRUE)$data %>>% reFun2
 #' @name CPOTrained
 NULL
 

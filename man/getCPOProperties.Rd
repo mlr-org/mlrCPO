@@ -77,8 +77,9 @@ Other getters and setters: \code{\link{CPO}},
   \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
+  \code{\link{setCPOId}}
 
 Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
@@ -87,9 +88,10 @@ Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
-  \code{\link{getOrigialCPO}}, \code{\link{is.retrafo}},
+  \code{\link{is.retrafo}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
@@ -100,9 +102,10 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{getCPOName}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
-  \code{\link{getOrigialCPO}}, \code{\link{is.inverter}},
+  \code{\link{is.inverter}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }

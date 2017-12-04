@@ -29,9 +29,10 @@ Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
-  \code{\link{getOrigialCPO}}, \code{\link{is.retrafo}},
+  \code{\link{is.retrafo}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
@@ -42,9 +43,10 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{getCPOTrainedState}},
-  \code{\link{getOrigialCPO}}, \code{\link{is.inverter}},
+  \code{\link{is.inverter}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 
@@ -54,8 +56,8 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{attachCPO}}, \code{\link{composeCPO}},
   \code{\link{getCPOClass}},
   \code{\link{getCPOConstructor}},
-  \code{\link{getOrigialCPO}}, \code{\link{identicalCPO}},
-  \code{\link{makeCPO}}
+  \code{\link{getCPOTrainedCPO}},
+  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 
 Other NULLCPO related: \code{\link{is.nullcpo}},
   \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}

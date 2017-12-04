@@ -17,6 +17,8 @@
 #'   The \code{\link{CPOConstructor}} to print.
 #' @param verbose [\code{logical(1)}]\cr
 #'   Whether to print further information. Default is \code{FALSE}.
+#' @param ... [any]\cr
+#'   Further arguments.
 #' @return [\code{invisible(NULL)}].
 #' @family CPOConstructor related
 #' @export
@@ -37,7 +39,7 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
       other = list())  # for fauxCPOConstructors that don't fit in any of these roles.
     relfunlist = lapply(relfuns, function(x) tf[[paste0(x, ".orig")]])
     if (type.extended %in% c("trafo", "retrafo")) {
-      name(relfunlist)[1] = "train"
+      names(relfunlist)[1] = "train"
     }
     for (funname in names(relfunlist)) {
       fun = relfunlist[[funname]]

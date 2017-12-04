@@ -277,7 +277,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
 
   if (operating.type == "target" && ppr$origdatatype == "data.frame") {
     # input was a data.frame (with target columns), so we return da data.frame (with target columns)
-    recombined = getTaskData(recombined.task)
+    recombined = getTaskData(recombined)
   }
   recombined
 }

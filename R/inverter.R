@@ -6,12 +6,12 @@
 #' of a data set, after prediction.
 #'
 #' Use either a \code{\link{CPORetrafo}} object with invert capability (see \code{\link{getCPOTrainedCapability}},
-#' or a \code{\link{CPOInverter} retrieved with
+#' or a \code{\link{CPOInverter}} retrieved with
 #' \code{\link{inverter}} from a data object that was fed through a retrafo
 #' chain.
 #'
 #' If a \code{\link{CPORetrafo}} object is used that contains no target-bound transformations
-#' (i.e. has \dQuote{invert} capability 0}, this is a no-op.
+#' (i.e. has \dQuote{invert} capability 0), this is a no-op.
 #'
 #' @param inverter [\code{CPOInverter}]\cr
 #'   The retrafo or inverter to apply
@@ -36,21 +36,6 @@ invert = function(inverter, prediction, predict.type = "response") {
 predict.CPOTrained = function(object, data, predict.type = "response", ...) {
   assert(length(list(...)) == 0)
   invert(object, data, predict.type = predict.type)
-}
-
-#' @title Check CPOInverter
-#'
-#' @description
-#' Check whether the given object is a \code{CPOInverter} object.
-#'
-#' @param x [any]\cr
-#'   The object to check.
-#'
-#' @return \code{TRUE} if \code{x} has class \code{CPOInverter}, \code{FALSE} otherwise.
-#'
-#' @export
-is.inverter = function(x) {  # nolint
-  "CPOInverter" %in% class(x)
 }
 
 #' @export

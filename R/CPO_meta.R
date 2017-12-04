@@ -274,7 +274,7 @@ cpoTransformParams = function(cpo, transformations, additional.parameters = make
   assertList(par.vals, names = "unique")
   assertSubset(names(par.vals), getParamIds(additional.parameters))
 
-  ctinfo = collectCPOTypeInfo(constructed)
+  ctinfo = collectCPOTypeInfo(list(cpo))
 
   orig.param.ids = getParamIds(getParamSet(cpo))
   exp.params$pars = dropNamed(getParamSet(cpo)$pars, names(transformations))
@@ -347,7 +347,7 @@ cpoCache = function(cpo, cache.entries = 1024) {
 
   assertClass(cpo, "CPO")
 
-  ctinfo = collectCPOTypeInfo(constructed)
+  ctinfo = collectCPOTypeInfo(list(cpo))
 
   props.creator = propertiesToMakeCPOProperties(getCPOProperties(cpo, get.internal = TRUE))
 
@@ -506,7 +506,7 @@ collectCPOTypeInfo = function(constructed) {
     possible.transformations = setdiff(unique.transformations, impossible.transformations)
 
     predict.type = getCPOPredictType(constructed[[1]])[possible.transformations]
-    assert(!any(is.na(multiplex.predict.type)))
+    assert(!any(is.na(predict.type)))
   }
   list(otype = otype, convertfrom = convertfrom, convertto = convertto,
     constant.invert = constant.invert, predict.type = predict.type)
@@ -627,7 +627,7 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
     cpo = cpo.selector(data, ...)
     if (!identical({badop = getCPOOperatingType(cpo)}, ctinfo$otype) && length(badop) > 0) {
       stopf("meta CPO got a CPO with operating type '%s', when only '%s' was allowed.",
-        collapse(badop, "', '"), ctionfo$otype)
+        collapse(badop, "', '"), ctinfo$otype)
     }
     res = data %>>% cpo
     if (is.retrafo(cpo)) {

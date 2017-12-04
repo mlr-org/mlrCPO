@@ -409,7 +409,7 @@ makeInvertCall = function(cpo.trafo, cpo.invert) {
   } else {
     # object based invert
     function(target, predict.type, state, ...) {
-      cpo.invert(target = target, predict.type = predict.type, control.invert = control.invert, ...)
+      cpo.invert(target = target, predict.type = predict.type, control.invert = state, ...)
     }
   }
 }

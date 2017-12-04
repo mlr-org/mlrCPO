@@ -379,8 +379,8 @@ getCPOOperatingType = function(cpo) {
 #' @family inverter related
 #' @family CPO lifecycle related
 #' @export
-getOrigialCPO = function(cpo) {
-  UseMethod("getOrigialCPO")
+getCPOTrainedCPO = function(cpo) {
+  UseMethod("getCPOTrainedCPO")
 }
 
 #' @title Get the CPOConstructor Used to Create a CPO Object
@@ -596,7 +596,7 @@ getCPOTrainedCapability.CPOTrained = function(cpo) {
 # original CPO, CPOConstructor
 
 #' @export
-getOrigialCPO.CPOTrainedPrimitive = function(cpo) {
+getOriginalCPO.CPOTrainedPrimitive = function(cpo) {
   cpo$element$cpo
 }
 

@@ -48,7 +48,7 @@
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoCbind = function(..., .cpos = list(), .dedup.cols = FALSE) {
+cpoCbind = function(..., .cpos = list()) {
   cpos = c(list(...), .cpos)
 
   assertList(cpos, types = "CPO", any.missing = FALSE)

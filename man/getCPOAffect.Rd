@@ -31,6 +31,7 @@ Other getters and setters: \code{\link{CPO}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOPredictType}},
   \code{\link{getCPOProperties}},
+  \code{\link{getCPOTrainedCPO}},
   \code{\link{getCPOTrainedCapability}},
-  \code{\link{getOrigialCPO}}, \code{\link{setCPOId}}
+  \code{\link{setCPOId}}
 }

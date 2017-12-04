@@ -7,5 +7,4 @@
 #'   \code{lvls} (in the description object) and therefore match the levels of the
 #'   feature factor in the training data after imputation?.
 #'   Default is \code{TRUE}.
-#' @template cpo_doc_outro
-#' @family impute
+#' @family imputation CPOs
