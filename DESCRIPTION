@@ -17,12 +17,12 @@ Encoding: UTF-8
 Roxygen: list(wrap = FALSE)
 Depends:
     R (>= 3.0.2),
-    ParamHelpers (>= 1.10),
+    ParamHelpers (>= 1.11),
     mlr (>= 2.12)
 Imports:
     BBmisc (>= 1.11),
     stringi,
-    checkmate (>= 1.8.2),
+    checkmate (>= 1.8.3),
     methods,
     stats,
     utils,
@@ -46,7 +46,7 @@ Suggests:
     lintr
 LazyData: yes
 ByteCompile: yes
-Version: 0.2
+Version: 0.3
 Collate: 
     'CPOHelp.R'
     'auxiliary.R'
