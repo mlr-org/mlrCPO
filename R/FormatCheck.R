@@ -149,7 +149,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   } else {
     split.data = splitIndata(indata, if (reducing) "df.features" else dataformat, strict.factors, FALSE)
     indata = split.data$indata
-    indata['target'] = list(NULL)  # we want a $target slot with value NULL
+    indata["target"] = list(NULL)  # we want a $target slot with value NULL
   }
 
   list(indata = indata, properties = subset.info$properties, task = task,
