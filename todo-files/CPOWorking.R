@@ -57,22 +57,6 @@ devtools::test(pkg = "..", filter = "tuning")       # [ 00 ]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 system.time(devtools::test(pkg = "..", filter = "cpo_dataformat"), gcFirst = FALSE)
 
 ###################################
