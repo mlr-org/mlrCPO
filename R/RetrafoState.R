@@ -108,7 +108,7 @@ makeCPOTrainedFromState = function(constructor, state, get.inverter = FALSE) {
   if (get.inverter) {
     assertSetEqual(names(data), c("truth", "task.desc"))
     converted = convertPrettyState(bare, state, "cpo.invert", bare$control.type$invert)
-    result = makeCPOInverter(converted$bare, converted$newstate, NULL, data.frame())
+    result = makeCPOInverter(converted$bare, converted$newstate, NULLCPO, data.frame())
     result$element$truth = data$truth
     result$element$task.desc = data$task.desc
 
@@ -127,7 +127,7 @@ makeCPOTrainedFromState = function(constructor, state, get.inverter = FALSE) {
       state.invert = NULL
     }
 
-    makeCPORetrafo(bare, converted$newstate, state.invert, NULL, data$shapeinfo.input, data$shapeinfo.output)
+    makeCPORetrafo(bare, converted$newstate, state.invert, NULLCPO, data$shapeinfo.input, data$shapeinfo.output)
   }
 }
 

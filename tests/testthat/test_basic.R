@@ -393,6 +393,29 @@ test_that("CPO parameters behave as expected", {
     train(setHyperPars(cpo.learner, par.vals = addid(id1, list(e = 900))), pid.task)
     expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
+
+    # ID = NULL parameters
+    expect_identical(getHyperPars(cpo(id = NULL)), list(a = 1, b = 2, c = 1, d = 1))
+
+    expect_identical(getHyperPars(cpo(id = NULL, b = 3)), list(a = 1, b = 3, c = 1, d = 1))
+
+    expect_identical(getHyperPars(cpo(id = NULL, 3)), list(a = 3, b = 2, c = 1, d = 1))
+
+    cpo.obj = setHyperPars(cpo(id = NULL, 3, 4), par.vals = list(b = 0, c = -1))
+
+    expect_identical(getHyperPars(cpo.obj), list(a = 3, b = 0, c = -1, d = 1))
+
+    cpo.learner = cpo.obj %>>% makeLearner("classif.logreg", model = FALSE)
+
+    expect_identical(getHyperPars(cpo.learner), c(list(model = FALSE), list(a = 3, b = 0, c = -1, d = 1)))
+
+    expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
+
+    globalenv$cpotest.parvals = list()  # nolint
+    train(setHyperPars(cpo.learner, par.vals = list(e = 900)), pid.task)
+    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
+
+
     # parameters of cpo with id
     expect_identical(getHyperPars(cpo(id = "x")), list(x.a = 1, x.b = 2, x.c = 1, x.d = 1))
 
@@ -455,6 +478,348 @@ test_that("CPO parameters behave as expected", {
   testCPO(cpof, cpo2f, cpo3f)
 
   testCPO(cpoo, cpo2o, cpo3o)
+
+})
+
+test_that("CPO Parameters of new makeCPO interface", {
+
+  par.set = pSS(a: integer[, ],
+    b = 1: integer[, ],
+    c: integer[, ],
+    d = 1: integer[, ])
+
+  par.vals = list(c = 2, d = 3)
+
+  param.cpos = list(
+      makeCPO("paramCPO", par.set, par.vals, cpo.train = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+      }, cpo.retrafo = { globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        data
+      }),
+
+      makeCPO("paramCPO.sl", par.set, par.vals, cpo.train = NULL, cpo.retrafo = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        data
+      }),
+
+      makeCPO("paramCPO.fr", par.set, par.vals, cpo.train = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        function(x) {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          x
+        }
+      }, cpo.retrafo = NULL),
+
+      makeCPOTargetOp("paramCPO.target", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.fni", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+        }, cpo.invert = NULL),
+
+      makeCPOTargetOp("paramCPO.target.fnr.fni", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.train.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            function(target, ...) {
+              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              target
+            }
+          }
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPOTargetOp("paramCPO.target.fnr", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.train.invert = function(...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            NULL
+          }
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci.sl", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = NULL, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPORetrafoless("paramCPO.retrafoless", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          data
+        }),
+
+      makeCPOExtendedTrafo("paramCPO.extended", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          data
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          data
+        }),
+
+      makeCPOExtendedTrafo("paramCPO.extended.fr", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(x) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            x
+          }
+          data
+        }, cpo.retrafo = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fi", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fr", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            control.invert = NULL
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fr.fi", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            cpo.invert = function(target, ...) {
+              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              target
+            }
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          target
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fi", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr.fi", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }))
+
+  expvals = list(a = -1, b = 1, c = 2, d = 3)
+
+  names(param.cpos) = BBmisc::vcapply(param.cpos, getCPOName)
+
+  testCPO = function(pcpo, rep.train, rep.retrafo, rep.invert,
+                     rep.tl = rep.train,
+                     rep.rl = rep.retrafo + rep.invert) {
+    expect_error(pid.task %>>% pcpo(), ".a of CPO.*missing")
+    globalenv$cpotest.parvals = namedList()
+    pt = pid.task %>>% setHyperPars(pcpo(id = NULL, a = 0), a = -1)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.train))
+
+    globalenv$cpotest.parvals = namedList()
+    pt2 = pid.task %>>% retrafo(pt)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.retrafo))
+
+    targ = getTaskData(pid.task, target.extra = TRUE)$target
+    globalenv$cpotest.parvals = namedList()
+    tx1 = invert(inverter(pt), targ)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+
+    globalenv$cpotest.parvals = namedList()
+    tx2 = invert(inverter(pt2), targ)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+
+    globalenv$cpotest.parvals = namedList()
+    trn = train(pcpo(a = -1) %>>% makeLearner("classif.logreg"), pid.task)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.tl))
+
+    globalenv$cpotest.parvals = namedList()
+    predict(trn, pid.task)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.rl))
+  }
+
+  testCPO(param.cpos$paramCPO, 2, 1, 0)  # simple cpo
+  testCPO(param.cpos$paramCPO.sl, 1, 1, 0)  # simple CPO, stateless
+  testCPO(param.cpos$paramCPO.fr, 2, 1, 0)  # simple CPO, functional
+  testCPO(param.cpos$paramCPO.target, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO
+  testCPO(param.cpos$paramCPO.target.fni, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, invert is functional
+  testCPO(param.cpos$paramCPO.target.fnr.fni, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, retrafo and invert are functional
+  testCPO(param.cpos$paramCPO.target.fnr, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, retrafo is functional
+  testCPO(param.cpos$paramCPO.target.ci.sl, 1, 1, 1, rep.tl = 1, rep.rl = 1)  # target CPO, constant invert, stateless
+  testCPO(param.cpos$paramCPO.target.ci, 2, 1, 1, rep.tl = 2, rep.rl = 1)  # target CPO, constant invert
+  testCPO(param.cpos$paramCPO.target.ci.fr, 2, 1, 1, rep.tl = 2, rep.rl = 1)  # target CPO, constant invert, functional
+  testCPO(param.cpos$paramCPO.retrafoless, 1, 0, 0)
+  testCPO(param.cpos$paramCPO.extended, 1, 1, 0)  # extended CPO
+  testCPO(param.cpos$paramCPO.extended.fr, 1, 1, 0)  # extended CPO, functional
+  testCPO(param.cpos$paramCPO.extended.target.fi, 1, 1, 1)  # extended target CPO, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.fr, 1, 1, 1)  # extended target CPO, functional retrafo
+  testCPO(param.cpos$paramCPO.extended.target.fr.fi, 1, 1, 1)  # extended target CPO, functional retrafo, functional invert
+  testCPO(param.cpos$paramCPO.extended.target, 1, 1, 1)   # extended target CPO
+  testCPO(param.cpos$paramCPO.extended.target.ci.fi, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.ci.fr, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional retrafo
+  testCPO(param.cpos$paramCPO.extended.target.ci.fr.fi, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional retrafo, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.ci, 1, 1, 1, rep.rl = 1)  # extended target CPO
 
 })
 

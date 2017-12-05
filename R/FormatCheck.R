@@ -127,6 +127,9 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
     indata = subset.info$indata
     assertShapeConform(getTaskData(indata, target.extra = TRUE)$data, shapeinfo.input, strict.factors, name)
   } else {
+    # every kind of input looks like 'cluster' here
+    allowed.properties %c=% "cluster"
+
     subset.info = subsetIndata(indata, shapeinfo.input$subset.selector,
       allowed.properties, "retrafo", name)
     indata = subset.info$indata
@@ -146,7 +149,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
   } else {
     split.data = splitIndata(indata, if (reducing) "df.features" else dataformat, strict.factors, FALSE)
     indata = split.data$indata
-    indata$target = NULL
+    indata['target'] = list(NULL)  # we want a $target slot with value NULL
   }
 
   list(indata = indata, properties = subset.info$properties, task = task,

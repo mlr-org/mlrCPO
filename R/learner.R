@@ -82,7 +82,7 @@ compositeCPOLearnerProps = function(cpo, learner) {
 # wraps around callCPO and makeChainModel
 #' @export
 trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
-  if (!is.null(.subset)) {
+  if (!is.null(.subset) && !identical(as.integer(c(.subset)), seq_along(.subset))) {
     .task = subsetTask(.task, .subset)
   }
 
@@ -93,7 +93,7 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   # the data that is supposed to be *predicted*.
   .task = clearRI(.task)
 
-  transformed = callCPO(cpo, .task, TRUE, NULL, FALSE, NULL)
+  transformed = callCPO(cpo, .task, TRUE, NULLCPO, FALSE, NULL)
 
   model = makeChainModel(train(.learner$next.learner, transformed$data), "CPOWrappedModel")
   model$retrafo = transformed$retrafo
@@ -103,13 +103,20 @@ trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
 # Wraps around callCPORetrafo and invertCPO
 #' @export
 predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
-  retrafod = callCPORetrafoElement(.model$learner.model$retrafo$element, .newdata, TRUE, NULL)
-  prediction = NextMethod(.newdata = retrafod$data)
-  if (!is.null(retrafod$inverter)) {
+  cpo.retrafo = .model$learner.model$retrafo
+  if (!is.nullcpo(cpo.retrafo)) {
+    retrafod = callCPORetrafoElement(cpo.retrafo$element, .newdata, TRUE, NULLCPO)
+    inverter = retrafod$inverter
+    .newdata = retrafod$data
+  } else {
+    inverter = NULLCPO
+  }
+  prediction = NextMethod(.newdata = .newdata)
+  if (!is.nullcpo(inverter)) {
     # check prediction before we feed it to CPOs
     prediction = checkPredictLearnerOutput(.learner$next.learner, .model$learner.model$next.model, prediction)
     # invert
-    invertCPO(retrafod$inverter$element, prediction, .learner$predict.type)$new.prediction
+    invertCPO(inverter$element, prediction, .learner$predict.type)$new.prediction
   } else {
     prediction
   }

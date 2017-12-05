@@ -206,7 +206,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
       if (constant.invert) {
         state = cpo.retrafo
         state.invert = if (build.inverter) inv.control.target
-      } else if (build.inverter) {
+      } else {
         if (is.null(cpo.invert)) {
           # functional invert --> need to capture .ENV
           inv.control.target = captureEnvWrapper(inv.control.target)
@@ -215,15 +215,16 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
 
         state = list(cpo.retrafo = cpo.retrafo,
           cpo.train.invert = inv.control.target)
-        state.invert = inv.control.target(data.reduced)
-
-        if (is.null(cpo.invert)) {
-          # functional invert
-          clearEnv(.ENV)
-          checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
+        if (build.inverter) {
+          state.invert = inv.control.target(data.reduced)
+          if (is.null(cpo.invert)) {
+            # functional invert
+            clearEnv(.ENV)
+            checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
+          }
+        } else {
+          state.invert = NULL
         }
-      } else {
-        state.invert = NULL
       }
       list(result = cpo.retrafo(data = data.reduced, target = target.reduced),
         state = state, state.invert = state.invert)
@@ -330,7 +331,7 @@ makeTrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert) {
   function(data, target, data.reduced, target.reduced, build.inverter, ...) {
     .ENV = NULL  # nolint
     result = cpo.trafo(data = data, target = target, ...)
-    clearEnv(result)
+    clearEnv(.ENV)
     if (is.null(cpo.retrafo)) {
       state = getVarCreated(.ENV, "cpo.retrafo", "cpo.trafo")
       checkFunctionReturn(state, c("data", "target"), "cpo.retrafo", "cpo.trafo")
@@ -477,6 +478,7 @@ checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
 # @param env [environment] the environment
 # @return [NULL]
 clearEnv = function(env) {
+  assertEnvironment(env)
   env$data = NULL
   env$target = NULL
 }
