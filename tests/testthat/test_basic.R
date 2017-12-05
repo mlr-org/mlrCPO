@@ -1031,6 +1031,75 @@ test_that("preprocessing actually changes data", {
 
 })
 
+
+test_that("preprocessing with inverter changes data", {
+
+  trivialtask = makeRegrTask("1-2-task", data.frame(A = c(1, 2), B = c(1, 2)), "B")
+  trivialtask2 = makeRegrTask("3-4-task", data.frame(A = c(3, 4), B = c(3, 4)), "B")
+
+  cpoinvertadder = makeCPOExtendedTargetOp("invertadder",
+    pSS(summand = 1: numeric[, ]), properties.target = "regr",
+    cpo.trafo = {
+      meandata = mean(target[[1]])
+      target[[1]] = target[[1]] + summand
+      cpo.retrafo = function(target, ...) {
+        target[[1]] = target[[1]] - summand - meandata
+        target
+      }
+      cpo.invert = function(target) {
+        target[[1]] = target[[1]] + summand * 2
+        target
+      }
+    }, cpo.retrafo = NULL, cpo.invert = NULL)
+
+  cpoinvertmultiplier = makeCPOExtendedTargetOp("invertmultiplier",
+    pSS(factor = 1: numeric[, ]), properties.target = "regr",
+    cpo.trafo = {
+      target[[1]] = target[[1]] * factor
+      cpo.retrafo = function(target, ...) {
+        target[[1]] = target[[1]] / factor
+        target
+      }
+      cpo.invert = function(target) {
+        target[[1]] = target[[1]] * factor ^ 2
+        target
+      }
+    }, cpo.retrafo = NULL, cpo.invert = NULL)
+
+
+
+  testCPO = function(cpoMultiplier, cpoAdder) {
+    globalenv$cpotest.parvals = list()  # nolint
+    t = train(testlearnercpo, trivialtask)
+    predict(t, trivialtask2)
+    expect_identical(globalenv$cpotest.parvals, list(1, 3))
+
+    globalenv$cpotest.parvals = list()  # nolint
+    predict(train(cpoMultiplier(10) %>>% testlearnercpo, trivialtask), trivialtask2)
+    expect_identical(globalenv$cpotest.parvals, list(10, 0.3))
+
+    globalenv$cpotest.parvals = list()  # nolint
+    predict(train(cpoAdder(3) %>>% testlearnercpo, trivialtask), trivialtask2)
+    expect_identical(globalenv$cpotest.parvals, list(4, -1.5))
+
+
+    globalenv$cpotest.parvals = list()  # nolint
+    predict(train(cpoAdder(3) %>>%
+                  cpoMultiplier(3) %>>%
+                  cpoAdder(2, id = "second") %>>%
+                  cpoMultiplier(10, id = "second") %>>%
+                  testlearnercpo, trivialtask), trivialtask2)
+    # Calculation happening:
+    # Training:
+    #   c(1, 2), +3, *3, +2, *10 -> c(140, 170)
+    #   first adder gets a meandata of 1.5, second adder gets meandata of 13.5
+    # Prediction:
+    #   c(3, 4) - 3 - 1.5, / 3, - 2 - 13.5, / 10 -> c(-1.6, -1.57)
+    expect_identical(globalenv$cpotest.parvals, list(140, -1.6))
+  }
+
+})
+
 test_that("CPO trafo functions work", {
 
   expect_error(makeCPOObject("testCPO", a: integer[, ], b: integer[, ],

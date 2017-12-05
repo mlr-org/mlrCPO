@@ -180,8 +180,8 @@ invertCPO = function(inverter, prediction, predict.type) {
 
   args = list(target = prediction, predict.type = input.predict.type, state = state)
 
-  result = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
-  result = sanitizePrediction(result, cpo$convertfrom, output.predict.type)
+  prediction = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
+  prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type)
 
   if (is.null(inverter$prev.retrafo)) {
     return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))

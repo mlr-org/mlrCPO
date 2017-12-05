@@ -213,8 +213,8 @@ retrafo.WrappedModel = function(data) {
       "are you sure you are applying it to the input or",
       "result of a %>>% transformation?")
   }
-  nullcpoToNull(value)
-  attr(data, "retrafo") = value
+
+  attr(data, "retrafo") = nullcpoToNull(value)
   data
 }
 

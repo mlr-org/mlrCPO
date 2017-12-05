@@ -247,11 +247,12 @@ applyCPO.CPO = function(cpo, task) {
 
   prev.inverter = inverter(task)
   assert(is.nullcpo(prev.inverter), checkClass(prev.inverter, "CPOInverter"))
-  inverter(task) = NULL
+
 
   prev.retrafo = retrafo(task)
   assert(is.nullcpo(prev.inverter), checkClass(prev.inverter, "CPORetrafo"))
-  retrafo(task) = NULL
+
+  task = clearRI(task)
 
   if ("CPORetrafo" %in% class(cpo)) {
     result = callCPORetrafoElement(cpo$element, task, TRUE, prev.inverter)
