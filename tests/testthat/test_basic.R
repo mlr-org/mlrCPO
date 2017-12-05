@@ -130,7 +130,7 @@ test_that("CPO with no parameters don't crash", {
 
       makeCPO("emptyCPO.sl", cpo.train = NULL, cpo.retrafo = { data }),
 
-      makeCPO("emptyCPO.fr", cpo.train = { identity }, cpo.retrafo = NULL ),
+      makeCPO("emptyCPO.fr", cpo.train = { identity }, cpo.retrafo = NULL),
 
       makeCPOTargetOp("emptyCPO.target",
         properties.target = c("classif", "twoclass"),
