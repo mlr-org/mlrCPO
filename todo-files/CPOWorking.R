@@ -26,7 +26,9 @@ devtools::load_all("..")
 
 
 options(error = dump.frames)
-options(max.print = 20)
+
+
+options(max.print = 2000)
 
 
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)

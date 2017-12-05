@@ -1180,7 +1180,7 @@ recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, datafor
         stopf("retrafoless CPO %s must not change target names.", name)
       }
     }
-    assertShapeConform(getTaskData(newdata, ), shapeinfo.input, strict.factors, name, TRUE)
+    assertShapeConform(getTaskData(newdata, target.extra = TRUE)$data, shapeinfo.input, strict.factors, name, TRUE)
   }
   newdata
 }

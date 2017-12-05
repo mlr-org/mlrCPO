@@ -56,7 +56,7 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
     stopf("Inverting with CPORetrafo %s not possible, since it was created with data-dependent inverters\nUse a CPOInverter object instead\n%s",
       getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
   } else if (cap == 0) {
-    message("(Inversion was a no-op.)")
+    # message("(Inversion was a no-op.)")
     # we check this here and not earlier because the user might rely on inverter()
     # to check his data for consistency
     return(prediction)
@@ -180,7 +180,7 @@ invertCPO = function(inverter, prediction, predict.type) {
 
   args = list(target = prediction, predict.type = input.predict.type, state = state)
 
-  result = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo, args)))
+  result = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
   result = sanitizePrediction(result, cpo$convertfrom, output.predict.type)
 
   if (is.null(inverter$prev.retrafo)) {
@@ -279,6 +279,6 @@ sanitizePrediction = function(data, type, predict.type) {
       stopf("'%s' response prediction must be a numeric vector", type)
     }
   }
-  # remove all other hairs that `data` may have
-  c(data)  # nolint
+
+  data
 }

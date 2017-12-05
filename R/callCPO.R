@@ -233,7 +233,8 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   }
 
   if (build.inverter && cpo$operating.type == "target") {
-    prev.inverter = makeCPOInverter(cpo, result$state.invert, prev.inverter, firstNonNull(tin$task, data))
+    invstate = if (cpo$constant.invert) retrafo$state.invert else result$state.invert
+    prev.inverter = makeCPOInverter(cpo, invstate, prev.inverter, firstNonNull(tin$task, data))
   }
 
   list(data = data, inverter = prev.inverter)

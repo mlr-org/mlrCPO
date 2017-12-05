@@ -167,6 +167,12 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
                               task.type.out, predict.type.map, constant.invert) {
 
   task.type.in = intersect(properties.target, cpo.tasktypes)
+
+  if (length(task.type.in) > 1) {
+    stopf("Only one task type may be given in properties.target, but the given ones are '%s'",
+      collapse(task.type.in, "', '"))
+  }
+
   if (is.null(task.type.out)) {
     task.type.out = task.type.in
   }
@@ -187,7 +193,7 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
   ###
   # check properties
   if (length(possible.properties[[task.type.in]])) {
-    assertSubset(properties.target, possible.properties[[task.type.in]])
+    assertSubset(properties.target, c(task.type.in, possible.properties[[task.type.in]]))
     if (task.type.out != task.type.in && length(setdiff(properties.target, c(properties.adding, task.type.in)))) {
       stopf("For conversion away from %s, the elements of properties.adding that are *not* the input task type must equal properties.target.", task.type.in)
     }
@@ -328,6 +334,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     if (cpo.type == "retrafoless") {
       # "retrafoless" CPOs must always take all data.
       affect.args = default.affect.args
+      names(affect.args) = substring(names(affect.args), 8)
     } else {
       affect.args = args[affect.params]
       names(affect.args) = substring(names(affect.args), 8)
@@ -539,7 +546,9 @@ prepareParams = function(par.set, par.vals, export.params) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
   par.vals = insert(getParamSetDefaults(par.set), par.vals)
-  assert(length(setdiff(names(par.vals), names(par.set$pars))) == 0)
+  if (length({badpars = setdiff(names(par.vals), names(par.set$pars))})) {
+    stopf("Values '%s' given in par.vals that are not parameters", collapse(badpars, "', '"))
+  }
   par.vals = convertItemsToNamesDVP(par.vals, par.set)
   checkParamsFeasible(par.set, par.vals)
 
@@ -622,10 +631,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     cpo.retrafo = makeFunction(cpo.retrafo, required.arglist, env = eval.env)
   } else if (stateless) {
     stop("One of cpo.train or cpo.retrafo must be non-NULL, since one cannot have a stateless functional CPO.")
-  } else if (cpo.type == "target" && constant.invert) {
-    stop("Target Operating CPO with constant.invert == TRUE must not have cpo.retrafo = NULL.")
   }
-
 
   ###
   # build and check cpo.train.invert
@@ -647,7 +653,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     required.arglist = funargs
     required.arglist$target = substitute()
     if (!stateless) {
-      required.arglist$control = substitute()
+      required.arglist$control.invert = substitute()
     }
     required.arglist$predict.type = substitute()
     cpo.invert = makeFunction(cpo.invert, required.arglist, env = eval.env)
@@ -672,7 +678,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
 
   cpo.funs = function.interface(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert)
 
-  cpo.origs = lapply(fnames, get, envir = environment())  # cpo.trafo, cpo.retrafo, ...
+  cpo.origs = sapply(fnames, get, envir = environment(), simplify = FALSE)  # cpo.trafo, cpo.retrafo, ...
   names(cpo.origs) = paste0(names(cpo.origs), ".orig")  # rename to cpo.trafo.orig, ...
 
   control.type = list()
@@ -680,7 +686,7 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
     control.type$retrafo = if (is.null(cpo.retrafo)) "functional" else "object"
     if (cpo.type == "target" && control.type$retrafo == "functional") {
       # special case: the simple target operation CPO creates two functions for retrafo
-      cpo.type$retrafo = "dual.functional"
+      control.type$retrafo = "dual.functional"
     }
   }
   if (cpo.type %in% c("target.extended", "target")) {

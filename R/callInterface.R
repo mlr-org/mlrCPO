@@ -26,12 +26,12 @@
 ##################################
 # Simple: very little happens. Only cpo.trafo is defined which does not return a state or state.invert
 makeCallRetrafoless = function(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert) {
-  cpo.trafo = function(data.reduced, target.reduced, dataformat, build.inverter, ...) {
+  trafo = function(data.reduced, target.reduced, build.inverter, ...) {
     list(result = cpo.trafo(...),
       state = NULL,
       state.invert = NULL)
   }
-  list(cpo.trafo = cpo.trafo,
+  list(cpo.trafo = trafo,
     cpo.retrafo = NULL,
     cpo.invert = NULL)
 }
@@ -304,7 +304,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
           state.invert = state$cpo.train.invert(data)
         } else {
           # object based
-          state.invert = cpo.train.invert(data = data, state = state, ...)
+          state.invert = cpo.train.invert(data = data, control = state, ...)
         }
         if (is.null(cpo.invert)) {
           # 'cpo.invert' can itself be functional here, independent
@@ -434,14 +434,24 @@ checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
   if (is.null(fun)) {
     stopf("%s did not create a %s function.", source.name, fun.name)
   }
+  if (!isTRUE(checkFunction(fun))) {
+    stopf("%s created by %s must be a function", fun.name, source.name)
+  }
   if (length(requiredargs) > 1) {
     if (!isTRUE(checkFunction(fun, args = requiredargs, nargs = length(requiredargs)))) {
-      stopf("%s as created by %s does not have (only) the required arguments %s",
-        fun.name, source.name, collapse(requiredargs, sep = ", "))
+      fargs = names(formals(fun))
+      # allow fun to have dotdotdot instead of some of its arguments
+      if ("..." %nin% fargs || length(setdiff(fargs, c(requiredargs, "...")))) {
+        stopf("%s as created by %s does not have (only) the required arguments %s",
+          fun.name, source.name, collapse(requiredargs, sep = ", "))
+      }
     }
   } else {
     if (!isTRUE(checkFunction(fun, nargs = 1))) {
-      stopf("%s as created by %s must have exactly one argument", fun.name, source.name)
+      fargs = names(formals(fun))
+      if ("..." %nin% fargs || length(fargs) > 2) {
+        stopf("%s as created by %s must have exactly one argument", fun.name, source.name)
+      }
     }
   }
   bad.references = Filter(function(varname) {

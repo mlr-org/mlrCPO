@@ -191,7 +191,7 @@ applyCPO.NULLCPO = function(cpo, task) {
 
 #' @export
 invert.NULLCPO = function(inverter, prediction, predict.type = "response") {
-  message("(Inversion was a no-op.)")
+#  message("(Inversion was a no-op.)")
   prediction
 }
 

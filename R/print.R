@@ -136,7 +136,11 @@ print.CPOTrained = function(x, ...) {
       if (reverse) {
         fromto = rev(fromto)
       }
-      convstring = paste0("{conv:", collapse(fromto, "->"), "}")
+      if (fromto[1] == fromto[2]) {
+        convstring = paaste0("{type:", fromto, "}")
+      } else {
+        convstring = paste0("{conv:", collapse(fromto, "->"), "}")
+      }
     } else {
       convstring = ""
     }
@@ -160,7 +164,15 @@ print.RetrafoElement = function(x, ...) {
   print(c(x))
 }
 #' @export
-print.InverterElement = print.RetrafoElement
+print.InverterElement = function(x, ...) {
+  if (!is.null(x$truth)) {
+    x$truth = paste0("<truth ", firstNonNull(nrow(x$truth), length(x$truth)), " lines>")
+  }
+  if (!is.null(x$task.desc) && "TaskDesc" %in% class(x$task.desc)) {
+    x$task.desc = paste0("<task desc '", x$task.desc$id, "'>")
+  }
+  print.RetrafoElement(x)
+}
 
 
 # ShapeInfo printing
