@@ -75,7 +75,7 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
         stopf("Trying to predict %s, and need response prediction for that, but no response found in Prediction.",
           predict.type)
       }
-      preddf = preddf$response
+      preddf = preddf["response"]
     } else if (needed.predict.type == "se") {
       if (!all(c("response", "se") %in% names(preddf))) {
         stopf("Trying to predict %s, and need response and se prediction for that, but columns 'response' and/or 'se' not found in Prediction.",
@@ -121,15 +121,17 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
     inverted$new.td = switch(inverter$convertfrom,
       classif = {
         levels = ifelse(predict.type == "prob", colnames(invdata), levels(invdata))
-        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL, levels[1])
+        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL,
+          levels[1], FALSE)
       },
-      cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL),
-      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
-      multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
-      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL),
+      cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL, FALSE),
+      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL, FALSE),
+      multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL, FALSE),
+      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"),
+        NULL, NULL, FALSE),
       stop("unknown outputtype"))
   }
-  makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
+  makePrediction(inverted$new.td, row.names = rownames(prediction$data), id = prediction$data$id,
     truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
     error = prediction$error, dump = prediction$dump)
 }
@@ -174,7 +176,8 @@ invertCPO = function(inverter, prediction, predict.type) {
   if (class(inverter) == "InverterElement") {
     state = inverter$state
   } else {
-    assert("state.invert" %in% names(inverter))
+    assert("state.invert" %in% names(inverter),
+      "cpo.trafo.orig" %in% names(cpo$trafo.funs) && is.null(cpo$trafo.funs$cpo.trafo.orig))
     state = inverter$state.invert
   }
 

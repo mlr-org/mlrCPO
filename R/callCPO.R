@@ -24,7 +24,7 @@ makeCPOInverter = function(cpo, state, prev.inverter, data) {
     truth = data[integer(0)]
   } else {
     td = getTaskDesc(data)
-    truth = getTaskData(data, features = character(0))
+    truth = getTaskData(data, target.extra = TRUE)$target
   }
 
   inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter", "InverterElement", c(retrafo = -1L, invert = 1L))

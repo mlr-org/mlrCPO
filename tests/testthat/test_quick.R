@@ -295,124 +295,20 @@ test_that("datasplit with matrix in numeric split works", {
   expect_equal(cpo.df2 %>>% retrafo(retd), expected.invrn)
 })
 
-function() {  # skipping all of this
-
-test_that("NULLCPO", {
-
-})
-
-test_that("targetbound: target changes", {
-
-})
-
-test_that("target bound: changing data causes fail", {
-
-})
-
-test_that("targetbound type conversion", {
-# ("classif", "multilabel", "regr", "surv", "cluster", "costsens")
-
-})
-
-test_that("targetbound datasplit", {
-
-})
-
-test_that("targetbound retrafo data change works", {
-
-})
-
-test_that("targetbound changes data in a different way on 'retrafo' fails", {
-
-})
-
-test_that("'bound' well behaved: after splitting, uniting; for trafos and retrafos", {
-
-})
-
-test_that("change task names in targetbound datasplit 'no' fails", {
-
-})
-
-test_that("change task names in targetbound target", {
-
-
-})
-
-test_that("switching classif levels in targetbound switches positive", {
-
-})
-
-test_that("targetbound functional", {
-
-})
-
-test_that("invert() works", {
-
-})
-
-test_that("inverter is noop when no targetbounds", {
-
-})
-
-test_that("truth is kept", {
-
-})
-
-test_that("classif number of classes changes", {
-
-})
-
-test_that("classif class names change", {
-
-})
-
-test_that("convert data.frame as if it were 'cluster'", {
-
-})
-
-test_that("inferPredictionTypePossibilities, getResponseType", {
-
-})
-
-test_that("incompatibility of cpo prediction and predict type detected", {
-
-})
-
-test_that("chaining inverters with incompatible conversion gives error", {
-
-})
-
-test_that("no complaint about missing 'control' in stateless cpo", {
-
-})
-
-test_that("after attaching CPO, predict.type stays the same if possible", {
-
-})
-
-test_that("chaining retrafo to learner that doesn't support the predict.type it needs fails", {
-
-})
-
-test_that("cpo.trafo-less CPOs, must be stateless", {
-
-})
 
 test_that("web demo", {
-skip("not yet implemented")
   train.task = subsetTask(bh.task, 1:200)
   test.task = subsetTask(bh.task, 201:400)
 
-  logtransform = makeCPOTargetOp("logtransform", .data.dependent = FALSE, .stateless = TRUE, .type = "regr",
-    cpo.trafo = {
+  logtransform = makeCPOTargetOp("logtransform", constant.invert = TRUE, properties.target = "regr",
+    cpo.train = NULL, cpo.train.invert = NULL,
+    cpo.retrafo = {
       target[[1]] = log(target[[1]])
       target
-    }, cpo.retrafo = { print(match.call()) })
+    }, cpo.invert = { exp(target) })
 
-  cpo.df5
-
-  tagInvert(train.task) %>>% logtransform()
+  expect_identical(getTaskData(train.task %>>% logtransform(), target.extra = TRUE)$target,
+    log(getTaskData(train.task, target.extra = TRUE)$target))
 
   log.trans.learner = logtransform() %>>% makeLearner("regr.lm")
 
@@ -427,13 +323,17 @@ skip("not yet implemented")
   test.task.trans = test.task %>>% rt
   pred.trans.logdomain = predict(model, test.task.trans)
 
-  test.task.trans = tagInverse(test.task) %>>% rt
+  test.task.trans = test.task %>>% rt
   pred.trans.logdomain = predict(model, test.task.trans)
 
   inv = inverter(test.task.trans)
-  pred.trans.inverted = invert(inv, pred.trans.logdomain)
+  pred.trans.manual = invert(inv, pred.trans.logdomain)
 
-  pred.trans.inverted.notruth = invert(rt, pred.trans.logdomain)
+  pred.trans.manual.notruth = invert(rt, pred.trans.logdomain)
+
+  expect_identical(pred.trans$data, pred.trans.manual$data)
+
+  expect_identical(pred.trans.manual$data[c("id", "response")], pred.trans.manual.notruth$data)
+
 })
 
-}

@@ -339,6 +339,8 @@ registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "met
 #'   \code{\link{OperatingType}}.
 #' @param cache.entries [\code{numeric(1)}]\cr
 #'   Number of entries in the least recently used cache.
+#' @template cpo_doc_outro
+#' @export
 cpoCache = function(cpo, cache.entries = 1024) {
   usage.counter = 0
   usage.tracker = numeric(cache.entries)

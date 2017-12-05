@@ -35,7 +35,8 @@ configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = 
 
 devtools::load_all("..")
 
-devtools::test(pkg = "..", reporter = MinimalReporter)
+devtools::test(pkg = "..")
+
 
 
 # all tests:
