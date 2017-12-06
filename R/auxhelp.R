@@ -53,13 +53,13 @@
 #' @param affect.invert [\code{logical(1)}]\cr
 #'   Whether to affect all features \emph{not} matched by other \code{affect.*} parameters. Default is \code{FALSE}.
 #' @param affect.pattern.ignore.case [\code{logical(1)}]\cr
-#'   Ignore case when matching features with \code{affect.pattern}; see \code{\link[base:grep]{grepl}}. Has no effect when
+#'   Ignore case when matching features with \code{affect.pattern}; see \code{\link[base]{grep}}. Has no effect when
 #'   \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.
 #' @param affect.pattern.perl [\code{logical(1)}]\cr
-#'   Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base:grep]{grepl}}. Has no effect when
+#'   Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Has no effect when
 #'   \code{affect.pattern} is \code{NULL}, or when \code{affect.pattern.fixed} is \code{TRUE}. Default is \code{FALSE}.
 #' @param affect.pattern.fixed [\code{logical(1)}]\cr
-#'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base:grep]{grepl}}.
+#'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}.
 #'   Has no effect when \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.
 #' @return [\code{\link{CPO}}] the constructed CPO.
 #'
