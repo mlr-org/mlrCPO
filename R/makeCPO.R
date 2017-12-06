@@ -401,6 +401,7 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
                                                              # properties$needed [character] capabilities needed by the next processor
       operating.type = cpo.type,                             # [character(1)] one of "feature", "target", "retrafoless": what the CPO operates on
                                                              #   for compound CPOs this can be a character with more than one of these.
+      operating.type.extended = cpo.type.extended,           # [character(1)] similar to operating.type, but may include suffix '.extended"
       predict.type = predict.type.map,                       # [named character] translation of predict.type of underlying learner. Only for operating = "target"
       convertfrom = NULL,                                    # see TOCPO part below
       convertto = NULL,                                      # see TOCPO part below
@@ -591,8 +592,9 @@ constructTrafoFunctions = function(funargs, cpo.trafo, cpo.retrafo, cpo.train.in
   for (eval.name in fnames) {
     expr = get(eval.name)
     if (missing(expr)) {
-      stopf("%s is missing", if (eval.name == "cpo.trafo" && cpo.type %in% c("feature", "target"))
-          "cpo.train" else eval.name)
+      stopf("%s is missing.%s", if (eval.name == "cpo.trafo" && cpo.type %in% c("feature", "target"))
+          "cpo.train" else eval.name, if (eval.name != "cpo.trafo")
+            "\nNote that for functional CPOs, it has to be explicitly set to NULL." else "")
     }
     if (!(is.recursive(expr) && !is.function(expr) && identical(expr[[1]], quote(`{`)))) {
       assign(eval.name, eval(expr, envir = eval.env))

@@ -134,7 +134,8 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
   tin$indata$build.inverter = build.inverter || cpo$constant.invert
   result = do.call(cpo$trafo.funs$cpo.trafo, insert(getBareHyperPars(cpo), tin$indata))
 
-  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed.max, cpo$properties$adding.min, cpo$convertto)
+  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed.max, cpo$properties$adding.min, cpo$convertto,
+    cpo$operating.type.extended == "feature")  # this last bit is because (simple) FOCPOs return df.features instead of df.all / task
 
   if (build.retrafo && cpo$operating.type != "retrafoless") {
     prev.retrafo = makeCPORetrafo(cpo, result$state, result$state.invert, prev.retrafo, tin$shapeinfo, tout$shapeinfo)

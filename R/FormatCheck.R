@@ -171,8 +171,10 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
 # @param properties.adding [character] which properties are supposed to be 'added'
 #   to the subsequent data handler. Therefore, these properties must be *absent* from `outdata`.
 # @param convertto [character(1)] only if the operating.type is 'target': type of the new task
+# @param simpleresult [character(1)] whethre even for df.all / task dataformat the return value will be formatted
+#   according to df.features
 # @return [list] the data resulting from the CPO operation, as well as meta-information: list(outdata, shapeinfo)
-handleTrafoOutput = function(outdata, prepared.input, properties.needed, properties.adding, convertto) {
+handleTrafoOutput = function(outdata, prepared.input, properties.needed, properties.adding, convertto, simpleresult) {
   ppr = prepared.input$private
   olddata = ppr$origdata  # incoming data that was already given to prepareTrafoInput as 'indata'
   dataformat = ppr$dataformat
@@ -187,6 +189,11 @@ handleTrafoOutput = function(outdata, prepared.input, properties.needed, propert
     outdata = rebuildOutdata(outdata, ppr$tempdata, dataformat)
   }
   dataformat = getLLDataformat(dataformat)
+
+  if (dataformat %in% c("df.all", "task") && simpleresult) {
+    assert(operating.type == "feature")
+    dataformat = "df.features"
+  }
 
   recombined = if (operating.type == "target") {
     recombinetask(olddata, outdata, dataformat, strict.factors, subset.index, TRUE, convertto, name)
@@ -238,7 +245,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
 
   # whether to ignore target columns of shapeinfo.output
   # (needed when dataformat differs between trafo & retrafo)
-  drop.shapeinfo.target = dataformat %in% c("df.all", "task")
+  drop.shapeinfo.target = dataformat %in% c("df.all", "task") && operating.type != "target"
 
   if (operating.type != "target") {
     # tempdata: incoming data that was given to prepareRetrafoInput as 'indata', after subsetting according to 'affect.*' parameters
@@ -268,7 +275,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
   checkOutputProperties(outdata, recombined, targetnames, prepared.input$properties, properties.needed, properties.adding, operating.type, "retrafo", name)
 
   # check the shape of outdata is as expected
-  if (dataformat == "split") {
+  if (dataformat == "split" && operating.type != "target") {
     assertSetEqual(names(outdata), setdiff(names(shapeinfo.output), "target"))
     for (n in names(outdata)) {
       assertShapeConform(outdata[[n]], shapeinfo.output[[n]], strict.factors, name)

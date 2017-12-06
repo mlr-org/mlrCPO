@@ -47,15 +47,14 @@ devtools::test(pkg = "..", filter = "concrete")     # [ 00 ]
 devtools::test(pkg = "..", filter = "datasplit")    # [ 00 ]
 devtools::test(pkg = "..", filter = "filter")       # [ 00 ]
 devtools::test(pkg = "..", filter = "impute")       # [ 00 ]
-devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 devtools::test(pkg = "..", filter = "meta")         # [ 00 ]
 devtools::test(pkg = "..", filter = "properties")   # [ 00 ]
 devtools::test(pkg = "..", filter = "quick")        # [ 00 ]
 devtools::test(pkg = "..", filter = "tuning")       # [ 00 ]
 
 
-
-
+devtools::test(pkg = "..", filter = "dataflow")       # [ 00 ]
+devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 
 
 

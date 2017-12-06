@@ -73,7 +73,7 @@ makeTrafoCallFeatureOpSimple = function(cpo.trafo, cpo.retrafo) {
   } else if (is.null(cpo.trafo)) {
     #stateless
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
-      list(result = cpo.retrafo(data = data, ...),
+      list(result = cpo.retrafo(data = data.reduced, ...),
         state = NULL,
         state.invert = NULL)
     }
@@ -372,7 +372,7 @@ makeRetrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert, c
       if (!constant.invert) {
         state = captureEnvWrapper(state)
       }
-      result = state(data = data, target = target, ...)
+      result = state(data = data, target = target)
     } else {
       result = cpo.retrafo(data = data, target = target, control = state, ...)
     }

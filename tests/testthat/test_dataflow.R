@@ -1,6 +1,115 @@
 
 
 
+test_that("generalMakeCPO works", {
+
+  expect_class(regr.num.task %>>% generalMakeCPO("test",
+      train = function(data, target, param) {
+        NULL
+      },
+      retrafo = function(data, control, param) {
+        data
+      })(2), "Task")
+
+
+  localenv = new.env()
+
+  # test that all generalMakeCPO with all options give the data in the same format.
+  # strict == whether to separate factors and ordereds
+  testDataInputFormat = function(task, strict = FALSE) {
+    truetarget = getTaskData(task, features = character(0))[[1]]
+
+    task %>>% generalMakeCPO("setup",
+      dataformat.factor.with.ordered = !strict,
+      train = function(data, target, param) {
+        localenv$withtarget = data
+      },
+      retrafo = function(data, control, param) {
+        localenv$notarget = data
+        data
+      })()
+
+    dataformats = c("df.features", "split", "df.all", "task")
+    present = names(Filter(identity, getTaskDesc(task)$n.feat))
+    if (!strict && "ordered" %in% present) {
+      present = c("factors", setdiff(present, "ordered"))
+    }
+
+    if (length(present) == 1) {
+      dataformats %c=% present
+    }
+
+    #expected.target = names(localenv$withtarget[grepl("^target\\.", names(localenv$withtarget))])
+    #expected.target = gsub("^target\\.", "", names(expected.target))
+    expected.target = getTaskTargetNames(task)
+    if (length(expected.target)) {
+      expected.target = paste0("target.", expected.target)
+    }
+
+
+    checkFulldata = function(data, target) {
+      expect_identical(data, localenv$withtarget)
+      expect_identical(expected.target, target)
+    }
+
+    checkHalfdata = function(data) {
+      expect_identical(data, localenv$notarget)
+    }
+
+    for (dfx in dataformats) {
+      print(dfx)
+      for (lineno in seq_len(nrow(allowedGMC))) {
+        line = allowedGMC[lineno, ]
+        print(line)
+
+        type = line$type
+
+        istocpo = type %in% c("target", "target.extended")
+
+        cpo = generalMakeCPO("compare", type = type,
+          fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
+          dataformat = dfx, convertfrom = getTaskDesc(task)$type,
+          dataformat.factor.with.ordered = !strict,
+          train = function(data, target, param) {
+            if (line$sl && type != "target") {
+              checkHalfdata(data)
+            } else {
+              checkFulldata(data, target)
+            }
+          },
+          retrafo = function(data, control, param, target) {
+            if (istocpo) {
+              checkFulldata(data, target)
+            } else {
+              checkHalfdata(data)
+            }
+            data
+          },
+          traininvert = function(data, control, param) {
+            expect_identical(data, localenv$notarget)
+            data
+          },
+          invert = function(target, predict.type, control, param) {
+            expect_identical(target[[1]], truetarget)
+            target
+          })()
+        ret = retrafo(task %>>% cpo)
+        inv = inverter(task %>>% ret)
+        expect_equal(getCPOTrainedCapability(ret)["invert"], c(invert = istocpo * ifelse(line$ci, 1, -1)))
+        if (line$ci) {
+          invert(ret, truetarget)
+        }
+        invert(inv, truetarget)
+      }
+    }
+  }
+
+  # TODO: check also with data.frame retrafo
+
+  testDataInputFormat(pid.task)
+
+})
+
 test_that("cpo.trafo has expected effects", {
 
 })

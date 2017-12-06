@@ -72,6 +72,10 @@ referencesNonfunctionNames = function(expr, pattern) {
     }
   }
   if (is.recursive(expr)) {
+    if (identical(expr[[1]], quote(`function`))) {
+      # variables are shadowed inside function definition
+      pattern = setdiff(pattern, names(expr[[2]]))
+    }
     for (idx in seq(startfrom, length(expr))) {
       if (referencesNonfunctionNames(expr[[idx]], pattern)) {
         return(TRUE)
