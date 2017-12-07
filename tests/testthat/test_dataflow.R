@@ -1,4 +1,4 @@
-
+context("general operation CPOs")
 
 
 test_that("generalMakeCPO works", {
@@ -157,7 +157,9 @@ test_that("cpo.trafo has expected effects", {
           # tocpo
           pos = target
         }
-        data[[pos]] = data[[pos]][barrelroll]
+        if (length(pos)) {
+          data[[pos]] = data[[pos]][barrelroll]
+        }
         data
       }, applyfun = function(cpocon, type, line, dfx) {
         is.retrafoless <<- type == "retrafoless"  # nolint
@@ -174,9 +176,11 @@ test_that("cpo.trafo has expected effects", {
             exp1 = getTaskData(task)
             posn = getTaskTargetNames(task)
           }
-          exp1[[posn]] = exp1[[posn]][barrelroll]
-          exp2 = exp1
-          exp2[[posn]] = exp1[[posn]][barrelroll]
+          if (length(posn)) {
+            exp1[[posn]] = exp1[[posn]][barrelroll]
+            exp2 = exp1
+            exp2[[posn]] = exp1[[posn]][barrelroll]
+          }
         }
 
         cpo = cpocon()
@@ -518,7 +522,7 @@ test_that("presence of control object is checked", {
       target
     }, cpo.retrafo = NULL, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.trafo did not create a function")
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.trafo did not create .*cpo.retrafo")
 
   cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
     properties.target = c("classif", "twoclass"),
