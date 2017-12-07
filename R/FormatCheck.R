@@ -281,6 +281,9 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
       assertShapeConform(outdata[[n]], shapeinfo.output[[n]], strict.factors, name)
     }
   } else {
+    if (operating.type == "target" && dataformat == "task") {
+      outdata = getTaskData(outdata, target.extra = TRUE)$data
+    }
     assertShapeConform(outdata, shapeinfo.output, strict.factors, name, ignore.target = drop.shapeinfo.target)
   }
   assertTargetShapeConform(recombined, shapeinfo.output, operating.type)

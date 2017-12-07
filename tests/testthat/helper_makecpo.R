@@ -77,22 +77,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
 
   ps = pSS(param = 1: integer[, ])
 
-  reduceDataformat = function(data, target, whichfun) {
-    # turn data into a df.all df
-    if (dataformat %in% c("factor", "ordered", "numeric")) {
-      dataformat = "df.features"
-    }
-
-    if (dataformat == "split") {
-      emptytarget = data[[1]][character(0)]
-    } else {
-      emptytarget = data[character(0)]
-    }
-
-    if ("task" %in% class(data)) {
-      assert(identical(target, getTaskTargetNames(data)))
-    }
-
+  reduceDataformat = function(data, target, whichfun, where) {
     if (whichfun == "invert") {
       assertNull(data)
       if (!is.data.frame(target)) {
@@ -100,68 +85,55 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
       }
       return(list(data = data, target = target))
     }
-    if (whichfun == "traininvert") {
-      assertNull(target)
-      target = emptytarget
-      if (dataformat == "task" && class(data) %in% "Task") {
-        data = getTaskData(data, target.extra = TRUE)$data
-        dataformat = "df.features"
-      } else if (dataformat == "df.all") {
-        dataformat = "df.features"
-      }
-    }
-    if (whichfun == "train") {
-      if (!sl && type != "retrafoless") {
-        assert(!is.null(target))
-      } else if (type != "target" || is.null(target)) {
-        assertNull(target)
-        if (dataformat %in% c("task", "df.all")) {
-          dataformat = "df.features"
-          target = emptytarget
-        }
-      }
-    }
-    if (whichfun == "retrafo") {
-      if (istocpo) {
-        if (dataformat %in% c("df.all", "task")) {
-          if (dataformat == "task") {
-            assert(identical(data, getTaskData(target, target.extra = TRUE)$data))
-            data = target
-          } else {
-            assertSubset(names(data), names(target))
-            aux = names(data)
-            data = target
-            target = setdiff(names(data), aux)
-          }
-        }
-      } else {
-        if (dataformat == "task") {
-          if ("task" %in% class(data)) {
-            assert(!is.null(target))
-            data = getTaskData(data, target.extra = TRUE)$data
-          }
-          dataformat = "df.features"
-        } else if (dataformat == "df.all") {
-          if (!is.null(target)) {
-            data = dropNamed(data, target)
-          }
-          dataformat = "df.features"
-        }
-        target = emptytarget
-      }
+
+    # turn data into a df.all df
+    if (dataformat %in% c("factor", "ordered", "numeric")) {
+      dataformat = "df.features"
     }
 
-    switch(dataformat,
-      task = {
-        target = getTaskData(data, features = character(0))
-        data = getTaskData(data, target.extra = TRUE)$data
-      },
-      df.all = {
-        assertSubset(target, colnames(data))
-        target.names = target
-        target = data[target.names]
-        data = dropNamed(data, target.names)
-      })
+    if (dataformat == "split") {
+      emptytarget = data[[1]][character(0)]
+    } else if ("Task" %in% class(data)) {
+      emptytarget = getTaskData(data)[character(0)]
+    } else {
+      emptytarget = data[character(0)]
+    }
+
+    if (dataformat == "task" && where == "trafo") {
+      assert(identical(target, getTaskTargetNames(data)))
+    }
+
+    if (dataformat %in% c("df.all", "task")) {
+      if (where == "retrafo" && istocpo && whichfun != "traininvert") {
+        if (dataformat == "task") {
+          assert(identical(data, getTaskData(target, target.extra = TRUE)$data))
+          data = target
+          target = getTaskTargetNames(data)
+        } else {
+          assertSubset(names(data), names(target))
+          aux = names(data)
+          data = target
+          target = setdiff(names(data), aux)
+        }
+        where = "trafo"
+      }
+      if (where == "trafo") {
+        if (dataformat == "task") {
+          target = getTaskData(data, features = character(0))
+          data = getTaskData(data, target.extra = TRUE)$data
+        } else {
+          assertSubset(target, colnames(data))
+          target.names = target
+          target = data[target.names]
+          data = dropNamed(data, target.names)
+        }
+      }
+      dataformat = "df.features"
+    }
+    if (whichfun != "train" && (whichfun != "retrafo" || !istocpo)) {
+      target = NULL
+    }
+
     if (dataformat == "split") {
       data = sapply(names(data), function(x) {
         ret = data[[x]]
@@ -183,16 +155,12 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
       }, simplify = FALSE)
     }
     data = do.call(cbind, unname(data))
-    if (whichfun == "traininvert") {
-      target = NULL
-    }
 
     if (!is.null(target)) {
       names(target) = pastePar("target", names(target), sep = ".")
       data = cbind(data, target)
       target = if (whichfun == "train" || (istocpo && whichfun == "retrafo")) names(target)
     }
-
 
     list(data = data, target = target)
   }
@@ -206,18 +174,47 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     }
 
     if (whichfun == "retrafo") {
-      assert(is.null(oldtarget) == !istocpo)
-      if (is.null(oldtarget)) {
+      if (!istocpo) {
         # focpo, rocpo
         if (dataformat %in% c("df.all", "task")) {
+          if ("Task" %in% class(olddata)) {
+            if (type == "retrafoless") {
+              whichtarget = grep("^target\\.", names(result))
+              colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+              tnames = colnames(result)[whichtarget]
+              olddata$task.desc$target = tnames
+              return(changeData(olddata, result))
+            }
+            colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+            if (all(getTaskFeatureNames(olddata) == colnames(result))) {
+              newdata = getTaskData(olddata)
+              newdata[colnames(result)] = result
+            } else {
+              newdata = cbind(getTaskData(olddata, features = character(0)), result)
+            }
+            return(changeData(olddata, newdata))
+          } else if (is.character(oldtarget) && all(oldtarget %in% colnames(olddata)) && type != "retrafoless") {
+            assert(!any(grepl("^target\\.", names(result))))
+            colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+            if (all(colnames(result) == setdiff(colnames(olddata), oldtarget))) {
+              olddata[!colnames(olddata) %in% oldtarget] = result
+              return(olddata)
+            } else {
+              return(cbind(olddata[oldtarget], result))
+            }
+          }
           dataformat = "df.features"
         }
+        assert(!any(grepl("^target\\.", names(result))))
       } else {
         # tocpo
         if (dataformat == "df.all") {
           colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target)\\."), "", colnames(result))
           return(result)
         } else if (dataformat == "task") {
+          if ("Task" %in% class(olddata)) {
+            oldtarget = olddata
+          }
           target = grep("^target\\.", colnames(result), value = TRUE)
           target = gsub("^target\\.", "", target)
           colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
@@ -227,14 +224,13 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
             return(constructTask(NULL, result, target, convertto, getTaskId(oldtarget)))
           }
         }
+        if (!dataformat %in% c("df.all", "task")) {
+          result = result[grepl("^target\\.", names(result))]
+          names(result) = gsub("^target\\.", "", names(result))
+          return(result)
+        }
+        assert(FALSE)
       }
-
-      if (istocpo && !dataformat %in% c("df.all", "task")) {
-        result = result[grepl("^target\\.", names(result))]
-        names(result) = gsub("^target\\.", "", names(result))
-        return(result)
-      }
-      assert(istocpo || dataformat %in% c("df.all", "task") || !any(grepl("^target\\.", names(result))))
       if (dataformat == "split") {
         result = sapply(c("numeric", "factor", if (!dataformat.factor.with.ordered) "ordered", "other"), function(x) {
           result = result[grepl(paste0Par("^", x, "\\."), names(result))]
@@ -242,7 +238,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           result
         })
       } else if (dataformat == "df.features") {
-        result = result[grep("^target\\.", colnames(result), invert = !istocpo)]
+#        result = result[grep("^target\\.", colnames(result), invert = !istocpo)]
         colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target)\\."), "", colnames(result))
       }
     } else {
@@ -263,14 +259,34 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     }
     function(...) {
       indata = list(...)
-      convdata = reduceDataformat(indata$data, indata$target, whichfun)
+      if (is.null(indata$where)) {
+        where = switch(whichfun, train = "trafo", retrafo = "retrafo", traininvert = "traininvert")
+      } else {
+        where = indata$where
+        indata$where = NULL
+      }
+      if (whichfun == "train" && where == "trafo") {
+        tnames = if (dataformat %in% c("task", "df.all")) indata$target else colnames(indata$target)
+      } else {
+        tnames = NULL
+      }
+      if (whichfun %in% c("retrafo", "traininvert") && "control" %in% names(indata)) {
+        if (is.null(indata$target) && (where == "trafo" || (where == "retrafo" && whichfun == "traininvert"))) {
+          indata$target = indata$control$tnames
+        }
+        indata$control = indata$control$res
+      }
+      olddata = indata
+      convdata = reduceDataformat(indata$data, indata$target, whichfun, where)
       for (pn in c("data", "target")) {
         indata[[pn]] = convdata[[pn]]
       }
       result = do.call(oldfun, indata)
       if (whichfun %in% c("retrafo", "invert")) {
         assert(whichfun == "retrafo" || !is.null(indata$predict.type))
-        result = addDataformat(result, indata$data, indata$target, whichfun, indata$predict.type)
+        result = addDataformat(result, olddata$data, olddata$target, whichfun, indata$predict.type)
+      } else if (whichfun == "train") {
+        result = list(res = result, tnames = tnames)
       }
       result
     }
@@ -282,12 +298,14 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
 
   generate = function(...) {
     target = "NOTGIVEN"
+    control = "NOTGIVEN"
+    control.invert = "NOTGIVEN"
     switch(type,
       retrafoless = makeCPORetrafoless(...,
         cpo.retrafo = {
           assert(target == "NOTGIVEN")
           retrafo(data = data, param = param,
-            control = train(data = data, target = NULL, param = param))
+            control = train(data = data, target = NULL, param = param, where = "retrafo"))
         }),
       simple = {
         if (sl) {
@@ -296,7 +314,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
             cpo.retrafo = {
               assert(target == "NOTGIVEN")
               retrafo(data = data, param = param,
-                control = train(data = data, target = NULL, param = param))
+                control = train(data = data, target = NULL, param = param, where = "retrafo"))
             })
         } else if (fr) {
           makeCPO(..., cpo.retrafo = NULL,
@@ -324,27 +342,13 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
               cpo.retrafo = function(data) {
                 retrafo(data = data, param = param, control = control)
               }
-              if (dataformat == "df.all") {
-                trg = data[target]
-                rec = function(x) cbind(x, trg)
-                data = dropNamed(data, target)
-              } else {
-                rec = identity
-              }
-              rec(cpo.retrafo(data))
+              retrafo(data = data, param = param, control = control, where = "trafo")
             })
         } else {
           makeCPOExtendedTrafo(...,
             cpo.trafo = {
               control = train(data = data, target = target, param = param)
-              if (dataformat == "df.all") {
-                trg = data[target]
-                rec = function(x) cbind(x, trg)
-                data = dropNamed(data, target)
-              } else {
-                rec = identity
-              }
-              rec(retrafo(data = data, param = param, control = control))
+              retrafo(data = data, param = param, control = control, where = "trafo")
             },
             cpo.retrafo = {
               assert(target == "NOTGIVEN")
@@ -401,10 +405,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
                   cpo.retrafo = function(data, target) {
                     retrafo(data = data, target = target, param = param, control = control)
                   }
-                  if (dataformat == "df.all") {
-                    data = dropNamed(data, target)
-                  }
-                  control.invert = traininvert(data = data, control = control, param = param)
+                  control.invert = traininvert(data = data, control = control, param = param, where = "trafo")
                   cpo.invert = function(target, predict.type) {
                     invert(target = target, predict.type = predict.type, control = control.invert, param = param)
                   }
@@ -433,19 +434,12 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
                 makeCPOTargetOp(..., constant.invert = TRUE,
                   cpo.train = NULL, cpo.train.invert = NULL,
                   cpo.retrafo = {
-                    data2 = data
-                    target2 = target
-                    if (dataformat == "df.all") {
-                      data2 = target
-                      target2 = setdiff(names(target), names(data))
-                    } else if (dataformat == "task") {
-                      data2 = target
-                      target2 = getTaskTargetNames(target)
-                    }
-                    control = train(data = data2, target = target2, param = param)
+                    control = train(data = data, target = target, param = param, where = "retrafo")
                     retrafo(data = data, target = target, param = param, control = control)
                   },
                   cpo.invert = {
+                    assert(control == "NOTGIVEN")
+                    assert(control.invert == "NOTGIVEN")
                     invert(target = target, predict.type = predict.type, control = NULL, param = param)
                   })
               } else {
@@ -454,11 +448,8 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
                   cpo.train.invert = NULL,
                   cpo.train = {
                     control = train(data = data, target = target, param = param)
-                    if (dataformat == "df.all") {
-                      data = dropNamed(data, target)
-                    }
                     list(control = control,
-                      control.invert = traininvert(data = data, control = control, param = param))
+                      control.invert = traininvert(data = data, control = control, param = param, where = "trafo"))
                   },
                   cpo.retrafo = {
                     retrafo(data = data, target = target, param = param, control = control$control)
@@ -496,22 +487,18 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
               cpo.retrafo = NULL, cpo.invert = NULL,
               cpo.trafo = {
                 control = train(data = data, target = target, param = param)
-                data2 = data
-                if (dataformat == "df.all") {
-                  data2 = dropNamed(data, target)
-                }
-                control.invert = traininvert(data = data2, control = control, param = param)
+                control.invert = traininvert(data = data, control = control, param = param, where = "trafo")
                 cpo.invert = function(target, predict.type) {
                   invert(target = target, predict.type = predict.type, control = control.invert)
                 }
                 cpo.retrafo = function(data, target) {
-                  control.invert = traininvert(data = data, control = control, param = param)
+                  control.invert = traininvert(data = data, control = control, param = param, where = "retrafo")
                   cpo.invert = function(target, predict.type) {
                     invert(target = target, predict.type = predict.type, control = control.invert)
                   }
                   retrafo(data = data, target = target, param = param, control = control)
                 }
-                retrafo(data = data, target = target)
+                retrafo(data = data, target = target, param = param, control = control, where = "trafo")
               })
 
           } else { # or
@@ -521,18 +508,14 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
               cpo.invert = NULL,
               cpo.trafo = {
                 control = train(data = data, target = target, param = param)
-                data2 = data
-                if (dataformat == "df.all") {
-                  data2 = dropNamed(data, target)
-                }
-                control.invert = traininvert(data = data2, control = control, param = param)
+                control.invert = traininvert(data = data, control = control, param = param, where = "trafo")
                 cpo.invert = function(target, predict.type) {
                   invert(target = target, predict.type = predict.type, control = control.invert)
                 }
-                retrafo(data = data, target = target, param = param, control = control)
+                retrafo(data = data, target = target, param = param, control = control, where = "trafo")
               },
               cpo.retrafo = {
-                control.invert = traininvert(data = data, control = control, param = param)
+                control.invert = traininvert(data = data, control = control, param = param, where = "retrafo")
                 cpo.invert = function(target, predict.type) {
                   invert(target = target, predict.type = predict.type, control = control.invert)
                 }
@@ -547,16 +530,12 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
               cpo.retrafo = NULL,
               cpo.trafo = {
                 control = train(data = data, target = target, param = param)
-                data2 = data
-                if (dataformat == "df.all") {
-                  data2 = dropNamed(data, target)
-                }
-                control.invert = traininvert(data = data2, control = control, param = param)
+                control.invert = traininvert(data = data, control = control, param = param, where = "trafo")
                 cpo.retrafo = function(data, target) {
-                  control.invert = traininvert(data = data, control = control, param = param)
+                  control.invert = traininvert(data = data, control = control, param = param, where = "retrafo")
                   retrafo(data = data, target = target, param = param, control = control)
                 }
-                cpo.retrafo(data = data, target = target)
+                retrafo(data = data, target = target, param = param, control = control, where = "trafo")
               },
               cpo.invert = {
                 invert(target = target, predict.type = predict.type, control = control.invert)
@@ -567,15 +546,11 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
               constant.invert = ci,
               cpo.trafo = {
                 control = train(data = data, target = target, param = param)
-                data2 = data
-                if (dataformat == "df.all") {
-                  data2 = dropNamed(data, target)
-                }
-                control.invert = traininvert(data = data2, control = control, param = param)
-                retrafo(data = data, target = target, param = param, control = control)
+                control.invert = traininvert(data = data, control = control, param = param, where = "trafo")
+                retrafo(data = data, target = target, param = param, control = control, where = "trafo")
               },
               cpo.retrafo = {
-                control.invert = traininvert(data = data, control = control, param = param)
+                control.invert = traininvert(data = data, control = control, param = param, where = "retrafo")
                 retrafo(data = data, target = target, param = param, control = control)
               },
               cpo.invert = {

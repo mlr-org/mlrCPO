@@ -17,7 +17,11 @@ test_that("generalMakeCPO works", {
   # test that all generalMakeCPO with all options give the data in the same format.
   # strict == whether to separate factors and ordereds
   testDataInputFormat = function(task, strict = FALSE) {
-    truetarget = getTaskData(task, features = character(0))[[1]]
+    truetarget = getTaskData(task, features = character(0))
+    if (length(truetarget) == 0) {
+      truetarget$pred = 1L
+    }
+
 
     task %>>% generalMakeCPO("setup",
       dataformat.factor.with.ordered = !strict,
@@ -36,7 +40,7 @@ test_that("generalMakeCPO works", {
     }
 
     if (length(present) == 1) {
-      dataformats %c=% present
+      dataformats %c=% switch(present, numerics = "numeric", factors = "factor", present)
     }
 
     #expected.target = names(localenv$withtarget[grepl("^target\\.", names(localenv$withtarget))])
@@ -57,10 +61,8 @@ test_that("generalMakeCPO works", {
     }
 
     for (dfx in dataformats) {
-      print(dfx)
       for (lineno in seq_len(nrow(allowedGMC))) {
         line = allowedGMC[lineno, ]
-        print(line)
 
         type = line$type
 
@@ -90,7 +92,7 @@ test_that("generalMakeCPO works", {
             data
           },
           invert = function(target, predict.type, control, param) {
-            expect_identical(target[[1]], truetarget)
+            expect_identical(target[[1]], truetarget[[1]])
             target
           })()
         ret = retrafo(task %>>% cpo)
@@ -106,7 +108,18 @@ test_that("generalMakeCPO works", {
 
   # TODO: check also with data.frame retrafo
 
-  testDataInputFormat(pid.task)
+  testDataInputFormat(subsetTask(pid.task, 1:10))
+  testDataInputFormat(subsetTask(binaryclass.task, 90:100))
+  testDataInputFormat(multiclass.task)
+  testDataInputFormat(subsetTask(regr.task, 150:160))
+  testDataInputFormat(subsetTask(regr.num.task, 150:160))
+
+  testDataInputFormat(cpo.df1c)
+  testDataInputFormat(cpo.df1cc)
+  testDataInputFormat(cpo.df3l)
+  testDataInputFormat(cpo.df4l)
+  testDataInputFormat(cpo.df4l2)
+  testDataInputFormat(cpo.df5r)
 
 })
 
@@ -411,3 +424,4 @@ test_that("on.par.out.of.bounds respected", {
 })
 
 
+# interchanging names between target and nontarget column for retrafoless?
