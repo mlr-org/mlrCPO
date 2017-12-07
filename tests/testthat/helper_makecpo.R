@@ -594,24 +594,24 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
 #  fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE
 
 
-allowedGMC = rbind(
+allowedGMC = rbind(  # nolint
     list(type = "simple",          fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "simple",          fr = FALSE, fi = FALSE, sl = TRUE , ci = FALSE),
-    list(type = "simple",          fr = TRUE , fi = FALSE, sl = FALSE, ci = FALSE),
+    list(type = "simple",          fr = FALSE, fi = FALSE, sl = TRUE,  ci = FALSE),
+    list(type = "simple",          fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "extended",        fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "extended",        fr = TRUE , fi = FALSE, sl = FALSE, ci = FALSE),
+    list(type = "extended",        fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "target",          fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "target",          fr = TRUE , fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "target",          fr = FALSE, fi = TRUE , sl = FALSE, ci = FALSE),
-    list(type = "target",          fr = TRUE , fi = TRUE , sl = FALSE, ci = FALSE),
-    list(type = "target",          fr = FALSE, fi = FALSE, sl = TRUE , ci = TRUE ),
-    list(type = "target",          fr = FALSE, fi = FALSE, sl = FALSE, ci = TRUE ),
-    list(type = "target",          fr = TRUE , fi = FALSE, sl = FALSE, ci = TRUE ),
+    list(type = "target",          fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
+    list(type = "target",          fr = FALSE, fi = TRUE,  sl = FALSE, ci = FALSE),
+    list(type = "target",          fr = TRUE,  fi = TRUE,  sl = FALSE, ci = FALSE),
+    list(type = "target",          fr = FALSE, fi = FALSE, sl = TRUE,  ci = TRUE),
+    list(type = "target",          fr = FALSE, fi = FALSE, sl = FALSE, ci = TRUE),
+    list(type = "target",          fr = TRUE,  fi = FALSE, sl = FALSE, ci = TRUE),
     list(type = "target.extended", fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "target.extended", fr = TRUE , fi = FALSE, sl = FALSE, ci = FALSE),
-    list(type = "target.extended", fr = FALSE, fi = TRUE , sl = FALSE, ci = FALSE),
-    list(type = "target.extended", fr = TRUE , fi = TRUE , sl = FALSE, ci = FALSE),
-    list(type = "target.extended", fr = FALSE, fi = FALSE, sl = FALSE, ci = TRUE ),
-    list(type = "target.extended", fr = TRUE , fi = FALSE, sl = FALSE, ci = TRUE ),
-    list(type = "target.extended", fr = FALSE, fi = TRUE , sl = FALSE, ci = TRUE ),
-    list(type = "target.extended", fr = TRUE , fi = TRUE , sl = FALSE, ci = TRUE ))
+    list(type = "target.extended", fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
+    list(type = "target.extended", fr = FALSE, fi = TRUE,  sl = FALSE, ci = FALSE),
+    list(type = "target.extended", fr = TRUE,  fi = TRUE,  sl = FALSE, ci = FALSE),
+    list(type = "target.extended", fr = FALSE, fi = FALSE, sl = FALSE, ci = TRUE),
+    list(type = "target.extended", fr = TRUE,  fi = FALSE, sl = FALSE, ci = TRUE),
+    list(type = "target.extended", fr = FALSE, fi = TRUE,  sl = FALSE, ci = TRUE),
+    list(type = "target.extended", fr = TRUE,  fi = TRUE,  sl = FALSE, ci = TRUE))
