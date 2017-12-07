@@ -78,6 +78,8 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
   ps = pSS(param = 1: integer[, ])
 
   reduceDataformat = function(data, target, whichfun, where) {
+    indata = data
+
     if (whichfun == "invert") {
       assertNull(data)
       if (!is.data.frame(target)) {
@@ -115,6 +117,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           data = target
           target = setdiff(names(data), aux)
         }
+        indata = data
         where = "trafo"
       }
       if (where == "trafo") {
@@ -128,7 +131,6 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           data = dropNamed(data, target.names)
         }
       }
-      dataformat = "df.features"
     }
     if (whichfun != "train" && (whichfun != "retrafo" || type %in% c("simple", "extended"))) {
       target = NULL
@@ -159,6 +161,16 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     if (!is.null(target)) {
       names(target) = pastePar("target", names(target), sep = ".")
       data = cbind(data, target)
+
+      order = seq_along(data)
+      names(order) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(data))
+      if (dataformat == "task") {
+        innames = colnames(getTaskData(indata))
+        data = data[order[innames]]
+      }
+      if (dataformat == "df.all") {
+        data = data[order[colnames(indata)]]
+      }
       target = if (whichfun == "train" || (!type %in% c("simple", "extended") && whichfun == "retrafo")) names(target)
     }
 
@@ -174,6 +186,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     }
 
     if (whichfun == "retrafo") {
+
       if (!istocpo) {
         # focpo, rocpo
         if (dataformat %in% c("df.all", "task")) {
@@ -619,7 +632,7 @@ applyGMC = function(name, strict,
         dataformat.factor.with.ordered = !strict,
         train = train, retrafo = retrafo, traininvert = traininvert,
         invert = invert)
-      applyfun(cpo, type, line)
+      applyfun(cpo, type, line, dfx)
     }
   }
 }

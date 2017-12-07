@@ -52,6 +52,10 @@ test_that("generalMakeCPO works", {
 
 
     checkFulldata = function(data, target) {
+      if (curdf %in% c("df.all", "task")) {
+        expect_equal(length(localenv$withtarget), length(data))
+        data = data[colnames(localenv$withtarget)]
+      }
       expect_identical(data, localenv$withtarget)
       expect_identical(expected.target, target)
     }
@@ -63,6 +67,8 @@ test_that("generalMakeCPO works", {
     cursl = FALSE
     curtype = "simple"
     isfocpo = FALSE
+    curdf = "df.features"
+
 
     applyGMC("compare", strict, convertfrom = getTaskDesc(task)$type,
       train = function(data, target, param) {
@@ -87,10 +93,11 @@ test_that("generalMakeCPO works", {
       invert = function(target, predict.type, control, param) {
         expect_identical(target[[1]], truetarget[[1]])
         target
-      }, applyfun = function(cpocon, type, line) {
+      }, applyfun = function(cpocon, type, line, dfx) {
         cursl <<- line$sl  # nolint
         curtype <<- type  # nolint
         isfocpo <<- type %in% c("simple", "extended")  # nolint
+        curdf <<- dfx  # nolint
         istocpo = type %in% c("target", "target.extended")
         cpo = cpocon()
         ret = retrafo(task %>>% cpo)
@@ -112,6 +119,8 @@ test_that("generalMakeCPO works", {
   testDataInputFormat(cpo.df4l)
   testDataInputFormat(cpo.df4l2)
   testDataInputFormat(cpo.df5r)
+
+
 
 })
 

@@ -389,14 +389,19 @@ getGeneralDataProperties = function(data, ignore.cols = character(0)) {
 # @param ignore.target [logical(1)] whether to ignore columns that have the same name as the target
 #   column(s) declared in the $target slot. Default FALSE.
 # @return [invisible(NULL)]
-assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless = FALSE, ignore.target = FALSE) {
+assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless = FALSE,
+                              ignore.target = FALSE) {
   if (ignore.target && !is.null(shapeinfo$target)) {
     shapeinfo$colnames = setdiff(shapeinfo$colnames, shapeinfo$target)
     shapeinfo$coltypes = dropNamed(shapeinfo$coltypes, shapeinfo$target)
   }
   if (!identical(names2(df), shapeinfo$colnames)) {
-    stopf("Error in CPO %s: column name mismatch between training and test data.\nWas %s during training, is %s now.",
-          name, collapse(shapeinfo$colnames, sep = ", "), collapse(names(df), sep = ", "))
+    errmsg = if (retrafoless) {
+      "Error in CPO %s: columns may not be changed by cpo.trafo.\nInput was %s, output is %s."
+    } else {
+      "Error in CPO %s: column name mismatch between training and test data.\nWas %s during training, is %s now."
+    }
+    stopf(errmsg, name, collapse(shapeinfo$colnames, sep = ", "), collapse(names(df), sep = ", "))
   }
   indata = df[shapeinfo$colnames]
 
