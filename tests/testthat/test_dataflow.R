@@ -60,41 +60,39 @@ test_that("generalMakeCPO works", {
       expect_identical(data, localenv$notarget)
     }
 
-    for (dfx in dataformats) {
-      for (lineno in seq_len(nrow(allowedGMC))) {
-        line = allowedGMC[lineno, ]
+    cursl = FALSE
+    curtype = "simple"
+    isfocpo = FALSE
 
-        type = line$type
-
+    applyGMC("compare", strict, convertfrom = getTaskDesc(task)$type,
+      train = function(data, target, param) {
+        if (cursl && curtype != "target") {
+          checkHalfdata(data)
+        } else {
+          checkFulldata(data, target)
+        }
+      },
+      retrafo = function(data, control, param, target) {
+        if (!isfocpo) {
+          checkFulldata(data, target)
+        } else {
+          checkHalfdata(data)
+        }
+        data
+      },
+      traininvert = function(data, control, param) {
+        expect_identical(data, localenv$notarget)
+        data
+      },
+      invert = function(target, predict.type, control, param) {
+        expect_identical(target[[1]], truetarget[[1]])
+        target
+      }, applyfun = function(cpocon, type, line) {
+        cursl <<- line$sl  # nolint
+        curtype <<- type  # nolint
+        isfocpo <<- type %in% c("simple", "extended")  # nolint
         istocpo = type %in% c("target", "target.extended")
-
-        cpo = generalMakeCPO("compare", type = type,
-          fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
-          dataformat = dfx, convertfrom = getTaskDesc(task)$type,
-          dataformat.factor.with.ordered = !strict,
-          train = function(data, target, param) {
-            if (line$sl && type != "target") {
-              checkHalfdata(data)
-            } else {
-              checkFulldata(data, target)
-            }
-          },
-          retrafo = function(data, control, param, target) {
-            if (istocpo) {
-              checkFulldata(data, target)
-            } else {
-              checkHalfdata(data)
-            }
-            data
-          },
-          traininvert = function(data, control, param) {
-            expect_identical(data, localenv$notarget)
-            data
-          },
-          invert = function(target, predict.type, control, param) {
-            expect_identical(target[[1]], truetarget[[1]])
-            target
-          })()
+        cpo = cpocon()
         ret = retrafo(task %>>% cpo)
         inv = inverter(task %>>% ret)
         expect_equal(getCPOTrainedCapability(ret)["invert"], c(invert = istocpo * ifelse(line$ci, 1, -1)))
@@ -102,18 +100,12 @@ test_that("generalMakeCPO works", {
           invert(ret, truetarget)
         }
         invert(inv, truetarget)
-      }
-    }
+      })
   }
 
   # TODO: check also with data.frame retrafo
 
-  testDataInputFormat(subsetTask(pid.task, 1:10))
-  testDataInputFormat(subsetTask(binaryclass.task, 90:100))
-  testDataInputFormat(multiclass.task)
-  testDataInputFormat(subsetTask(regr.task, 150:160))
-  testDataInputFormat(subsetTask(regr.num.task, 150:160))
-
+  testDataInputFormat(subsetTask(multiclass.task, c(1, 51, 101)))
   testDataInputFormat(cpo.df1c)
   testDataInputFormat(cpo.df1cc)
   testDataInputFormat(cpo.df3l)

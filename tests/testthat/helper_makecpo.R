@@ -130,7 +130,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
       }
       dataformat = "df.features"
     }
-    if (whichfun != "train" && (whichfun != "retrafo" || !istocpo)) {
+    if (whichfun != "train" && (whichfun != "retrafo" || type %in% c("simple", "extended"))) {
       target = NULL
     }
 
@@ -159,7 +159,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     if (!is.null(target)) {
       names(target) = pastePar("target", names(target), sep = ".")
       data = cbind(data, target)
-      target = if (whichfun == "train" || (istocpo && whichfun == "retrafo")) names(target)
+      target = if (whichfun == "train" || (!type %in% c("simple", "extended") && whichfun == "retrafo")) names(target)
     }
 
     list(data = data, target = target)
@@ -205,7 +205,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           }
           dataformat = "df.features"
         }
-        assert(!any(grepl("^target\\.", names(result))))
+        assert(type == "retrafoless", !any(grepl("^target\\.", names(result))))
       } else {
         # tocpo
         if (dataformat == "df.all") {
@@ -302,10 +302,9 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     control.invert = "NOTGIVEN"
     switch(type,
       retrafoless = makeCPORetrafoless(...,
-        cpo.retrafo = {
-          assert(target == "NOTGIVEN")
-          retrafo(data = data, param = param,
-            control = train(data = data, target = NULL, param = param, where = "retrafo"))
+        cpo.trafo = {
+          retrafo(data = data, target = target, param = param,
+            control = train(data = data, target = target, param = param), where = "trafo")
         }),
       simple = {
         if (sl) {
@@ -575,6 +574,7 @@ allowedGMC = rbind(  # nolint
     list(type = "simple",          fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "extended",        fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "extended",        fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
+    list(type = "retrafoless",     fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "target",          fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "target",          fr = TRUE,  fi = FALSE, sl = FALSE, ci = FALSE),
     list(type = "target",          fr = FALSE, fi = TRUE,  sl = FALSE, ci = FALSE),
@@ -590,3 +590,36 @@ allowedGMC = rbind(  # nolint
     list(type = "target.extended", fr = TRUE,  fi = FALSE, sl = FALSE, ci = TRUE),
     list(type = "target.extended", fr = FALSE, fi = TRUE,  sl = FALSE, ci = TRUE),
     list(type = "target.extended", fr = TRUE,  fi = TRUE,  sl = FALSE, ci = TRUE))
+
+
+applyGMC = function(name, strict,
+                    fr = NULL, fi = NULL, sl = NULL, ci = NULL,
+                    type = c("target", "target.extended", "simple", "extended", "retrafoless"),
+                    dataformats = c("df.features", "split", "df.all", "task"),
+                    convertfrom = "cluster", convertto = convertfrom,
+                    train = NULL, retrafo = NULL,
+                    traininvert = NULL, invert = NULL, applyfun) {
+  dotype = type
+  for (dfx in dataformats) {
+    for (lineno in seq_len(nrow(allowedGMC))) {
+      line = allowedGMC[lineno, ]
+      if ((!is.null(fr) && fr != line$fr) ||
+          (!is.null(fi) && fi != line$fi) ||
+          (!is.null(sl) && sl != line$sl) ||
+          (!is.null(ci) && ci != line$ci) ||
+          (line$type == "retrafoless" && !dfx %in% c("df.all", "task")) ||
+          (!line$type %in% dotype)){
+        next
+      }
+      type = line$type
+
+      cpo = generalMakeCPO(name = name, type = type,
+        fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
+        dataformat = dfx, convertfrom = convertfrom,
+        dataformat.factor.with.ordered = !strict,
+        train = train, retrafo = retrafo, traininvert = traininvert,
+        invert = invert)
+      applyfun(cpo, type, line)
+    }
+  }
+}
