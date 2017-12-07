@@ -254,7 +254,7 @@ applyCPO.CPO = function(cpo, task) {
 
 
   prev.retrafo = retrafo(task)
-  assert(is.nullcpo(prev.inverter), checkClass(prev.inverter, "CPORetrafo"))
+  assert(is.nullcpo(prev.retrafo), checkClass(prev.retrafo, "CPORetrafo"))
 
   task = clearRI(task)
 

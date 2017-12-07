@@ -137,7 +137,7 @@ print.CPOTrained = function(x, ...) {
         fromto = rev(fromto)
       }
       if (fromto[1] == fromto[2]) {
-        convstring = paste0("{type:", fromto, "}")
+        convstring = paste0("{type:", fromto[1], "}")
       } else {
         convstring = paste0("{conv:", collapse(fromto, "->"), "}")
       }

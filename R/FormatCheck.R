@@ -757,7 +757,7 @@ splittask = function(task, dataformat, strict.factors) {
 splitdf = function(df, dataformat, strict.factors) {
   colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")
   switch(dataformat,
-    task = list(data = makeClusterTask(data = df, fixup.data = "no"), target = character(0)),
+    task = list(data = makeClusterTask(data = df, fixup.data = "no", check.data = FALSE), target = character(0)),
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
     split = list(data = splitColsByType(colsplit, df),
@@ -1098,7 +1098,7 @@ checkColumnsEqual = function(old.relevants, new.relevants, relevant.name, name) 
 # @return [Task] a new task of type `type`, with id `id`, data `data`, and other meta information from `oldtask`.
 constructTask = function(oldtask, data, target, type, id) {
   if (type == "cluster") {
-    return(makeClusterTask(id = id, data = data))
+    return(makeClusterTask(id = id, data = data, fixup.data = "no", check.data = FALSE))
   }
   if (type == "classif" && !is.null(oldtask) && getTaskType(oldtask) == "classif") {
     assert(length(target) == 1)
@@ -1110,7 +1110,7 @@ constructTask = function(oldtask, data, target, type, id) {
         positive = setdiff(oldtargets, positive)
       }
       return(makeClassifTask(id = id, data = data, target = target,
-        positive = positive))
+        positive = positive, fixup.data = "no", check.data = FALSE))
     }
   }
 
@@ -1119,7 +1119,7 @@ constructTask = function(oldtask, data, target, type, id) {
     multilabel = makeMultilabelTask,
     regr = makeRegrTask,
     surv = makeSurvTask)
-  constructor(id = id, data = data, target = target)
+  constructor(id = id, data = data, target = target, fixup.data = "no", check.data = FALSE)
 }
 
 # check that newdata is a task, and that its size fits "task"'s size.
@@ -1188,7 +1188,8 @@ recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, datafor
   } else {
     if (dataformat == "df.all") {
       assertClass(newdata, "data.frame")
-      if (!all(getTaskTargetNames(olddata) %in% names(newdata))) {
+      if (!all(getTaskTargetNames(olddata) %in% names(newdata)) ||
+          !all(names(newdata)[names(newdata) %in% getTaskTargetNames(olddata)] == getTaskTargetNames(olddata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
       }
       newdata = changeData(olddata, newdata)

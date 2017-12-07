@@ -18,7 +18,11 @@
 # sl and ci influence how often train & traininvert are called.
 # dataformat is checked automatically
 # properties.adding, properties.needed, properties.target are filled automatically if not given
-generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NULL,
+generalMakeCPO = function(name,
+                          train = function(data, target, param) NULL,
+                          retrafo = function(data, control, param, target) data,
+                          traininvert = function(data, control, param) NULL,
+                          invert = function(target, predict.type, control, param) target,
   type = c("simple", "extended", "target", "target.extended", "retrafoless"),
   fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE, dataformat = "df.features",
   dataformat.factor.with.ordered = TRUE,
@@ -163,7 +167,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
       data = cbind(data, target)
 
       order = seq_along(data)
-      names(order) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(data))
+      names(order) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(data))
       if (dataformat == "task") {
         innames = colnames(getTaskData(indata))
         data = data[order[innames]]
@@ -193,12 +197,12 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           if ("Task" %in% class(olddata)) {
             if (type == "retrafoless") {
               whichtarget = grep("^target\\.", names(result))
-              colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+              colnames(result) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(result))
               tnames = colnames(result)[whichtarget]
               olddata$task.desc$target = tnames
               return(changeData(olddata, result))
             }
-            colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+            colnames(result) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(result))
             if (all(getTaskFeatureNames(olddata) == colnames(result))) {
               newdata = getTaskData(olddata)
               newdata[colnames(result)] = result
@@ -208,7 +212,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
             return(changeData(olddata, newdata))
           } else if (is.character(oldtarget) && all(oldtarget %in% colnames(olddata)) && type != "retrafoless") {
             assert(!any(grepl("^target\\.", names(result))))
-            colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+            colnames(result) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(result))
             if (all(colnames(result) == setdiff(colnames(olddata), oldtarget))) {
               olddata[!colnames(olddata) %in% oldtarget] = result
               return(olddata)
@@ -226,7 +230,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           return(NULL)
         }
         if (dataformat == "df.all") {
-          colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target)\\."), "", colnames(result))
+          colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target|other)\\."), "", colnames(result))
           return(result)
         } else if (dataformat == "task") {
           if ("Task" %in% class(olddata)) {
@@ -234,7 +238,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
           }
           target = grep("^target\\.", colnames(result), value = TRUE)
           target = gsub("^target\\.", "", target)
-          colnames(result) = gsub("^(numeric|ordered|factor|target)\\.", "", colnames(result))
+          colnames(result) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(result))
           if (convertfrom == convertto) {
             return(changeData(oldtarget, result))
           } else {
@@ -256,7 +260,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
         })
       } else if (dataformat == "df.features") {
 #        result = result[grep("^target\\.", colnames(result), invert = !istocpo)]
-        colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target)\\."), "", colnames(result))
+        colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target|other)\\."), "", colnames(result))
       }
     } else {
       assert(whichfun == "invert")
@@ -614,8 +618,11 @@ applyGMC = function(name, strict,
                     type = c("target", "target.extended", "simple", "extended", "retrafoless"),
                     dataformats = c("df.features", "split", "df.all", "task"),
                     convertfrom = "cluster", convertto = convertfrom,
-                    train = NULL, retrafo = NULL,
-                    traininvert = NULL, invert = NULL, applyfun) {
+                    train = function(data, target, param) NULL,
+                    retrafo = function(data, control, param, target) data,
+                    traininvert = function(data, control, param) NULL,
+                    invert = function(target, predict.type, control, param) target,
+                    applyfun) {
   dotype = type
   for (dfx in dataformats) {
     for (lineno in seq_len(nrow(allowedGMC))) {
