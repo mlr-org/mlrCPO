@@ -106,7 +106,7 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
     }
 
     if (dataformat %in% c("df.all", "task")) {
-      if (where == "retrafo" && istocpo && whichfun != "traininvert") {
+      if (where == "retrafo" && istocpo && whichfun != "traininvert" && !is.null(target)) {
         if (dataformat == "task") {
           assert(identical(data, getTaskData(target, target.extra = TRUE)$data))
           data = target
@@ -221,6 +221,10 @@ generalMakeCPO = function(name, train, retrafo, traininvert = NULL, invert = NUL
         assert(type == "retrafoless", !any(grepl("^target\\.", names(result))))
       } else {
         # tocpo
+        if (is.null(oldtarget)) {
+          # nothing to do
+          return(NULL)
+        }
         if (dataformat == "df.all") {
           colnames(result) = gsub(paste0Par("^(numeric|ordered|factor|target)\\."), "", colnames(result))
           return(result)

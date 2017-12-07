@@ -69,17 +69,19 @@ test_that("generalMakeCPO works", {
     isfocpo = FALSE
     curdf = "df.features"
 
+    doingdf = FALSE
+
 
     applyGMC("compare", strict, convertfrom = getTaskDesc(task)$type,
       train = function(data, target, param) {
-        if (cursl && curtype != "target") {
+        if (cursl && curtype != "target" || doingdf) {
           checkHalfdata(data)
         } else {
           checkFulldata(data, target)
         }
       },
       retrafo = function(data, control, param, target) {
-        if (!isfocpo) {
+        if (!isfocpo && !doingdf) {
           checkFulldata(data, target)
         } else {
           checkHalfdata(data)
@@ -94,6 +96,7 @@ test_that("generalMakeCPO works", {
         expect_identical(target[[1]], truetarget[[1]])
         target
       }, applyfun = function(cpocon, type, line, dfx) {
+        doingdf <<- FALSE  # nolint
         cursl <<- line$sl  # nolint
         curtype <<- type  # nolint
         isfocpo <<- type %in% c("simple", "extended")  # nolint
@@ -107,10 +110,17 @@ test_that("generalMakeCPO works", {
           invert(ret, truetarget)
         }
         invert(inv, truetarget)
+        if (getTaskDesc(task)$type != "cluster") {
+          # if it is cluster, we check below.
+          getTaskData(task) %>>% ret
+        }
+
+        doingdf <<- TRUE  # nolint
+        getTaskData(task, target.extra = TRUE)$data %>>% ret
+        doingdf <<- FALSE  # nolint
       })
   }
 
-  # TODO: check also with data.frame retrafo
 
   testDataInputFormat(subsetTask(multiclass.task, c(1, 51, 101)))
   testDataInputFormat(cpo.df1c)
@@ -119,8 +129,6 @@ test_that("generalMakeCPO works", {
   testDataInputFormat(cpo.df4l)
   testDataInputFormat(cpo.df4l2)
   testDataInputFormat(cpo.df5r)
-
-
 
 })
 

@@ -134,8 +134,8 @@ Other filter: \code{\link{cpoFilterAnova}},
   \code{\link{cpoFilterVariance}}
 
 Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCbind}},
-  \code{\link{cpoCollapseFact}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCache}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},

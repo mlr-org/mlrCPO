@@ -215,8 +215,11 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
     return(list(data = data, inverter = prev.inverter))
   }
 
+  # if we are target operating, have no target to change AND don't need the retrafostate
+  # when we don't call cpo.retrafo at all. This is handled by callInterface, however.
   tin$indata$state = retrafo$state
   result = do.call(cpo$trafo.funs$cpo.retrafo, insert(getBareHyperPars(cpo), tin$indata))
+
 
   if (cpo$operating.type != "target" || !is.null(tin$indata$target)) {
     # in retrafo we forgive the creation of 'missings', unless they are in adding.min
