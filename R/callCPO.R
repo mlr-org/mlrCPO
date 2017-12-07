@@ -199,7 +199,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   assert(checkClass(retrafo, "RetrafoElement"), checkClass(retrafo, "InverterElement"))
   cpo = retrafo$cpo
 
-  if (!is.null(retrafo$prev.retrafo)) {
+  if (!is.null(retrafo$prev.retrafo.elt)) {
     upper.result = callCPORetrafoElement(retrafo$prev.retrafo.elt, data, build.inverter, prev.inverter)
     data = upper.result$data
     prev.inverter = upper.result$inverter

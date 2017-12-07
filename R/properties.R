@@ -602,7 +602,7 @@ getCPOTrainedCPO.CPOTrainedPrimitive = function(cpo) {
 
 #' @export
 getCPOTrainedCPO.CPOTrained = function(cpo) {
-  getCPOTrainedCPO(cpo$prev.retrafo) %>>% cpo$cpo
+  pipeCPO(lapply(as.list(cpo), getCPOTrainedCPO))
 }
 
 #' @export

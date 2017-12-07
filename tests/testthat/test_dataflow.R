@@ -205,6 +205,9 @@ test_that("cpo.trafo has expected effects", {
       type = c("target", "target.extended", "retrafoless"),
       dataformats = c("df.all", "task"),
       retrafo = function(data, control, param, target) {
+        if (action == 4) {
+          return(rbind(data, data))
+        }
         if (action == 3) {
           colnames(data)[colnames(data) %in% target] = rev(target)
           return(data)
@@ -231,19 +234,23 @@ test_that("cpo.trafo has expected effects", {
           expect_error(task %>>% cpo, "columns may not be changed")
           expect_error(getTaskData(task, target.extra = TRUE)$data %>>% cpo, "columns may not be changed")
           if (length(getTaskTargetNames(task)) > 1) {
-            action <<- 3
+            action <<- 3  # nolint
             expect_error(task %>>% cpo, "must not change target names")
           }
+          action <<- 4  # nolint
+          task %>>% cpo
         } else {
           expect_error(task %>>% cpo, "must not change non-target columns")
           action <<- 0  # nolint
           ret = retrafo(task %>>% cpo)
 
-          action <<- 1
+          action <<- 1  # nolint
           expect_error(task %>>% ret, "must not change non-target columns")
           if (getTaskDesc(task)$type != "cluster") {
             expect_error(getTaskData(task) %>>% ret, "must not change non-target columns")
           }
+          action <<- 4  # nolint
+          expect_error(task %>>% cpo, "must not change number of rows")
         }
       })
   }
@@ -386,132 +393,198 @@ test_that("cpo.invert has information from cpo.trafo / cpo.retrafo", {
       }
       invert(inv2, trg)
     })
-
-
-
-})
-
-test_that("cpo.invert has information from cpo.trafo when taken as invert", {
-
-
-})
-
-test_that("cpo.invert has information from cpo.retrafo when taken as invert", {
-
-
 })
 
 test_that("presence of control object is checked", {
 
-})
+  cpo = makeCPOTargetOp("errorCPO.target.fni",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { }, cpo.retrafo = { target }, cpo.train.invert = { function() NULL }, cpo.invert = NULL)
 
-test_that("return values are checked", {
-  # changing number of rows only allowed in retrafoless
-  # changing column layout not allowed in retrafoless
-  # changing number of columns not allowed in retrafoless
-  # changing target forbidden in feature op
-  # changing data forbidden in target op
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train.invert")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.retrafo")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.train.invert")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = function() NULL; cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.retrafo as created by cpo.train")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"), constant.invert = TRUE,
+    cpo.train = { cpo.retrafo = function(...) NULL; cpo.train.invert = function() NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.train did not create.*cpo.invert")
+
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"), constant.invert = TRUE,
+    cpo.train = { cpo.retrafo = function(...) NULL; cpo.invert = function() NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      control = NULL
+      target
+    }, cpo.retrafo = {
+      control.invert = NULL
+      target
+    }, cpo.invert = { target })
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*control.invert")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      control.invert = NULL
+      target
+    }, cpo.retrafo = {
+      control.invert = NULL
+      target
+    }, cpo.invert = { target })
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*control'")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      control.invert = NULL
+      control = NULL
+      target
+    }, cpo.retrafo = {
+      target
+    }, cpo.invert = { target })
+
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "did not create.*control.invert")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      control.invert = NULL
+      control = NULL
+      target
+    }, cpo.retrafo = {
+      cpo.invert = function(...) NULL
+      target
+    }, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.invert")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      cpo.invert = function() NULL
+      control = NULL
+      target
+    }, cpo.retrafo = {
+      cpo.invert = function(...) NULL
+      target
+    }, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.trafo")
+
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      cpo.invert = function(...) NULL
+      control = NULL
+      target
+    }, cpo.retrafo = {
+      cpo.invert = function() NULL
+      target
+    }, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.invert as created by cpo.retrafo")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      cpo.invert = function(...) NULL
+      control = NULL
+      target
+    }, cpo.retrafo = NULL, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.trafo did not create a function")
+
+  cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
+    properties.target = c("classif", "twoclass"),
+    cpo.trafo = {
+      cpo.invert = function(...) NULL
+      cpo.retrafo = function() NULL
+      target
+    }, cpo.retrafo = NULL, cpo.invert = NULL)
+
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.retrafo as created by cpo.trafo")
+
 })
 
 test_that("capabilities behave as expected when breaking and rebuilding CPOTrained", {
 
+  # vars named by capabilities: 1 - yes, 0 - indif, -1 - no
+  # [retrafo].[invert]
 
-})
+  task = cpo.df5r
+  pred = getTaskData(task, target.extra = TRUE)$target
 
-test_that("tocpo sees the correct rows when using affect args", {
+  indif.indif = NULLCPO
+  yes.yes = retrafo(task %>>% generalMakeCPO("yes.no", type = "target", ci = TRUE)())
+  yes.indif = retrafo(task %>>% generalMakeCPO("yes.indif", type = "simple", dataformat = "split")())
+  yes.no = retrafo(task %>>% generalMakeCPO("yes.no", type = "target")())
+  no.yes = inverter(task %>>% generalMakeCPO("yes.no", type = "target")())
 
-})
+  testCapability = function(cpotrained, expected.cap) {
+    caps = getCPOTrainedCapability(cpotrained)
+    expect_identical(caps, expected.cap)
+    if (caps["retrafo"] != -1) {
+      task %>>% cpotrained
+      getTaskData(task, target.extra = TRUE)$data %>>% cpotrained
+    } else {
+      expect_error(task %>>% cpotrained, "no applicable method")
+    }
 
-test_that("cbind doesn't accept tocpos / rocpos", {
+    if (caps["invert"] != -1) {
+      expect_identical(invert(cpotrained, pred), pred)
+    } else {
+      expect_error(invert(cpotrained, pred), "not possible.*data-dependent inverter")
+    }
+  }
 
-})
+  testCapability((indif.indif), c(retrafo = 0L, invert = 0L))
+  testCapability((yes.yes), c(retrafo = 1L, invert = 1L))
+  testCapability((yes.indif), c(retrafo = 1L, invert = 0L))
+  testCapability((yes.no), c(retrafo = 1L, invert = -1L))
+  testCapability((no.yes), c(retrafo = -1L, invert = 1L))
 
-test_that("cbind accepts tocpo / rocpo when in acceptable parts of the graph", {
+  testCapability((yes.yes %>>% yes.indif), c(retrafo = 1L, invert = 1L))
+  testCapability((yes.indif %>>% yes.yes), c(retrafo = 1L, invert = 1L))
+  testCapability((yes.yes %>>% yes.no), c(retrafo = 1L, invert = -1L))
+  testCapability((yes.no %>>% yes.yes), c(retrafo = 1L, invert = -1L))
+  testCapability((yes.no %>>% yes.indif), c(retrafo = 1L, invert = -1L))
+  testCapability((yes.indif %>>% yes.no), c(retrafo = 1L, invert = -1L))
 
+  testCapability((no.yes %>>% yes.indif), c(retrafo = -1L, invert = 1L))
+  testCapability((yes.indif %>>% no.yes), c(retrafo = -1L, invert = 1L))
 
-})
+  testCapability((no.yes %>>% yes.yes), c(retrafo = -1L, invert = 1L))
+  testCapability((yes.yes %>>% no.yes), c(retrafo = -1L, invert = 1L))
 
-test_that("cpoSelectFreeProperties", {
+  expect_error(yes.no %>>% no.yes, "neither do retrafo nor invert")
 
-})
-
-test_that("cpoTransformParams", {
-
-
-})
-
-test_that("cpoWrapRetrafoless", {
-
-})
-
-test_that("getters and setters", {
-
-
-})
-
-test_that("operators", {
-
-
-})
-
-test_that("printers", {
-
-
-})
-
-test_that("helpers", {
-  # is.*
-  # nulltonullcpo etc
-
-
-})
-
-test_that("datasplit", {
-
-
-})
-
-test_that("changing target names to clash gives error", {
-
-})
-
-test_that("target stays in its position unless names changed", {
-
-})
-
-test_that("properties.target is respected", {
-
-
-})
-
-test_that("target conversion works as expected", {
-
-
-})
-
-test_that("multiplexer works for all types", {
-  # even NULLCPO
-  # property composition
-
-})
-
-test_that("multiplexer checks its arguments", {
-
-})
-
-
-test_that("cpoCase works for all types", {
-  # even NULLCPO
-  # property composition
-})
-
-test_that("cpoCase checks its arguments", {
-
-
-})
-
-test_that("cpoCase checks the generated CPO", {
-
+  testCapability(pipeCPO(as.list(yes.yes %>>% yes.indif %>>% no.yes %>>% yes.yes)[c(2, 4)]), c(retrafo = 1L, invert = 1L))
 
 })
 
@@ -535,20 +608,59 @@ test_that("'sometimes'-properties work as expected", {
 })
 
 
-test_that("cpoCache", {
+test_that("tocpo sees the correct cols when using affect args", {
 
 })
+
+test_that("changing target names to clash gives error", {
+
+})
+
+test_that("targetbound changes data in a different way on 'retrafo' fails", {
+
+})
+
+
+test_that("target stays in its position unless names changed", {
+
+})
+
+test_that("properties.target is respected", {
+
+
+})
+
+test_that("target conversion works as expected", {
+
+
+})
+
+
+test_that("getters and setters", {
+
+
+})
+
+test_that("operators", {
+
+
+})
+
+test_that("printers", {
+
+
+})
+
+test_that("helpers", {
+  # is.*
+  # nulltonullcpo etc
+
+
+})
+
 
 
 test_that("NULLCPO", {
-
-})
-
-test_that("targetbound: target changes", {
-
-})
-
-test_that("target bound: changing data causes fail", {
 
 })
 
@@ -557,17 +669,6 @@ test_that("targetbound type conversion", {
 
 })
 
-test_that("targetbound datasplit", {
-
-})
-
-test_that("targetbound retrafo data change works", {
-
-})
-
-test_that("targetbound changes data in a different way on 'retrafo' fails", {
-
-})
 
 test_that("'bound' well behaved: after splitting, uniting; for trafos and retrafos", {
 
@@ -614,10 +715,6 @@ test_that("convert data.frame as if it were 'cluster'", {
 
 })
 
-test_that("inferPredictionTypePossibilities, getResponseType", {
-
-})
-
 test_that("incompatibility of cpo prediction and predict type detected", {
 
 })
@@ -646,7 +743,6 @@ test_that("predict.type map works as expected", {
 
 
 })
-
 test_that("dataformat.factor.with.ordered influences strictness of property presence check", {
 
 })
@@ -679,3 +775,62 @@ test_that("on.par.out.of.bounds respected", {
 
 
 # interchanging names between target and nontarget column for retrafoless?
+
+
+
+test_that("cbind doesn't accept tocpos / rocpos", {
+
+})
+
+test_that("cbind accepts tocpo / rocpo when in acceptable parts of the graph", {
+
+
+})
+
+test_that("cpoSelectFreeProperties", {
+
+})
+
+test_that("cpoTransformParams", {
+
+
+})
+
+test_that("cpoWrapRetrafoless", {
+
+})
+
+
+
+test_that("multiplexer works for all types", {
+  # even NULLCPO
+  # property composition
+
+})
+
+test_that("multiplexer checks its arguments", {
+
+})
+
+
+test_that("cpoCase works for all types", {
+  # even NULLCPO
+  # property composition
+})
+
+test_that("cpoCase checks its arguments", {
+
+
+})
+
+test_that("cpoCase checks the generated CPO", {
+
+
+})
+
+
+
+test_that("cpoCache", {
+
+})
+

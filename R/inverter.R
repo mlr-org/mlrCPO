@@ -158,6 +158,9 @@ invertCPO = function(inverter, prediction, predict.type) {
   assert(inverter$capability["invert"] %in% 0:1)
   if (inverter$capability["invert"] != 1) {
     assertClass(inverter, "RetrafoElement")
+    if (is.null(inverter$prev.retrafo.elt)) {
+      return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
+    }
     return(invertCPO(inverter$prev.retrafo.elt, prediction, predict.type))
   }
 
@@ -186,10 +189,10 @@ invertCPO = function(inverter, prediction, predict.type) {
   prediction = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
   prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type)
 
-  if (is.null(inverter$prev.retrafo)) {
+  if (is.null(inverter$prev.retrafo.elt)) {
     return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
   }
-  invertCPO(inverter$prev.retrafo, prediction, predict.type)
+  invertCPO(inverter$prev.retrafo.elt, prediction, predict.type)
 }
 
 # Put the prediction 'data' into a canonical format.
