@@ -922,18 +922,42 @@ test_that("composing CPO with conversion etc. behaves as expected", {
 
 test_that("composing CPOTrained with conversion etc. behaves as expected", {
 
-
-
   # predict.type map
 })
 
-test_that("'sometimes'-properties work as expected", {
+### predict type & learner
 
+test_that("incompatibility of cpo prediction and predict type detected", {
 
 })
 
+test_that("after attaching CPO, predict.type stays the same if possible", {
 
-test_that("tocpo sees the correct cols when using affect args", {
+})
+
+test_that("chaining retrafo to learner that doesn't support the predict.type it needs fails", {
+
+})
+
+test_that("predict.type map works as expected", {
+
+})
+
+test_that("attached learner properties change with tocpo", {
+
+})
+
+### target column related
+
+test_that("change target names in targetbound target", {
+
+})
+
+test_that("change target names in targetbound datasplit 'no' fails", {
+
+})
+
+test_that("target stays in its position unless names changed", {
 
 })
 
@@ -941,33 +965,105 @@ test_that("changing target names to clash gives error", {
 
 })
 
+# interchanging names between target and nontarget column for retrafoless?
+
+test_that("switching classif levels in targetbound switches positive", {
+
+})
+
 test_that("targetbound changes data in a different way on 'retrafo' fails", {
 
 })
 
+test_that("classif number of classes changes", {
 
-test_that("target stays in its position unless names changed", {
+})
+
+test_that("classif class names change", {
+
+})
+
+### conversion related
+
+test_that("convert data.frame as if it were 'cluster'", {
 
 })
 
 test_that("properties.target is respected", {
 
+})
+
+
+### other tocpo
+
+test_that("tocpo sees the correct cols when using affect args", {
+
+})
+
+test_that("truth is kept", {
 
 })
 
 
-test_that("getters and setters", {
 
+### other features
+
+test_that("missings tolerated in retrafo in certain conditions", {
+
+})
+
+test_that("dataformat.factor.with.ordered influences strictness of property presence check", {
+
+})
+
+test_that("new operators work", {
+
+})
+
+test_that("index reference in affect and cpoSelect is relative to data cols", {
+
+})
+
+test_that("convertNamesToItems etc", {
+  # convertNamesToItems
+  # convertItemsToNames
+})
+
+test_that("on.par.out.of.bounds respected", {
+
+  # also with convertItemsToNames etc.
+})
+
+test_that("'sometimes'-properties work as expected", {
+
+})
+
+test_that("stateless target cpo  CPOs must be constant.invert", {
+
+  expect_error(makeCPOTargetOp("test", cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }),
+    "constant.invert must be TRUE")
+
+  expect_class(makeCPOTargetOp("test", constant.invert = TRUE,
+    cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }), "CPOConstructor")
+
+})
+
+test_that("printers", {
+
+})
+
+test_that("NULLCPO", {
 
 })
 
 test_that("operators", {
 
   cons = generalMakeCPO("test", type = "target")
-  cpo = cons()
+  cpo = cons(2)
   comb = cons() %>>% cons(id = "2nd")
   ret = retrafo(bh.task %>>% cpo)
   combret = ret %>>% ret
+  combret2 = retrafo(bh.task %>>% comb)
   inv = inverter(bh.task %>>% ret)
   combinv = inv %>>% inv
   lrn = cpo %>>% makeLearner("regr.lm")
@@ -1023,140 +1119,98 @@ test_that("operators", {
   expect_equal(getCPOPredictType(cpo), c(response = "response"))
   expect_equal(getCPOPredictType(generalMakeCPO("test", type = "target", predict.type.map = c(se = "se", response = "response"))()), c(se = "se", response = "response"))
 
+  expect_identical(getCPOTrainedCPO(ret), cpo)
+  expect_identical(getCPOTrainedCPO(inv), cpo)
+  expect_identical(getCPOTrainedCPO(combret2), comb)
+  expect_identical(getCPOTrainedCPO(NULLCPO), NULLCPO)
 
-})
+  expect_identical(getLearnerBare(makeLearner("regr.lm")), makeLearner("regr.lm"))
+  expect_identical(getLearnerBare(makeLearner("regr.lm")), makeLearner("regr.lm"))
+  expect_identical(getLearnerBare(setHyperPars(lrn, tol = 0.123)), makeLearner("regr.lm", tol = 0.123))
 
-test_that("printers", {
+  expect_identical(getLearnerCPO(lrn), cpo)
+  expect_identical(getLearnerCPO(setHyperPars(lrn, test.param = 10)), setHyperPars(cpo, test.param = 10))
 
+  tunelrn = makeTuneWrapper(lrn, hout, par.set = pSS(tol: numeric[.001, .01]), control = makeTuneControlRandom(maxit = 3), show.info = FALSE)
+
+  doublewrapped = cpoPca() %>>% tunelrn
+
+  expect_equal(getLearnerBare(doublewrapped), tunelrn)
+
+  expect_warning(expect_identical(getLearnerCPO(doublewrapped), cpoPca()), "had buried CPOs")
+
+  expect_warning(expect_identical(retrafo(train(doublewrapped, bh.task)), retrafo(bh.task %>>% cpoPca())), "CPOs wrapped by other wrappers")
 
 })
 
 test_that("helpers", {
-  # is.*
-  # nulltonullcpo etc
 
+  cons = generalMakeCPO("test", type = "target")
+  cpo = cons(2)
+  comb = cons() %>>% cons(id = "2nd")
+  ret = retrafo(bh.task %>>% cpo)
+  combret = ret %>>% ret
+  combret2 = retrafo(bh.task %>>% comb)
+  inv = inverter(bh.task %>>% ret)
+  combinv = inv %>>% inv
+  lrn = cpo %>>% makeLearner("regr.lm")
 
-})
+  expect_true(is.retrafo(ret))
+  expect_false(is.inverter(ret))
+  expect_false(is.nullcpo(ret))
 
+  expect_false(is.retrafo(inv))
+  expect_true(is.inverter(inv))
+  expect_false(is.nullcpo(inv))
 
+  expect_true(is.retrafo(NULLCPO))
+  expect_true(is.inverter(NULLCPO))
+  expect_true(is.nullcpo(NULLCPO))
 
-test_that("NULLCPO", {
+  expect_null(attr(clearRI(bh.task %>>% cpo), "retrafo"))
+  expect_null(attr(clearRI(bh.task %>>% cpo), "inverter"))
+  expect_identical(attr(bh.task %>>% cpo, "retrafo"), ret)
+  expect_identical(attr(bh.task %>>% cpo, "inverter"), inv)
 
-})
+  afterconv = bh.task %>>% cpo
+  retrafo(afterconv) = NULL
+  expect_identical(retrafo(afterconv), NULLCPO)
+  expect_null(attr(afterconv, "retrafo"))
 
-test_that("targetbound type conversion", {
-# ("classif", "multilabel", "regr", "surv", "cluster", "costsens")
+  afterconv = bh.task %>>% cpo
+  retrafo(afterconv) = NULLCPO
+  expect_identical(retrafo(afterconv), NULLCPO)
+  expect_null(attr(afterconv, "retrafo"))
 
-})
+  afterconv = bh.task %>>% cpo
+  inverter(afterconv) = NULL
+  expect_identical(inverter(afterconv), NULLCPO)
+  expect_null(attr(afterconv, "inverter"))
 
+  afterconv = bh.task %>>% cpo
+  inverter(afterconv) = NULLCPO
+  expect_identical(inverter(afterconv), NULLCPO)
+  expect_null(attr(afterconv, "inverter"))
 
-test_that("'bound' well behaved: after splitting, uniting; for trafos and retrafos", {
+  expect_error({inverter(afterconv) = ret})
+  expect_error({retrafo(afterconv) = inv})
 
-})
+  mod = train(lrn, bh.task)
+  expect_error({retrafo(mod) = ret}, "Cannot change retrafo of a model")
 
-test_that("change task names in targetbound datasplit 'no' fails", {
+  expect_null(nullcpoToNull(NULLCPO))
+  expect_identical(nullcpoToNull(list()), list())
 
-})
-
-test_that("change task names in targetbound target", {
-
-
-})
-
-test_that("switching classif levels in targetbound switches positive", {
-
-})
-
-test_that("targetbound functional", {
-
-})
-
-test_that("invert() works", {
-
+  expect_identical(nullToNullcpo(NULL), NULLCPO)
+  expect_identical(nullToNullcpo(list()), list())
 })
 
 test_that("inverter is noop when no targetbounds", {
-
+  expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), 1:10), 1:10)
+  expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), c("a", "b", "c")), c("a", "b", "c"))
 })
 
-test_that("truth is kept", {
-
-})
-
-test_that("classif number of classes changes", {
-
-})
-
-test_that("classif class names change", {
-
-})
-
-test_that("convert data.frame as if it were 'cluster'", {
-
-})
-
-test_that("incompatibility of cpo prediction and predict type detected", {
-
-})
-
-test_that("chaining inverters with incompatible conversion gives error", {
-
-})
-
-test_that("no complaint about missing 'control' in stateless cpo", {
-
-})
-
-test_that("after attaching CPO, predict.type stays the same if possible", {
-
-})
-
-test_that("chaining retrafo to learner that doesn't support the predict.type it needs fails", {
-
-})
-
-test_that("cpo.trafo-less CPOs, must be stateless", {
-
-})
-
-test_that("predict.type map works as expected", {
-
-
-})
-test_that("dataformat.factor.with.ordered influences strictness of property presence check", {
-
-})
-
-test_that("index reference in affect and cpoSelect is relative to data cols", {
-
-})
-
-test_that("missings tolerated in retrafo in certain conditions", {
-
-})
-
-test_that("attached learner properties change with tocpo", {
-
-})
-
-test_that("new operators work", {
-
-})
-
-test_that("convertNamesToItems etc", {
-  # convertNamesToItems
-  # convertItemsToNames
-})
-
-test_that("on.par.out.of.bounds respected", {
-
-  # also with convertItemsToNames etc.
-})
-
-
-# interchanging names between target and nontarget column for retrafoless?
-
-
+### concrete cpos
 
 test_that("cbind doesn't accept tocpos / rocpos", {
 

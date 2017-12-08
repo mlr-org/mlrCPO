@@ -136,7 +136,7 @@ setPredictType.CPOLearner = function(learner, predict.type) {
     stopf("Trying to predict %s, but %s does not support that.", predict.type, learner$id)
   }
   learner$predict.type = predict.type
-  learner$next.learner = setPredictType(learner$next.learner, ptconvert[predict.type])
+  learner$next.learner = setPredictType(learner$next.learner, unname(ptconvert[predict.type]))
   learner
 }
 
