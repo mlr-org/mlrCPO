@@ -43,7 +43,8 @@ Suggests:
     e1071,
     DiscriMiner,
     digest,
-    lintr
+    lintr,
+    Hmisc
 LazyData: yes
 ByteCompile: yes
 Version: 0.3
