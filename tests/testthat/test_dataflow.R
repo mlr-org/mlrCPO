@@ -880,18 +880,18 @@ test_that("composing CPO with conversion etc. behaves as expected", {
 
     rd = makeResampleInstance("Holdout", data)
 
-    trainSet = subsetTask(data, rd$train.inds[[1]])
-    testSet = subsetTask(data, rd$test.inds[[1]])
+    train.set = subsetTask(data, rd$train.inds[[1]])
+    test.set = subsetTask(data, rd$test.inds[[1]])
 
-    mod = train(cpo %>>% lrn, trainSet)
-    prd = predict(mod, testSet)
-    prd.df = predict(mod, newdata = getTaskData(testSet, target.extra = TRUE)$data)
+    mod = train(cpo %>>% lrn, train.set)
+    prd = predict(mod, test.set)
+    prd.df = predict(mod, newdata = getTaskData(test.set, target.extra = TRUE)$data)
 
-    tmptrain = trainSet %>>% cpo
-    tmptst = testSet %>>% retrafo(tmptrain)
+    tmptrain = train.set %>>% cpo
+    tmptst = test.set %>>% retrafo(tmptrain)
     mod2 = train(lrn, tmptrain)
     prd2 = predict(mod2, tmptst)
-    tmptst.df = getTaskData(testSet, target.extra = TRUE)$data %>>% retrafo(tmptrain)
+    tmptst.df = getTaskData(test.set, target.extra = TRUE)$data %>>% retrafo(tmptrain)
     prd2.df = predict(mod2, newdata = tmptst.df)
 
     expect_identical(invert(retrafo(tmptrain), prd2.df)$data, prd.df$data)
