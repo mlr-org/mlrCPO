@@ -28,7 +28,7 @@ generalMakeCPO = function(name,
   fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE, dataformat = "df.features",
   dataformat.factor.with.ordered = TRUE,
   convertfrom = "regr", convertto = convertfrom, properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = NULL, properties.needed = NULL, properties.target = NULL, predict.type.map = cpo.identity.predict.type.map,
+  properties.adding = NULL, properties.needed = NULL, properties.target = NULL, predict.type.map = c(response = "response"),
   keepformat = TRUE)  {
   type = match.arg(type)
   istocpo = type %in% c("target", "target.extended")
@@ -592,7 +592,7 @@ generalMakeCPO = function(name,
     properties.target = properties.target)
 
   if (type %in% c("target.extended", "target")) {
-    args %c=% list(task.type.out = convertto)
+    args %c=% list(task.type.out = convertto, predict.type.map = predict.type.map)
   }
   do.call(generate, args)
 }

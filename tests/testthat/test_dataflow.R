@@ -921,9 +921,9 @@ test_that("composing CPO with conversion etc. behaves as expected", {
 })
 
 test_that("composing CPOTrained with conversion etc. behaves as expected", {
-  # capabilities updated
-  # convertfrom, convertto updated
-  # errors when incompatible
+
+
+
   # predict.type map
 })
 
@@ -955,11 +955,6 @@ test_that("properties.target is respected", {
 
 })
 
-test_that("target conversion works as expected", {
-
-
-})
-
 
 test_that("getters and setters", {
 
@@ -967,6 +962,66 @@ test_that("getters and setters", {
 })
 
 test_that("operators", {
+
+  cons = generalMakeCPO("test", type = "target")
+  cpo = cons()
+  comb = cons() %>>% cons(id = "2nd")
+  ret = retrafo(bh.task %>>% cpo)
+  combret = ret %>>% ret
+  inv = inverter(bh.task %>>% ret)
+  combinv = inv %>>% inv
+  lrn = cpo %>>% makeLearner("regr.lm")
+
+
+  expect_error(getCPOAffect(cons), "no applicable method")
+  expect_identical(getCPOAffect(cpo), namedList())
+  expect_named(getCPOAffect(cpo, FALSE), c("type", "index", "names", "pattern", "invert", "pattern.ignore.case", "pattern.perl", "pattern.fixed"))
+  expect_identical(getCPOAffect(NULLCPO), list())
+  expect_identical(getCPOAffect(NULLCPO, FALSE), list())
+  expect_error(getCPOAffect(comb), "Compound CPOs have no affect")
+
+  expect_equal(getCPOClass(cons), "CPOConstructor")
+  expect_equal(getCPOClass(cpo), "CPO")
+  expect_equal(getCPOClass(comb), "CPO")
+  expect_equal(getCPOClass(ret), "CPORetrafo")
+  expect_equal(getCPOClass(combret), "CPORetrafo")
+  expect_equal(getCPOClass(inv), "CPOInverter")
+  expect_equal(getCPOClass(combinv), "CPOInverter")
+  expect_equal(getCPOClass(NULLCPO), "NULLCPO")
+
+  expect_identical(getCPOConstructor(ret), cons)
+  expect_identical(getCPOConstructor(inv), cons)
+  expect_identical(getCPOConstructor(cpo), cons)
+  expect_error(getCPOConstructor(combret), "Compound .* cannot be queried")
+  expect_error(getCPOConstructor(combinv), "Compound .* cannot be queried")
+  expect_error(getCPOConstructor(comb), "Compound .* cannot be queried")
+  expect_error(getCPOConstructor(NULLCPO), "No CPOConstructor for NULLCPO")
+
+  expect_identical(getCPOId(cpo), "test")
+  expect_error(getCPOId(comb), "Compound CPOs have no ID")
+  expect_equal(getCPOId(NULLCPO), "NULLCPO")
+
+  expect_equal(getCPOName(cons), "test")
+  expect_equal(getCPOName(cpo), "test")
+  expect_equal(getCPOName(comb), "test.test")
+  expect_equal(getCPOName(ret), "test")
+  expect_equal(getCPOName(combret), "test.test")
+  expect_equal(getCPOName(inv), "test")
+  expect_equal(getCPOName(combinv), "test.test")
+  expect_equal(getCPOName(NULLCPO), "NULLCPO")
+
+  expect_equal(getCPOOperatingType(cpo), "target")
+  expect_equal(getCPOOperatingType(comb), "target")
+  expect_equal(getCPOOperatingType(cpoPca()), "feature")
+  expect_set_equal(getCPOOperatingType(comb %>>% cpoPca()), c("target", "feature"))
+  expect_equal(getCPOOperatingType(NULLCPO), character(0))
+  expect_equal(getCPOOperatingType(ret), "feature")
+  expect_equal(getCPOOperatingType(inv), "target")
+  expect_equal(getCPOOperatingType(combret), "feature")
+  expect_equal(getCPOOperatingType(combinv), "target")
+
+  expect_equal(getCPOPredictType(cpo), c(response = "response"))
+  expect_equal(getCPOPredictType(generalMakeCPO("test", type = "target", predict.type.map = c(se = "se", response = "response"))()), c(se = "se", response = "response"))
 
 
 })
