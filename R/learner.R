@@ -64,11 +64,11 @@ compositeCPOLearnerProps = function(cpo, learner) {
     list(handling = props.relevant, adding = character(0), needed = character(0),
       adding.min = character(0), needed.max = character(0)),
     cpo$debug.name, getLearnerName(learner))$handling  # checks for property problems automatically
-  newprops = c(props.relevant, setdiff(props, relevant))
+  newprops = c(props.relevant, setdiff(props, relevant), "prob", "se")
 
   # check whether the promised predict.types actually work
   not.working.predict.types = Filter(function(ptype) {
-    cpo$predict.type[ptype] %nin% c(newprops, "response")
+    cpo$predict.type[ptype] %nin% c(props, "response")
   }, c("response", "prob", "se"))
 
   if ("response" %in% not.working.predict.types) {

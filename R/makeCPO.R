@@ -239,9 +239,6 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
     # TODO: we may loosen this requirement and only have it set to "sometimes".
   }
 
-  properties.adding %c=% setdiff(names(predict.type.map), c("response", unname(predict.type.map)))
-  properties.target %c=% setdiff(names(predict.type.map), "response")
-
   list(properties.adding = properties.adding, properties.needed = properties.needed,
     properties.target = properties.target, predict.type.map = predict.type.map,
     task.type.in = task.type.in, task.type.out = task.type.out)
