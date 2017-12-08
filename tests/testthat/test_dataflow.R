@@ -195,7 +195,7 @@ test_that("cpo.trafo has expected effects", {
         } else {
           if (isfocpo) {
             posn = min(which(!colnames(exp1) %in% getTaskTargetNames(task)))
-            posname <<- colnames(exp1)[posn]
+            posname <<- colnames(exp1)[posn]  # nolint
           } else {
             exp1 = getTaskData(task)
             posn = getTaskTargetNames(task)[1]
@@ -620,9 +620,304 @@ test_that("capabilities behave as expected when breaking and rebuilding CPOTrain
 
 test_that("composing CPO with conversion etc. behaves as expected", {
 
-  # throws errors when not compatible
-  # convertfrom, convertto are updated
-  # predict.type map
+  reg.to.clas.const = generalMakeCPO("reg.to.clas", ci = TRUE,
+    type = "target",
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.factor(data[[tcol]])
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      target[[1]] = as.numeric(as.character(target[[1]]))
+      target
+    },
+    convertfrom = "regr", convertto = "classif")
+
+  reg.to.reg.const = generalMakeCPO("reg.to.reg", ci = TRUE,
+    type = "target",
+    retrafo = function(data, control, param, target) {
+      data
+    }, convertfrom = "regr", convertto = "regr")
+
+  clas.to.reg.const = generalMakeCPO("clas.to.reg", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.numeric(data[[tcol]])
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      beforefac = round(target[[1]])
+      beforefac = pmax(beforefac, 1)
+      beforefac = pmin(beforefac, length(control))
+      target = factor(beforefac, levels = seq_along(control))
+      levels(target) = control
+      data.frame(target.target = target)
+    }, convertfrom = "classif", convertto = "regr")
+
+  clas.to.multilab.const = generalMakeCPO("clas.to.multilab", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      newcols = sapply(levels(data[[tcol]]), function(lvl) {
+        data[[tcol]] == lvl
+      })
+      cbind(data[-tcol], target = newcols)
+    },
+    invert = function(target, predict.type, control, param) {
+      colnames(target) = control
+      data.frame(target = factor(apply(target, 1, function(x) c(colnames(target)[x], colnames(target)[1])[1]), levels = control))
+    },
+    convertfrom = "classif", convertto = "multilabel")
+
+  clas.to.surv.const = generalMakeCPO("clas.to.surv", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.numeric(data[[tcol]])
+      cbind(data, target.surv = TRUE)
+    },
+    invert = function(target, predict.type, control, param) {
+      beforefac = round(target[[1]])
+      beforefac = pmax(beforefac, 1)
+      beforefac = pmin(beforefac, length(control))
+      target = factor(beforefac, levels = seq_along(control))
+      levels(target) = control
+      data.frame(target.target = target)
+    }, convertfrom = "classif", convertto = "surv")
+
+  reg.to.surv.const = generalMakeCPO("reg.to.surv", ci = TRUE,
+    type = "target",
+    retrafo = function(data, control, param, target) {
+      cbind(data, target.surv = TRUE)
+    }, convertfrom = "regr", convertto = "surv")
+
+  reg.to.clas.new.const = generalMakeCPO("reg.to.clas.new", ci = TRUE,
+    type = "target",
+    properties.adding = character(0), properties.needed = "twoclass",
+    train = function(data, target, param) {
+      list(mean = mean(data[[target]]), sd = sd(data[[target]]))
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.factor(as.numeric(data[[tcol]] > control$mean) - 1)
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      target[[1]] = c(control$mean - control$sd, control$mean + control$sd)[target[[1]]]
+      target
+    },
+    convertfrom = "regr", convertto = "classif")
+
+  surv.to.clas.const = generalMakeCPO("surv.to.clas", ci = TRUE,
+    type = "target",
+    properties.adding = character(0), properties.needed = "twoclass",
+    train = function(data, target, param) {
+      list(mean = mean(data[[target[1]]]), sd = sd(data[[target[1]]]))
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol[1]]] = as.factor(as.numeric((data[[tcol[1]]] + !data[[tcol[2]]]) > control$mean) - 1)
+      data[[tcol[2]]] = NULL
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      target[[1]] = c(control$mean - control$sd, control$mean + control$sd)[target[[1]]]
+      target
+    },
+    convertfrom = "surv", convertto = "classif")
+
+  multilab.to.clas.const = generalMakeCPO("mutilab.to.class", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      gsub("^target\\.", "", target)
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      tx = data[tcol]
+      data[tcol] = NULL
+      tcolred = gsub("^target\\.", "", target)
+      cbind(data, target.target = factor(apply(tx, 1, function(x) c(tcolred[x], tcolred[1])[1]), levels = tcolred))
+    },
+    invert = function(target, predict.type, control, param) {
+      sapply(control, function(lvl) target == lvl)
+    },
+    convertfrom = "multilabel", convertto = "classif")
+
+
+  reg.to.clas = reg.to.clas.const()
+  reg.to.reg = reg.to.reg.const()
+  reg.to.clas.new = reg.to.clas.new.const()
+  clas.to.reg = clas.to.reg.const()
+  clas.to.multilab = clas.to.multilab.const()
+  clas.to.surv = clas.to.surv.const()
+  reg.to.surv = reg.to.surv.const()
+  surv.to.clas = surv.to.clas.const()
+  multilab.to.clas = multilab.to.clas.const()
+
+  expect_equal(reg.to.clas$convertfrom, "regr")
+  expect_equal(reg.to.clas$convertto, "classif")
+
+  expect_equal((reg.to.reg %>>% reg.to.clas)$convertfrom, "regr")
+  expect_equal((reg.to.reg %>>% reg.to.clas)$convertto, "classif")
+
+  expect_equal(((reg.to.reg %>>% reg.to.clas) %>>% clas.to.multilab)$convertfrom, "regr")
+  expect_equal(((reg.to.reg %>>% reg.to.clas) %>>% clas.to.multilab)$convertto, "multilabel")
+
+  expect_equal((reg.to.reg %>>% (reg.to.clas %>>% clas.to.multilab))$convertfrom, "regr")
+  expect_equal((reg.to.reg %>>% (reg.to.clas %>>% clas.to.multilab))$convertto, "multilabel")
+
+  expect_error(reg.to.clas %>>% reg.to.reg, "creates data with propert.*classif")
+  expect_error(clas.to.multilab %>>% reg.to.reg, "creates data with propert.*multilabel")
+
+  lrn = makeLearner("classif.randomForest")
+
+  expect_equal(getLearnerType(lrn), "classif")
+
+  expect_equal(getLearnerType(reg.to.clas %>>% lrn), "regr")
+
+  expect_equal(getLearnerType(reg.to.reg %>>% reg.to.clas %>>% lrn), "regr")
+  expect_equal(getLearnerType(reg.to.reg %>>% (reg.to.clas %>>% lrn)), "regr")
+
+  expect_error(reg.to.clas %>>% makeLearner("classif.logreg"), "reg.to.clas.*multiclass.*can not handle")
+
+  expect_equal(getLearnerType(reg.to.reg %>>% makeLearner("regr.randomForest")), "regr")
+
+  expect_equal(getLearnerType(reg.to.reg %>>% reg.to.clas %>>% clas.to.multilab %>>% makeLearner("multilabel.randomForestSRC")), "regr")
+
+  expect_error(reg.to.reg %>>% lrn, "outputs type regr with learner of type classif")
+
+  expect_error(reg.to.clas %>>% (reg.to.clas %>>% lrn), "outputs type classif with learner of type regr")
+
+
+  expect_equal(getTaskDesc(bh.task %>>% reg.to.clas)$type, "classif")
+
+  expect_equal(getTaskDesc(bh.task %>>% reg.to.clas %>>% clas.to.multilab)$type, "multilabel")
+
+  tname = getTaskTargetNames(cpo.df5c)
+  expected = dropNamed(cpo.df5, tname)
+  expected = cbind(expected, data.frame(a = cpo.df5[[tname]] == "a", b = cpo.df5[[tname]] == "b"))
+
+  expect_equal(getTaskData(cpo.df5c %>>% clas.to.multilab), expected)
+
+  chained = iris.task %>>% clas.to.reg %>>% reg.to.reg %>>% reg.to.clas %>>% clas.to.multilab
+
+  expected = as.data.frame(t(sapply(rep(c(1, 2, 3), each = 50), function(x) 1:3 == x)))
+  colnames(expected) = 1:3
+
+  expect_identical(getTaskData(chained, target.extra = TRUE)$target, expected)
+
+  retr = retrafo(chained)
+  inv = inverter(chained)
+  inv2 = inverter(iris.task %>>% retr)
+
+  expect_identical(inv, inv2)
+
+  expect_equal(retr$convertfrom, "classif")
+  expect_equal(inv$convertfrom, "classif")
+
+  expect_equal(retr$convertto, "multilabel")
+  expect_equal(inv$convertto, "multilabel")
+
+  inv.tmp = inverter(iris.task %>>% clas.to.multilab)
+
+  indf = data.frame(`1` = c(FALSE, FALSE, TRUE), `2` = c(FALSE, FALSE, TRUE), `3` = c(TRUE, FALSE, FALSE))
+  expt = factor(c("virginica", "setosa", "setosa"), levels = levels(iris[[5]]))
+  expect_identical(invert(inv.tmp, indf), expt)
+
+  inv.tmp = inverter(iris.task %>>% clas.to.reg)
+  expect_identical(invert(inv.tmp, c(3, 1, 1)), expt)
+
+  res = bh.task %>>% reg.to.clas
+
+  expect_identical(invert(inverter(res), getTaskData(res, target.extra = TRUE)$target),
+    getTaskData(bh.task, target.extra = TRUE)$target)
+
+
+  expect_identical(invert(retr, indf), expt)
+
+  expect_identical(invert(inv, indf), expt)
+
+  expect_equal(as.list(retr)[[1]]$convertfrom, "classif")
+  expect_equal(as.list(retr)[[1]]$convertto, "regr")
+  expect_equal(as.list(retr)[[2]]$convertfrom, "regr")
+  expect_equal(as.list(retr)[[3]]$convertto, "classif")
+  expect_equal((as.list(retr)[[1]] %>>% as.list(retr)[[3]])$convertfrom, "classif")
+  expect_equal((as.list(retr)[[1]] %>>% as.list(retr)[[3]])$convertto, "classif")
+
+  expect_equal(as.list(inv)[[1]]$convertfrom, "classif")
+  expect_equal(as.list(inv)[[1]]$convertto, "regr")
+  expect_equal(as.list(inv)[[2]]$convertfrom, "regr")
+  expect_equal(as.list(inv)[[3]]$convertto, "classif")
+  expect_equal((as.list(inv)[[1]] %>>% as.list(inv)[[3]])$convertfrom, "classif")
+  expect_equal((as.list(inv)[[1]] %>>% as.list(inv)[[3]])$convertto, "classif")
+
+  expect_equal((as.list(inv)[[1]] %>>% as.list(retr)[[3]])$convertfrom, "classif")
+  expect_equal((as.list(retr)[[1]] %>>% as.list(inv)[[3]])$convertto, "classif")
+
+  expect_identical(invert(as.list(retr)[[1]] %>>% as.list(inv)[[3]], as.factor(as.numeric(iris[[5]]))),
+    iris[[5]])
+
+  expect_equal((((as.list(retr)[[1]] %>>% as.list(inv)[[2]]) %>>% as.list(inv)[[3]]) %>>% as.list(retr)[[4]])$convertfrom, "classif")
+  expect_equal((((as.list(retr)[[1]] %>>% as.list(inv)[[2]]) %>>% as.list(inv)[[3]]) %>>% as.list(retr)[[4]])$convertto, "multilabel")
+
+  expect_equal(((as.list(retr)[[1]] %>>% as.list(inv)[[2]]) %>>% (as.list(inv)[[3]] %>>% as.list(retr)[[4]]))$convertfrom, "classif")
+  expect_equal(((as.list(retr)[[1]] %>>% as.list(inv)[[2]]) %>>% (as.list(inv)[[3]] %>>% as.list(retr)[[4]]))$convertto, "multilabel")
+
+
+
+
+  testinv = function(data, cpo, lrn) {
+
+    rd = makeResampleInstance("Holdout", data)
+
+    trainSet = subsetTask(data, rd$train.inds[[1]])
+    testSet = subsetTask(data, rd$test.inds[[1]])
+
+    mod = train(cpo %>>% lrn, trainSet)
+    prd = predict(mod, testSet)
+    prd.df = predict(mod, newdata = getTaskData(testSet, target.extra = TRUE)$data)
+
+    tmptrain = trainSet %>>% cpo
+    tmptst = testSet %>>% retrafo(tmptrain)
+    mod2 = train(lrn, tmptrain)
+    prd2 = predict(mod2, tmptst)
+    tmptst.df = getTaskData(testSet, target.extra = TRUE)$data %>>% retrafo(tmptrain)
+    prd2.df = predict(mod2, newdata = tmptst.df)
+
+    expect_identical(invert(retrafo(tmptrain), prd2.df)$data, prd.df$data)
+
+    expect_identical(invert(inverter(tmptst), prd2)$data, prd$data)
+
+    expect_identical(invert(retrafo(tmptrain), prd2)$data$response, prd$data$response)
+
+    expect_true(!is.na(holdout(cpo %>>% lrn, data, show.info = FALSE)$aggr))
+  }
+
+  options(mlr.debug.seed = 3)
+  testinv(iris.task, clas.to.reg, makeLearner("regr.lm"))
+  testinv(pid.task, clas.to.reg, makeLearner("regr.lm"))
+  testinv(bh.task, reg.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
+  testinv(iris.task, clas.to.multilab, makeLearner("multilabel.randomForestSRC", seed = -1, mtry = 1, ntree = 1))
+  testinv(iris.task, clas.to.surv, makeLearner("surv.coxph"))
+  testinv(bh.task, reg.to.surv, makeLearner("surv.coxph"))
+  testinv(iris.task, clas.to.reg %>>% reg.to.surv, makeLearner("surv.coxph"))
+
+  testinv(bh.task, reg.to.clas.new, makeLearner("classif.logreg"))
+  testinv(lung.task, surv.to.clas, makeLearner("classif.logreg"))
+  testinv(yeast.task, multilab.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
+
+  testinv(bh.task, reg.to.clas.new %>>% clas.to.multilab %>>% multilab.to.clas %>>% clas.to.surv, makeLearner("surv.coxph"))
+
 })
 
 test_that("composing CPOTrained with conversion etc. behaves as expected", {

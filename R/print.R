@@ -110,15 +110,27 @@ print.CPOTrained = function(x, ...) {
   first = TRUE
   object.type = getCPOClass(x)
   invcap = getCPOTrainedCapability(x)
+  reverse = invcap["retrafo"] < 1
+
   pt = names(getCPOPredictType(x))
   caps = names(Filter(function(x) x > 0, invcap))
   catf("CPO %s chain", collapse(stri_trans_totitle(caps), sep = " / "), newline = FALSE)
+  if (!is.null(x$convertfrom) && !is.null(x$convertto)) {
+    if (x$convertfrom == x$convertto) {
+      catf(" {type:%s}", x$convertfrom, newline = FALSE)
+    } else {
+      cc = c(x$convertfrom, x$convertto)
+      if (reverse) {
+        cc = rev(cc)
+      }
+      catf(" {conv:%s->%s}", cc[1], cc[2], newline = FALSE)
+    }
+  }
   if (invcap["invert"] > 0) {
-    catf("(able to predict '%s')", collapse(pt, sep = "', '"))
+    catf(" (able to predict '%s')", collapse(pt, sep = "', '"))
   } else {
     cat("\n")
   }
-  reverse = invcap["retrafo"] < 1
   plist = as.list(x)
   if (reverse) {
     plist = rev(plist)

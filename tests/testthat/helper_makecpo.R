@@ -22,7 +22,7 @@
 generalMakeCPO = function(name,
                           train = function(data, target, param) NULL,
                           retrafo = function(data, control, param, target) data,
-                          traininvert = function(data, control, param) NULL,
+                          traininvert = function(data, control, param) if (!missing(control)) control,
                           invert = function(target, predict.type, control, param) target,
   type = c("simple", "extended", "target", "target.extended", "retrafoless"),
   fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE, dataformat = "df.features",
@@ -37,7 +37,7 @@ generalMakeCPO = function(name,
     if (istocpo) {
       properties.target = convertfrom
       if (convertfrom == "classif") {
-        properties.target %c=% c("oneclass", "twoclass", "multiclass")
+        properties.target %c=% c("twoclass", "multiclass")
       }
     } else {
       properties.target = c(cpo.tasktypes, cpo.targetproperties)
@@ -45,21 +45,22 @@ generalMakeCPO = function(name,
   }
 
   if (is.null(properties.adding)) {
+    properties.adding = character(0)
     if (istocpo && convertfrom != convertto) {
-      properties.adding = properties.target
-    } else {
-      properties.adding = character(0)
+      if (convertfrom == "classif") {
+        properties.adding %c=% c("twoclass", "multiclass")
+      }
     }
+
   }
 
   if (is.null(properties.needed)) {
+    properties.needed = character(0)
     if (istocpo && convertfrom != convertto) {
-      properties.needed = convertto
+#      properties.needed = convertto
       if (convertto == "classif") {
         properties.needed %c=% c("twoclass", "multiclass")
       }
-    } else {
-      properties.needed = character(0)
     }
   }
 
@@ -268,7 +269,7 @@ generalMakeCPO = function(name,
       }
     } else {
       assert(whichfun == "invert")
-      if (convertto != "multilabel" && predict.type == "response") {
+      if (convertfrom != "multilabel" && predict.type == "response") {
         assert(ncol(result) == 1)
         result = result[[1]]
       }
@@ -586,9 +587,14 @@ generalMakeCPO = function(name,
       })  # target.extended, switch
   }
 
-  generate(cpo.name = name, par.set = ps, dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
+  args = list(cpo.name = name, par.set = ps, dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
     properties.data = properties.data, properties.adding = properties.adding, properties.needed = properties.needed,
     properties.target = properties.target)
+
+  if (type %in% c("target.extended", "target")) {
+    args %c=% list(task.type.out = convertto)
+  }
+  do.call(generate, args)
 }
 #  fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE
 
@@ -624,7 +630,7 @@ applyGMC = function(name, strict,
                     convertfrom = "cluster", convertto = convertfrom,
                     train = function(data, target, param) NULL,
                     retrafo = function(data, control, param, target) data,
-                    traininvert = function(data, control, param) NULL,
+                    traininvert = function(data, control, param)  if (!missing(control)) control,
                     invert = function(target, predict.type, control, param) target,
                     keepformat = TRUE,
                     applyfun) {
