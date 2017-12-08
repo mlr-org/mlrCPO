@@ -23,7 +23,17 @@ test_that("generalMakeCPO works", {
     }
 
 
-    task %>>% generalMakeCPO("setup",
+    task %>>% generalMakeCPO("setup", keepformat = FALSE,
+      dataformat.factor.with.ordered = !strict,
+      train = function(data, target, param) {
+        localenv$withtarget.split = data
+      },
+      retrafo = function(data, control, param) {
+        localenv$notarget.split = data
+        data
+      })()
+
+    task %>>% generalMakeCPO("setup2", keepformat = TRUE,
       dataformat.factor.with.ordered = !strict,
       train = function(data, target, param) {
         localenv$withtarget = data
@@ -32,6 +42,7 @@ test_that("generalMakeCPO works", {
         localenv$notarget = data
         data
       })()
+
 
     dataformats = c("df.features", "split", "df.all", "task")
     present = names(Filter(identity, getTaskDesc(task)$n.feat))
@@ -52,16 +63,26 @@ test_that("generalMakeCPO works", {
 
 
     checkFulldata = function(data, target) {
-      if (curdf %in% c("df.all", "task")) {
-        expect_equal(length(localenv$withtarget), length(data))
-        data = data[colnames(localenv$withtarget)]
+      if (curdf == "split") {
+        comparendum = localenv$withtarget.split
+      } else {
+        comparendum = localenv$withtarget
       }
-      expect_identical(data, localenv$withtarget)
+      if (curdf %in% c("df.all", "task")) {
+        expect_equal(length(comparendum), length(data))
+        data = data[colnames(comparendum)]
+      }
+      expect_identical(data, comparendum)
       expect_identical(expected.target, target)
     }
 
     checkHalfdata = function(data) {
-      expect_identical(data, localenv$notarget)
+      if (curdf == "split") {
+        comparendum = localenv$notarget.split
+      } else {
+        comparendum = localenv$notarget
+      }
+      expect_identical(data, comparendum)
     }
 
     cursl = FALSE
@@ -91,7 +112,7 @@ test_that("generalMakeCPO works", {
         data
       },
       traininvert = function(data, control, param) {
-        expect_identical(data, localenv$notarget)
+        checkHalfdata(data)
         TRUE
       },
       invert = function(target, predict.type, control, param) {
@@ -144,6 +165,7 @@ test_that("cpo.trafo has expected effects", {
     barrelroll = c(seq_len(getTaskSize(task))[-1], 1)
 
     is.retrafoless = FALSE
+    posname = NULL
 
     applyGMC("testtrafo", strict, convertfrom = getTaskDesc(task)$type,
       retrafo = function(data, control, param, target) {
@@ -152,12 +174,13 @@ test_that("cpo.trafo has expected effects", {
         }
         if (missing(target)) {
           # focpo
-          pos = 1
+          pos = which(gsub("^[^.]*\\.", "", colnames(data)) == posname)
         } else {
           # tocpo
           pos = target
         }
         if (length(pos)) {
+          pos = pos[1]
           data[[pos]] = data[[pos]][barrelroll]
         }
         data
@@ -172,14 +195,17 @@ test_that("cpo.trafo has expected effects", {
         } else {
           if (isfocpo) {
             posn = min(which(!colnames(exp1) %in% getTaskTargetNames(task)))
+            posname <<- colnames(exp1)[posn]
           } else {
             exp1 = getTaskData(task)
-            posn = getTaskTargetNames(task)
+            posn = getTaskTargetNames(task)[1]
           }
           if (length(posn)) {
             exp1[[posn]] = exp1[[posn]][barrelroll]
             exp2 = exp1
             exp2[[posn]] = exp1[[posn]][barrelroll]
+          } else {
+            exp2 = exp1
           }
         }
 
@@ -299,7 +325,7 @@ test_that("information from cpo.trafo propagates", {
   expect_false(t2exp == t3exp)
   expect_false(t1exp == t3exp)
 
-  applyGMC("testtrafo", TRUE, convertfrom = getTaskDesc(task)$type,
+  applyGMC("testtrafo", TRUE, convertfrom = getTaskDesc(t1)$type,
     train = function(data, target, param) {
       data[[1]][1]
     },
@@ -350,7 +376,7 @@ test_that("cpo.invert has information from cpo.trafo / cpo.retrafo", {
   expect_false(t2exp == t3exp)
   expect_false(t1exp == t3exp)
 
-  applyGMC("testtrafo", TRUE, convertfrom = getTaskDesc(task)$type,
+  applyGMC("testtrafo", TRUE, convertfrom = getTaskDesc(t1)$type,
     type = c("target", "target.extra"),
     traininvert = function(data, control, param) {
       data[[1]][1]

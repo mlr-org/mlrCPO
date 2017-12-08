@@ -18,6 +18,7 @@
 # sl and ci influence how often train & traininvert are called.
 # dataformat is checked automatically
 # properties.adding, properties.needed, properties.target are filled automatically if not given
+# keepformat: whether to change column layout. TRUE -> keep input layout. FALSE -> emulate split layout
 generalMakeCPO = function(name,
                           train = function(data, target, param) NULL,
                           retrafo = function(data, control, param, target) data,
@@ -27,7 +28,8 @@ generalMakeCPO = function(name,
   fr = FALSE, fi = FALSE, sl = FALSE, ci = FALSE, dataformat = "df.features",
   dataformat.factor.with.ordered = TRUE,
   convertfrom = "regr", convertto = convertfrom, properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = NULL, properties.needed = NULL, properties.target = NULL, predict.type.map = cpo.identity.predict.type.map)  {
+  properties.adding = NULL, properties.needed = NULL, properties.target = NULL, predict.type.map = cpo.identity.predict.type.map,
+  keepformat = TRUE)  {
   type = match.arg(type)
   istocpo = type %in% c("target", "target.extended")
 
@@ -166,16 +168,18 @@ generalMakeCPO = function(name,
       names(target) = pastePar("target", names(target), sep = ".")
       data = cbind(data, target)
 
-      order = seq_along(data)
-      names(order) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(data))
-      if (dataformat == "task") {
-        innames = colnames(getTaskData(indata))
-        data = data[order[innames]]
-      }
-      if (dataformat == "df.all") {
-        data = data[order[colnames(indata)]]
-      }
       target = if (whichfun == "train" || (!type %in% c("simple", "extended") && whichfun == "retrafo")) names(target)
+    }
+    order = seq_along(data)
+    names(order) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(data))
+    if ("Task" %in% class(indata)) {
+      innames = colnames(getTaskData(indata))
+    } else if (dataformat != "split") {
+      innames = colnames(indata)
+    }
+    if (dataformat != "split" && keepformat) {
+      innames %c=% setdiff(names(order), innames)
+      data = data[order[intersect(innames, names(order))]]
     }
 
     list(data = data, target = target)
@@ -622,6 +626,7 @@ applyGMC = function(name, strict,
                     retrafo = function(data, control, param, target) data,
                     traininvert = function(data, control, param) NULL,
                     invert = function(target, predict.type, control, param) target,
+                    keepformat = TRUE,
                     applyfun) {
   dotype = type
   for (dfx in dataformats) {
@@ -637,7 +642,7 @@ applyGMC = function(name, strict,
       }
       type = line$type
 
-      cpo = generalMakeCPO(name = name, type = type,
+      cpo = generalMakeCPO(name = name, type = type, keepformat = keepformat,
         fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
         dataformat = dfx, convertfrom = convertfrom,
         dataformat.factor.with.ordered = !strict,
