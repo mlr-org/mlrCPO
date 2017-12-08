@@ -210,13 +210,13 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   tin = prepareRetrafoInput(data, cpo$dataformat, cpo$strict.factors, cpo$properties.raw,
     retrafo$shapeinfo.input, cpo$operating.type, cpo$name)
 
+  # if we are target operating, have no target to change AND don't need the retrafostate
+  # when we don't call cpo.retrafo at all.
   if (cpo$operating.type == "target" && !build.inverter && is.null(tin$indata$target)) {
     # neither data to modify nor an inverter to build
     return(list(data = data, inverter = prev.inverter))
   }
 
-  # if we are target operating, have no target to change AND don't need the retrafostate
-  # when we don't call cpo.retrafo at all. This is handled by callInterface, however.
   tin$indata$state = retrafo$state
   result = do.call(cpo$trafo.funs$cpo.retrafo, insert(getBareHyperPars(cpo), tin$indata))
 
