@@ -920,30 +920,190 @@ test_that("composing CPO with conversion etc. behaves as expected", {
 
 })
 
-test_that("composing CPOTrained with conversion etc. behaves as expected", {
+test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", {
 
-  # predict.type map
-})
+  se.adder = generalMakeCPO("se.adder", ci = TRUE,
+    type = "target",
+    retrafo = function(data, control, param, target) {
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      if (predict.type == "se") {
+        expect_identical(predict.type, "se")
+        cbind(target, xx = 1)
+      } else {
+        expect_identical(predict.type, "response")
+        target
+      }
+    }, convertfrom = "regr", convertto = "regr",
+    predict.type.map = c(response = "response", se = "response"))()
 
-### predict type & learner
+  se.remover = generalMakeCPO("se.remover", ci = TRUE,
+    type = "target",
+    retrafo = function(data, control, param, target) {
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      expect_identical(predict.type, "response")
+      target[1]
+    }, convertfrom = "regr", convertto = "regr",
+    predict.type.map = c(response = "se"))()
 
-test_that("incompatibility of cpo prediction and predict type detected", {
+  se.from.prob = generalMakeCPO("se.from.prob", ci = TRUE,
+    type = "target",
+    properties.adding = character(0), properties.needed = "twoclass",
+    train = function(data, target, param) {
+      list(mean = mean(data[[target]]), sd = sd(data[[target]]))
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.factor(as.numeric(data[[tcol]] > control$mean) - 1)
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      posn = c(control$mean - control$sd, control$mean + control$sd)
+      if (predict.type == "se") {
+        expect_identical(predict.type, "se")
+        means = apply(target, 1, weighted.mean, x = posn)
+        sd = vnapply(seq_along(means), function(i) {
+          sqrt(sum(target[i, ] * (posn - means[i])^2))
+        })
+        data.frame(pred = means, sd = sd)
+      } else {
+        expect_identical(predict.type, "response")
+        target[[1]] = posn[target[[1]]]
+        target
+      }
+    },
+    convertfrom = "regr", convertto = "classif",
+    predict.type.map = c(response = "response", se = "prob"))()
 
-})
+  prob.from.response = generalMakeCPO("prob.from.response", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    invert = function(target, predict.type, control, param) {
+      if (predict.type == "prob") {
+        expect_identical(predict.type, "prob")
+        probs = c(1 / (1 + length(control)), 1 - 1 / (1 + length(control)))
+        sapply(control, function(lvl) probs[1 + (target == lvl)])
+      } else {
+        expect_identical(predict.type, "response")
+        target
+      }
+    }, convertfrom = "classif", predict.type.map = c(response = "response", prob = "response"))()
 
-test_that("after attaching CPO, predict.type stays the same if possible", {
+  loud.prob.from.response = generalMakeCPO("prob.from.response", ci = TRUE,
+    type = "target",
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    invert = function(target, predict.type, control, param) {
+      cat(predict.type)
+      cat("\n")
+      if (predict.type == "prob") {
+        expect_identical(predict.type, "prob")
+        probs = c(1 / (1 + length(control)), 1 - 1 / (1 + length(control)))
+        sapply(control, function(lvl) probs[1 + (target == lvl)])
+      } else {
+        expect_identical(predict.type, "response")
+        target
+      }
+    }, convertfrom = "classif", predict.type.map = c(response = "response", prob = "response"))()
 
-})
 
-test_that("chaining retrafo to learner that doesn't support the predict.type it needs fails", {
+  expect_identical(getCPOPredictType(prob.from.response), c(response = "response", prob = "response"))
+  expect_identical(getCPOPredictType(prob.from.response %>>% cpoPca()), c(response = "response", prob = "response"))
+  expect_identical(getCPOPredictType(cpoScale() %>>% prob.from.response %>>% cpoPca()), c(response = "response", prob = "response"))
 
-})
+  expect_identical(getCPOPredictType(se.from.prob %>>% prob.from.response), c(response = "response", se = "response"))
+  expect_identical(getCPOPredictType((se.from.prob %>>% cpoScale()) %>>% (prob.from.response %>>% cpoPca())), c(response = "response", se = "response"))
 
-test_that("predict.type map works as expected", {
+  tsk = bh.task %>>% (se.from.prob %>>% cpoScale()) %>>% (prob.from.response %>>% cpoPca())
 
-})
+  expect_identical(getCPOPredictType(retrafo(tsk)), c(response = "response", se = "response"))
+  expect_identical(getCPOPredictType(inverter(tsk)), c(response = "response", se = "response"))
 
-test_that("attached learner properties change with tocpo", {
+  rlist = as.list(retrafo(tsk))
+
+  expect_identical(getCPOPredictType(rlist[[1]]), c(response = "response", se = "prob"))
+  expect_identical(getCPOPredictType(rlist[[2]]), c(response = "response", prob = "prob", se = "se"))
+
+  expect_identical(getCPOPredictType(rlist[[3]]), c(response = "response", prob = "response"))
+
+  expect_identical(getCPOPredictType(rlist[[1]] %>>% rlist[[3]]), c(response = "response", se = "response"))
+
+
+  ilist = as.list(inverter(bh.task %>>% se.remover %>>% (se.from.prob %>>% cpoScale()) %>>% (prob.from.response %>>% cpoPca())))
+
+  expect_identical(getCPOPredictType((ilist[[1]] %>>% ilist[[2]]) %>>% ilist[[3]]), c(response = "response"))
+  expect_identical(getCPOPredictType(ilist[[1]] %>>% (ilist[[2]] %>>% ilist[[3]])), c(response = "response"))
+
+
+  expect_identical((ilist[[1]] %>>% (ilist[[2]] %>>% ilist[[3]]))$element$prev.predict.type, getCPOPredictType(ilist[[1]] %>>% ilist[[2]]))
+  expect_identical(((ilist[[1]] %>>% ilist[[2]]) %>>% ilist[[3]])$element$prev.predict.type, getCPOPredictType(ilist[[1]] %>>% ilist[[2]]))
+
+  expect_error(se.remover %>>% setCPOId(se.remover, "b"), "se.remover needs a predict.type being one of 'se'.*can only deliver.*response")
+
+  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.logreg")), c("prob", "se")), "se")
+
+  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.gaterSVM")), c("prob", "se")), character(0))
+
+  expect_set_equal(intersect(getLearnerProperties(se.remover %>>% (se.from.prob %>>% makeLearner("classif.logreg"))), c("prob", "se")), character(0))
+
+  expect_equal(getLearnerType(se.from.prob %>>% makeLearner("classif.logreg")), "regr")
+  expect_equal(getLearnerType(prob.from.response %>>% makeLearner("classif.logreg")), "classif")
+
+  expect_error(se.remover %>>% (se.from.prob %>>% makeLearner("classif.gaterSVM")), "for 'response' prediction, the Learner must have 'prob' prediction")
+
+  expect_error(se.remover %>>% makeLearner("regr.ctree"), "for 'response' prediction, the Learner must have 'se' prediction")
+
+  expect_equal(getLearnerPredictType(cpoScale() %>>% makeLearner("classif.logreg", predict.type = "prob")), "prob")
+  expect_equal(getLearnerPredictType(se.from.prob %>>% makeLearner("classif.logreg", predict.type = "prob")), "response")
+
+  inv = inverter(pid.task %>>% loud.prob.from.response)
+  expect_output(invert(inv, getTaskData(pid.task, target.extra = TRUE)$target), "^response$")
+  expect_output(invert(inv, getTaskData(pid.task, target.extra = TRUE)$target, predict.type = "prob"), "^prob$")
+
+  inv2 = inverter(pid.task %>>% loud.prob.from.response %>>% loud.prob.from.response)
+  expect_output(invert(inv2, getTaskData(pid.task, target.extra = TRUE)$target), "^response\nresponse$")
+  expect_output(invert(inv2, getTaskData(pid.task, target.extra = TRUE)$target, predict.type = "prob"), "^response\nprob$")
+
+
+  testinv = function(data, cpo, lrn, predict.type.lrn, predict.type.outer, measure) {
+    lrn = setPredictType(lrn, predict.type.lrn)
+
+    rd = makeResampleInstance("Holdout", data)
+
+    train.set = subsetTask(data, rd$train.inds[[1]])
+    test.set = subsetTask(data, rd$test.inds[[1]])
+
+    mod = train(setPredictType(cpo %>>% lrn, predict.type.outer), train.set)
+    prd = predict(mod, test.set)
+    prd.df = predict(mod, newdata = getTaskData(test.set, target.extra = TRUE)$data)
+
+    tmptrain = train.set %>>% cpo
+    tmptst = test.set %>>% retrafo(tmptrain)
+    mod2 = train(lrn, tmptrain)
+    prd2 = predict(mod2, tmptst)
+    tmptst.df = getTaskData(test.set, target.extra = TRUE)$data %>>% retrafo(tmptrain)
+    prd2.df = predict(mod2, newdata = tmptst.df)
+
+    expect_identical(invert(retrafo(tmptrain), prd2.df, predict.type.outer)$data, prd.df$data)
+
+    expect_identical(invert(inverter(tmptst), prd2, predict.type.outer)$data, prd$data)
+
+    expect_identical(invert(retrafo(tmptrain), prd2, predict.type.outer)$data$response, prd$data$response)
+
+    expect_true(!is.na(holdout(setPredictType(cpo %>>% lrn, predict.type.outer), data, show.info = FALSE, measures = list(measure))$aggr))
+  }
+
+  testinv(bh.task, se.from.prob, makeLearner("classif.logreg"), "prob", "se", mse)
+  testinv(bh.task, se.remover %>>% se.from.prob, makeLearner("classif.logreg"), "prob", "response", mse)
+  testinv(bh.task, se.adder %>>% se.remover %>>% se.from.prob, makeLearner("classif.logreg"), "prob", "response", mse)
+  testinv(pid.task, prob.from.response, makeLearner("classif.logreg"), "response", "prob", auc)
+
 
 })
 
@@ -1000,12 +1160,6 @@ test_that("tocpo sees the correct cols when using affect args", {
 
 })
 
-test_that("truth is kept", {
-
-})
-
-
-
 ### other features
 
 test_that("missings tolerated in retrafo in certain conditions", {
@@ -1017,6 +1171,26 @@ test_that("dataformat.factor.with.ordered influences strictness of property pres
 })
 
 test_that("new operators work", {
+
+  x = cpoScale()
+  y = cpoPca()
+  w = cpoSelect()
+  z = pid.task
+
+  z %<>>% y %<<<% x %>>% cpoSelect("numeric")
+
+  expect_equal(z, pid.task %>>% cpoScale() %>>% cpoSelect("numeric") %>>% cpoPca())
+
+  expect_identical(retrafo(z), retrafo(pid.task %>>% cpoScale() %>>% cpoSelect("numeric") %>>% cpoPca()))
+
+  expect_identical(y, cpoScale() %>>% cpoSelect("numeric") %>>% cpoPca())
+
+
+  expect_identical(pid.task %>|% cpoPca(), retrafo(pid.task %>>% cpoPca()))
+
+  expect_identical(pid.task %>|% cpoPca() %>>% cpoScale(), retrafo(pid.task %>>% cpoPca() %>>% cpoScale()))
+
+  expect_identical(cpoPca() %>>% cpoScale() %|<% pid.task, retrafo(pid.task %>>% cpoPca() %>>% cpoScale()))
 
 })
 

@@ -222,7 +222,7 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
     stop("predict.type.map argument is not, and could not be converted into, a uniquely named character vector.")
   }
   if (!isTRUE(checkSubset(names(predict.type.map), predtypes[[task.type.in]]))) {
-    stop("names of predict.type.map must be a subset of the possible prediction types %s of input Task type %s.", predtypes[[task.type.in]], task.type.in)
+    stopf("names of predict.type.map must be a subset of the possible prediction types %s of input Task type %s.", collapse(predtypes[[task.type.in]], sep = ", "), task.type.in)
   }
   if (!isTRUE(checkSubset(predict.type.map, predtypes[[task.type.out]]))) {
     stop("predict.type.map values must be a subset of the possible prediction types %s of output Task type %s.", predtypes[[task.type.out]], task.type.out)
@@ -230,13 +230,6 @@ prepareCPOTargetOp = function(properties.adding, properties.needed, properties.t
 
   if (!"response" %in% names(predict.type.map)) {
     stop("CPO must always support predict.type.map 'response', so predict.type.map must have one value named 'response'.")
-  }
-
-  if (predict.type.map["response"] != "response") {
-    # the lower learner must provide what we need for 'response' prediction.
-    # alternatively, we could drop the requirement that every learner / CPO must always be able to deliver response.
-    properties.needed %c=% unname(predict.type.map["response"])
-    # TODO: we may loosen this requirement and only have it set to "sometimes".
   }
 
   list(properties.adding = properties.adding, properties.needed = properties.needed,

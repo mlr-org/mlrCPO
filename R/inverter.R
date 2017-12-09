@@ -103,7 +103,7 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
 
   assert(identical(intersect(getCPOProperties(inverter)$handling, cpo.tasktypes), inverter$convertfrom))
   assertChoice(inverter$convertto, cpo.tasktypes)
-  sanpred = sanitizePrediction(preddf, inverter$convertto, predict.type)
+  sanpred = sanitizePrediction(preddf, inverter$convertto, needed.predict.type)
 
   inverted = invertCPO(inverter$element, sanpred, predict.type)
 
@@ -171,10 +171,8 @@ invertCPO = function(inverter, prediction, predict.type) {
     stop("Inverters preceding %s cannot convert to requested predict.type %s", getCPOName(cpo), predict.type)
   }
 
-  output.predict.type = inverter$prev.predict.type[predict.type]
+  output.predict.type = unname(inverter$prev.predict.type[predict.type])
   assert(output.predict.type %in% names(cpo$predict.type))
-
-  input.predict.type = cpo$predict.type[output.predict.type]
 
   if (class(inverter) == "InverterElement") {
     state = inverter$state
@@ -184,7 +182,7 @@ invertCPO = function(inverter, prediction, predict.type) {
     state = inverter$state.invert
   }
 
-  args = list(target = prediction, predict.type = input.predict.type, state = state)
+  args = list(target = prediction, predict.type = output.predict.type, state = state)
 
   prediction = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
   prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type)

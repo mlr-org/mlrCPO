@@ -273,7 +273,7 @@ chainPredictType = function(pt1, pt2, name1, name2) {
     # So this is a bit of a weird situation: The CPO chain would work for trafo AND retrafo, but not for predictions.
     stopf("Incompatible chaining of inverters: %s needs a predict.type being%s '%s', but %s can only deliver type%s '%s'.",
       name1, ifelse(length(pt1) == 1, " one of", ""), collapse(pt1, sep = "', '"),
-      name2, ifelse(length(pt2) > 1, "s", ""), collapse(pt2, sep = "', '"))
+      name2, ifelse(length(pt2) > 1, "s", ""), collapse(names(pt2), sep = "', '"))
   }
   result
 }
