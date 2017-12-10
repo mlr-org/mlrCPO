@@ -621,7 +621,7 @@ assertTask = function(task, whichfun, name) {
 
   checks = c(
       `id must be a character(1)` = testString(task.desc$id),
-      `data must be a data.frame` = testDataFrame(task$env$data),
+      `data must be a data.frame with unique column names` = testDataFrame(task$env$data, col.names = "unique"),
       `target must be a character` = testCharacter(target),
       `task.desc must have numeric 'n.feat' slot` = testNumeric(task.desc$n.feat))
 

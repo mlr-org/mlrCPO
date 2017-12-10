@@ -1326,6 +1326,10 @@ test_that("assertTask checks tasks", {
   pt$env$data = list(1:10)
   expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
 
+  pt = subsetTask(pid.task)
+  colnames(pt$env$data)[1] = colnames(pt$env$data)[2]
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
   pt = pid.task
   pt$task.desc$target = list(1:10)
   expect_error(at(pt), "^[^;]*target must be a character[^;]*$")
