@@ -1048,7 +1048,7 @@ test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", 
 
   expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.logreg")), c("prob", "se")), "se")
 
-  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.gaterSVM")), c("prob", "se")), character(0))
+  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.geoDA")), c("prob", "se")), character(0))
 
   expect_set_equal(intersect(getLearnerProperties(se.remover %>>% (se.from.prob %>>% makeLearner("classif.logreg"))), c("prob", "se")), character(0))
 
