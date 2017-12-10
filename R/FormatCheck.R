@@ -108,7 +108,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
           "Offending column", ifelse(length(badcols) > 1, "s", ""), collapse(badcols, sep = ", "))
       }
       if (targetop) {
-        task = constructTask(NULL, indata, shapeinfo.input$target, shapeinfo.input$type, "[CPO CONSTRUCTED]")
+        task = constructTask(indata, shapeinfo.input$target, shapeinfo.input$type, "[CPO CONSTRUCTED]")
       }
       target = indata[shapeinfo.input$target]
       indata = dropNamed(indata, shapeinfo.input$target)
@@ -156,7 +156,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
     private = list(tempdata = split.data$tempdata, subset.index = subset.info$subset.index,
       origdata = origdata, dataformat = dataformat, strict.factors = strict.factors,
       name = name, operating.type = operating.type, origdatatype = origdatatype,
-      target = target))
+      targetnames = names(target)))
 }
 
 # Do the check of the trafo's return value
@@ -244,7 +244,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
   strict.factors = ppr$strict.factors
   subset.index = ppr$subset.index  # index into olddata columns: the columns actually selected by 'affect.*' parameters
   operating.type = ppr$operating.type
-  targetnames = names(ppr$target)
+  targetnames = ppr$targetnames
   name = ppr$name
 
   if (dataformat == "task") {
@@ -476,6 +476,9 @@ makeInputShapeInfo = function(indata, capture.factors) {
     ret = makeShapeInfo(getTaskData(indata, target.extra = TRUE)$data)
     ret$target = getTaskTargetNames(indata)
     ret$type = getTaskDesc(indata)$type
+    if (ret$type == "classif") {
+      ret$positive = getTaskDesc(indata)$positive
+    }
   } else {
     ret = makeShapeInfo(indata)
     ret$target = character(0)
@@ -847,6 +850,52 @@ splitX = function(data, dataformat = c("df.features", "split", "df.all", "task")
   }
 }
 
+# check whether the first level of a classif target is not the positive level
+#
+# @param task [Task] the task to check
+# @return [logical(1)] TRUE when the first level of a classif target is not the positive level, FALSE otherwise, and
+#   for non-classif task.
+isLevelFlipped = function(task) {
+  if (getTaskType(task) != "classif") {
+    return(FALSE)
+  }
+  pos = getTaskDesc(task)$positive
+  assert(!is.null(pos))
+  if (is.na(pos)) {
+    return(FALSE)
+  }
+  target = getTaskData(task, target.extra = TRUE)$target
+  assert(length(levels(target)) <= 2)
+  if (!identical(levels(target)[1], pos)) {
+    assert(identical(levels(target)[2], pos))
+    return(TRUE)
+  }
+  FALSE
+}
+
+# reorder the levels of a classif target to make the positive level the first one
+#
+# @param data [data.frame] the data frame containing the target
+# @param target [character(1) | numeric(1)] the name or index of the target column. Is assumed to be a factor with two levels.
+# @return [data.frame] the input data with the two levels of the target column flipped.
+flipTaskTarget = function(data, target) {
+  data[[target]] = factor(data[[target]], levels = rev(levels(data[[target]])))
+  data
+}
+
+# reorder levels of classif target if the original task was level flipped
+#
+# @param data [data.frame] the data frame containing the target to be flipped
+# @param task [Task] the original task. The target column of this task must be the one of the data.frame
+# @return [data.frame] the input data, potentially with the two levels of the target column flipped.
+unflipTarget = function(data, task) {
+  if (isLevelFlipped(task)) {
+    data = flipTaskTarget(data, getTaskTargetNames(task))
+  }
+  data
+}
+
+
 # This does the 'dataformat' splitting up of Tasks.
 #
 # This is the sister of `splitdf` which gets applied to `data.frame`.
@@ -856,18 +905,29 @@ splitX = function(data, dataformat = c("df.features", "split", "df.all", "task")
 # @param strict.factors [logical(1)] whether to split ordered from factor columns
 # @return [Task | data.frame | list of data.frame] the data split / formatted according to `dataformat`.
 splittask = function(task, dataformat, strict.factors) {
-  if (dataformat == "split") {
-    splt = getTaskData(task, target.extra = TRUE)
+  if (dataformat %in% c("split", "df.features")) {
+    splt = getTaskData(task, target.extra = TRUE)$data
     colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")
+    trg = getTaskData(task, features = character(0))
+    if (isLevelFlipped(task)) {
+      trg = flipTaskTarget(trg, 1)
+    }
+  }
+  if (dataformat == "df.all") {
+    data = getTaskData(task)
+    target = getTaskTargetNames(task)
+    if (isLevelFlipped(task)) {
+      data = flipTaskTarget(data, target)
+    }
+    return(list(data = data, target = target))
   }
 
   switch(dataformat,
     task = list(data = task, target = getTaskTargetNames(task)),
-    df.all = list(data = getTaskData(task), target = getTaskTargetNames(task)),
-    df.features = list(data = getTaskData(task, target.extra = TRUE)$data,
-      target = getTaskData(task, features = character(0))),  # want the target to always be a data.frame
-    split = list(data = splitColsByType(colsplit, splt$data),
-      target = getTaskData(task, features = character(0))))  # want the target to always be a data.frame
+    df.features = list(data = splt,
+      target = trg),  # want the target to always be a data.frame
+    split = list(data = splitColsByType(colsplit, splt),
+      target = trg))  # want the target to always be a data.frame
 }
 
 # This does the 'dataformat' splitting up of data.frames.
@@ -1072,7 +1132,11 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
       } else {
         newdata = cbind(dropNamed(olddata, oldtnames), newdata)
       }
-      return(constructTask(task, newdata, newtnames, newtasktype, getTaskId(task)))
+      if (anyDuplicated(colnames(newdata))) {
+        stopf("CPO %s introduced duplicate column names", name)
+      }
+      newdata = unflipTarget(data, task)
+      return(constructTask(newdata, newtnames, newtasktype, getTaskId(task)), isLevelFlipped(task))
     } else {
       return(changeData(task, recombinedf(getTaskData(task), newdata, dataformat, strict.factors, subset.index, getTaskTargetNames(task), name)))
     }
@@ -1080,41 +1144,35 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
 
   if (dataformat == "df.all") {
     checkDFBasics(task, newdata, targetbound, name)
+    newdata = unflipTarget(data, task)
     if (!targetbound) {
       newdata = changeData(task, newdata)
     } else {
-      newdata = constructTask(task, newdata, getTaskTargetNames(task), newtasktype, getTaskId(task))
+      newdata = constructTask(newdata, getTaskTargetNames(task), newtasktype, getTaskId(task), isLevelFlipped(task))
     }
   }
-  checkTaskBasics(task, newdata, name)
-  old.td = getTaskDesc(subsetTask(task, features = subset.index))
-  new.td = getTaskDesc(newdata)
+
 
   new.subset.index = featIndexToTaskIndex(subset.index, task)
   if (targetbound) {
     checkColumnsEqual(getTaskData(task, target.extra = TRUE)$data[subset.index],
       getTaskData(newdata, target.extra = TRUE)$data, "non-target column", name)
     # everything may change except size, n.feat and missings
-    allowed.td.changes = setdiff(names(old.td), c("n.feat", "has.missings", "size"))
-    task$task.desc$target = new.td$target
-  } else {
-    #check type didn't change
-    assert(getTaskType(task) == getTaskType(newdata))
-
-    # check target didn't change
-    checkColumnsEqual(getTaskData(task, features = character(0)),
-      getTaskData(newdata, features = character(0)), "target column", name)
-
-    assertSetEqual(names(old.td), names(new.td))
-    allowed.td.changes = c("id", "n.feat", "has.missings")
+    fulldata = recombinedf(getTaskData(task), getTaskData(newdata), "df.all", strict.factors, new.subset.index, character(0), name)
+    fulltask = constructTask(fulldata, getTaskTargetNames(newdata), newtasktype, getTaskId(newdata), isLevelFlipped(newdata))
+    checkTaskBasics(task, fulltask, setdiff(names(getTaskData(task)), c("id", "n.feat", "has.missings", "has.blocking", "has.weights")), name)
+    return(fulltask)
   }
+  #check type didn't change
+  assert(getTaskType(task) == getTaskType(newdata))
 
-  # check most of task description didn't change
-  for (n in names(old.td)) {  # implicitly checks row number
-    if (!n %in% allowed.td.changes && !identical(old.td[[n]], new.td[[n]])) {
-      stopf("CPO %s changed task description item %s.", name, n)
-    }
-  }
+  checkTaskBasics(subsetTask(task, features = subset.index), newdata, c("id", "n.feat", "has.missings"), name)
+
+  # check target didn't change
+  checkColumnsEqual(getTaskData(task, features = character(0)),
+    getTaskData(newdata, features = character(0)), "target column", name)
+
+  assertSetEqual(names(old.td), names(new.td))
 
   changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "df.all", strict.factors, new.subset.index, character(0), name))
 }
@@ -1215,32 +1273,25 @@ checkColumnsEqual = function(old.relevants, new.relevants, relevant.name, name) 
 # general function that builds a task of type 'type' and with id 'id', using
 # the given data.
 #
-# 'oldtask' is only given for "classif" tasks to retain orientation of positive / negative target level,
-# otherwise the data in `data` is used.
-# @param oldtask [Task | NULL] the old task, used only to get task meta-information
 # @param data [data.frame] the data to be used in the new task
 # @param target [character] name of target columns inside `data`
 # @param type [character(1)] type of the task to be created
 # @param id [character(1)] id of the newly created task
+# @param flip [logical(1)] whether, for binary classif task, to put the 2nd level on 'positive'
 # @return [Task] a new task of type `type`, with id `id`, data `data`, and other meta information from `oldtask`.
-constructTask = function(oldtask, data, target, type, id) {
+constructTask = function(data, target, type, id, flip = FALSE) {
   if (type == "cluster") {
     return(makeClusterTask(id = id, data = data, fixup.data = "no", check.data = FALSE))
   }
-  if (type == "classif" && !is.null(oldtask) && getTaskType(oldtask) == "classif") {
-    assert(length(target) == 1)
-    oldtargets = levels(getTaskData(oldtask, target.extra = TRUE)$target)
-    newtarget = levels(data[[target]])
-    if (setequal(oldtargets, newtarget)) {
-      positive = getTaskDesc(oldtask)$positive
-      if (length(oldtargets) == 2 && oldtargets[1] != newtarget[1]) {
-        positive = setdiff(oldtargets, positive)
-      }
+  if (type == "classif" && flip && length(target) == 1) {
+    targetcol = data[[target]]
+    assert(is.factor(targetcol))
+    if (length(levels(targetcol)) == 2) {
+      positive = levels(targetcol)[2]
       return(makeClassifTask(id = id, data = data, target = target,
         positive = positive, fixup.data = "no", check.data = FALSE))
     }
   }
-
   constructor = switch(type,
     classif = makeClassifTask,
     multilabel = makeMultilabelTask,
@@ -1249,18 +1300,31 @@ constructTask = function(oldtask, data, target, type, id) {
   constructor(id = id, data = data, target = target, fixup.data = "no", check.data = FALSE)
 }
 
-# check that newdata is a task, and that its size fits "task"'s size.
+# check that newdata is a task, and that it agrees with the
+# old 'task' on everything except 'allowed.td.changes'
+#
 # @param task [Task] the task to compare newdata to
 # @param newdata [Task] the task to check
+# @param allowed.td.changes [character] slots of 'task.desc' that the tasks may disagree on
 # @param name [character(1)] name of the CPO to use in the error message
 # @return [invisible(NULL)]
-checkTaskBasics = function(task, newdata, name) {
+checkTaskBasics = function(task, newdata, allowed.td.changes, name) {
   if (!"Task" %in% class(newdata)) {
     stopf("CPO %s must return a Task", name)
   }
 
-  if (getTaskDesc(task)$size != getTaskDesc(newdata)$size) {
+  if ("size" %nin% allowed.td.changes && getTaskDesc(task)$size != getTaskDesc(newdata)$size) {
     stopf("CPO %s must not change number of rows", name)
+  }
+
+  old.td = getTaskDesc(task)
+  new.td = getTaskDesc(newdata)
+
+  # check most of task description didn't change
+  for (n in setdiff(names(old.td), allowed.td.changes)) {
+    if (!identical(old.td[[n]], new.td[[n]])) {
+      stopf("CPO %s changed task description item %s.", name, n)
+    }
   }
 }
 
@@ -1319,15 +1383,26 @@ recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, datafor
           !all(names(newdata)[names(newdata) %in% getTaskTargetNames(olddata)] == getTaskTargetNames(olddata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
       }
+      if (isLevelFlipped(olddata)) {
+        flipTaskTarget(newdata, getTaskTargetNames(olddata))
+      }
       newdata = changeData(olddata, newdata)
     } else {  # dataformat == "task"
-      assert(identical(class(newdata), class(olddata)))
+      if (!identical(class(newdata), class(olddata))) {
+        stopf("retrafoless CPO %s must not change task type.", name)
+      }
       if (!all(getTaskTargetNames(olddata) == getTaskTargetNames(newdata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
+      }
+      checkTaskBasics(olddata, newdata, c("has.missings", "size"), name)
+      if (isLevelFlipped(olddata) != isLevelFlipped(newdata)) {
+        stopf("CPO %s changed task target feature order.", name)
       }
     }
     assertShapeConform(getTaskData(newdata, target.extra = TRUE)$data, shapeinfo.input, strict.factors, name, TRUE)
   }
   newdata
 }
+
+
 

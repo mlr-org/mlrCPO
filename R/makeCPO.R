@@ -262,6 +262,9 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     stop('dataformat.factor.with.ordered must be FALSE when dataformat is "ordered".')
   }
 
+  if (fix.factors && cpo.type == "target" && dataformat %in% c("df.all", "task")) {
+    stop("fix.factors must be FALSE in target operation CPOs with dataformat df.all or task.")
+  }
 
 
   params = prepareParams(par.set, par.vals, export.params)
