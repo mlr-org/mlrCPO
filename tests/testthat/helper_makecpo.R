@@ -249,7 +249,7 @@ generalMakeCPO = function(name,
           } else {
             oldtask = NULL
           }
-          return(constructTask(result, target, convertto, getTaskId(oldtarget)), convertfrom == "classif" && isLevelFlipped(oldtarget))
+          return(constructTask(result, target, convertto, getTaskId(oldtarget), convertfrom == "classif" && isLevelFlipped(oldtarget)))
         }
         if (!dataformat %in% c("df.all", "task")) {
           result = result[grepl("^target\\.", names(result))]
