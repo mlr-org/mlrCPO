@@ -1150,7 +1150,10 @@ test_that("change target names in targetbound target", {
         } else {
           trans = cpo.df5r %>>% cpo
           expect_equal(getTaskData(trans), cpo.df5renamed)
-          expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
+          expect_equal(getTaskTargetNames(trans), "xN1")
+          ntrans = cpo.df5r %>>% retrafo(trans)
+          expect_equal(getTaskData(ntrans), cpo.df5renamed)
+          expect_equal(getTaskTargetNames(ntrans), "xN1")
           expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
 
           trans = cpo.df5reorderedtask %>>% cpo
@@ -1202,15 +1205,18 @@ test_that("change target names in targetbound target", {
           expect_error(cpo.df4l %>>% cpo, "did not contain target columns T1, T2.*change names or number.*dataformat")
         } else {
           trans = cpo.df4l %>>% cpo
+          expect_equal(getTaskTargetNames(trans), c("xT1", "xT2"))
+          ntrans = cpo.df4l %>>% retrafo(trans)
+          expect_equal(getTaskTargetNames(ntrans), c("xT1", "xT2"))
           if (dfx == "task") {
             expect_equal(getTaskData(trans), tasktarget)
-            expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), tasktarget)
+            expect_equal(getTaskData(ntrans), tasktarget)
             expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), tasktarget)
             expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), tasktarget2)
             expect_error(cpo.df4plustask %>>% cpo, "column names xT1 duplicated|with unique column names")
           } else {
             expect_equal(getTaskData(trans), cpo.df4renreord)
-            expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renreord)
+            expect_equal(getTaskData(ntrans), cpo.df4renreord)
             expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renreord)
             expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), cpo.df4ren2reord)
             expect_error(cpo.df4plustask %>>% cpo, "column names xT1 duplicated|introduced duplicate column names")
@@ -1232,6 +1238,10 @@ test_that("change target names in targetbound target", {
   cpo.df41 = cbind(cpo.df4, T3 = FALSE)
   cpo.df42 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE)
   cpo.df43 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE, T5 = FALSE)
+
+  target3 = c("T1", "T2", "T3")
+  target4 = c(target3, "T4")
+  target5 = c(target4, "T5")
 
   applyGMC("testtargetrenumber", TRUE, type = c("target", "target.extra"),
     convertfrom = "multilabel",
@@ -1275,19 +1285,28 @@ test_that("change target names in targetbound target", {
           comp = switch(dfx, task = taskcmp1, cpo.df4x1)
           trans = cpo.df4l %>>% cpo
           expect_equal(getTaskData(trans), comp)
-          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          expect_equal(getTaskTargetNames(trans), target3)
+          ntrans = cpo.df4l %>>% retrafo(trans)
+          expect_equal(getTaskData(ntrans), comp)
+          expect_equal(getTaskTargetNames(ntrans), target3)
           expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
           expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp1)
           comp = switch(dfx, task = taskcmp2, cpo.df4x2)
           trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 2)
           expect_equal(getTaskData(trans), comp)
-          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          expect_equal(getTaskTargetNames(trans), target4)
+          ntrans = cpo.df4l %>>% retrafo(trans)
+          expect_equal(getTaskData(ntrans), comp)
+          expect_equal(getTaskTargetNames(ntrans), target4)
           expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
           expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp2)
           comp = switch(dfx, task = taskcmp3, cpo.df4x3)
           trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 3)
+          expect_equal(getTaskTargetNames(trans), target5)
           expect_equal(getTaskData(trans), comp)
-          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          ntrans = cpo.df4l %>>% retrafo(trans)
+          expect_equal(getTaskData(ntrans), comp)
+          expect_equal(getTaskTargetNames(ntrans), target5)
           expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
           expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp3)
 
@@ -1439,25 +1458,31 @@ test_that("assertTask checks tasks", {
 # interchanging names between target and nontarget column for retrafoless?
 
 test_that("switching classif levels in targetbound switches positive", {
-skip("not yet working")
+
   localenv = new.env()
   localenv$action = TRUE
 
-  cpo.df5c$task.desc$positive
-  cpo.df5c$task.desc$negative
+  cpo.df5rev = cpo.df5
+  cpo.df5rev$F1 = factor(cpo.df5rev$F1, levels = rev(levels(cpo.df5rev$F1)))
 
-  cpo.df5crev = subsetTask(cpo.df5c)
-  tmp = cpo.df5crev$task.desc$positive
-  cpo.df5crev$task.desc$positive = cpo.df5crev$task.desc$negative
-  cpo.df5crev$task.desc$negative = tmp
-  levels(cpo.df5crev$env$data[[cpo.df5crev$task.desc$target]]) = rev(levels(
-      cpo.df5crev$env$data[[cpo.df5crev$task.desc$target]]))
+  tid = getTaskId(cpo.df5c)
+
+  cpo.df5c.ortho = cpo.df5c
+  cpo.df5c.trans = makeClassifTask(id = tid, data = cpo.df5, target = "F1", positive = levels(cpo.df5$F1)[2])
+  cpo.df5crev.ortho = makeClassifTask(id = tid, data = cpo.df5rev, target = "F1")
+  cpo.df5crev.trans = makeClassifTask(id = tid, data = cpo.df5rev, target = "F1", positive = levels(cpo.df5rev$F1)[2])
+
+  cpo.df5c.ortho
+  cpo.df5c.trans
+  cpo.df5crev.ortho
+  cpo.df5crev.trans
 
   applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
     convertfrom = "classif",
     retrafo = function(data, target, control, param) {
+      expect_equal(levels(data[[target]])[1], localenv$top)
       if (localenv$action) {
-        levels(target) = rev(levels(target))
+        data[[target]] = factor(data[[target]], levels = rev(levels(data[[target]])))
       }
       data
     },
@@ -1468,12 +1493,34 @@ skip("not yet working")
         } else {
           cpo = cpocon(affect.index = c(1, 3))
         }
-        expect_equal(cpo.df5c %>>% cpo, cpo.df5crev)
+        localenv$top = "a"
+        trans = cpo.df5c.ortho %>>% cpo
+        ntrans = cpo.df5c.ortho %>>% retrafo(trans)
+        expect_equal(clearRI(trans), cpo.df5crev.ortho)
+        expect_equal(clearRI(ntrans), cpo.df5crev.ortho)
+
+        localenv$top = "b"
+        ntrans = cpo.df5crev.ortho %>>% retrafo(trans)
+        expect_equal(clearRI(ntrans), cpo.df5c.ortho)
+        localenv$top = if (dfx == "task") "b" else "a"
+        ntrans = cpo.df5crev.trans %>>% retrafo(trans)
+        expect_equal(clearRI(ntrans), cpo.df5c.trans)
+        localenv$top = if (dfx == "task") "a" else "b"
+        ntrans = cpo.df5c.trans %>>% retrafo(trans)
+        expect_equal(clearRI(ntrans), cpo.df5crev.trans)
+
+        localenv$top = "b"
+        ntrans = cpo.df5crev.ortho %>>% cpo
+        expect_equal(clearRI(ntrans), cpo.df5c.ortho)
+        localenv$top = if (dfx == "task") "b" else "a"
+        ntrans = cpo.df5crev.trans %>>% cpo
+        expect_equal(clearRI(ntrans), cpo.df5c.trans)
+        localenv$top = if (dfx == "task") "a" else "b"
+        ntrans = cpo.df5c.trans %>>% cpo
+        expect_equal(clearRI(ntrans), cpo.df5crev.trans)
       }
     })
 
-
-  # putting task with different 'positive' fails
 })
 
 test_that("targetbound changes data in a different way on 'retrafo' fails", {
