@@ -976,7 +976,7 @@ test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", 
       }
     },
     convertfrom = "regr", convertto = "classif",
-    predict.type.map = c(response = "response", se = "prob"))()
+    predict.type.map = c(response = "response", se = "prob"))(affect.index = c(1, 3))
 
   prob.from.response = generalMakeCPO("prob.from.response", ci = TRUE,
     type = "target",
@@ -1133,25 +1133,35 @@ test_that("change target names in targetbound target", {
       data
     },
     applyfun = function(cpocon, type, line, dfx) {
-      cpo = cpocon()
-      localenv$action = TRUE
-      if (dfx == "df.all") {
-        expect_error(cpo.df5r %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
-        expect_error(cpo.df5reorderedtask %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
-      } else {
-        trans = cpo.df5r %>>% cpo
-        expect_equal(getTaskData(trans), cpo.df5renamed)
-        expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
-        expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
+      for (i in 1:2) {
+        if (i == 1) {
+          cpo = cpocon()
+        } else {
+          if (dfx == "task") {
+            next
+          }
+          cpo = cpocon(affect.index = c(1, 3))
+        }
 
-        trans = cpo.df5reorderedtask %>>% cpo
-        expect_equal(getTaskData(trans), cpo.df5.reord.renamed)
-        expect_equal(getTaskData(cpo.df5reorderedtask %>>% retrafo(trans)), cpo.df5.reord.renamed)
-        expect_equal(clearRI(cpo.df5reordered %>>% retrafo(trans)), cpo.df5.reord.renamed)
-        expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
-        expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
-        localenv$action = FALSE
-        expect_error(cpo.df5r %>>% retrafo(trans), "column name mismatch|after retrafo differ.*after trafo.*N1.*xN1")
+        localenv$action = TRUE
+        if (dfx == "df.all") {
+          expect_error(cpo.df5r %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
+          expect_error(cpo.df5reorderedtask %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
+        } else {
+          trans = cpo.df5r %>>% cpo
+          expect_equal(getTaskData(trans), cpo.df5renamed)
+          expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
+          expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
+
+          trans = cpo.df5reorderedtask %>>% cpo
+          expect_equal(getTaskData(trans), cpo.df5.reord.renamed)
+          expect_equal(getTaskData(cpo.df5reorderedtask %>>% retrafo(trans)), cpo.df5.reord.renamed)
+          expect_equal(clearRI(cpo.df5reordered %>>% retrafo(trans)), cpo.df5.reord.renamed)
+          expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
+          expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
+          localenv$action = FALSE
+          expect_error(cpo.df5r %>>% retrafo(trans), "column name mismatch|after retrafo differ.*after trafo.*N1.*xN1")
+        }
       }
     })
 
@@ -1161,6 +1171,15 @@ test_that("change target names in targetbound target", {
   cpo.df4renreord = cpo.df4renamed[c(1, 3, 4, 6:10, 2, 5)]
   cpo.df4ren2reord = cpo.df4renreord
   colnames(cpo.df4ren2reord) = gsub("T", "xT", colnames(cpo.df4renreord))
+  cpo.df4half = cpo.df4[c(3, 6:10, 1, 2, 4, 5)]
+  cpo.df4halfren = cpo.df4half
+  colnames(cpo.df4halfren) = gsub("T", "xT", colnames(cpo.df4halfren))
+  cpo.df4quarter = cpo.df4[c(3, 6:10, 1, 4, 2, 5)]
+  cpo.df4quarterren2 = cpo.df4quarter
+  colnames(cpo.df4quarterren2) = gsub("T", "xxT", colnames(cpo.df4quarterren2))
+
+  cpo.df4plus = cbind(cpo.df4, xT1 = 1:3)
+  cpo.df4plustask = makeMultilabelTask(data = cpo.df4plus, target = c("T1", "T2"))
 
   applyGMC("testtargetrename2", TRUE, type = c("target", "target.extra"),
     convertfrom = "multilabel",
@@ -1169,21 +1188,34 @@ test_that("change target names in targetbound target", {
       data
     },
     applyfun = function(cpocon, type, line, dfx) {
-      cpo = cpocon()
-      if (dfx == "df.all") {
-        expect_error(cpo.df4l %>>% cpo, "did not contain target columns T1, T2.*change names or number.*dataformat")
-      } else {
-        trans = cpo.df4l %>>% cpo
-        if (dfx == "task") {
-          expect_equal(getTaskData(trans), cpo.df4renamed)
-          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renamed)
-          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renamed)
+      for (i in 1:2) {
+        if (i == 1) {
+          cpo = cpocon()
+          tasktarget = cpo.df4renamed
+          tasktarget2 = cpo.df4ren2reord
         } else {
-          expect_equal(getTaskData(trans), cpo.df4renreord)
-          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renreord)
-          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renreord)
+          cpo = cpocon(affect.index = c(1, 3))
+          tasktarget = cpo.df4halfren
+          tasktarget2 = cpo.df4quarterren2
         }
-        expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), cpo.df4ren2reord)
+        if (dfx == "df.all") {
+          expect_error(cpo.df4l %>>% cpo, "did not contain target columns T1, T2.*change names or number.*dataformat")
+        } else {
+          trans = cpo.df4l %>>% cpo
+          if (dfx == "task") {
+            expect_equal(getTaskData(trans), tasktarget)
+            expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), tasktarget)
+            expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), tasktarget)
+            expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), tasktarget2)
+          } else {
+            expect_equal(getTaskData(trans), cpo.df4renreord)
+            expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renreord)
+            expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renreord)
+            expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), cpo.df4ren2reord)
+          }
+          cpo.df4plustask %>>% cpo
+
+        }
       }
     })
 
@@ -1191,6 +1223,12 @@ test_that("change target names in targetbound target", {
   cpo.df4x1 = cbind(cpo.df4x0, T3 = FALSE)
   cpo.df4x2 = cbind(cpo.df4x0, T3 = FALSE, T4 = TRUE)
   cpo.df4x3 = cbind(cpo.df4x0, T3 = FALSE, T4 = TRUE, T5 = FALSE)
+  cpo.df4half1 = cbind(cpo.df4half, T3 = FALSE)
+  cpo.df4half2 = cbind(cpo.df4half, T3 = FALSE, T4 = TRUE)
+  cpo.df4half3 = cbind(cpo.df4half, T3 = FALSE, T4 = TRUE, T5 = FALSE)
+  cpo.df4quarter1 = cbind(cpo.df4quarter, T3 = FALSE)
+  cpo.df4quarter2 = cbind(cpo.df4quarter, T3 = FALSE, T4 = TRUE)
+  cpo.df4quarter3 = cbind(cpo.df4quarter, T3 = FALSE, T4 = TRUE, T5 = FALSE)
   cpo.df41 = cbind(cpo.df4, T3 = FALSE)
   cpo.df42 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE)
   cpo.df43 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE, T5 = FALSE)
@@ -1208,35 +1246,189 @@ test_that("change target names in targetbound target", {
       data
     },
     applyfun = function(cpocon, type, line, dfx) {
-      cpo = cpocon()
-      localenv$action = TRUE
-      if (dfx == "df.all") {
-        expect_error(cpo.df4l %>>% cpo, "must not change non-target column names.")
-      } else {
-        expect_equal(getTaskData(cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 0)), cpo.df4)
-        comp = switch(dfx, task = cpo.df41, cpo.df4x1)
-        trans = cpo.df4l %>>% cpo
-        expect_equal(getTaskData(trans), comp)
-        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x1)
-        comp = switch(dfx, task = cpo.df42, cpo.df4x2)
-        trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 2)
-        expect_equal(getTaskData(trans), comp)
-        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x2)
-        comp = switch(dfx, task = cpo.df43, cpo.df4x3)
-        trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 3)
-        expect_equal(getTaskData(trans), comp)
-        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
-        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x3)
+      origcomp1 = cpo.df4x1
+      origcomp2 = cpo.df4x2
+      origcomp3 = cpo.df4x3
+      for (i in 1:2) {
+        if (i == 1) {
+          cpo = cpocon()
+          taskcmp1 = cpo.df41
+          taskcmp2 = cpo.df42
+          taskcmp3 = cpo.df43
 
-        localenv$action = FALSE
-        expect_error(cpo.df4x0 %>>% retrafo(trans), "column name mismatch|after retrafo differ.*Was 'T1', 'T2', is now 'T1', 'T2', 'T3'.*")
+        } else {
+          cpo = cpocon(affect.index = c(1, 3))
+          taskcmp1 = cpo.df4half1
+          taskcmp2 = cpo.df4half2
+          taskcmp3 = cpo.df4half3
+          if (dfx == "task") {
+            origcomp1 = cpo.df4quarter1
+            origcomp2 = cpo.df4quarter2
+            origcomp3 = cpo.df4quarter3
+          }
+        }
+        localenv$action = TRUE
+        if (dfx == "df.all") {
+          expect_error(cpo.df4l %>>% cpo, "must not change non-target column names.")
+        } else {
+          expect_equal(getTaskData(cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 0)), cpo.df4)
+          comp = switch(dfx, task = taskcmp1, cpo.df4x1)
+          trans = cpo.df4l %>>% cpo
+          expect_equal(getTaskData(trans), comp)
+          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp1)
+          comp = switch(dfx, task = taskcmp2, cpo.df4x2)
+          trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 2)
+          expect_equal(getTaskData(trans), comp)
+          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp2)
+          comp = switch(dfx, task = taskcmp3, cpo.df4x3)
+          trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 3)
+          expect_equal(getTaskData(trans), comp)
+          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+          expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), origcomp3)
+
+          localenv$action = FALSE
+          expect_error(cpo.df4x0 %>>% retrafo(trans), "column name mismatch|after retrafo differ.*Was 'T1', 'T2', is now 'T1', 'T2', 'T3'.*")
+        }
       }
     })
+
+})
+
+test_that("assertTask checks tasks", {
+
+  at = function(x) assertTask(x, "tests", "nocpo")
+
+  expect_error(at(1), "was not a task")
+  expect_error(at(list(task.desc = list())), "was not a task")
+
+  pt = pid.task
+  pt$env = NULL
+  expect_error(at(pt), "had no environment")
+
+  pt = pid.task
+  class(pt) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTask, ")
+
+  pt = pid.task
+  class(pt$task.desc) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTaskDesc, ")
+
+  pt = pid.task
+  pt$task.desc$id %c=% pt$task.desc$id
+  expect_error(at(pt), "^[^;]*id must be a character[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = list(1:10)
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = list(1:10)
+  expect_error(at(pt), "^[^;]*target must be a character[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat = as.character(pt$task.desc$n.feat)
+  expect_error(at(pt), "^[^;]*must have numeric 'n.feat'[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = paste0("x", pt$task.desc$target)
+  expect_error(at(pt), "target must be a subset of task columns")
+
+  pt = pid.task
+  pt$task.desc$n.feat["numerics"] %+=% 1
+  expect_error(at(pt), "^[^;]*'numerics' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*'factors' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["ordered"] %+=% 1
+  expect_error(at(pt), "^[^;]*'ordered' features listed.*wrong[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data[[1]][1] = NA
+  expect_error(at(pt), "^[^;]*has.missings slot in task.desc[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data =   pt$env$data[-1, ]
+  expect_error(at(pt), "^[^;]*size' slot in task.desc[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.weights = TRUE
+  expect_error(at(pt), "^[^;]*has.weights' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.blocking = TRUE
+  expect_error(at(pt), "^[^;]*'has.blocking' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$type = "abc"
+  expect_error(at(pt), "^[^;]*task type must be one of[^;]*$")
+
+  pt = pid.task
+  pt$type = "regr"
+  expect_error(at(pt), "^[^;]*task type and task.desc type must be the same[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target %c=% "glucose"
+  pt$task.desc$n.feat["numerics"] %-=% 1
+  expect_error(at(pt), "^[^;]*classif but has 2 targets[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = character(0)
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*classif but has 0 targets[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*multilabel and must have more than one target[^;]*$")
+
+  pt = lung.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*surv and must have exactly two targets[^;]*$")
+
+
+  pt = iris.task
+  pt$task.desc$class.levels = c("x", "y", "z")
+  expect_error(at(pt), "^[^;]*class levels in task.desc are not the factor levels of the target column[^;]*$")
+
+  pt = iris.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be NA for multiclass tasks[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = pt$task.desc$positive
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = droplevels(pt$env$data[1, ])
+  pt$task.desc$size = 1
+  pt$task.desc$class.levels = "pos"
+  expect_error(at(pt), "^[^;]*must be the class level,.*must be not_<positive>[^;]*$")
+  pt$task.desc$positive = "pos"
+  pt$task.desc$negative = "not_pos"
+  at(pt)
+
+  pt = subsetTask(lung.task)
+  pt$env$data$status = as.numeric(pt$env$data$status)
+  expect_error(at(pt), "^[^;]*event column must be logical[^;]*$")
+
+  pt = subsetTask(lung.task)
+  pt$env$data$time = as.factor(pt$env$data$time)
+  expect_error(at(pt), "^[^;]*time column must be numeric[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$class.levels = pt$task.desc$class.levels[1:4]
+  expect_error(at(pt), "^[^;]*class.levels in task.desc must equal target names[^;]*$")
 
 })
 
