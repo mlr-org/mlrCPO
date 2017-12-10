@@ -1207,14 +1207,14 @@ test_that("change target names in targetbound target", {
             expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), tasktarget)
             expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), tasktarget)
             expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), tasktarget2)
+            expect_error(cpo.df4plustask %>>% cpo, "column names xT1 duplicated|with unique column names")
           } else {
             expect_equal(getTaskData(trans), cpo.df4renreord)
             expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renreord)
             expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renreord)
             expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), cpo.df4ren2reord)
+            expect_error(cpo.df4plustask %>>% cpo, "column names xT1 duplicated|introduced duplicate column names")
           }
-          cpo.df4plustask %>>% cpo
-
         }
       }
     })
@@ -1436,14 +1436,44 @@ test_that("assertTask checks tasks", {
 
 })
 
-test_that("changing target names to clash gives error", {
-
-})
-
 # interchanging names between target and nontarget column for retrafoless?
 
 test_that("switching classif levels in targetbound switches positive", {
 
+  localenv = new.env()
+  localenv$action = TRUE
+
+  cpo.df5c$task.desc$positive
+  cpo.df5c$task.desc$negative
+
+  cpo.df5crev = subsetTask(cpo.df5c)
+  tmp = cpo.df5crev$task.desc$positive
+  cpo.df5crev$task.desc$positive = cpo.df5crev$task.desc$negative
+  cpo.df5crev$task.desc$negative = tmp
+  levels(cpo.df5crev$env$data[[cpo.df5crev$task.desc$target]]) = rev(levels(
+      cpo.df5crev$env$data[[cpo.df5crev$task.desc$target]]))
+
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+    convertfrom = "classif",
+    retrafo = function(data, target, control, param) {
+      if (localenv$action) {
+        levels(target) = rev(levels(target))
+      }
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      for (i in 1:2) {
+        if (i == 1) {
+          cpo = cpocon()
+        } else {
+          cpo = cpocon(affect.index = c(1, 3))
+        }
+        expect_equal(cpo.df5c %>>% cpo, cpo.df5crev)
+      }
+    })
+
+
+  # putting task with different 'positive' fails
 })
 
 test_that("targetbound changes data in a different way on 'retrafo' fails", {
