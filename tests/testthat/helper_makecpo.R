@@ -245,10 +245,11 @@ generalMakeCPO = function(name,
           target = gsub("^target\\.", "", target)
           colnames(result) = gsub("^(numeric|ordered|factor|target|other)\\.", "", colnames(result))
           if (convertfrom == convertto) {
-            return(changeData(oldtarget, result))
+            oldtask = oldtarget
           } else {
-            return(constructTask(NULL, result, target, convertto, getTaskId(oldtarget)))
+            oldtask = NULL
           }
+          return(constructTask(oldtask, result, target, convertto, getTaskId(oldtarget)))
         }
         if (!dataformat %in% c("df.all", "task")) {
           result = result[grepl("^target\\.", names(result))]

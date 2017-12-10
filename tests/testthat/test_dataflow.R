@@ -1109,15 +1109,134 @@ test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", 
 
 ### target column related
 
+
+
 test_that("change target names in targetbound target", {
 
-})
+  cpo.df5renamed = cpo.df5
+  names(cpo.df5renamed)[1] = "xN1"
 
-test_that("change target names in targetbound datasplit 'no' fails", {
+  cpo.df5reordered = cpo.df5[c(2:4, 1, 5:9)]
+  cpo.df5reorderedtask = makeRegrTask("df5reord", cpo.df5reordered, "N1")
 
-})
+  cpo.df5.reord.renamed = cpo.df5renamed[c(2:4, 1, 5:9)]
 
-test_that("target stays in its position unless names changed", {
+  localenv = new.env()
+  localenv$action = TRUE
+
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+    convertfrom = "regr",
+    retrafo = function(data, target, control, param) {
+      if (localenv$action) {
+        colnames(data) = gsub("^target\\.", "target.x", colnames(data))
+      }
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      cpo = cpocon()
+      localenv$action = TRUE
+      if (dfx == "df.all") {
+        expect_error(cpo.df5r %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
+        expect_error(cpo.df5reorderedtask %>>% cpo, "did not contain target column N1.*change names or number.*dataformat")
+      } else {
+        trans = cpo.df5r %>>% cpo
+        expect_equal(getTaskData(trans), cpo.df5renamed)
+        expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
+        expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
+
+        trans = cpo.df5reorderedtask %>>% cpo
+        expect_equal(getTaskData(trans), cpo.df5.reord.renamed)
+        expect_equal(getTaskData(cpo.df5reorderedtask %>>% retrafo(trans)), cpo.df5.reord.renamed)
+        expect_equal(clearRI(cpo.df5reordered %>>% retrafo(trans)), cpo.df5.reord.renamed)
+        expect_equal(clearRI(cpo.df5 %>>% retrafo(trans)), cpo.df5renamed)
+        expect_equal(getTaskData(cpo.df5r %>>% retrafo(trans)), cpo.df5renamed)
+        localenv$action = FALSE
+        expect_error(cpo.df5r %>>% retrafo(trans), "column name mismatch|after retrafo differ.*after trafo.*N1.*xN1")
+      }
+    })
+
+
+  cpo.df4renamed = cpo.df4
+  colnames(cpo.df4renamed) = gsub("T", "xT", colnames(cpo.df4renamed))
+  cpo.df4renreord = cpo.df4renamed[c(1, 3, 4, 6:10, 2, 5)]
+  cpo.df4ren2reord = cpo.df4renreord
+  colnames(cpo.df4ren2reord) = gsub("T", "xT", colnames(cpo.df4renreord))
+
+  applyGMC("testtargetrename2", TRUE, type = c("target", "target.extra"),
+    convertfrom = "multilabel",
+    retrafo = function(data, target, control, param) {
+      colnames(data) = gsub("^target\\.", "target.x", colnames(data))
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      cpo = cpocon()
+      if (dfx == "df.all") {
+        expect_error(cpo.df4l %>>% cpo, "did not contain target columns T1, T2.*change names or number.*dataformat")
+      } else {
+        trans = cpo.df4l %>>% cpo
+        if (dfx == "task") {
+          expect_equal(getTaskData(trans), cpo.df4renamed)
+          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renamed)
+          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renamed)
+        } else {
+          expect_equal(getTaskData(trans), cpo.df4renreord)
+          expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), cpo.df4renreord)
+          expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4renreord)
+        }
+        expect_equal(getTaskData(makeMultilabelTask(data = cpo.df4renreord, target = c("xT1", "xT2")) %>>% cpo), cpo.df4ren2reord)
+      }
+    })
+
+  cpo.df4x0 = cpo.df4[c(1, 3, 4, 6:10, 2, 5)]
+  cpo.df4x1 = cbind(cpo.df4x0, T3 = FALSE)
+  cpo.df4x2 = cbind(cpo.df4x0, T3 = FALSE, T4 = TRUE)
+  cpo.df4x3 = cbind(cpo.df4x0, T3 = FALSE, T4 = TRUE, T5 = FALSE)
+  cpo.df41 = cbind(cpo.df4, T3 = FALSE)
+  cpo.df42 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE)
+  cpo.df43 = cbind(cpo.df4, T3 = FALSE, T4 = TRUE, T5 = FALSE)
+
+  applyGMC("testtargetrenumber", TRUE, type = c("target", "target.extra"),
+    convertfrom = "multilabel",
+    retrafo = function(data, target, control, param) {
+      if (localenv$action) {
+        for (i in seq_len(param) + 2) {
+          newdf = data.frame(rep(i %% 2 == 0, 3))
+          colnames(newdf) = paste0("target.T", i)
+          data = cbind(data, newdf)
+        }
+      }
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      cpo = cpocon()
+      localenv$action = TRUE
+      if (dfx == "df.all") {
+        expect_error(cpo.df4l %>>% cpo, "must not change non-target column names.")
+      } else {
+        expect_equal(getTaskData(cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 0)), cpo.df4)
+        comp = switch(dfx, task = cpo.df41, cpo.df4x1)
+        trans = cpo.df4l %>>% cpo
+        expect_equal(getTaskData(trans), comp)
+        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x1)
+        comp = switch(dfx, task = cpo.df42, cpo.df4x2)
+        trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 2)
+        expect_equal(getTaskData(trans), comp)
+        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x2)
+        comp = switch(dfx, task = cpo.df43, cpo.df4x3)
+        trans = cpo.df4l %>>% setHyperPars(cpo, testtargetrenumber.param = 3)
+        expect_equal(getTaskData(trans), comp)
+        expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), comp)
+        expect_equal(clearRI(cpo.df4x0 %>>% retrafo(trans)), cpo.df4x3)
+
+        localenv$action = FALSE
+        expect_error(cpo.df4x0 %>>% retrafo(trans), "column name mismatch|after retrafo differ.*Was 'T1', 'T2', is now 'T1', 'T2', 'T3'.*")
+      }
+    })
 
 })
 

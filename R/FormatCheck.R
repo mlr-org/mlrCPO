@@ -286,7 +286,7 @@ handleRetrafoOutput = function(outdata, prepared.input, properties.needed, prope
     }
     assertShapeConform(outdata, shapeinfo.output, strict.factors, name, ignore.target = drop.shapeinfo.target)
   }
-  assertTargetShapeConform(recombined, shapeinfo.output, operating.type)
+  assertTargetShapeConform(recombined, shapeinfo.output, operating.type, name)
 
   if (operating.type == "target" && ppr$origdatatype == "data.frame") {
     # input was a data.frame (with target columns), so we return da data.frame (with target columns)
@@ -438,13 +438,13 @@ assertShapeConform = function(df, shapeinfo, strict.factors, name, retrafoless =
 # @param shapeinfo [ShapeInfo] a ShapeInfo
 # @param operating.type [character(1)] operating type: "target", "feature", or "retrafoless"
 # @return [invisible(NULL)]
-assertTargetShapeConform = function(data, shapeinfo, operating.type) {
+assertTargetShapeConform = function(data, shapeinfo, operating.type, name) {
   if ("Task" %nin% class(data) || operating.type != "target") {
     return(invisible(NULL))
   }
   if (!identical({newtarget = getTaskTargetNames(data)}, shapeinfo$target)) {
     stopf("Error in CPO %s: Target name(s) after retrafo differ(s) from target name(s) after trafo. Was '%s', is now '%s'",
-      collapse(newtarget, "', '"), collapse(shapeinfo$target, "', '"))
+      name, collapse(newtarget, "', '"), collapse(shapeinfo$target, "', '"))
   }
 }
 
@@ -938,10 +938,12 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
         olddata[newtnames] = newdata
         newdata = olddata
       } else if (length(oldtnames) == 1 && length(newdata) == 1) {
+        assert(length(oldtnames) == 1)
         # note that this can NOT be combined with
         # the olddata[newtnames] block above!
         # also note the double brackets [[ ]].
-        olddata[[oldtnames]] = newdata
+        olddata[[oldtnames]] = newdata[[1]]
+        names(olddata)[names(olddata) == oldtnames] = names(newdata)
         newdata = olddata
       } else {
         newdata = cbind(dropNamed(olddata, oldtnames), newdata)
@@ -964,11 +966,13 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
   old.td = getTaskDesc(subsetTask(task, features = subset.index))
   new.td = getTaskDesc(newdata)
 
+  new.subset.index = featIndexToTaskIndex(subset.index, task)
   if (targetbound) {
     checkColumnsEqual(getTaskData(task, target.extra = TRUE)$data,
       getTaskData(newdata, target.extra = TRUE)$data, "non-target column", name)
     # everything may change except size, n.feat and missings
     allowed.td.changes = setdiff(names(old.td), c("n.feat", "has.missings", "size"))
+    task$task.desc$target = new.td$target
   } else {
     #check type didn't change
     assert(getTaskType(task) == getTaskType(newdata))
@@ -988,7 +992,6 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
     }
   }
 
-  new.subset.index = featIndexToTaskIndex(subset.index, task)
   changeData(task, recombinedf(getTaskData(task), getTaskData(newdata), "df.all", strict.factors, new.subset.index, character(0), name))
 }
 
@@ -1154,10 +1157,10 @@ checkDFBasics = function(task, newdata, targetbound, name) {
     addendum = ""
     if (targetbound) {
       addendum = paste("\nIf you want to change names or number of target columns in targetbound CPOs",
-        'you must use other .dataformat values, e.g. "df.features".', sep = "\n")
+        'you must use other dataformat values, e.g. "df.features".', sep = "\n")
     }
    stopf("CPO %s cpo.trafo gave bad result\ndata.frame did not contain target column%s %s.%s",
-     name, ifelse(length(missingt) > 1, "s", ""), missingt, addendum)
+     name, ifelse(length(missingt) > 1, "s", ""), collapse(missingt, ", "), addendum)
   }
 }
 
