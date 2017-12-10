@@ -596,94 +596,100 @@ assertTask = function(task, whichfun, name) {
     stopf("%s had no environment in its '$env' slot.", taskdesignator())
   }
 
-  requiredClasses = switch(task$task.desc$type,
+  task.desc = task$task.desc
+  target = task.desc$target
+
+  requiredClasses = switch(task.desc$type,
     classif = c("ClassifTask", "SupervisedTask"),
     regr = c("RegrTask", "SupervisedTask"),
     cluster = c("ClusterTask", "UnsupervisedTask"),
     surv = c("SurvTask", "SupervisedTask"),
-    multilabel = c("MultilabelTask", "SupervisedTask"))
+    multilabel = c("MultilabelTask", "SupervisedTask"),
+    stopf("%s task type must be one of classif, regr, cluster, multilabel, surv", taskdesignator()))
+
+  if (!identical(task$type, task.desc$type) && task.desc$type != "surv") {  # TODO: exception because of bug in mlr
+    stopf("%s task type and task.desc type must be the same", taskdesignator())
+  }
   requiredClasses = c(requiredClasses, "Task")
   if (!identical(requiredClasses, class(task))) {
-    stopf("%s must have classes %s", taskdesignator, collapse(requiredClasses, ", "))
+    stopf("%s must have classes %s", taskdesignator(), collapse(requiredClasses, ", "))
   }
   requiredClasses = paste0(requiredClasses, "Desc")
-  if (!identical(requiredClasses, class(task$task.desc))) {
-    stopf("%s task.desc must have classes %s", taskdesignator, collapse(requiredClasses, ", "))
+  if (!identical(requiredClasses, class(task.desc))) {
+    stopf("%s task.desc must have classes %s", taskdesignator(), collapse(requiredClasses, ", "))
   }
 
   checks = c(
-      `id must be a character(1)` = testString(task$task.desc$id),
+      `id must be a character(1)` = testString(task.desc$id),
       `data must be a data.frame` = testDataFrame(task$env$data),
-      `target must be a character` = testCharacter(task$task.desc$target),
-      `task.desc must have numeric 'n.feat' slot` = testNumeric(task$task.desc$n.feat))
+      `target must be a character` = testCharacter(target),
+      `task.desc must have numeric 'n.feat' slot` = testNumeric(task.desc$n.feat))
 
   if (!all(checks)) {
-    stopf("%s had problems: %s", taskdesignator, collapse(names(checks)[!checks], ", "))
+    stopf("%s had problems: %s", taskdesignator(), collapse(names(checks)[!checks], "; "))
   }
+
+  identIntLikeNum = function(x, y) identical(as.numeric(x), as.numeric(y))
 
   cl = table(dropNamed(vcapply(task$env$data, function(x) class(x)[1]), target))
   checks = c(
-      `target must be a subset of task columns` = testSubset(task$task.desc$target, colnames(task$env$data)),
+      `target must be a subset of task columns` = testSubset(target, colnames(task$env$data)),
       `number of 'numerics' features listed in task.desc is wrong` =
-        !identical(sum(cl[c("integer", "numeric")], na.rm = TRUE), task$task.desc$n.feat["numerics"]),
+        identIntLikeNum(sum(cl[c("integer", "numeric")], na.rm = TRUE), task.desc$n.feat["numerics"]),
       `number of 'factors' features listed in task.desc is wrong` =
-        !identical(sum(cl["factor"], na.rm = TRUE), task$task.desc$n.feat["factors"]),
+        identIntLikeNum(sum(cl["factor"], na.rm = TRUE), task.desc$n.feat["factors"]),
       `number of 'ordered' features listed in task.desc is wrong` =
-        !identical(sum(cl["ordered"], na.rm = TRUE), task$task.desc$n.feat["ordered"]),
+        identIntLikeNum(sum(cl["ordered"], na.rm = TRUE), task.desc$n.feat["ordered"]),
       `'has.missings' slot in task.desc is wrong` =
-        !identical(anyMissing(task$env$data), task$task.desc$any.missings),
+        identical(anyMissing(task$env$data), task.desc$has.missings),
       `'size' slot in task.desc is wrong` =
-        !identical(as.numeric(nrow(task$env$data)), as.numeric(task$task.desc$size)),
+        identIntLikeNum(nrow(task$env$data), task.desc$size),
       `'has.weights' slot in task.desc is wrong` =
-        !identical(!is.null(task$weights), task$task.desc$has.weights),
+        identical(!is.null(task$weights), task.desc$has.weights),
       `''has.blocking' slot in task.desc is wrong` =
-        !identical(!is.null(task$blocking), task$task.desc$has.blocking),
-      `task type must be one of classif, regr, cluster, multilabel, surv` =
-        !testChoice(task$task.desc$type, c("classif", "regr", "cluster", "multilabel", "surv")),
-      `task type and task.desc type must be the same` =
-        identical(task$type, task$task.desc$type))
+        identical(!is.null(task$blocking), task.desc$has.blocking))
   if (!all(checks)) {
-    stopf("%s had problems: %s", taskdesignator, collapse(names(checks)[!checks], ", "))
+    stopf("%s had problems: %s", taskdesignator(), collapse(names(checks)[!checks], "; "))
   }
 
-  if (task$task.desc$type %in% c("classif", "regr") && length(task$task.desc$target) != 1) {
-    stopf("%s is of type %s but has %s targets.", taskdesignator, task$task.desc$type,
-      length(task$task.desc$target))
-  } else if (task$task.desc$type == "surv" && length(task$task.desc$target) != 2) {
-    stopf("%s is of type surv and must have exactly two targets.", taskdesignator)
-  } else if (task$task.desc$type == "multilabel" && length(task$task.desc$target) < 2) {
-    stopf("Ts is of type multilabel and must have more than one target.", taskdesignator)
+  if (task.desc$type %in% c("classif", "regr") && length(target) != 1) {
+    stopf("%s is of type %s but has %s targets.", taskdesignator(), task.desc$type,
+      length(target))
+  } else if (task.desc$type == "surv" && length(target) != 2) {
+    stopf("%s is of type surv and must have exactly two targets.", taskdesignator())
+  } else if (task.desc$type == "multilabel" && length(target) < 2) {
+    stopf("%s is of type multilabel and must have more than one target.", taskdesignator())
   }
 
-  checks = switch(task$task.desc$type,
+  checks = switch(task.desc$type,
     classif = c(
-        `class levels in task.desc are not the task levels of target column` =
-          testSetEqual(levels(task$env$data[[task$task.desc$target]]), task$task.desc$class.levels),
+        `class levels in task.desc are not the factor levels of the target column` =
+          testSetEqual(levels(task$env$data[[target]]), task.desc$class.levels),
         `task.desc 'positive' and 'negative' slots must be NA for multiclass tasks` =
-          length(task$task.desc$class.levels) <= 2 || (is.na(task$task.desc$positive) && is.na(task$task.desc$negative)),
+          length(task.desc$class.levels) <= 2 || (is.na(task.desc$positive) && is.na(task.desc$negative)),
         `task.desc 'positive' and 'negative' slots must be both class levels of the target` =
-          length(task$task.desc$class.levels) != 2 || (
-            testString(task$task.desc$positive) &&
-            testString(task$task.desc$negative) &&
-            testSetEqual(c(task$task.desc$positive, task$task.desc$negative), task$task.desc$class.levels)),
+          length(task.desc$class.levels) != 2 || (
+            testString(task.desc$positive) &&
+            testString(task.desc$negative) &&
+            testSetEqual(c(task.desc$positive, task.desc$negative), task.desc$class.levels)),
         `task.desc 'positive' slot must be the class level, 'negative' slot must be not_<positive>` =
-          length(task$task.desc$class.levels) != 1 || (
-            testString(task$task.desc$positive) &&
-            testString(task$task.desc$negative) &&
-            identical(task$task.desc$positive, task$task.desc$class.levels) &&
-            identical(task$task.desc$negative, paste0("not_", task$task.desc$class.levels)))),
+          length(task.desc$class.levels) != 1 || (
+            testString(task.desc$positive) &&
+            testString(task.desc$negative) &&
+            identical(task.desc$positive, task.desc$class.levels) &&
+            identical(task.desc$negative, paste0("not_", task.desc$class.levels)))),
     regr = TRUE,
     cluster = TRUE,
     surv = c(
-        `time column must be numeric` = testNumeric(task$env$data[[task$task.desc$target[1]]]),
-        `event column must be logical` = testLogical(task$env$data[[task$task.desc$target[2]]])),
+        `time column must be numeric` = testNumeric(task$env$data[[target[1]]]),
+        `event column must be logical` = testLogical(task$env$data[[target[2]]])),
     multilabel = c(
         `class.levels in task.desc must equal target names.` =
-          testSetEqual(task$task.desc$class.levels, task$task.desc$target)),
+          testSetEqual(task.desc$class.levels, target)),
     stop("Unexpected error: task.desc$type was bad."))
 
   if (!all(checks)) {
-    stopf("%s had problems: %s", taskdesignator, collapse(names(checks)[!checks], ", "))
+    stopf("%s had problems: %s", taskdesignator(), collapse(names(checks)[!checks], "; "))
   }
 
 }
