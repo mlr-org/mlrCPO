@@ -1523,21 +1523,174 @@ test_that("switching classif levels in targetbound switches positive", {
 
 })
 
-test_that("targetbound changes data in a different way on 'retrafo' fails", {
+test_that("classif class names / number of classes changes", {
 
-})
+  localenv = new.env()
+  localenv$action = 1
 
-test_that("classif number of classes changes", {
 
-})
+  tid = getTaskId(cpo.df5c)
 
-test_that("classif class names change", {
+  longdf5 = rbind(cpo.df5, cpo.df5, cpo.df5)
+  longdf5ren = longdf5
+  levels(longdf5ren$F1) = c("x", "y")
+  longdf5add = longdf5
+  longdf5add$F1 = factor(c("a", "b", "c", "a", "b", "c", "a", "b", "c"), levels = c("a", "b", "c"))
+
+  longdf5c = makeClassifTask(id = tid, data = longdf5, target = "F1")
+  longdf5renc = makeClassifTask(id = tid, data = longdf5ren, target = "F1")
+  longdf5addc = makeClassifTask(id = tid, data = longdf5add, target = "F1")
+
+
+
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+    convertfrom = "classif",
+    retrafo = function(data, target, control, param) {
+      if (localenv$action == 1) {
+        levels(data[[target]]) = c("x", "y")
+      } else if (localenv$action == 2) {
+        data[[target]] = factor(c("a", "b", "c"), levels = c("a", "b", "c"))
+
+      }
+      data
+    },
+    properties.needed = "multiclass",
+    applyfun = function(cpocon, type, line, dfx) {
+      for (i in 1:2) {
+        if (i == 1) {
+          cpo = cpocon()
+        } else {
+          cpo = cpocon(affect.index = c(1, 3))
+        }
+        localenv$action = 0
+        trans = longdf5c %>>% cpo
+        ntrans = longdf5c %>>% retrafo(trans)
+        expect_equal(clearRI(trans), longdf5c)
+        expect_equal(clearRI(ntrans), longdf5c)
+
+        localenv$action = 1
+        trans = longdf5c %>>% cpo
+        ntrans = longdf5c %>>% retrafo(trans)
+        expect_equal(clearRI(trans), longdf5renc)
+        expect_equal(clearRI(ntrans), longdf5renc)
+
+        localenv$action = 2
+        trans = longdf5c %>>% cpo
+        ntrans = longdf5c %>>% retrafo(trans)
+        expect_equal(clearRI(trans), longdf5addc)
+        expect_equal(clearRI(ntrans), longdf5addc)
+
+        localenv$action = 2
+        trans = longdf5c %>>% cpo
+        localenv$action = 0
+        ntrans = longdf5c %>>% retrafo(trans)
+        expect_equal(clearRI(trans), longdf5addc)
+        expect_equal(clearRI(ntrans), longdf5c)
+      }
+    })
 
 })
 
 ### conversion related
 
 test_that("convert data.frame as if it were 'cluster'", {
+
+  testClusterTarget = function(df, adding, type, doextra = FALSE) {
+
+    incluster = makeClusterTask("[CPO CONSTRUCTED]", df)
+
+    outdf = cbind(df, adding)
+    outdfreord = cbind(df[c(-1, -3)], df[c(1, 3)], adding)
+
+    outtask = constructTask(outdf, colnames(adding), type, "[CPO CONSTRUCTED]")
+    outtaskreord = constructTask(outdfreord, colnames(adding), type, "[CPO CONSTRUCTED]")
+
+    localenv = new.env()
+    localenv$action = TRUE
+
+    if (doextra) {
+      applyGMC("clusterconvert", TRUE, type = c("target", "target.extra"),
+        convertfrom = "cluster", convertto = "cluster",
+        retrafo = function(data, target, control, param) {
+          if (localenv$action) {
+            colnames(adding) = paste0("target.", colnames(adding))
+            cbind(data, adding)
+          } else {
+            data
+          }
+        },
+        applyfun = function(cpocon, type, line, dfx) {
+          for (i in 1:2) {
+            if (i == 1) {
+              cpo = cpocon()
+            } else {
+              cpo = cpocon(affect.index = c(1, 3))
+            }
+            localenv$action = TRUE
+            expect_error(df %>>% cpo, if (dfx == "df.all") "must not change non-target column names" else "Cluster task cannot have target columns")
+            localenv$action = FALSE
+            trans = df %>>% cpo
+            expect_equal(clearRI(trans), incluster)
+            expect_equal(clearRI(df %>>% retrafo(trans)), df)
+            expect_equal(clearRI(incluster %>>% retrafo(trans)), incluster)
+            localenv$action = TRUE
+            expect_error(df %>>% retrafo(trans), if (dfx == "df.all") "must not change non-target column names" else "Cluster task cannot have target columns")
+            expect_error(incluster %>>% retrafo(trans), if (dfx == "df.all") "must not change non-target column names" else "Cluster task cannot have target columns")
+          }
+        })
+    }
+
+    applyGMC("clusterconvert", TRUE, type = c("target", "target.extra"),
+      convertfrom = "cluster", convertto = type,
+      retrafo = function(data, target, control, param) {
+        if (localenv$action) {
+          colnames(adding) = paste0("target.", colnames(adding))
+          cbind(data, adding)
+        } else {
+          data
+        }
+      },
+      applyfun = function(cpocon, type, line, dfx) {
+        if (dfx == "df.all") return(NULL)
+        for (i in 1:2) {
+          dfexp = outdf
+          taskexp = outtask
+          if (i == 1) {
+            cpo = cpocon()
+          } else {
+            cpo = cpocon(affect.index = c(1, 3))
+            if (dfx == "task") {
+              dfexp = outdfreord
+              taskexp = outtaskreord
+            }
+          }
+          localenv$action = TRUE
+
+          trans = df %>>% cpo
+          expect_equal(clearRI(trans), taskexp)
+          expect_equal(clearRI(incluster %>>% retrafo(trans)), taskexp)
+          expect_equal(clearRI(df %>>% retrafo(trans)), dfexp)
+
+          trans = incluster %>>% cpo
+          expect_equal(clearRI(trans), taskexp)
+          expect_equal(clearRI(incluster %>>% retrafo(trans)), taskexp)
+          expect_equal(clearRI(df %>>% retrafo(trans)), dfexp)
+
+          localenv$action = FALSE
+          expect_error(df %>>% cpo, "Assertion on 'target' failed")
+
+          expect_error(df %>>% retrafo(trans), "Assertion on 'target' failed")
+          expect_error(incluster %>>% retrafo(trans), "Assertion on 'target' failed")
+        }
+      })
+  }
+
+  testClusterTarget(cpo.df5, data.frame(xx = 1:3), "regr", TRUE)
+
+  testClusterTarget(cpo.df5, data.frame(xx = c("a", "a", "b")), "classif")
+  testClusterTarget(cpo.df5, data.frame(xx = c("a", "b", "c")), "classif")
+  testClusterTarget(cpo.df5, data.frame(xx = 1:3, yy = c(TRUE, TRUE, FALSE)), "surv")
+  testClusterTarget(cpo.df5, data.frame(xx = c(TRUE, FALSE, FALSE), yy = c(TRUE, TRUE, FALSE)), "multilabel")
 
 })
 

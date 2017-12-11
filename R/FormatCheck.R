@@ -101,7 +101,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
     indata = getTaskData(indata, target.extra = TRUE)$data
   } else if (is.data.frame(indata)) {
     origdatatype = "data.frame"
-    if (any(shapeinfo.input$target %in% names(indata))) {
+    if (any(shapeinfo.input$target %in% names(indata)) || shapeinfo.input$type == "cluster") {
       if (!all(shapeinfo.input$target %in% names(indata))) {
         badcols = intersect(shapeinfo.input$target, names(indata))
         stopf("Some, but not all target columns of training data found in new data. This is probably an error.\n%s%s: %s",
@@ -939,7 +939,7 @@ splittask = function(task, dataformat, strict.factors) {
 splitdf = function(df, dataformat, strict.factors) {
   colsplit = c("numeric", "factor", if (strict.factors) "ordered", "other")
   switch(dataformat,
-    task = list(data = makeClusterTask(data = df, fixup.data = "no", check.data = FALSE), target = character(0)),
+    task = list(data = makeClusterTask("[CPO CONSTRUCTED]", data = df, fixup.data = "no", check.data = FALSE), target = character(0)),
     df.all = list(data = df, target = character(0)),
     df.features = list(data = df, target = df[, character(0), drop = FALSE]),
     split = list(data = splitColsByType(colsplit, df),
@@ -1161,7 +1161,7 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
     fulltask = constructTask(fulldata, getTaskTargetNames(newdata), newtasktype, getTaskId(newdata), isLevelFlipped(newdata))
     checkColumnsEqual(getTaskData(task, target.extra = TRUE)$data[subset.index],
       getTaskData(newdata, target.extra = TRUE)$data, "non-target column", name)
-    checkTaskBasics(task, fulltask, setdiff(names(getTaskDesc(task)), c("id", "n.feat", "has.missings", "has.blocking", "has.weights")), name)
+    checkTaskBasics(task, fulltask, setdiff(names(getTaskDesc(task)), c("n.feat", "has.missings", "has.blocking", "has.weights")), name)
     return(fulltask)
   }
   #check type didn't change
@@ -1282,6 +1282,9 @@ checkColumnsEqual = function(old.relevants, new.relevants, relevant.name, name) 
 # @return [Task] a new task of type `type`, with id `id`, data `data`, and other meta information from `oldtask`.
 constructTask = function(data, target, type, id, flip = FALSE) {
   if (type == "cluster") {
+    if (length(target)) {
+      stop("Cluster task cannot have target columns")
+    }
     return(makeClusterTask(id = id, data = data, fixup.data = "no", check.data = FALSE))
   }
   if (type == "classif" && flip && length(target) == 1) {

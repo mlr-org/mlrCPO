@@ -633,7 +633,7 @@ applyGMC = function(name, strict,
                     retrafo = function(data, control, param, target) data,
                     traininvert = function(data, control, param)  if (!missing(control)) control,
                     invert = function(target, predict.type, control, param) target,
-                    keepformat = TRUE,
+                    keepformat = TRUE, properties.needed = NULL,
                     applyfun) {
   dotype = type
   for (dfx in dataformats) {
@@ -652,9 +652,10 @@ applyGMC = function(name, strict,
       cpo = generalMakeCPO(name = name, type = type, keepformat = keepformat,
         fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
         dataformat = dfx, convertfrom = convertfrom,
+        convertto = convertto,
         dataformat.factor.with.ordered = !strict,
         train = train, retrafo = retrafo, traininvert = traininvert,
-        invert = invert)
+        invert = invert, properties.needed = properties.needed)
       applyfun(cpo, type, line, dfx)
     }
   }
