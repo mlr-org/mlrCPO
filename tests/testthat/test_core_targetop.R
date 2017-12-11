@@ -564,7 +564,7 @@ test_that("change target names in targetbound target", {
   localenv = new.env()
   localenv$action = TRUE
 
-  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extended"),
     convertfrom = "regr",
     retrafo = function(data, target, control, param) {
       if (localenv$action) {
@@ -624,7 +624,7 @@ test_that("change target names in targetbound target", {
   cpo.df4plus = cbind(cpo.df4, xT1 = 1:3)
   cpo.df4plustask = makeMultilabelTask(data = cpo.df4plus, target = c("T1", "T2"))
 
-  applyGMC("testtargetrename2", TRUE, type = c("target", "target.extra"),
+  applyGMC("testtargetrename2", TRUE, type = c("target", "target.extended"),
     convertfrom = "multilabel",
     retrafo = function(data, target, control, param) {
       colnames(data) = gsub("^target\\.", "target.x", colnames(data))
@@ -683,7 +683,7 @@ test_that("change target names in targetbound target", {
   target4 = c(target3, "T4")
   target5 = c(target4, "T5")
 
-  applyGMC("testtargetrenumber", TRUE, type = c("target", "target.extra"),
+  applyGMC("testtargetrenumber", TRUE, type = c("target", "target.extended"),
     convertfrom = "multilabel",
     retrafo = function(data, target, control, param) {
       if (localenv$action) {
@@ -780,7 +780,7 @@ test_that("switching classif levels in targetbound switches positive", {
   cpo.df5crev.ortho
   cpo.df5crev.trans
 
-  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extended"),
     convertfrom = "classif",
     retrafo = function(data, target, control, param) {
       expect_equal(levels(data[[target]])[1], localenv$top)
@@ -846,7 +846,7 @@ test_that("classif class names / number of classes changes", {
 
 
 
-  applyGMC("testtargetrename", TRUE, type = c("target", "target.extra"),
+  applyGMC("testtargetrename", TRUE, type = c("target", "target.extended"),
     convertfrom = "classif",
     retrafo = function(data, target, control, param) {
       if (localenv$action == 1) {
@@ -912,7 +912,7 @@ test_that("convert data.frame as if it were 'cluster'", {
     localenv$action = TRUE
 
     if (doextra) {
-      applyGMC("clusterconvertfail", TRUE, type = c("target", "target.extra"),
+      applyGMC("clusterconvertfail", TRUE, type = c("target", "target.extended"),
         convertfrom = "cluster", convertto = "cluster",
         retrafo = function(data, target, control, param) {
           if (localenv$action) {
@@ -943,7 +943,7 @@ test_that("convert data.frame as if it were 'cluster'", {
         })
     }
 
-    applyGMC("clusterconvert", TRUE, type = c("target", "target.extra"),
+    applyGMC("clusterconvert", TRUE, type = c("target", "target.extended"),
       convertfrom = "cluster", convertto = type,
       retrafo = function(data, target, control, param) {
         if (localenv$action) {
@@ -1017,7 +1017,7 @@ test_that("tocpo respects properties", {
     },
     applyfun = function(cpocon, type, line, dfx) {
       cpo = cpocon()
-      if (type %in% c("target", "target.extra")) {
+      if (type %in% c("target", "target.extended")) {
         localenv$action = FALSE
         trans = cpo.df5c %>>% cpo
         expect_equal(clearRI(trans), cpo.df5c)
@@ -1028,7 +1028,7 @@ test_that("tocpo respects properties", {
       expect_error(cpo.df5xc %>>% cpo, "has property multiclass that propcheck can not handle")
     })
 
-  applyGMC("propcheck", TRUE, type = c("target", "target.extra"),
+  applyGMC("propcheck", TRUE, type = c("target", "target.extended"),
     convertfrom = "classif",
     properties.target = c("classif", "twoclass"), properties.needed = "multiclass",
     properties.adding = "twoclass",

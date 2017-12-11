@@ -377,7 +377,7 @@ test_that("cpo.invert has information from cpo.trafo / cpo.retrafo", {
   expect_false(t1exp == t3exp)
 
   applyGMC("testtrafo", TRUE, convertfrom = getTaskDesc(t1)$type,
-    type = c("target", "target.extra"),
+    type = c("target", "target.extended"),
     traininvert = function(data, control, param) {
       data[[1]][1]
     },
@@ -431,13 +431,37 @@ test_that("presence of control object is checked", {
     properties.target = c("classif", "twoclass"),
     cpo.train = { }, cpo.retrafo = { target }, cpo.train.invert = { function() NULL }, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train.invert")
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train.invert does not have \\(only\\) the required")
 
   cpo = makeCPOTargetOp("errorCPO.target.fri",
     properties.target = c("classif", "twoclass"),
     cpo.train = { cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
 
-  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.retrafo")
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.retrafo.*object")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = NULL; cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "did not create.*cpo.retrafo function")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = 1; cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.retrafo.*must be a function")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = function(target, ...) target; cpo.train.invert = function(a, ...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_class(cpo.df1c %>>% cpo(), "Task")
+
+  cpo = makeCPOTargetOp("errorCPO.target.fri",
+    properties.target = c("classif", "twoclass"),
+    cpo.train = { cpo.retrafo = function(target, ...) target; cpo.train.invert = function(a, b) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
+
+  expect_error(cpo.df1c %>>% cpo(), "cpo.train.invert.*must have exactly one argument")
 
   cpo = makeCPOTargetOp("errorCPO.target.fri",
     properties.target = c("classif", "twoclass"),
@@ -449,7 +473,7 @@ test_that("presence of control object is checked", {
     properties.target = c("classif", "twoclass"),
     cpo.train = { cpo.retrafo = function() NULL; cpo.train.invert = function(...) NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = function(...) NULL)
 
-  expect_error(cpo.df1c %>>% cpo(), "cpo.retrafo as created by cpo.train")
+  expect_error(cpo.df1c %>>% cpo(), "cpo.retrafo as created by cpo.train does not have \\(only\\) the required")
 
   cpo = makeCPOTargetOp("errorCPO.target.fri",
     properties.target = c("classif", "twoclass"), constant.invert = TRUE,
@@ -462,7 +486,7 @@ test_that("presence of control object is checked", {
     properties.target = c("classif", "twoclass"), constant.invert = TRUE,
     cpo.train = { cpo.retrafo = function(...) NULL; cpo.invert = function() NULL }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train")
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.train does not have \\(only\\) the required")
 
   cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
     properties.target = c("classif", "twoclass"),
@@ -524,7 +548,7 @@ test_that("presence of control object is checked", {
       target
     }, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.trafo")
+  expect_error(cpo.df1c %>>% cpo(), "cpo.invert as created by cpo.trafo does not have \\(only\\) the required")
 
 
   cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
@@ -538,7 +562,7 @@ test_that("presence of control object is checked", {
       target
     }, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.invert as created by cpo.retrafo")
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.invert as created by cpo.retrafo does not have \\(only\\) the required")
 
   cpo = makeCPOExtendedTargetOp("errorCPO.extended.target",
     properties.target = c("classif", "twoclass"),
@@ -558,6 +582,6 @@ test_that("presence of control object is checked", {
       target
     }, cpo.retrafo = NULL, cpo.invert = NULL)
 
-  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.retrafo as created by cpo.trafo")
+  expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.retrafo as created by cpo.trafo does not have \\(only\\) the required")
 
 })

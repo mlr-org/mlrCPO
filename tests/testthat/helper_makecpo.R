@@ -29,7 +29,7 @@ generalMakeCPO = function(name,
   dataformat.factor.with.ordered = TRUE,
   convertfrom = "regr", convertto = convertfrom, properties.data = c("numerics", "factors", "ordered", "missings"),
   properties.adding = NULL, properties.needed = NULL, properties.target = NULL, predict.type.map = c(response = "response"),
-  keepformat = TRUE)  {
+  keepformat = TRUE, fix.factors = FALSE)  {
   type = match.arg(type)
   istocpo = type %in% c("target", "target.extended")
 
@@ -590,7 +590,7 @@ generalMakeCPO = function(name,
 
   args = list(cpo.name = name, par.set = ps, dataformat = dataformat, dataformat.factor.with.ordered = dataformat.factor.with.ordered,
     properties.data = properties.data, properties.adding = properties.adding, properties.needed = properties.needed,
-    properties.target = properties.target)
+    properties.target = properties.target, fix.factors = fix.factors)
 
   if (type %in% c("target.extended", "target")) {
     args %c=% list(task.type.out = convertto, predict.type.map = predict.type.map)
@@ -633,10 +633,11 @@ applyGMC = function(name, strict,
                     retrafo = function(data, control, param, target) data,
                     traininvert = function(data, control, param)  if (!missing(control)) control,
                     invert = function(target, predict.type, control, param) target,
-                    keepformat = TRUE,
+                    keepformat = TRUE, fix.factors = FALSE,
                     properties.needed = NULL, properties.adding = NULL, properties.target = NULL,
                     applyfun) {
   dotype = type
+  assertSubset(type, c("target", "target.extended", "simple", "extended", "retrafoless"))
   for (dfx in dataformats) {
     for (lineno in seq_len(nrow(allowedGMC))) {
       line = allowedGMC[lineno, ]
@@ -653,7 +654,7 @@ applyGMC = function(name, strict,
       cpo = generalMakeCPO(name = name, type = type, keepformat = keepformat,
         fr = line$fr, fi = line$fi, sl = line$sl, ci = line$ci,
         dataformat = dfx, convertfrom = convertfrom,
-        convertto = convertto,
+        convertto = convertto, fix.factors = fix.factors,
         dataformat.factor.with.ordered = !strict,
         train = train, retrafo = retrafo, traininvert = traininvert,
         invert = invert,

@@ -137,6 +137,15 @@ test_that("NULLCPO", {
   expect_identical(as.list(NULLCPO), list())
   expect_output(print(NULLCPO), "NULLCPO")
 
+  ret = pid.task %>|% cpoPca()
+
+  expect_identical(ret %>>% NULLCPO, ret)
+  expect_identical(composeCPO(ret, NULLCPO), ret)
+  expect_identical(NULLCPO %>>% ret, ret)
+  expect_identical(composeCPO(NULLCPO, ret), ret)
+
+
+
 })
 
 test_that("operators", {
@@ -284,11 +293,145 @@ test_that("helpers", {
 
   expect_identical(nullToNullcpo(NULL), NULLCPO)
   expect_identical(nullToNullcpo(list()), list())
+
+  expect_error(NULLCPO %>>% "test", "Cannot compose CPO Retrafo with object of class.*character")
+
 })
 
 test_that("inverter is noop when no targetbounds", {
   expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), 1:10), 1:10)
   expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), c("a", "b", "c")), c("a", "b", "c"))
+})
+
+
+test_that("applyCPO, composeCPO, attachCPO do what they should do", {
+
+  expect_equal(applyCPO(cpoPca(), pid.task), pid.task %>>% cpoPca())
+
+  ret = pid.task %>|% cpoPca()
+  expect_equal(applyCPO(ret, pid.task), pid.task %>>% ret)
+
+  expect_equal(composeCPO(cpoPca(), cpoScale()), cpoPca() %>>% cpoScale())
+  expect_equal(composeCPO(ret, ret), ret %>>% ret)
+
+  expect_equal(attachCPO(cpoPca(), "classif.logreg"), cpoPca() %>>% makeLearner("classif.logreg"))
+
+})
+
+test_that("fixFactors works", {
+
+  testff = function(fix) {
+
+    df = data.frame(
+        a = factor(c("a", "b", "b", "a"), levels = c("c", "b", "a")),
+        b = factor(c("a", "b", "b", "a"), levels = c("a", "b", "c")),
+        c = factor(c("a", "b", "b", "a"), levels = c("a", "b", "c")))
+
+    dfdroppedall = droplevels(df)
+    dfdroppedone = droplevels(df, except = c("b", "c"))
+
+    tsk = makeClassifTask("lvltask", df, target = "c", fixup.data = "no", check.data = FALSE)
+
+    tskdroppedall = makeClassifTask("lvltask", droplevels(df, except = "c"), target = "c", fixup.data = "no", check.data = FALSE)
+    tskdroppedone = makeClassifTask("lvltask", droplevels(df, except = c("b", "c")), target = "c", fixup.data = "no", check.data = FALSE)
+
+    localenv = new.env()
+
+    applyGMC("fixfactors", TRUE, fix.factors = fix,
+      type = c("simple", "extended"),
+      train = function(data, target, param) {
+        if (missing(target)) {
+          target = "x"
+        }
+        levels(dropNamed(data, target)[[1]])
+      },
+      retrafo = function(data, target, control, param) {
+        if (!missing(target) && length(target)) {
+          expect_identical(levels(data[[target]]), localenv$exptarget)
+        } else {
+          target = "x"
+        }
+        if (fix) expect_identical(localenv$explvl, control)
+        expect_identical(localenv$explvl, levels(dropNamed(data, target)[[1]]))
+        data
+      },
+      convertfrom = "classif",
+      applyfun = function(cpocon, type, line, dfx) {
+        for (i in 1:2) {
+          if (i == 1) {
+            if (fix) {
+              dfdropped = dfdroppedall
+              taskdropped = tskdroppedall
+            } else {
+              dfdropped = df
+              taskdropped = tsk
+            }
+            cpo = cpocon()
+          } else {
+            if (fix) {
+              dfdropped = dfdroppedone
+              taskdropped = tskdroppedone
+            } else {
+              dfdropped = df
+              taskdropped = tsk
+            }
+            cpo = cpocon(affect.index = 1)
+          }
+          localenv$explvl = c("c", "b", "a")
+          localenv$exptarget = c("a", "b", "c")
+          if (dfx != "task") {  # TODO: can be removed when the mlr makeClusterTask check.data bug is solved.
+
+            res = df %>>% cpo
+            expect_identical(clearRI(res), df)
+            expect_identical(clearRI(df %>>% retrafo(res)), df)
+
+            localenv$explvl = c("b", "a")
+            res = dfdroppedall %>>% cpo
+            if (fix) {
+              localenv$explvl = c("b", "a")
+            } else {
+              localenv$explvl = c("c", "b", "a")
+            }
+            expect_identical(clearRI(res), dfdroppedall)
+            expect_identical(clearRI(df %>>% retrafo(res)), dfdropped)
+            localenv$explvl = c("c", "b", "a")
+          }
+
+          res = tsk %>>% cpo
+          expect_equal(clearRI(res), tsk)
+          expect_equal(clearRI(tsk %>>% retrafo(res)), tsk)
+          expect_identical(clearRI(df %>>% retrafo(res)), df)
+
+          localenv$explvl = c("b", "a")
+          res = tskdroppedall %>>% cpo
+          if (fix) {
+            localenv$explvl = c("b", "a")
+          } else {
+            localenv$explvl = c("c", "b", "a")
+          }
+          expect_equal(clearRI(res), tskdroppedall)
+          expect_equal(clearRI(tsk %>>% retrafo(res)), taskdropped)
+          expect_identical(clearRI(df %>>% retrafo(res)), getTaskData(taskdropped))
+        }
+      })
+  }
+
+  testff(FALSE)
+  testff(TRUE)
+
+})
+
+###
+
+test_that("various error messages", {
+
+  wtask = makeClassifTask(data = cpo.df1, target = "F1", weights = c(.1, .2, .3))
+
+  expect_error(wtask %>>% cpoPca(), "CPO can not handle tasks with weights!")
+
+
+
+
 })
 
 ### other features

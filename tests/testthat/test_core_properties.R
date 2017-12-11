@@ -358,3 +358,4 @@ test_that("returning properties that are not allowed is detected", {
     }
   }
 })
+

@@ -518,7 +518,7 @@ getVarCreated = function(env, var, source.name) {
 # @return [function] a function that behaves the same, as `fun`, but also creates
 #   the variable `.ENV` when called.
 captureEnvWrapper = function(fun) {
-  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })
+  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })  # nocov
   envcapture[[3]] = body(fun)
   body(fun) = envcapture
   environment(fun) = new.env(parent = environment(fun))

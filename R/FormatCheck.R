@@ -322,8 +322,8 @@ fixFactors.default = function(data, levels) {
   data
 }
 
-fixFactorsTask.Task = function(data, levels) {
-  changeData(data, fixFactors(getTaskData(data)))
+fixFactors.Task = function(data, levels) {
+  changeData(data, fixFactors(getTaskData(data), levels))
 }
 
 # calculate the properties of the data (only feature types & missings)
@@ -350,12 +350,7 @@ getDataProperties = function(data, targetnames) {
 # @param data [data.frame | Task] the data to check
 # @return [character] a subset of c("numerics", "factors", "ordered", "missings", "cluster", "classif", "multilabel", "regr", "surv", "oneclass", "twoclass", "multiclass")
 getTaskProperties = function(data) {
-  if ("Task" %in% data) {
-    targetnames = getTaskTargetNames(data)
-  } else {
-    targetnames = character(0)
-  }
-  props = getDataProperties(data, targetnames)
+  props = getDataProperties(data, character(0))
   if (is.data.frame(data)) {
     c(props, "cluster")
   } else {
@@ -473,19 +468,21 @@ makeShapeInfo = function(data) {
 # @return [InputShapeInfo] a datastructure extending `ShapeInfo` containing information about the data shape
 makeInputShapeInfo = function(indata, capture.factors) {
   if ("Task" %in% class(indata)) {
-    ret = makeShapeInfo(getTaskData(indata, target.extra = TRUE)$data)
+    data = getTaskData(indata, target.extra = TRUE)$data
+    ret = makeShapeInfo(data)
     ret$target = getTaskTargetNames(indata)
     ret$type = getTaskDesc(indata)$type
     if (ret$type == "classif") {
       ret$positive = getTaskDesc(indata)$positive
     }
   } else {
-    ret = makeShapeInfo(indata)
+    data = indata
+    ret = makeShapeInfo(data)
     ret$target = character(0)
     ret$type = "cluster"
   }
   if (capture.factors) {
-    ret$factor.levels = Filter(function(x) !is.null(x), lapply(indata, levels))
+    ret$factor.levels = Filter(function(x) !is.null(x), lapply(data, levels))
   }
   addClasses(ret, "InputShapeInfo")
 }
