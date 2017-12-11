@@ -41,7 +41,7 @@ composeCPO = function(cpo1, cpo2) {
   assert(checkClass(cpo2, "CPO"),
     checkClass(cpo2, "CPOTrained"))
   if (is.nullcpo(cpo2)) {
-    cpo1
+    return(cpo1)
   }
   UseMethod("composeCPO")
 }

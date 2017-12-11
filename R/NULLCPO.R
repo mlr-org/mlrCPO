@@ -90,7 +90,7 @@ nullToNullcpo = function(cpo) {
 }
 
 #' @export
-predict.NULLCPO = function(object, data, ...) {
+predict.NULLCPO = function(object, data, predict.type, ...) {
   assert(length(list(...)) == 0)
   data
 }
@@ -107,7 +107,7 @@ getParamSet.NULLCPO = function(x) {
 
 #' @export
 getHyperPars.NULLCPO = function(learner, for.fun = c("train", "predict", "both")) {
-  setNames(list(), character(0))
+  namedList()
 }
 
 #' @export
@@ -122,7 +122,13 @@ getCPOId.NULLCPO = function(cpo) {
 
 #' @export
 getCPOAffect.NULLCPO = function(cpo, drop.defaults = TRUE) {
-  list()
+  if (drop.defaults) {
+    namedList()
+  } else {
+    list(type = c("numeric", "factor", "ordered", "other"),
+      index = integer(0), names = character(0), pattern = NULL,
+      invert = FALSE, pattern.ignore.case = FALSE, pattern.perl = FALSE, pattern.fixed = FALSE)
+  }
 }
 
 #' @export

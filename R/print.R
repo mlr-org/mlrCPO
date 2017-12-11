@@ -44,7 +44,7 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
     for (funname in names(relfunlist)) {
       fun = relfunlist[[funname]]
       if (!is.null(fun)) {
-        catf("\ncpo.%s:", funname)
+        catf("\n%s:", funname)
         print(fun)
       }
     }
@@ -72,7 +72,7 @@ vprint = function(x) {
       }
       catf("\nConversion: %s -> %s", cpo$convertfrom, cpo$convertto)
       pt = getCPOPredictType(cpo)
-      catf("Predict type maping:\n%s", collapse(paste(names(pt), pt, sep = " -> "), sep = "\n"))
+      catf("Predict type mapping:\n%s", collapse(paste(names(pt), pt, sep = " -> "), sep = "\n"))
     } else {
       cat("\n")
     }
@@ -88,7 +88,7 @@ print.CPO = function(x, verbose = FALSE, ...) {
     return(vprint(x))
   }
   isprim = "CPOPrimitive" %in% class(x)
-  pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
+  pv = if (isprim) getBareHyperPars(x, include.unexported = FALSE) else getHyperPars(x)
   argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
   template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
   catf(template, x$debug.name, argstring, newline = FALSE)
@@ -114,7 +114,8 @@ print.CPOTrained = function(x, ...) {
 
   pt = names(getCPOPredictType(x))
   caps = names(Filter(function(x) x > 0, invcap))
-  catf("CPO %s chain", collapse(stri_trans_totitle(caps), sep = " / "), newline = FALSE)
+  names = c(retrafo = "Retrafo", invert = "Inverter")
+  catf("CPO %s chain", collapse(names[caps], sep = " / "), newline = FALSE)
   if (!is.null(x$convertfrom) && !is.null(x$convertto)) {
     if (x$convertfrom == x$convertto) {
       catf(" {type:%s}", x$convertfrom, newline = FALSE)
@@ -137,7 +138,7 @@ print.CPOTrained = function(x, ...) {
   }
   for (primitive in plist) {
     if (!first) {
-      cat("=>")
+      cat(" =>\n")
     }
     first = FALSE
     pv = getHyperPars(primitive)

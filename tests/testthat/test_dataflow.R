@@ -103,7 +103,7 @@ test_that("generalMakeCPO works", {
         TRUE
       },
       retrafo = function(data, control, param, target) {
-        if (!isfocpo && !doingdf) {
+        if (!isfocpo && (!doingdf || getTaskType(task) == "cluster")) {
           checkFulldata(data, target)
         } else {
           assert(missing(target))
@@ -1609,7 +1609,7 @@ test_that("convert data.frame as if it were 'cluster'", {
     localenv$action = TRUE
 
     if (doextra) {
-      applyGMC("clusterconvert", TRUE, type = c("target", "target.extra"),
+      applyGMC("clusterconvertfail", TRUE, type = c("target", "target.extra"),
         convertfrom = "cluster", convertto = "cluster",
         retrafo = function(data, target, control, param) {
           if (localenv$action) {
@@ -1694,7 +1694,56 @@ test_that("convert data.frame as if it were 'cluster'", {
 
 })
 
-test_that("properties.target is respected", {
+test_that("tocpo respects properties", {
+
+  localenv = new.env()
+  localenv$action = TRUE
+
+  cpo.df5x = cpo.df5
+  cpo.df5x$F1 = factor(c("a", "b", "c"))
+  cpo.df5xc = makeClassifTask(id = "cpo.df5", data = cpo.df5x, target = "F1")
+
+  applyGMC("propcheck", TRUE,
+    convertfrom = "classif",
+    properties.target = c("classif", "twoclass"), properties.needed = character(0),
+    retrafo = function(data, target, control, param) {
+      if (localenv$action) {
+        data[[target]] = factor(c("a", "b", "c"))
+      }
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      cpo = cpocon()
+      if (type %in% c("target", "target.extra")) {
+        localenv$action = FALSE
+        trans = cpo.df5c %>>% cpo
+        expect_equal(clearRI(trans), cpo.df5c)
+        localenv$action = TRUE
+        expect_error(cpo.df5c %>>% cpo, "has property multiclass that propcheck.*properties.needed")
+        expect_error(cpo.df5c %>>% retrafo(trans), "has property multiclass that propcheck.*properties.needed")
+      }
+      expect_error(cpo.df5xc %>>% cpo, "has property multiclass that propcheck can not handle")
+    })
+
+  applyGMC("propcheck", TRUE, type = c("target", "target.extra"),
+    convertfrom = "classif",
+    properties.target = c("classif", "twoclass"), properties.needed = "multiclass",
+    properties.adding = "twoclass",
+    retrafo = function(data, target, control, param) {
+      if (localenv$action) {
+        data[[target]] = factor(c("a", "b", "c"))
+      }
+      data
+    },
+    applyfun = function(cpocon, type, line, dfx) {
+      cpo = cpocon()
+      localenv$action = TRUE
+      trans = cpo.df5c %>>% cpo
+      expect_equal(clearRI(trans), cpo.df5xc)
+      localenv$action = FALSE
+      expect_error(cpo.df5c %>>% cpo, "has property twoclass that propcheck.*properties.adding")
+      expect_error(cpo.df5c %>>% retrafo(trans), "has property twoclass that propcheck.*properties.adding")
+    })
 
 })
 
@@ -1703,16 +1752,29 @@ test_that("properties.target is respected", {
 
 test_that("tocpo sees the correct cols when using affect args", {
 
-})
+  expectedcols = getTaskData(cpo.df4l, target.extra = TRUE)$data
 
-### other features
-
-test_that("missings tolerated in retrafo in certain conditions", {
-
-})
-
-test_that("dataformat.factor.with.ordered influences strictness of property presence check", {
-
+  applyGMC("affectcheck", TRUE,
+    retrafo = function(data, target, control, param) {
+      if (!missing(target)) {
+        dat2 = dropNamed(data, target)
+      } else {
+        dat2 = data
+      }
+      expect_identical(dat2[[1]], expectedcols[[param]])
+      data
+    },
+    convertfrom = "multilabel",
+    applyfun = function(cpocon, type, line, dfx) {
+      if (type == "retrafoless") return(NULL)
+      for (i in seq_along(expectedcols)) {
+        cpo = cpocon(i, affect.index = i)
+        trans = cpo.df4l %>>% cpo
+        expect_equal(clearRI(trans), cpo.df4l)
+        expect_equal(clearRI(cpo.df4l %>>% retrafo(trans)), cpo.df4l)
+        expect_equal(clearRI(cpo.df4 %>>% retrafo(trans)), cpo.df4)
+      }
+    })
 })
 
 test_that("new operators work", {
@@ -1739,39 +1801,120 @@ test_that("new operators work", {
 
 })
 
-test_that("index reference in affect and cpoSelect is relative to data cols", {
+test_that("index reference in cpoSelect is relative to data cols", {
+
+  expectedcols = getTaskData(cpo.df4l, target.extra = TRUE)$data
+
+  for (i in seq_along(expectedcols)) {
+    trans = cpo.df4l %>>% cpoSelect(index = i)
+    expect_equal(getTaskData(trans, target.extra = TRUE)$data, expectedcols[i])
+    expect_equal(getTaskData(cpo.df4l %>>% retrafo(trans), target.extra = TRUE)$data, expectedcols[i])
+    expect_equal(dropNamed(cpo.df4 %>>% retrafo(trans), c("T1", "T2")), expectedcols[i])
+  }
 
 })
 
-test_that("convertNamesToItems etc", {
-  # convertNamesToItems
-  # convertItemsToNames
-})
-
-test_that("on.par.out.of.bounds respected", {
-
-  # also with convertItemsToNames etc.
-})
-
-test_that("'sometimes'-properties work as expected", {
-
-})
-
-test_that("stateless target cpo  CPOs must be constant.invert", {
-
-  expect_error(makeCPOTargetOp("test", cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }),
-    "constant.invert must be TRUE")
-
-  expect_class(makeCPOTargetOp("test", constant.invert = TRUE,
-    cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }), "CPOConstructor")
-
-})
 
 test_that("printers", {
+
+  expect_output(print(cpoScale()), "scale(center = TRUE, scale = TRUE)", fixed = TRUE)
+  expect_output(print(cpoScale(center = FALSE)), "scale(center = FALSE, scale = TRUE)", fixed = TRUE)
+  expect_output(print(cpoScale(id = "test")), "test<scale>(center = TRUE, scale = TRUE)", fixed = TRUE)
+  expect_output(print(cpoScale(export = "center")), "scale(center = TRUE)[not exp'd: scale = TRUE]", fixed = TRUE)
+  expect_output(print(cpoScale(scale = FALSE, export = "center")), "scale(center = TRUE)[not exp'd: scale = FALSE]", fixed = TRUE)
+
+  expect_output(print(cpoScale(), verbose = TRUE), "Trafo chain of 1 cpos:\nscale(center = TRUE, scale = TRUE)\nOperating: feature\nParamSet:", fixed = TRUE)
+  expect_output(print(cpoScale(export = character(0)), verbose = TRUE),
+    "Trafo chain of 1 cpos:\nscale()[not exp'd: center = TRUE, scale = TRUE]\nOperating: feature\nParamSet:", fixed = TRUE)
+
+  notrans = makeCPOTargetOp("notrans", properties.target = "multilabel", pSS(param: integer[, ]), constant.invert = TRUE, cpo.train.invert = NULL,
+    cpo.train = NULL, cpo.retrafo = { target }, cpo.invert = { target })
+
+  expect_output(print(notrans), "<<CPO notrans(param)>>", fixed = TRUE)
+
+  print(notrans, verbose = TRUE)
+
+  expect_output(print(notrans, verbose = TRUE), "<<CPO notrans(param)>>\n\ncpo.retrafo:\nfunction (param, data, target) \n{\n", fixed = TRUE)
+
+  expect_output(print(notrans(), verbose = TRUE), "Conversion: cluster -> cluster\nPredict type mapping:\nresponse -> response", fixed = TRUE)
+
+  dotrans = makeCPOTargetOp("dotrans", pSS(param: integer[, ]), constant.invert = FALSE, cpo.train.invert = { },
+    cpo.train = { }, cpo.retrafo = { target[[1]] = as.numeric(target[[1]]) ; target[1] }, cpo.invert = { target }, task.type.out = "regr",
+    properties.target = "multilabel", predict.type.map = c(response = "se", prob = "response"))
+
+  expect_output(print(dotrans(), verbose = TRUE), "Conversion: multilabel -> regr\nPredict type mapping:\nresponse -> se\nprob -> response", fixed = TRUE)
+
+
+  expect_output(print(cpo.df4l %>|% notrans(1)),
+    "CPO Retrafo / Inverter chain {type:multilabel} (able to predict 'response')\n[RETRAFO notrans(param = 1){type:multilabel}", fixed = TRUE)
+
+  expect_output(print(cpo.df4l %>|% (cpoPca() %>>% dotrans(1))),
+    "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca()] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
+
+  expect_output(print(inverter(cpo.df4l %>>% dotrans(1))),
+    "CPO Inverter chain {conv:regr->multilabel} (able to predict 'response', 'prob')\n[INVERTER dotrans(param = 1){conv:regr->multilabel}", fixed = TRUE)
+
+  expect_output(print(inverter(cpo.df4l %>>% notrans(0) %>>% dotrans(1))),
+    "CPO Inverter chain {conv:regr->multilabel} (able to predict 'response')\n[INVERTER dotrans(param = 1){conv:regr->multilabel}] =>\n[INVERTER notrans(param = 0){type:multilabel}]", fixed = TRUE)
+
 
 })
 
 test_that("NULLCPO", {
+
+  expect_identical(cpoPca() %>>% NULLCPO, cpoPca())
+  expect_identical(NULLCPO %>>% cpoPca(), cpoPca())
+
+  expect_identical(composeCPO(cpoPca(), NULLCPO), cpoPca())
+  expect_identical(composeCPO(NULLCPO, cpoPca()), cpoPca())
+
+  expect_identical(NULLCPO %>>% makeLearner("classif.logreg"), makeLearner("classif.logreg"))
+  expect_identical(attachCPO(NULLCPO, makeLearner("classif.logreg")), makeLearner("classif.logreg"))
+
+  nullsv = NULLCPO
+  expect_error(NULLCPO %<>>% cpoPca(), "Cowardly refusing to assign to NULLCPO")
+  expect_error(NULLCPO %<<<% cpoPca(), "Cowardly refusing to assign to NULLCPO")
+  NULLCPO = nullsv
+
+  expect_identical(pid.task %>|% NULLCPO, NULLCPO)
+  expect_identical(NULLCPO %|<% pid.task, NULLCPO)
+
+  expect_identical(pid.task %>>% NULLCPO, pid.task)
+  expect_identical(applyCPO(NULLCPO, pid.task), pid.task)
+
+  expect_identical(predict(NULLCPO, pid.task), pid.task)
+  expect_identical(invert(NULLCPO, cpo.df5), cpo.df5)
+
+  expect_true(is.nullcpo(NULLCPO))
+  expect_false(is.nullcpo(NULL))
+
+  expect_null(getCPOTrainedState(NULLCPO))
+
+  expect_identical(getParamSet(NULLCPO), pSS())
+
+  expect_identical(getHyperPars(NULLCPO), namedList())
+
+  expect_error(setCPOId(NULLCPO, "X"), "Cannot set ID of NULLCPO.")
+
+  expect_null(getCPOId(NULLCPO))
+
+  expect_identical(getCPOAffect(NULLCPO), getCPOAffect(cpoPca()))
+  expect_identical(getCPOAffect(NULLCPO, drop.defaults = FALSE), getCPOAffect(cpoPca(), drop.defaults = FALSE))
+
+  expect_identical(getCPOProperties(NULLCPO), getCPOProperties(cpoSelect()))
+  expect_identical(getCPOProperties(NULLCPO, get.internal = TRUE), getCPOProperties(cpoSelect(), get.internal = TRUE))
+  expect_identical(getCPOProperties(NULLCPO, only.data = TRUE), getCPOProperties(cpoSelect(), only.data = TRUE))
+
+  expect_equal(getCPOName(NULLCPO), "NULLCPO")
+  expect_equal(getCPOId(NULLCPO), "NULLCPO")
+  expect_equal(getCPOClass(NULLCPO), "NULLCPO")
+  expect_equal(getCPOTrainedCapability(NULLCPO), c(retrafo = 0L, invert = 0L))
+  expect_equal(getCPOOperatingType(NULLCPO), character(0))
+  expect_equal(getCPOTrainedCPO(NULLCPO), NULLCPO)
+
+  expect_error(getCPOConstructor(NULLCPO), "No CPOConstructor for NULLCPO")
+  expect_identical(as.list(NULLCPO), list())
+  expect_output(print(NULLCPO), "NULLCPO")
 
 })
 
@@ -1928,6 +2071,48 @@ test_that("inverter is noop when no targetbounds", {
   expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), 1:10), 1:10)
   expect_identical(invert(inverter(bh.task %>>% cpoPca() %>>% cpoScale()), c("a", "b", "c")), c("a", "b", "c"))
 })
+
+### other features
+
+test_that("missings tolerated in retrafo in certain conditions", {
+
+})
+
+test_that("exported parameters work as expected", {
+
+})
+
+
+test_that("dataformat.factor.with.ordered influences strictness of property presence check", {
+
+})
+
+
+test_that("convertNamesToItems etc", {
+  # convertNamesToItems
+  # convertItemsToNames
+})
+
+test_that("on.par.out.of.bounds respected", {
+
+  # also with convertItemsToNames etc.
+})
+
+test_that("'sometimes'-properties work as expected", {
+
+})
+
+test_that("stateless target cpo  CPOs must be constant.invert", {
+
+  expect_error(makeCPOTargetOp("test", cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }),
+    "constant.invert must be TRUE")
+
+  expect_class(makeCPOTargetOp("test", constant.invert = TRUE,
+    cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }), "CPOConstructor")
+
+})
+
+
 
 ### concrete cpos
 

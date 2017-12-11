@@ -127,6 +127,9 @@
 #' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
 `internal%<>>%` = function(cpo1, cpo2) {
+  if (identical(substitute(cpo1), quote(NULLCPO))) {
+    stop("Cowardly refusing to assign to NULLCPO")
+  }
   eval.parent(substitute({ cpo1 = `internal%>>%`(cpo1, cpo2) }))
 }
 
@@ -140,6 +143,9 @@
 #' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
 `internal%<<<%` = function(cpo2, cpo1) {
+  if (identical(substitute(cpo2), quote(NULLCPO))) {
+    stop("Cowardly refusing to assign to NULLCPO")
+  }
   eval.parent(substitute({ cpo2 = `internal%>>%`(cpo1, cpo2) }))
 }
 
