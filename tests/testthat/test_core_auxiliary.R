@@ -429,6 +429,42 @@ test_that("various error messages", {
 
   expect_error(wtask %>>% cpoPca(), "CPO can not handle tasks with weights!")
 
+  ret = cpo.df1c %>|% cpoPca()
+
+  cpo.df1cfaux = makeRegrTask("cpo.df1cfaux", { x = cpo.df1 ; x$F1 = 2 ; x }, target = "F1")
+
+  expect_error(cpo.df1cfaux %>>% ret, "CPO trained with task of type classif cannot operate on task of type regr")
+
+  ret = cpo.df4l %>|% cpoPca()
+
+  expect_error(cpo.df4[, -2] %>>% ret, "Some, but not all target columns of training data found.* T2")
+
+  expect_error(expect_warning(applyCPO.CPO(ret, 1)), "Data fed into CPO.*not a Task or data.frame")  # very far fetched
+
+  cpx = makeCPO("errreturn", cpo.train = NULL, cpo.retrafo = { 1 })
+
+  expect_error(pid.task %>>% cpx(), "gave bad result.*must return a data.frame")
+
+  cpx = makeCPOExtendedTrafo("errreturn2", dataformat = "task",
+    cpo.trafo = {
+      control = NULL
+      makeClassifTask("gen", getTaskData(data)[-1, ], target)
+    }, cpo.retrafo = {
+      data
+    })
+
+  expect_error(pid.task %>>% cpx(), "must not change number of rows")
+
+  cpx = makeCPOExtendedTrafo("errreturn3", dataformat = "task",
+    cpo.trafo = {
+      control = NULL
+      data$task.desc$class.distribution %+=% 1
+      data
+    }, cpo.retrafo = { data })
+
+  expect_error(pid.task %>>% cpx(), "changed task description item class.distribution")
+
+
 
 
 
