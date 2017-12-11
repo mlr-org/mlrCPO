@@ -44,7 +44,7 @@ script:
   - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
 
 after_success:
-#  - travis_wait 100 Rscript -e 'library(BBmisc);covr::coveralls(quiet=FALSE)'
+  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
   - git checkout master
   - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
   - R --no-save <<< 'library("devtools"); document()'

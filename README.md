@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/mlr-org/mlrCPO.svg?branch=master)](https://travis-ci.org/mlr-org/mlrCPO)
+[![Coverage](https://codecov.io/github/mlr-org/mlrCPO/branch/master/graphs/badge.svg)](https://codecov.io/github/mlr-org/mlrCPO)
 [![CRAN Status Badge](http://www.r-pkg.org/badges/version/mlrCPO)](https://CRAN.R-project.org/package=mlrCPO)
 [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/mlrCPO)](https://cran.rstudio.com/web/packages/mlrCPO/index.html)
 
