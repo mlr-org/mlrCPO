@@ -1800,3 +1800,140 @@ test_that("complaint about missing parameter", {
 
 })
 
+test_that("assertTask checks tasks", {
+
+  at = function(x) assertTask(x, "tests", "nocpo")
+
+  expect_error(at(1), "was not a task")
+  expect_error(at(list(task.desc = list())), "was not a task")
+
+  pt = pid.task
+  pt$env = NULL
+  expect_error(at(pt), "had no environment")
+
+  pt = pid.task
+  class(pt) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTask, ")
+
+  pt = pid.task
+  class(pt$task.desc) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTaskDesc, ")
+
+  pt = pid.task
+  pt$task.desc$id %c=% pt$task.desc$id
+  expect_error(at(pt), "^[^;]*id must be a character[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = list(1:10)
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
+  pt = subsetTask(pid.task)
+  colnames(pt$env$data)[1] = colnames(pt$env$data)[2]
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = list(1:10)
+  expect_error(at(pt), "^[^;]*target must be a character[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat = as.character(pt$task.desc$n.feat)
+  expect_error(at(pt), "^[^;]*must have numeric 'n.feat'[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = paste0("x", pt$task.desc$target)
+  expect_error(at(pt), "target must be a subset of task columns")
+
+  pt = pid.task
+  pt$task.desc$n.feat["numerics"] %+=% 1
+  expect_error(at(pt), "^[^;]*'numerics' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*'factors' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["ordered"] %+=% 1
+  expect_error(at(pt), "^[^;]*'ordered' features listed.*wrong[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data[[1]][1] = NA
+  expect_error(at(pt), "^[^;]*has.missings' slot in task.desc[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data =   pt$env$data[-1, ]
+  expect_error(at(pt), "^[^;]*size' slot in task.desc[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.weights = TRUE
+  expect_error(at(pt), "^[^;]*has.weights' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.blocking = TRUE
+  expect_error(at(pt), "^[^;]*'has.blocking' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$type = "abc"
+  expect_error(at(pt), "^[^;]*task type must be one of[^;]*$")
+
+  pt = pid.task
+  pt$type = "regr"
+  expect_error(at(pt), "^[^;]*task type and task.desc type must be the same[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target %c=% "glucose"
+  pt$task.desc$n.feat["numerics"] %-=% 1
+  expect_error(at(pt), "^[^;]*classif but has 2 targets[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = character(0)
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*classif but has 0 targets[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*multilabel and must have more than one target[^;]*$")
+
+  pt = lung.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*surv and must have exactly two targets[^;]*$")
+
+
+  pt = iris.task
+  pt$task.desc$class.levels = c("x", "y", "z")
+  expect_error(at(pt), "^[^;]*class levels in task.desc are not the factor levels of the target column[^;]*$")
+
+  pt = iris.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be NA for multiclass tasks[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = pt$task.desc$positive
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = droplevels(pt$env$data[1, ])
+  pt$task.desc$size = 1
+  pt$task.desc$class.levels = "pos"
+  expect_error(at(pt), "^[^;]*must be the class level,.*must be not_<positive>[^;]*$")
+  pt$task.desc$positive = "pos"
+  pt$task.desc$negative = "not_pos"
+  at(pt)
+
+  pt = subsetTask(lung.task)
+  pt$env$data$status = as.numeric(pt$env$data$status)
+  expect_error(at(pt), "^[^;]*event column must be logical[^;]*$")
+
+  pt = subsetTask(lung.task)
+  pt$env$data$time = as.factor(pt$env$data$time)
+  expect_error(at(pt), "^[^;]*time column must be numeric[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$class.levels = pt$task.desc$class.levels[1:4]
+  expect_error(at(pt), "^[^;]*class.levels in task.desc must equal target names[^;]*$")
+
+})
+
