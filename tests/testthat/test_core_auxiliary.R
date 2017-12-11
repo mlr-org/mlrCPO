@@ -1,4 +1,4 @@
-context("UI stuff")
+context("auxiliary UI stuff")
 
 test_that("new operators work", {
 
@@ -155,8 +155,6 @@ test_that("operators", {
   expect_error(getCPOAffect(cons), "no applicable method")
   expect_identical(getCPOAffect(cpo), namedList())
   expect_named(getCPOAffect(cpo, FALSE), c("type", "index", "names", "pattern", "invert", "pattern.ignore.case", "pattern.perl", "pattern.fixed"))
-  expect_identical(getCPOAffect(NULLCPO), list())
-  expect_identical(getCPOAffect(NULLCPO, FALSE), list())
   expect_error(getCPOAffect(comb), "Compound CPOs have no affect")
 
   expect_equal(getCPOClass(cons), "CPOConstructor")
