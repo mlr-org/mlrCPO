@@ -4,6 +4,9 @@ if (isLintrVersionOk(identical(Sys.getenv("TRAVIS"), "true"))) {
     library("lintr")
     library("rex")
     # linters are defined in help_lint.R
+    if (identical(Sys.getenv("R_COVR"), "true")) {
+      skip("Coverage")
+    }
     expect_lint_free(linters = linters)
   })
 } else {

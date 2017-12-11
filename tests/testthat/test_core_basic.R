@@ -22,23 +22,260 @@ test_that("CPOs can be created", {
 
 })
 
+test_that("New makeCPO Interface", {
+
+  expect_class(makeCPO("testCPO", cpo.train = { }, cpo.retrafo = { }), "CPOConstructor")
+
+  expect_class(makeCPO("testCPO", par.set = pSS(a: integer[, 1]), cpo.train = { }, cpo.retrafo = { }), "CPOConstructor")
+
+  expect_class(makeCPO("testCPO", par.set = pSS(a: integer[, 1]), list(a = 1), cpo.train = { }, cpo.retrafo = { }), "CPOConstructor")
+
+  expect_class(makeCPO("testCPO", par.set = pSS(a: integer[, 1]), cpo.train = NULL, cpo.retrafo = { }), "CPOConstructor")
+
+  expect_class(makeCPO("testCPO", par.set = pSS(a: integer[, 1]), cpo.train = { }, cpo.retrafo = NULL), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.train = { }, cpo.retrafo = { }, cpo.train.invert = { }, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.train = { }, cpo.retrafo = { }, cpo.train.invert = { }, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.train = { }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.train = { }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.train = NULL, cpo.retrafo = { }, cpo.train.invert = NULL, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.train = { }, cpo.retrafo = { }, cpo.train.invert = NULL, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.train = { }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPORetrafoless("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTrafo("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = NULL), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTrafo("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = { }), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = { }, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = NULL, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = NULL, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]),
+    cpo.trafo = { }, cpo.retrafo = { }, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.trafo = { }, cpo.retrafo = { }, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.trafo = { }, cpo.retrafo = NULL, cpo.invert = { }), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.trafo = { }, cpo.retrafo = NULL, cpo.invert = NULL), "CPOConstructor")
+
+  expect_class(makeCPOExtendedTargetOp("testCPO", par.set = pSS(a: integer[, 1]), constant.invert = TRUE,
+    cpo.trafo = { }, cpo.retrafo = { }, cpo.invert = { }), "CPOConstructor")
+
+
+})
+
+test_that("Parameter Values are checked", {
+
+  creators = list(
+      function(...) makeCPO("testCPO", ..., cpo.train = { }, cpo.retrafo = { }),
+      function(...) makeCPOExtendedTrafo("testCPO", ..., cpo.trafo = { }, cpo.retrafo = { }),
+      function(...) makeCPOTargetOp("testCPO", ..., cpo.train = { }, cpo.retrafo = { }, cpo.train.invert = { }, cpo.invert = { }),
+      function(...) makeCPOExtendedTargetOp("testCPO", ..., cpo.trafo = { }, cpo.retrafo = { }, cpo.invert = { }),
+      function(...) makeCPORetrafoless("testCPO", ..., cpo.trafo = { }))
+
+  for (cr in creators) {
+    expect_class(cr(par.set = pSS(a: integer[, 1])), "CPOConstructor")
+    expect_class(cr(par.set = pSS(a: integer[, 1]), list(a = 1)), "CPOConstructor")
+    expect_error(cr(par.set = pSS(a: integer[, 1]), list(b = 1)), "'b'.*par.vals.*not parameters")
+    expect_error(cr(par.set = pSS(a: integer[, 1]), list(a = 2)), "2 is not feasible.*'a'")
+    expect_error(cr(par.set = pSS(export: integer[, 1])), "reserved")
+  }
+
+})
+
+
 test_that("CPO with no parameters don't crash", {
 
-  emptycpo.f = makeCPOFunctional("testCPOEmptyF", cpo.trafo = {
-    cpo.retrafo = function(data) data
-    data
-  })
+  empty.cpos = list(
+      makeCPOFunctional("testCPOEmptyF", cpo.trafo = {
+        cpo.retrafo = function(data) data
+        data
+      }),
 
-  emptycpo.o = makeCPOObject("testCPOEmptyF", cpo.trafo = {
-    control = 0
-    data
-  }, cpo.retrafo = {
-    data
-  })
+      makeCPOObject("testCPOEmptyF", cpo.trafo = {
+        control = 0
+        data
+      }, cpo.retrafo = {
+        data
+      }),
+
+      makeCPO("emptyCPO", cpo.train = { }, cpo.retrafo = { data }),
+
+      makeCPO("emptyCPO.sl", cpo.train = NULL, cpo.retrafo = { data }),
+
+      makeCPO("emptyCPO.fr", cpo.train = { identity }, cpo.retrafo = NULL),
+
+      makeCPOTargetOp("emptyCPO.target",
+        properties.target = c("classif", "twoclass"),
+        cpo.train = { }, cpo.retrafo = { target }, cpo.train.invert = { }, cpo.invert = { target }),
+
+      makeCPOTargetOp("emptyCPO.target.fni",
+        properties.target = c("classif", "twoclass"),
+        cpo.train = { }, cpo.retrafo = { target }, cpo.train.invert = { function(target, ...) target }, cpo.invert = NULL),
+
+      makeCPOTargetOp("emptyCPO.target.fnr.fni",
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          cpo.retrafo = function(target, ...) target
+          cpo.train.invert = function(target, ...) function(target, ...) target
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPOTargetOp("emptyCPO.target.fnr",
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          cpo.retrafo = function(target, ...) target
+          cpo.train.invert = function(...) NULL
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = { target }),
+
+      makeCPOTargetOp("emptyCPO.target.ci.sl", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = NULL, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }),
+
+      makeCPOTargetOp("emptyCPO.target.ci", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = { }, cpo.retrafo = { target }, cpo.train.invert = NULL, cpo.invert = { target }),
+
+      makeCPOTargetOp("emptyCPO.target.ci.fr", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          cpo.retrafo = function(target, ...) target
+          cpo.invert = function(target, ...) target
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPORetrafoless("emptyCPO.retrafoless",
+        cpo.trafo = { data }),
+
+      makeCPOExtendedTrafo("emptyCPO.extended",
+        cpo.trafo = { control = NULL ; data }, cpo.retrafo = { data }),
+
+      makeCPOExtendedTrafo("emptyCPO.extended.fr",
+        cpo.trafo = { cpo.retrafo = identity ; data }, cpo.retrafo = NULL),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.fi",
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          control = NULL
+          cpo.invert = function(target, ...) target
+          target
+        }, cpo.retrafo = {
+          cpo.invert = function(target, ...) target
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.fr",
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          cpo.retrafo = function(target, ...) {
+            control.invert = NULL
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = { target }),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.fr.fi",
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          cpo.retrafo = function(target, ...) {
+            cpo.invert = function(target, ...) target
+            target
+          }
+          cpo.invert = function(target, ...) target
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target",
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          control.invert = NULL
+          target
+        }, cpo.invert = { target }),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.ci.fi", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          control = NULL
+          cpo.invert = function(target, ...) target
+          target
+        }, cpo.retrafo = {
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.ci.fr", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          cpo.retrafo = function(target, ...) {
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = { target }),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.ci.fr.fi", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          cpo.retrafo = function(target, ...) {
+            target
+          }
+          cpo.invert = function(target, ...) target
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("emptyCPO.extended.target.ci", constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          target
+        }, cpo.invert = { target }))
+
+  names(empty.cpos) = BBmisc::vcapply(empty.cpos, getCPOName)
 
   testCPO = function(ecpo) {
     assert_class(ecpo(), "CPO")
     assert_class(ecpo(id = "test"), "CPO")
+    pt = pid.task %>>% ecpo()
+    expect_identical(getTaskData(pid.task), getTaskData(pt))
+    pt2 = pid.task %>>% retrafo(pt)
+    expect_identical(getTaskData(pid.task), getTaskData(pt2))
+    targ = getTaskData(pid.task, target.extra = TRUE)$target
+    tx1 = invert(inverter(pt), targ)
+    expect_identical(targ, tx1)
+    tx2 = invert(inverter(pt2), targ)
+    expect_identical(targ, tx2)
     train(ecpo() %>>% makeLearner("classif.logreg"), pid.task)
     train(setCPOId(ecpo(), "test") %>>% makeLearner("classif.logreg"), pid.task)
     train(setCPOId(ecpo("test"), "test2") %>>% makeLearner("classif.logreg"), pid.task)
@@ -50,8 +287,10 @@ test_that("CPO with no parameters don't crash", {
     expect_equal(length(getParamSet(ecpo("test"))$pars), 0)
   }
 
-  testCPO(emptycpo.f)
-  testCPO(emptycpo.o)
+  for (ecpo in empty.cpos) {
+    testCPO(ecpo)
+  }
+
 })
 
 test_that("CPO parameters behave as expected", {
@@ -154,6 +393,29 @@ test_that("CPO parameters behave as expected", {
     train(setHyperPars(cpo.learner, par.vals = addid(id1, list(e = 900))), pid.task)
     expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
+
+    # ID = NULL parameters
+    expect_identical(getHyperPars(cpo(id = NULL)), list(a = 1, b = 2, c = 1, d = 1))
+
+    expect_identical(getHyperPars(cpo(id = NULL, b = 3)), list(a = 1, b = 3, c = 1, d = 1))
+
+    expect_identical(getHyperPars(cpo(id = NULL, 3)), list(a = 3, b = 2, c = 1, d = 1))
+
+    cpo.obj = setHyperPars(cpo(id = NULL, 3, 4), par.vals = list(b = 0, c = -1))
+
+    expect_identical(getHyperPars(cpo.obj), list(a = 3, b = 0, c = -1, d = 1))
+
+    cpo.learner = cpo.obj %>>% makeLearner("classif.logreg", model = FALSE)
+
+    expect_identical(getHyperPars(cpo.learner), c(list(model = FALSE), list(a = 3, b = 0, c = -1, d = 1)))
+
+    expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
+
+    globalenv$cpotest.parvals = list()  # nolint
+    train(setHyperPars(cpo.learner, par.vals = list(e = 900)), pid.task)
+    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
+
+
     # parameters of cpo with id
     expect_identical(getHyperPars(cpo(id = "x")), list(x.a = 1, x.b = 2, x.c = 1, x.d = 1))
 
@@ -216,6 +478,348 @@ test_that("CPO parameters behave as expected", {
   testCPO(cpof, cpo2f, cpo3f)
 
   testCPO(cpoo, cpo2o, cpo3o)
+
+})
+
+test_that("CPO Parameters of new makeCPO interface", {
+
+  par.set = pSS(a: integer[, ],
+    b = 1: integer[, ],
+    c: integer[, ],
+    d = 1: integer[, ])
+
+  par.vals = list(c = 2, d = 3)
+
+  param.cpos = list(
+      makeCPO("paramCPO", par.set, par.vals, cpo.train = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+      }, cpo.retrafo = { globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        data
+      }),
+
+      makeCPO("paramCPO.sl", par.set, par.vals, cpo.train = NULL, cpo.retrafo = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        data
+      }),
+
+      makeCPO("paramCPO.fr", par.set, par.vals, cpo.train = {
+        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        function(x) {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          x
+        }
+      }, cpo.retrafo = NULL),
+
+      makeCPOTargetOp("paramCPO.target", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.fni", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+        }, cpo.invert = NULL),
+
+      makeCPOTargetOp("paramCPO.target.fnr.fni", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.train.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            function(target, ...) {
+              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              target
+            }
+          }
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPOTargetOp("paramCPO.target.fnr", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.train.invert = function(...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            NULL
+          }
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci.sl", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = NULL, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.train.invert = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOTargetOp("paramCPO.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.train = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+        }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
+
+      makeCPORetrafoless("paramCPO.retrafoless", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          data
+        }),
+
+      makeCPOExtendedTrafo("paramCPO.extended", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          data
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          data
+        }),
+
+      makeCPOExtendedTrafo("paramCPO.extended.fr", par.set, par.vals,
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(x) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            x
+          }
+          data
+        }, cpo.retrafo = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fi", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fr", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            control.invert = NULL
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.fr.fi", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            cpo.invert = function(target, ...) {
+              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              target
+            }
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target", par.set, par.vals,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          target
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fi", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control = NULL
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          control.invert = NULL
+          target
+        }, cpo.retrafo = NULL, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr.fi", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          cpo.retrafo = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          cpo.invert = function(target, ...) {
+            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            target
+          }
+          target
+        }, cpo.retrafo = NULL, cpo.invert = NULL),
+
+      makeCPOExtendedTargetOp("paramCPO.extended.target.ci", par.set, par.vals, constant.invert = TRUE,
+        properties.target = c("classif", "twoclass"),
+        cpo.trafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          control.invert = NULL
+          control = NULL
+          target
+        }, cpo.retrafo = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }, cpo.invert = {
+          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          target
+        }))
+
+  expvals = list(a = -1, b = 1, c = 2, d = 3)
+
+  names(param.cpos) = BBmisc::vcapply(param.cpos, getCPOName)
+
+  testCPO = function(pcpo, rep.train, rep.retrafo, rep.invert,
+                     rep.tl = rep.train,
+                     rep.rl = rep.retrafo + rep.invert) {
+    expect_error(pid.task %>>% pcpo(), ".a of CPO.*missing")
+    globalenv$cpotest.parvals = namedList()
+    pt = pid.task %>>% setHyperPars(pcpo(id = NULL, a = 0), a = -1)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.train))
+
+    globalenv$cpotest.parvals = namedList()
+    pt2 = pid.task %>>% retrafo(pt)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.retrafo))
+
+    targ = getTaskData(pid.task, target.extra = TRUE)$target
+    globalenv$cpotest.parvals = namedList()
+    tx1 = invert(inverter(pt), targ)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+
+    globalenv$cpotest.parvals = namedList()
+    tx2 = invert(inverter(pt2), targ)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+
+    globalenv$cpotest.parvals = namedList()
+    trn = train(pcpo(a = -1) %>>% makeLearner("classif.logreg"), pid.task)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.tl))
+
+    globalenv$cpotest.parvals = namedList()
+    predict(trn, pid.task)
+    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.rl))
+  }
+
+  testCPO(param.cpos$paramCPO, 2, 1, 0)  # simple cpo
+  testCPO(param.cpos$paramCPO.sl, 1, 1, 0)  # simple CPO, stateless
+  testCPO(param.cpos$paramCPO.fr, 2, 1, 0)  # simple CPO, functional
+  testCPO(param.cpos$paramCPO.target, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO
+  testCPO(param.cpos$paramCPO.target.fni, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, invert is functional
+  testCPO(param.cpos$paramCPO.target.fnr.fni, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, retrafo and invert are functional
+  testCPO(param.cpos$paramCPO.target.fnr, 3, 2, 1, rep.tl = 2, rep.rl = 2)  # target CPO, retrafo is functional
+  testCPO(param.cpos$paramCPO.target.ci.sl, 1, 1, 1, rep.tl = 1, rep.rl = 1)  # target CPO, constant invert, stateless
+  testCPO(param.cpos$paramCPO.target.ci, 2, 1, 1, rep.tl = 2, rep.rl = 1)  # target CPO, constant invert
+  testCPO(param.cpos$paramCPO.target.ci.fr, 2, 1, 1, rep.tl = 2, rep.rl = 1)  # target CPO, constant invert, functional
+  testCPO(param.cpos$paramCPO.retrafoless, 1, 0, 0)
+  testCPO(param.cpos$paramCPO.extended, 1, 1, 0)  # extended CPO
+  testCPO(param.cpos$paramCPO.extended.fr, 1, 1, 0)  # extended CPO, functional
+  testCPO(param.cpos$paramCPO.extended.target.fi, 1, 1, 1)  # extended target CPO, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.fr, 1, 1, 1)  # extended target CPO, functional retrafo
+  testCPO(param.cpos$paramCPO.extended.target.fr.fi, 1, 1, 1)  # extended target CPO, functional retrafo, functional invert
+  testCPO(param.cpos$paramCPO.extended.target, 1, 1, 1)   # extended target CPO
+  testCPO(param.cpos$paramCPO.extended.target.ci.fi, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.ci.fr, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional retrafo
+  testCPO(param.cpos$paramCPO.extended.target.ci.fr.fi, 1, 1, 1, rep.rl = 1)  # extended target CPO, constant invert, functional retrafo, functional invert
+  testCPO(param.cpos$paramCPO.extended.target.ci, 1, 1, 1, rep.rl = 1)  # extended target CPO
 
 })
 
@@ -424,6 +1028,46 @@ test_that("preprocessing actually changes data", {
 
   testCPO(cpomultiplier.task.f, cpoadder.task.f)
   testCPO(cpomultiplier.task.o, cpoadder.task.o)
+
+})
+
+
+test_that("preprocessing with inverter changes data", {
+
+  trivialtask = makeRegrTask("1-2-task", data.frame(A = c(1, 2), B = c(1, 2)), "B")
+  trivialtask2 = makeRegrTask("3-4-task", data.frame(A = c(3, 4), B = c(3, 4)), "B")
+
+
+  globalenv$cpotest.parvals = list()  # nolint
+  t = train(testregressorcpo, trivialtask)
+  predict(t, trivialtask2)
+  expect_identical(globalenv$cpotest.parvals, list(1, 3))
+
+  globalenv$cpotest.parvals = list()  # nolint
+  expect_identical(predict(train(cpoinvertmultiplier(10) %>>% testregressorcpo, trivialtask),
+    trivialtask2)$data$response, c(1000, 10))
+  expect_identical(globalenv$cpotest.parvals, list(10, 3))
+
+  globalenv$cpotest.parvals = list()  # nolint
+  expect_identical(predict(train(cpoinvertadder(3) %>>% testregressorcpo, trivialtask),
+    trivialtask2)$data$response, c(10, 4))
+  expect_identical(globalenv$cpotest.parvals, list(4, 3))
+
+
+  globalenv$cpotest.parvals = list()  # nolint
+  pr = predict(train(cpoinvertadder(3) %>>%
+                cpoinvertmultiplier(3) %>>%
+                cpoinvertadder(2, id = "second") %>>%
+                cpoinvertmultiplier(10, id = "second") %>>%
+                testregressorcpo, trivialtask), trivialtask2)
+  # Calculation happening:
+  # Training:
+  #   c(1, 2), +3, *3, +2, *10 -> c(140, 170)
+  #   first adder gets a meandata of 1.5, second adder gets meandata of 13.5
+  # Prediction:
+  #   140 * 100 + 4 * 9 + 6
+  expect_identical(globalenv$cpotest.parvals, list(140, 3))
+  expect_identical(pr$data$response, c(((140 * 100) + 4) * 9 + 6, 140))
 
 })
 
@@ -963,4 +1607,340 @@ test_that("retrafo catabolization and anabolization work", {
 
 })
 
+
+
+test_that("getLearnerCPO, getLearnerBare: hyperparameter changes propagate", {
+
+  combined = cpoadder.nt.o(id = "fst", summand = 10) %>>% cpomultiplier.nt.f() %>>% cpoadder.nt.f() %>>%  testlearnercpo
+
+  expect_subset(c("multiplierF.factor", "int", "adderF.summand", "fst.summand"), names(getParamSet(combined)$pars))
+
+  c2 = setHyperPars(combined, multiplierF.factor = 2, int = 10)
+
+  decoupled = getLearnerBare(c2)
+
+  expect_equal(getHyperPars(decoupled)$int, 10)
+
+  expect_equal(getHyperPars(getLearnerCPO(c2)), list(fst.summand = 10, multiplierF.factor = 2, adderF.summand = 1))
+
+  model = train(c2, cpo.df1c)
+
+  rts = lapply(as.list(retrafo(model)), getCPOTrainedState)
+
+  expect_equal(rts[[1]]$summand, 10)
+
+  expect_equal(rts[[2]]$factor, 2)
+
+  expect_equal(rts[[3]]$summand, 1)
+})
+
+test_that("warning about buried cpos", {
+
+  combined = cpoadder.nt.o(id = "fst", summand = 10) %>>% cpomultiplier.nt.f() %>>% cpoadder.nt.f() %>>%  testlearnercpo
+
+  f1 = function(data, target, args) {
+    data[[1]] = data[[1]] * 10
+    return(list(data = data, control = list()))
+  }
+
+  f2 = function(data, target, args, control) {
+    data[[1]] = data[[1]] / 10
+    return(data)
+  }
+  combined.wrapped = makePreprocWrapper(combined, train = f1, predict = f2, par.set = makeParamSet(), par.vals = list())
+
+  expect_error(cpoadder.nt.o(id = "adderF") %>>% combined.wrapped, '"adderF\\.summand" occurs in both')
+
+  combined2 = cpoadder.nt.o(id = "snd", summand = 20) %>>% combined.wrapped
+
+  expect_subset(c("multiplierF.factor", "int", "adderF.summand", "fst.summand", "snd.summand"), names(getParamSet(combined2)$pars))
+
+  combined2 = setHyperPars(combined2, env = environment(), int = 100, snd.summand = 3, fst.summand = 2, multiplierF.factor = 3)
+
+
+
+  expect_warning({gotten.cpo = getLearnerCPO(combined2)}, "Learner.*buried CPOs")
+
+  expect_identical(gotten.cpo, cpoadder.nt.o(id = "snd", summand = 3))
+
+  cpotest.parvals = list()
+  model = train(combined2, cpo.df1c)
+  expect_equal(cpotest.parvals, list(((1 + 3) * 10 + 2) * 3 + 1))
+
+  expect_warning(retrafo(model), "CPOs wrapped by other wrappers")
+})
+
+test_that("functional cpo 'data' is removed from functional environment; warning about 'data' reference", {
+  data = 10
+
+  cpo = makeCPOExtended("testdataremove", test: integer[, ], .dataformat = "df.all", cpo.trafo = {
+    expect_equal(data, cpo.df1)
+    cpo.retrafo = function(xx) {
+      expect_equal(data, NULL)
+      expect_equal(xx, cpo.df1)
+      xx
+    }
+    data
+    }, cpo.retrafo = NULL)
+
+  expect_warning({ret = retrafo(cpo.df1 %>>% cpo(1))}, "references a data variable")
+
+  expect_equal(cpo.df1 %>>% ret, cpo.df1)
+
+})
+
+test_that("functional retrafo recursion after getCPOTrainedState works", {
+
+  cpo = makeCPOExtended("testrecursion", test: integer[, ], .dataformat = "df.all", cpo.trafo = {
+    addendum = 1
+    cpo.retrafo = function(data) {
+      data[[1]] = data[[1]] + 1
+      data[[2]] = data[[2]] + addendum
+      if (data[[1]][1] == 2) {
+        return(Recall(data))
+      }
+      if (data[[1]][1] == 3) {
+        return(cpo.retrafo(data))
+      }
+      data
+    }
+    data
+  }, cpo.retrafo = NULL)
+
+  df = data.frame(a = 1:3, b = 0:2)
+
+  ret = retrafo(df %>>% cpo(1))
+
+  expect_equal(df %>>% ret, data.frame(a = 4:6, b = 3:5))
+
+  state = getCPOTrainedState(ret)
+
+  state$addendum = -1
+
+  expect_equal(df %>>% makeCPOTrainedFromState(cpo, state), data.frame(a = 4:6, b = (-3):(-1)))
+
+})
+
+test_that("cpo state if cpo.retrafo missing from cpo.retrafo env;  fails if cpo.retrafo in 'cpo.retrafo's environment mismatches", {
+
+  cpo.retrafo = NULL
+
+  retr1 = (function() {
+    cpo.retrafo = function(data) data
+    cpo.retrafo
+  })()
+
+  retr2 = (function(){
+    function(data) {
+      if (data[[1]][1] == 2) {
+        expect_function(cpo.retrafo)
+      } else {
+        expect_null(cpo.retrafo)
+      }
+      data
+    }
+  })()
+
+  retr3 = (function() {
+    cpo.retrafo = function(data) {
+      data[[1]] = data[[1]] + 1
+      data
+    }
+    function(data) {
+      data
+    }})()
+
+  retr4 = (function() {
+    cpo.retrafo = 10
+    function(data) data
+  })()
+
+
+  cpo = makeCPOExtended("testrecursion", test: integer[, ], .dataformat = "df.all", cpo.trafo = {
+    cpo.retrafo = switch(test, retr1, retr2, retr3, retr4)
+    data
+  }, cpo.retrafo = NULL)
+
+  ret = retrafo(cpo.df1 %>>% cpo(1))
+  expect_equal(cpo.df1 %>>% ret, cpo.df1)
+  expect_equal(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), cpo.df1)
+
+  df = data.frame(a = 1)
+  ret = retrafo(df %>>% cpo(2))
+  expect_equal(df %>>% ret, df)
+  df = data.frame(a = 2)
+  expect_equal(df %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), df)
+
+  ret = retrafo(cpo.df1 %>>% cpo(3))
+  expect_equal(cpo.df1 %>>% ret, cpo.df1)
+  expect_error(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
+
+  ret = retrafo(cpo.df1 %>>% cpo(4))
+  expect_equal(cpo.df1 %>>% ret, cpo.df1)
+  expect_error(cpo.df1 %>>% makeCPOTrainedFromState(cpo, getCPOTrainedState(ret)), "Could not get coherent state.*'cpo.retrafo'.*not identical")
+
+})
+
+test_that("complaint about missing parameter", {
+
+  cpo = makeCPOObject("testparammissing", test: integer[, ], cpo.trafo = { control = 0; data },
+                cpo.retrafo = { data })
+
+  expect_error(train(cpo() %>>% testlearnercpo, cpo.df1c), "test of CPO testparammissing is missing")
+
+  expect_identical(getLearnerCPO(cpo() %>>% testlearnercpo), cpo())
+
+  expect_error(cpo.df1c %>>% cpo(), "test of CPO testparammissing is missing")
+
+  cpo = makeCPOFunctional("testparammissing", test: integer[, ], cpo.trafo = { cpo.retrafo = identity ; data })
+
+  expect_error(train(cpo() %>>% testlearnercpo, cpo.df1c), "test of CPO testparammissing is missing")
+
+  expect_error(cpo.df1c %>>% cpo(), "test of CPO testparammissing is missing")
+
+})
+
+test_that("assertTask checks tasks", {
+
+  at = function(x) assertTask(x, "tests", "nocpo")
+
+  expect_error(at(1), "was not a task")
+  expect_error(at(list(task.desc = list())), "was not a task")
+
+  pt = pid.task
+  pt$env = NULL
+  expect_error(at(pt), "had no environment")
+
+  pt = pid.task
+  class(pt) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTask, ")
+
+  pt = pid.task
+  class(pt$task.desc) %c=% "testtask"
+  expect_error(at(pt), "must have classes ClassifTaskDesc, ")
+
+  pt = pid.task
+  pt$task.desc$id %c=% pt$task.desc$id
+  expect_error(at(pt), "^[^;]*id must be a character[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = list(1:10)
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
+  pt = subsetTask(pid.task)
+  colnames(pt$env$data)[1] = colnames(pt$env$data)[2]
+  expect_error(at(pt), "^[^;]*data must be a data.frame[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = list(1:10)
+  expect_error(at(pt), "^[^;]*target must be a character[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat = as.character(pt$task.desc$n.feat)
+  expect_error(at(pt), "^[^;]*must have numeric 'n.feat'[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = paste0("x", pt$task.desc$target)
+  expect_error(at(pt), "target must be a subset of task columns")
+
+  pt = pid.task
+  pt$task.desc$n.feat["numerics"] %+=% 1
+  expect_error(at(pt), "^[^;]*'numerics' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*'factors' features listed.*wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$n.feat["ordered"] %+=% 1
+  expect_error(at(pt), "^[^;]*'ordered' features listed.*wrong[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data[[1]][1] = NA
+  expect_error(at(pt), "^[^;]*has.missings' slot in task.desc[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data =   pt$env$data[-1, ]
+  expect_error(at(pt), "^[^;]*size' slot in task.desc[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.weights = TRUE
+  expect_error(at(pt), "^[^;]*has.weights' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$has.blocking = TRUE
+  expect_error(at(pt), "^[^;]*'has.blocking' slot in task.desc is wrong[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$type = "abc"
+  expect_error(at(pt), "^[^;]*task type must be one of[^;]*$")
+
+  pt = pid.task
+  pt$type = "regr"
+  expect_error(at(pt), "^[^;]*task type and task.desc type must be the same[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target %c=% "glucose"
+  pt$task.desc$n.feat["numerics"] %-=% 1
+  expect_error(at(pt), "^[^;]*classif but has 2 targets[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$target = character(0)
+  pt$task.desc$n.feat["factors"] %+=% 1
+  expect_error(at(pt), "^[^;]*classif but has 0 targets[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*multilabel and must have more than one target[^;]*$")
+
+  pt = lung.task
+  pt$task.desc$target = pt$task.desc$target[1]
+  expect_error(at(pt), "^[^;]*surv and must have exactly two targets[^;]*$")
+
+
+  pt = iris.task
+  pt$task.desc$class.levels = c("x", "y", "z")
+  expect_error(at(pt), "^[^;]*class levels in task.desc are not the factor levels of the target column[^;]*$")
+
+  pt = iris.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be NA for multiclass tasks[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = "setosa"
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = pid.task
+  pt$task.desc$negative = pt$task.desc$positive
+  expect_error(at(pt), "^[^;]*must be both class levels of the target[^;]*$")
+
+  pt = subsetTask(pid.task)
+  pt$env$data = droplevels(pt$env$data[1, ])
+  pt$task.desc$size = 1
+  pt$task.desc$class.levels = "pos"
+  expect_error(at(pt), "^[^;]*must be the class level,.*must be not_<positive>[^;]*$")
+  pt$task.desc$positive = "pos"
+  pt$task.desc$negative = "not_pos"
+  at(pt)
+
+  pt = subsetTask(lung.task)
+  pt$env$data$status = as.numeric(pt$env$data$status)
+  expect_error(at(pt), "^[^;]*event column must be logical[^;]*$")
+
+  pt = subsetTask(lung.task)
+  pt$env$data$time = as.factor(pt$env$data$time)
+  expect_error(at(pt), "^[^;]*time column must be numeric[^;]*$")
+
+  pt = yeast.task
+  pt$task.desc$class.levels = pt$task.desc$class.levels[1:4]
+  expect_error(at(pt), "^[^;]*class.levels in task.desc must equal target names[^;]*$")
+
+  at(lung.task)  # surv
+  at(yeast.task)  # multilabel
+  at(bh.task)  # regr
+  at(pid.task)  # classif, binary
+  at(iris.task)  # classif, multiclass
+  at(agri.task)  # cluster
+
+})
 

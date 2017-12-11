@@ -26,12 +26,12 @@
 ##################################
 # Simple: very little happens. Only cpo.trafo is defined which does not return a state or state.invert
 makeCallRetrafoless = function(cpo.trafo, cpo.retrafo, cpo.train.invert, cpo.invert, dataformat, constant.invert) {
-  cpo.trafo = function(data.reduced, target.reduced, dataformat, build.inverter, ...) {
+  trafo = function(data.reduced, target.reduced, build.inverter, ...) {
     list(result = cpo.trafo(...),
       state = NULL,
       state.invert = NULL)
   }
-  list(cpo.trafo = cpo.trafo,
+  list(cpo.trafo = trafo,
     cpo.retrafo = NULL,
     cpo.invert = NULL)
 }
@@ -73,7 +73,7 @@ makeTrafoCallFeatureOpSimple = function(cpo.trafo, cpo.retrafo) {
   } else if (is.null(cpo.trafo)) {
     #stateless
     function(data, target, data.reduced, target.reduced, build.inverter, ...) {
-      list(result = cpo.retrafo(data = data, ...),
+      list(result = cpo.retrafo(data = data.reduced, ...),
         state = NULL,
         state.invert = NULL)
     }
@@ -206,7 +206,7 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
       if (constant.invert) {
         state = cpo.retrafo
         state.invert = if (build.inverter) inv.control.target
-      } else if (build.inverter) {
+      } else {
         if (is.null(cpo.invert)) {
           # functional invert --> need to capture .ENV
           inv.control.target = captureEnvWrapper(inv.control.target)
@@ -215,15 +215,16 @@ makeTrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.invert,
 
         state = list(cpo.retrafo = cpo.retrafo,
           cpo.train.invert = inv.control.target)
-        state.invert = inv.control.target(data.reduced)
-
-        if (is.null(cpo.invert)) {
-          # functional invert
-          clearEnv(.ENV)
-          checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
+        if (build.inverter) {
+          state.invert = inv.control.target(data.reduced)
+          if (is.null(cpo.invert)) {
+            # functional invert
+            clearEnv(.ENV)
+            checkFunctionReturn(state.invert, c("target", "predict.type"), "cpo.invert", "cpo.train.invert")
+          }
+        } else {
+          state.invert = NULL
         }
-      } else {
-        state.invert = NULL
       }
       list(result = cpo.retrafo(data = data.reduced, target = target.reduced),
         state = state, state.invert = state.invert)
@@ -304,7 +305,7 @@ makeRetrafoCallTargetOpSimple = function(cpo.trafo, cpo.retrafo, cpo.train.inver
           state.invert = state$cpo.train.invert(data)
         } else {
           # object based
-          state.invert = cpo.train.invert(data = data, state = state, ...)
+          state.invert = cpo.train.invert(data = data, control = state, ...)
         }
         if (is.null(cpo.invert)) {
           # 'cpo.invert' can itself be functional here, independent
@@ -330,7 +331,7 @@ makeTrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert) {
   function(data, target, data.reduced, target.reduced, build.inverter, ...) {
     .ENV = NULL  # nolint
     result = cpo.trafo(data = data, target = target, ...)
-    clearEnv(result)
+    clearEnv(.ENV)
     if (is.null(cpo.retrafo)) {
       state = getVarCreated(.ENV, "cpo.retrafo", "cpo.trafo")
       checkFunctionReturn(state, c("data", "target"), "cpo.retrafo", "cpo.trafo")
@@ -371,7 +372,7 @@ makeRetrafoCallTargetOpExtended = function(cpo.trafo, cpo.retrafo, cpo.invert, c
       if (!constant.invert) {
         state = captureEnvWrapper(state)
       }
-      result = state(data = data, target = target, ...)
+      result = state(data = data, target = target)
     } else {
       result = cpo.retrafo(data = data, target = target, control = state, ...)
     }
@@ -434,14 +435,24 @@ checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
   if (is.null(fun)) {
     stopf("%s did not create a %s function.", source.name, fun.name)
   }
+  if (!isTRUE(checkFunction(fun))) {
+    stopf("%s created by %s must be a function", fun.name, source.name)
+  }
   if (length(requiredargs) > 1) {
     if (!isTRUE(checkFunction(fun, args = requiredargs, nargs = length(requiredargs)))) {
-      stopf("%s as created by %s does not have (only) the required arguments %s",
-        fun.name, source.name, collapse(requiredargs, sep = ", "))
+      fargs = names(formals(fun))
+      # allow fun to have dotdotdot instead of some of its arguments
+      if ("..." %nin% fargs || length(setdiff(fargs, c(requiredargs, "...")))) {
+        stopf("%s as created by %s does not have (only) the required arguments %s",
+          fun.name, source.name, collapse(requiredargs, sep = ", "))
+      }
     }
   } else {
     if (!isTRUE(checkFunction(fun, nargs = 1))) {
-      stopf("%s as created by %s must have exactly one argument", fun.name, source.name)
+      fargs = names(formals(fun))
+      if ("..." %nin% fargs || length(fargs) > 2) {
+        stopf("%s as created by %s must have exactly one argument", fun.name, source.name)
+      }
     }
   }
   bad.references = Filter(function(varname) {
@@ -467,6 +478,7 @@ checkFunctionReturn = function(fun, requiredargs, fun.name, source.name) {
 # @param env [environment] the environment
 # @return [NULL]
 clearEnv = function(env) {
+  assertEnvironment(env)
   env$data = NULL
   env$target = NULL
 }
@@ -506,7 +518,7 @@ getVarCreated = function(env, var, source.name) {
 # @return [function] a function that behaves the same, as `fun`, but also creates
 #   the variable `.ENV` when called.
 captureEnvWrapper = function(fun) {
-  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })
+  envcapture = quote({ assign(".ENV", environment(), envir = parent.frame()) ; 0 })  # nocov
   envcapture[[3]] = body(fun)
   body(fun) = envcapture
   environment(fun) = new.env(parent = environment(fun))

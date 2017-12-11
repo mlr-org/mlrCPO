@@ -56,7 +56,7 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
     stopf("Inverting with CPORetrafo %s not possible, since it was created with data-dependent inverters\nUse a CPOInverter object instead\n%s",
       getCPOName(inverter), "Retrieve a CPOInverter using the inverter() function.")
   } else if (cap == 0) {
-    message("(Inversion was a no-op.)")
+    # message("(Inversion was a no-op.)")
     # we check this here and not earlier because the user might rely on inverter()
     # to check his data for consistency
     return(prediction)
@@ -71,11 +71,11 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
   if ("Prediction" %in% class(prediction)) {
     preddf = prediction$data
     if (needed.predict.type == "response") {
-      if ("response" %nin% names(preddf)) {
+      if (!any(grepl("^response", names(preddf)))) {
         stopf("Trying to predict %s, and need response prediction for that, but no response found in Prediction.",
           predict.type)
       }
-      preddf = preddf$response
+      preddf = preddf[grep("^response", names(preddf))]
     } else if (needed.predict.type == "se") {
       if (!all(c("response", "se") %in% names(preddf))) {
         stopf("Trying to predict %s, and need response and se prediction for that, but columns 'response' and/or 'se' not found in Prediction.",
@@ -103,7 +103,7 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
 
   assert(identical(intersect(getCPOProperties(inverter)$handling, cpo.tasktypes), inverter$convertfrom))
   assertChoice(inverter$convertto, cpo.tasktypes)
-  sanpred = sanitizePrediction(preddf, inverter$convertto, predict.type)
+  sanpred = sanitizePrediction(preddf, inverter$convertto, needed.predict.type)
 
   inverted = invertCPO(inverter$element, sanpred, predict.type)
 
@@ -120,16 +120,18 @@ invert.CPOTrained = function(inverter, prediction, predict.type = "response") {
 
     inverted$new.td = switch(inverter$convertfrom,
       classif = {
-        levels = ifelse(predict.type == "prob", colnames(invdata), levels(invdata))
-        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "df.features", NULL, NULL, levels[1])
+        levels = if (predict.type == "prob") colnames(invdata) else levels(invdata)
+        makeClassifTaskDesc(tdname, data.frame(target = factor(character(0), levels = levels)), "target", NULL, NULL,
+          if (length(levels) == 2) levels[1] else NA, FALSE)
       },
-      cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL),
-      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "df.features", NULL, NULL),
-      multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL),
-      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"), NULL, NULL),
+      cluster = makeClusterTaskDesc(tdname, data.frame(), NULL, NULL, FALSE),
+      regr = makeRegrTaskDesc(tdname, data.frame(target = numeric(0)), "target", NULL, NULL, FALSE),
+      multilabel = makeMultilabelTaskDesc(tdname, as.data.frame(invdata)[integer(0), ], colnames(invdata), NULL, NULL, FALSE),
+      surv = makeSurvTaskDesc(tdname, data.frame(target1 = numeric(0), target2 = numeric(0)), c("target1", "target2"),
+        NULL, NULL, FALSE),
       stop("unknown outputtype"))
   }
-  makePrediction(inverted$new.td, row.names = rownames(invdata), id = prediction$data$id,
+  makePrediction(inverted$new.td, row.names = rownames(prediction$data), id = prediction$data$id,
     truth = inverted$new.truth, predict.type = predict.type, predict.threshold = NULL, y = invdata, time = prediction$time,
     error = prediction$error, dump = prediction$dump)
 }
@@ -156,6 +158,9 @@ invertCPO = function(inverter, prediction, predict.type) {
   assert(inverter$capability["invert"] %in% 0:1)
   if (inverter$capability["invert"] != 1) {
     assertClass(inverter, "RetrafoElement")
+    if (is.null(inverter$prev.retrafo.elt)) {
+      return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
+    }
     return(invertCPO(inverter$prev.retrafo.elt, prediction, predict.type))
   }
 
@@ -166,27 +171,26 @@ invertCPO = function(inverter, prediction, predict.type) {
     stop("Inverters preceding %s cannot convert to requested predict.type %s", getCPOName(cpo), predict.type)
   }
 
-  output.predict.type = inverter$prev.predict.type[predict.type]
+  output.predict.type = unname(inverter$prev.predict.type[predict.type])
   assert(output.predict.type %in% names(cpo$predict.type))
-
-  input.predict.type = cpo$predict.type[output.predict.type]
 
   if (class(inverter) == "InverterElement") {
     state = inverter$state
   } else {
-    assert("state.invert" %in% names(inverter))
+    assert("state.invert" %in% names(inverter),
+      "cpo.trafo.orig" %in% names(cpo$trafo.funs) && is.null(cpo$trafo.funs$cpo.trafo.orig))
     state = inverter$state.invert
   }
 
-  args = list(target = prediction, predict.type = input.predict.type, state = state)
+  args = list(target = prediction, predict.type = output.predict.type, state = state)
 
-  result = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo, args)))
-  result = sanitizePrediction(result, cpo$convertfrom, output.predict.type)
+  prediction = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
+  prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type)
 
-  if (is.null(inverter$prev.retrafo)) {
+  if (is.null(inverter$prev.retrafo.elt)) {
     return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
   }
-  invertCPO(inverter$prev.retrafo, prediction, predict.type)
+  invertCPO(inverter$prev.retrafo.elt, prediction, predict.type)
 }
 
 # Put the prediction 'data' into a canonical format.
@@ -214,6 +218,9 @@ sanitizePrediction = function(data, type, predict.type) {
   assertChoice(type, cpo.tasktypes)
   assertChoice(predict.type, cpo.predict.types)
   if (is.data.frame(data)) {
+    if (!length(data)) {
+      stop("Prediction was empty.")
+    }
     if (length(unique(vcapply(data, function(x) class(x)[1]))) != 1) {
       stop("Prediction had columns of multiple modes.")
     }
@@ -279,6 +286,6 @@ sanitizePrediction = function(data, type, predict.type) {
       stopf("'%s' response prediction must be a numeric vector", type)
     }
   }
-  # remove all other hairs that `data` may have
-  c(data)  # nolint
+
+  data
 }

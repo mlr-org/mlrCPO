@@ -505,6 +505,7 @@
 #'   The \code{cpo.retrafo} function would then make predictions with that model on the new prediction data and save the result to the \code{control} object.
 #'   The \code{cpo.invert} function would then add these predictions to the predictions given to it in the \code{target} argument to \dQuote{invert} the
 #'   antecedent subtraction of model predictions from target values when taking the residues.
+#' @return [\code{\link{CPOConstructor}}]. A Constructor for \code{\link{CPO}}s.
 #' @family CPOConstructor related
 #' @family CPO lifecycle related
 #' @family advanced topics

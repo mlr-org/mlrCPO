@@ -31,20 +31,20 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
   if (verbose) {
     type.extended = environment(x)$cpo.type.extended
     tf = environment(x)$trafo.funs
-    allfuns = c("trafo", "retrafo", "train.invert", "invert")
+    allfuns = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
     relfuns = switch(type.extended,
       feature = allfuns[1:2], target = allfuns, retrafoless = allfuns[1],
       feature.extended = allfuns[1:2], target.extended = allfuns[-3],
       other = list())  # for fauxCPOConstructors that don't fit in any of these roles.
-    relfunlist = lapply(relfuns, function(x) tf[[paste0(x, ".orig")]])
+    relfunlist = sapply(relfuns, function(x) tf[[paste0(x, ".orig")]], simplify = FALSE)
     if (type.extended %in% c("trafo", "retrafo")) {
       names(relfunlist)[1] = "train"
     }
     for (funname in names(relfunlist)) {
       fun = relfunlist[[funname]]
       if (!is.null(fun)) {
-        catf("\ncpo.%s:", funname)
+        catf("\n%s:", funname)
         print(fun)
       }
     }
@@ -72,7 +72,7 @@ vprint = function(x) {
       }
       catf("\nConversion: %s -> %s", cpo$convertfrom, cpo$convertto)
       pt = getCPOPredictType(cpo)
-      catf("Predict type maping:\n%s", collapse(paste(names(pt), pt, sep = " -> "), sep = "\n"))
+      catf("Predict type mapping:\n%s", collapse(paste(names(pt), pt, sep = " -> "), sep = "\n"))
     } else {
       cat("\n")
     }
@@ -88,7 +88,7 @@ print.CPO = function(x, verbose = FALSE, ...) {
     return(vprint(x))
   }
   isprim = "CPOPrimitive" %in% class(x)
-  pv = if (isprim) getBareHyperPars(x) else getHyperPars(x)
+  pv = if (isprim) getBareHyperPars(x, include.unexported = FALSE) else getHyperPars(x)
   argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
   template = ifelse("CPOPrimitive" %in% class(x), "%s(%s)", "(%s)(%s)")
   catf(template, x$debug.name, argstring, newline = FALSE)
@@ -110,22 +110,35 @@ print.CPOTrained = function(x, ...) {
   first = TRUE
   object.type = getCPOClass(x)
   invcap = getCPOTrainedCapability(x)
+  reverse = invcap["retrafo"] < 1
+
   pt = names(getCPOPredictType(x))
   caps = names(Filter(function(x) x > 0, invcap))
-  catf("CPO %s chain", collapse(stri_trans_totitle(caps), sep = " / "), newline = FALSE)
+  names = c(retrafo = "Retrafo", invert = "Inverter")
+  catf("CPO %s chain", collapse(names[caps], sep = " / "), newline = FALSE)
+  if (!is.null(x$convertfrom) && !is.null(x$convertto)) {
+    if (x$convertfrom == x$convertto) {
+      catf(" {type:%s}", x$convertfrom, newline = FALSE)
+    } else {
+      cc = c(x$convertfrom, x$convertto)
+      if (reverse) {
+        cc = rev(cc)
+      }
+      catf(" {conv:%s->%s}", cc[1], cc[2], newline = FALSE)
+    }
+  }
   if (invcap["invert"] > 0) {
-    catf("(able to predict '%s')", collapse(pt, sep = "', '"))
+    catf(" (able to predict '%s')", collapse(pt, sep = "', '"))
   } else {
     cat("\n")
   }
-  reverse = invcap["retrafo"] < 1
   plist = as.list(x)
   if (reverse) {
     plist = rev(plist)
   }
   for (primitive in plist) {
     if (!first) {
-      cat("=>")
+      cat(" =>\n")
     }
     first = FALSE
     pv = getHyperPars(primitive)
@@ -136,7 +149,11 @@ print.CPOTrained = function(x, ...) {
       if (reverse) {
         fromto = rev(fromto)
       }
-      convstring = paste0("{conv:", collapse(fromto, "->"), "}")
+      if (fromto[1] == fromto[2]) {
+        convstring = paste0("{type:", fromto[1], "}")
+      } else {
+        convstring = paste0("{conv:", collapse(fromto, "->"), "}")
+      }
     } else {
       convstring = ""
     }
@@ -160,7 +177,15 @@ print.RetrafoElement = function(x, ...) {
   print(c(x))
 }
 #' @export
-print.InverterElement = print.RetrafoElement
+print.InverterElement = function(x, ...) {
+  if (!is.null(x$truth)) {
+    x$truth = paste0("<truth ", firstNonNull(nrow(x$truth), length(x$truth)), " lines>")
+  }
+  if (!is.null(x$task.desc) && "TaskDesc" %in% class(x$task.desc)) {
+    x$task.desc = paste0("<task desc '", x$task.desc$id, "'>")
+  }
+  print.RetrafoElement(x)
+}
 
 
 # ShapeInfo printing

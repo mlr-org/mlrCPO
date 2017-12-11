@@ -1,46 +1,14 @@
 * TO-DO:
-** changes
-- [X] retrafoless may not change column layout
-- [X] make retrafoless work
-- [X] make inverter work
-- [X] delete 'target' variable in functional CPOs
-- [X] refactor prepare trafo / retrafo to separate checking and splitting / uniting
-- [X] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
-- [X] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
-- [X] %>>%.data.frame must not convert Task to data.frame if it was converted (but give a warning)
-- [X] document that index with cpoSelect and affect.* is always relative do data cols only
-- [X] plan for today:
-  - [X] callCPO should call retrafo / inverter properly
-  - [X] retrafo chaining should work again
-  - [X] predict.type of cpotrained
-  - [X] getoriginalcpo of objects restored from state documented as not having correct parameters
-  - [X] retrafo state should work again
-    - makeRetrafoFromState --> makeCPOTrainedFromState
-  - [X] see that getting operating type etc. works (also for NULLCPO)
-  - [X] properties: adding.min, needed.max
-    - [X] implement and document
-    - [X] for multiplexer etc
-    - [X] multiplexer: check for affect.*, be less restrictive
-    - [X] retrafo adds 'missings' to needed.max if not part of adding.min.
-  - [X] see that learner attachment etc still works
-  - [X] retrafo element change
-  - [X] make invert() etc work
-  - [X] make the printers work
-  - [X] set CPOConstructor for multiplex cpos etc.
-  - [X] repair cpoCbind
-  - [X] sapply replacement
-  - [X] caching CPO
-  - [X] Title case or no title case
-  - [X] hyperparameter transforming cpo wrapper
-  - [X] a %>|% b --> retrafo(a %>>% b)
-  - [X] make tests work
-- [X] outro doc using non-exported cpo-constructor-proto and parameter inheritance ?
 ** test todo
+- [ ] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
+- [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
+- [ ] properties adding.min etc. for multiplexer etc
+- [ ] multiplexer: check for affect.*, be less restrictive
+- [ ] properties: retrafo adds 'missings' to needed.max if not part of adding.min.
+- [ ] caching CPO
+- [ ] hyperparameter transforming cpo wrapper
 - [ ] convertNamesToItems, ItemsToNames
 - [ ] on.par.out.of.bounds setting
-- [ ] task types checked
-- [ ] retrafoless
-- [ ] simple makeCPO, makeCPORetrafoless, makeCPOTagetOp
 - [ ] test individual CPOs
 ** cosmetic changes
 - [ ] call map
@@ -62,7 +30,6 @@
   - [X] properties.needed is the union of all properties.needed, properties and properties.adding are intersections
   - [X] optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
   - [X] cpoApply must have all properties, all properties.adding, must ignore properties.needed
-- [X] %<>>% operator
 ** CPOs
 - [ ] 'cat_P' class prevalence
 - [ ] 'interaction'

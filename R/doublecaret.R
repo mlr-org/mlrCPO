@@ -127,6 +127,9 @@
 #' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
 `internal%<>>%` = function(cpo1, cpo2) {
+  if (identical(substitute(cpo1), quote(NULLCPO))) {
+    stop("Cowardly refusing to assign to NULLCPO")
+  }
   eval.parent(substitute({ cpo1 = `internal%>>%`(cpo1, cpo2) }))
 }
 
@@ -140,6 +143,9 @@
 #' @rdname internal-grapes-greater-than-greater-than-grapes
 #' @export
 `internal%<<<%` = function(cpo2, cpo1) {
+  if (identical(substitute(cpo2), quote(NULLCPO))) {
+    stop("Cowardly refusing to assign to NULLCPO")
+  }
   eval.parent(substitute({ cpo2 = `internal%>>%`(cpo1, cpo2) }))
 }
 
@@ -268,31 +274,28 @@ defas.recurse.rewrite = function(expr) {
   ret = defas.triolist
   if (!is.call(expr)) {
     ret[[3]] = expr
-  } else if (identical(expr[[1]], defas.deferred.ops[[1]])) {
-    # %>>%
-    ret = defas.recurse.rewrite(expr[[2]])
-
-    expr[[1]] = defas.deferred.repl[[1]]
-    expr[[2]] = ret[[3]]
-    ret[[3]] = expr
-  } else if (identical(expr[[1]], defas.deferred.ops[[2]])) {
-    # %<<%
-    ret = defas.recurse.rewrite(expr[[2]])
-
-    expr[[1]] = defas.deferred.repl[[2]]
-    expr[[2]] = ret[[3]]
-    ret[[3]] = expr
-  } else if (identical(expr[[1]], defas.assignment.ops[[1]])) {
-    ret[[1]] = defas.assignment.repl[[1]]
-    ret[[2]] = expr[[2]]
-    ret[[3]] = expr[[3]]
-  } else if (identical(expr[[1]], defas.assignment.ops[[2]])) {
-    ret[[1]] = defas.assignment.repl[[2]]
-    ret[[2]] = expr[[2]]
-    ret[[3]] = expr[[3]]
-  } else {
-    ret[[3]] = expr
+    return(ret)
   }
+  for (i in seq_along(defas.deferred.ops)) {
+    if (identical(expr[[1]], defas.deferred.ops[[i]])) {
+      # %>>%
+      ret = defas.recurse.rewrite(expr[[2]])
+
+      expr[[1]] = defas.deferred.repl[[i]]
+      expr[[2]] = ret[[3]]
+      ret[[3]] = expr
+      return(ret)
+    }
+  }
+  for (i in seq_along(defas.assignment.ops)) {
+    if (identical(expr[[1]], defas.assignment.ops[[i]])) {
+      ret[[1]] = defas.assignment.repl[[i]]
+      ret[[2]] = expr[[2]]
+      ret[[3]] = expr[[3]]
+      return(ret)
+    }
+  }
+  ret[[3]] = expr
   ret
 }
 

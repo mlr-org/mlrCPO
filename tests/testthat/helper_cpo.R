@@ -92,6 +92,30 @@ registerS3method("predictLearner", "testlearnercpo", predictLearner.testlearnerc
 
 testlearnercpo = setHyperPars(testlearnercpo, env = globalenv)
 
+
+# simple learner that writes the first data element it receives to cpotest.parvals
+testregressorcpo = makeRLearnerRegr("testregressorcpo", package = character(0),
+  par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both"),
+  makeIntegerLearnerParam("int")),
+  properties = c("numerics", "factors", "ordered"))
+testregressorcpo$fix.factors.prediction = TRUE
+
+trainLearner.testregressorcpo = function(.learner, .task, .subset, .weights = NULL, env, ...) {
+  env$cpotest.parvals = c(env$cpotest.parvals, getTaskData(.task, target.extra = TRUE)$target[1])
+  getTaskData(.task, .subset)[[getTaskTargetNames(.task)[1]]][1]
+}
+
+predictLearner.testregressorcpo = function(.learner, .model, .newdata, env, ...) {
+  env$cpotest.parvals = c(env$cpotest.parvals, .newdata[1, 1])
+  rep(.model$learner.model, nrow(.newdata))
+}
+
+registerS3method("trainLearner", "testregressorcpo", trainLearner.testregressorcpo)
+registerS3method("predictLearner", "testregressorcpo", predictLearner.testregressorcpo)
+
+testregressorcpo = setHyperPars(testregressorcpo, env = globalenv)
+
+
 # dummy regression learner
 testregrcpo = makeRLearnerRegr("testregrcpo", package = character(0), par.set = makeParamSet(makeUntypedLearnerParam("env", when = "both")),
   properties = c("numerics", "factors", "ordered"))
@@ -289,6 +313,40 @@ cpoadder.nt.o = makeCPOObject("adderO", summand = 1: integer[, ], cpo.trafo = {
   data[[1]] = data[[1]] - summand - control
   data
 })
+
+cpoinvertadder = makeCPOExtendedTargetOp("invertadder",
+  pSS(summand = 1: numeric[, ]), properties.target = "regr",
+  cpo.trafo = {
+    meandata = mean(target[[1]])
+    target[[1]] = target[[1]] + summand
+    cpo.retrafo = function(target, ...) {
+      target[[1]] = target[[1]] - summand - meandata
+      cpo.invert = cpo.invert
+      target
+    }
+    cpo.invert = function(target, ...) {
+      target[[1]] = target[[1]] + summand * 2
+      target
+    }
+    target
+  }, cpo.retrafo = NULL, cpo.invert = NULL)
+
+cpoinvertmultiplier = makeCPOExtendedTargetOp("invertmultiplier",
+  pSS(factor = 1: numeric[, ]), properties.target = "regr",
+  cpo.trafo = {
+    target[[1]] = target[[1]] * factor
+    cpo.retrafo = function(target, ...) {
+      target[[1]] = target[[1]] / factor
+      cpo.invert = cpo.invert
+      target
+    }
+    cpo.invert = function(target, ...) {
+      target[[1]] = target[[1]] * factor ^ 2
+      target
+    }
+    target
+  }, cpo.retrafo = NULL, cpo.invert = NULL)
+
 
 
 pss = pSSLrn

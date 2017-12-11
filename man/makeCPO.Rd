@@ -363,6 +363,9 @@ a package required for the CPO is not available on his system, or can not be loa
   The \code{cpo.invert} function would then add these predictions to the predictions given to it in the \code{target} argument to \dQuote{invert} the
   antecedent subtraction of model predictions from target values when taking the residues.}
 }
+\value{
+[\code{\link{CPOConstructor}}]. A Constructor for \code{\link{CPO}}s.
+}
 \description{
 \code{makeCPO} creates a \emph{Feature Operation} \code{\link{CPOConstructor}}, i.e. a constructor for a \code{\link{CPO}} that will
 operate on feature columns. \code{makeCPOTargetOp} creates a \emph{Target Operation} \code{\link{CPOConstructor}}, which

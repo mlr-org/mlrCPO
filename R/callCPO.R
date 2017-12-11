@@ -24,14 +24,14 @@ makeCPOInverter = function(cpo, state, prev.inverter, data) {
     truth = data[integer(0)]
   } else {
     td = getTaskDesc(data)
-    truth = getTaskData(data, features = character(0))
+    truth = getTaskData(data, target.extra = TRUE)$target
   }
 
   inverter = makeCPOTrainedBasic(cpo, state, "CPOInverter", "InverterElement", c(retrafo = -1L, invert = 1L))
   # --- state for pure "inverter":
   inverter$element$task.desc = td
   inverter$element$truth = truth  # may be NULL for a data.frame / cluster task
-  composeCPO(nullToNullcpo(prev.inverter), inverter)
+  composeCPO(prev.inverter, inverter)
 }
 
 # Creates the "Retrafo" S3 object. See comment above 'makeCPOInverter'. Note that some CPOs
@@ -61,7 +61,7 @@ makeCPORetrafo = function(cpo, state, state.invert, prev.retrafo, shapeinfo.inpu
   if (cpo$constant.invert) {
     retrafo$element$state.invert = state.invert
   }
-  composeCPO(nullToNullcpo(prev.retrafo), retrafo)
+  composeCPO(prev.retrafo, retrafo)
 }
 
 # Creates an object of class "CPOTrained", which
@@ -76,7 +76,7 @@ makeCPORetrafo = function(cpo, state, state.invert, prev.retrafo, shapeinfo.inpu
 makeCPOTrainedBasic = function(cpo, state, subclass, elclass, capability) {
   retrafo = makeS3Obj(c("CPOTrainedPrimitive", subclass, "CPOTrained"),
     element = makeS3Obj(elclass,      # A linked list of internal CPO states
-        cpo = setCPOId(cpo, NULL),    # the CPOPrimitive that was used to create this object
+        cpo = cpo,                    # the CPOPrimitive that was used to create this object
         state = state,                # whatever control object or retrafo function was given
         capability = capability,      # capability of this CPOTrained unit
         prev.predict.type =           # the predict.type transformation matrix of all preceding elements (in prev.retrafo.elt)
@@ -128,16 +128,14 @@ callCPO.CPOPrimitive = function(cpo, data, build.retrafo, prev.retrafo, build.in
 
   checkAllParams(cpo$par.vals, cpo$par.set, cpo$debug.name)
 
-  prev.retrafo = nullcpoToNull(prev.retrafo)
-  prev.inverter = nullcpoToNull(prev.inverter)
-
   tin = prepareTrafoInput(data, cpo$dataformat, cpo$strict.factors, cpo$properties.raw,
     getCPOAffect(cpo, FALSE), cpo$fix.factors, cpo$operating.type, cpo$debug.name)
 
-  tin$indata$build.inverter = build.inverter
+  tin$indata$build.inverter = build.inverter || cpo$constant.invert
   result = do.call(cpo$trafo.funs$cpo.trafo, insert(getBareHyperPars(cpo), tin$indata))
 
-  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed.max, cpo$properties$adding.min, cpo$convertto)
+  tout = handleTrafoOutput(result$result, tin, cpo$properties$needed.max, cpo$properties$adding.min, cpo$convertto,
+    cpo$operating.type.extended == "feature")  # this last bit is because (simple) FOCPOs return df.features instead of df.all / task
 
   if (build.retrafo && cpo$operating.type != "retrafoless") {
     prev.retrafo = makeCPORetrafo(cpo, result$state, result$state.invert, prev.retrafo, tin$shapeinfo, tout$shapeinfo)
@@ -201,7 +199,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   assert(checkClass(retrafo, "RetrafoElement"), checkClass(retrafo, "InverterElement"))
   cpo = retrafo$cpo
 
-  if (!is.null(retrafo$prev.retrafo)) {
+  if (!is.null(retrafo$prev.retrafo.elt)) {
     upper.result = callCPORetrafoElement(retrafo$prev.retrafo.elt, data, build.inverter, prev.inverter)
     data = upper.result$data
     prev.inverter = upper.result$inverter
@@ -212,6 +210,8 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   tin = prepareRetrafoInput(data, cpo$dataformat, cpo$strict.factors, cpo$properties.raw,
     retrafo$shapeinfo.input, cpo$operating.type, cpo$name)
 
+  # if we are target operating, have no target to change AND don't need the retrafostate
+  # when we don't call cpo.retrafo at all.
   if (cpo$operating.type == "target" && !build.inverter && is.null(tin$indata$target)) {
     # neither data to modify nor an inverter to build
     return(list(data = data, inverter = prev.inverter))
@@ -219,6 +219,7 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
 
   tin$indata$state = retrafo$state
   result = do.call(cpo$trafo.funs$cpo.retrafo, insert(getBareHyperPars(cpo), tin$indata))
+
 
   if (cpo$operating.type != "target" || !is.null(tin$indata$target)) {
     # in retrafo we forgive the creation of 'missings', unless they are in adding.min
@@ -233,7 +234,8 @@ callCPORetrafoElement = function(retrafo, data, build.inverter, prev.inverter) {
   }
 
   if (build.inverter && cpo$operating.type == "target") {
-    prev.inverter = makeCPOInverter(cpo, result$state.invert, prev.inverter, firstNonNull(tin$task, data))
+    invstate = if (cpo$constant.invert) retrafo$state.invert else result$state.invert
+    prev.inverter = makeCPOInverter(cpo, invstate, prev.inverter, firstNonNull(tin$task, data))
   }
 
   list(data = data, inverter = prev.inverter)
@@ -247,13 +249,14 @@ applyCPO.CPO = function(cpo, task) {
     stop("CPO can not handle tasks with weights!")
   }
 
-  prev.inverter = nullcpoToNull(inverter(task))
-  assert(checkNull(prev.inverter), checkClass(prev.inverter, "CPOInverter"))
-  inverter(task) = NULL
+  prev.inverter = inverter(task)
+  assert(is.nullcpo(prev.inverter), checkClass(prev.inverter, "CPOInverter"))
 
-  prev.retrafo = nullcpoToNull(retrafo(task))
-  assert(checkNull(prev.inverter), checkClass(prev.inverter, "CPORetrafo"))
-  retrafo(task) = NULL
+
+  prev.retrafo = retrafo(task)
+  assert(is.nullcpo(prev.retrafo), checkClass(prev.retrafo, "CPORetrafo"))
+
+  task = clearRI(task)
 
   if ("CPORetrafo" %in% class(cpo)) {
     result = callCPORetrafoElement(cpo$element, task, TRUE, prev.inverter)

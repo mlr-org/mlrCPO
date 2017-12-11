@@ -20,20 +20,26 @@ devtools::build_vignettes("..")
 
 devtools::load_all("..")
 
-
+library("checkmate")
 
 
 
 
 options(error = dump.frames)
-options(max.print = 20)
+
+
+options(max.print = 2000)
 
 
 configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = TRUE)
 
 devtools::load_all("..")
 
-devtools::test(pkg = "..", reporter = MinimalReporter)
+
+
+devtools::test(pkg = "..")
+
+
 
 
 # all tests:
@@ -44,31 +50,16 @@ devtools::test(pkg = "..", filter = "concrete")     # [ 00 ]
 devtools::test(pkg = "..", filter = "datasplit")    # [ 00 ]
 devtools::test(pkg = "..", filter = "filter")       # [ 00 ]
 devtools::test(pkg = "..", filter = "impute")       # [ 00 ]
-devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 devtools::test(pkg = "..", filter = "meta")         # [ 00 ]
 devtools::test(pkg = "..", filter = "properties")   # [ 00 ]
 devtools::test(pkg = "..", filter = "quick")        # [ 00 ]
 devtools::test(pkg = "..", filter = "tuning")       # [ 00 ]
 
 
+devtools::test(pkg = "..", filter = "dataflow")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 
 
 
