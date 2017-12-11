@@ -45,17 +45,23 @@ cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
 registerCPO(cpoFilterFeatures, "featurefilter", "general", "Filter features using a provided method.")
 
 # Creates a CPOConstructor for the given filter method
+#
+# This saves us from having to write "makeCPOExtendedTrafo..." for every filter, since the
+# structure of the filter CPOs is always the same.
 # @param method [character(1)] the method name, as found in mlr:::.FilterRegister
 # @param ... parameters to use for the CPO, as used by ParamSet::pSSLrn
 # @param .par.set [ParamSet | NULL] additional parameter set to use
 # @return [CPOConstructor] A CPOConstructor that creates the CPO performing the `method`.
 declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
+  # put together parameters from '...' and from .par.set
   par.set = c(pSSLrn(...,
       perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
       abs = NULL: integer[0, ] [[special.vals = list(NULL)]],
       threshold = NULL: numeric[, ] [[special.vals = list(NULL)]]),
     .par.set)
 
+  # get the filter object from mlr. The .FilterRegister was previously gotten
+  # from mlr at the top of this file.
   methodobj = get(method, envir = .FilterRegister)
 
   makeCPOExtendedTrafo(method, par.set = par.set, dataformat = "task",
