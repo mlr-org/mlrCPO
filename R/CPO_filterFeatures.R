@@ -82,7 +82,6 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
 
       # 'control' object contains the names of all features we don't throw away
       setdiff(getTaskFeatureNames(data), setdiff(getTaskFeatureNames(stask), getTaskFeatureNames(ftask)))
-      subsetTask(data, features = control)
     }, cpo.retrafo = function(data, control, ...) {
       data[control]
     })
