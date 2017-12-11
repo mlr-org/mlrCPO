@@ -1,3 +1,7 @@
+# mlrCPO 0.3
+* great code and test quality improvement, bugfixes
+* retrafoless and target operating CPO backend works
+* new cpo cpoCache
 
 # mlrCPO 0.2
 * refactoring retrafoless and target operating CPOs (they still don't work)
