@@ -1832,11 +1832,9 @@ test_that("printers", {
 
   expect_output(print(notrans), "<<CPO notrans(param)>>", fixed = TRUE)
 
-  print(notrans, verbose = TRUE)
-
   expect_output(print(notrans, verbose = TRUE), "<<CPO notrans(param)>>\n\ncpo.retrafo:\nfunction (param, data, target) \n{\n", fixed = TRUE)
 
-  expect_output(print(notrans(), verbose = TRUE), "Conversion: cluster -> cluster\nPredict type mapping:\nresponse -> response", fixed = TRUE)
+  expect_output(print(notrans(), verbose = TRUE), "Conversion: multilabel -> multilabel\nPredict type mapping:\nresponse -> response", fixed = TRUE)
 
   dotrans = makeCPOTargetOp("dotrans", pSS(param: integer[, ]), constant.invert = FALSE, cpo.train.invert = { },
     cpo.train = { }, cpo.retrafo = { target[[1]] = as.numeric(target[[1]]) ; target[1] }, cpo.invert = { target }, task.type.out = "regr",
@@ -1874,7 +1872,7 @@ test_that("NULLCPO", {
   nullsv = NULLCPO
   expect_error(NULLCPO %<>>% cpoPca(), "Cowardly refusing to assign to NULLCPO")
   expect_error(NULLCPO %<<<% cpoPca(), "Cowardly refusing to assign to NULLCPO")
-  NULLCPO = nullsv
+  NULLCPO = nullsv  # nolint
 
   expect_identical(pid.task %>|% NULLCPO, NULLCPO)
   expect_identical(NULLCPO %|<% pid.task, NULLCPO)
@@ -1896,7 +1894,7 @@ test_that("NULLCPO", {
 
   expect_error(setCPOId(NULLCPO, "X"), "Cannot set ID of NULLCPO.")
 
-  expect_null(getCPOId(NULLCPO))
+  expect_equal(getCPOId(NULLCPO), "NULLCPO")
 
   expect_identical(getCPOAffect(NULLCPO), getCPOAffect(cpoPca()))
   expect_identical(getCPOAffect(NULLCPO, drop.defaults = FALSE), getCPOAffect(cpoPca(), drop.defaults = FALSE))
