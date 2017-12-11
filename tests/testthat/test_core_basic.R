@@ -1935,5 +1935,12 @@ test_that("assertTask checks tasks", {
   pt$task.desc$class.levels = pt$task.desc$class.levels[1:4]
   expect_error(at(pt), "^[^;]*class.levels in task.desc must equal target names[^;]*$")
 
+  at(lung.task)  # surv
+  at(yeast.task)  # multilabel
+  at(bh.task)  # regr
+  at(pid.task)  # classif, binary
+  at(iris.task)  # classif, multiclass
+  at(agri.task)  # cluster
+
 })
 
