@@ -18,9 +18,9 @@ devtools::load_all("..", export_all = FALSE)
 devtools::build_vignettes("..")
 
 
-devtools::load_all("..") ; rm(globalenv)
+devtools::load_all("..")
 
-
+library("checkmate")
 
 
 
@@ -35,7 +35,10 @@ configureMlr(show.info = TRUE, on.learner.error = "stop", show.learner.output = 
 
 devtools::load_all("..")
 
+
+
 devtools::test(pkg = "..")
+
 
 
 
@@ -53,7 +56,9 @@ devtools::test(pkg = "..", filter = "quick")        # [ 00 ]
 devtools::test(pkg = "..", filter = "tuning")       # [ 00 ]
 
 
-devtools::test(pkg = "..", filter = "dataflow")       # [ 00 ]
+devtools::test(pkg = "..", filter = "dataflow")
+
+
 devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 
 
