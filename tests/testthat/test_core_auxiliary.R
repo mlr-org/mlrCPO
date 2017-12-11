@@ -1,5 +1,29 @@
 context("auxiliary UI stuff")
 
+
+test_that("auxiliary functions work", {
+
+  x = 10
+  y = 20
+
+  c(A = x, B = y, C = x + y, D = z) %<=% list(x = 1, z = 99)
+
+  expect_equal(A, 1)
+  expect_equal(B, 20)
+  expect_equal(C, 21)
+  expect_equal(D, 99)
+
+  list(A = x, B = y, C = z) %<=% list(
+                              x = expression(1 + 1),
+                              y = function() 1 + 1,
+                              z = quote(1 + 1))
+
+  expect_identical(A, expression(1 + 1))
+  expect_identical(B, function() 1 + 1)
+  expect_identical(C, quote(1 + 1))
+
+})
+
 test_that("new operators work", {
 
   x = cpoScale()

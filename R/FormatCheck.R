@@ -1384,8 +1384,15 @@ recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, datafor
           !all(names(newdata)[names(newdata) %in% getTaskTargetNames(olddata)] == getTaskTargetNames(olddata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
       }
-      if (isLevelFlipped(olddata)) {
-        flipTaskTarget(newdata, getTaskTargetNames(olddata))
+      if (getTaskType(olddata) == "classif") {
+        tname = getTaskTargetNames(olddata)
+        if (isLevelFlipped(olddata)) {
+          newdata = flipTaskTarget(newdata, tname)
+        }
+        if (!identical(levels(getTaskData(olddata, target.extra = TRUE)$target),
+          levels(newdata[[tname]]))) {
+          stopf("retrafoless CPO %s must not change target class levels.", name)
+        }
       }
       newdata = changeData(olddata, newdata)
     } else {  # dataformat == "task"
@@ -1395,10 +1402,16 @@ recombineRetrafolessResult = function(olddata, newdata, shapeinfo.input, datafor
       if (!all(getTaskTargetNames(olddata) == getTaskTargetNames(newdata))) {
         stopf("retrafoless CPO %s must not change target names.", name)
       }
-      checkTaskBasics(olddata, newdata, c("has.missings", "size", "class.distribution"), name)
-      if (isLevelFlipped(olddata) != isLevelFlipped(newdata)) {
-        stopf("CPO %s changed task target feature order.", name)
+      if (getTaskType(olddata) == "classif") {
+        if (isLevelFlipped(olddata) != isLevelFlipped(newdata)) {
+          stopf("CPO %s changed task target feature order.", name)
+        }
+        if (!identical(levels(getTaskData(olddata, target.extra = TRUE)$target),
+          levels(getTaskData(newdata, target.extra = TRUE)$target))) {
+          stopf("retrafoless CPO %s must not change target class levels.", name)
+        }
       }
+      checkTaskBasics(olddata, newdata, c("has.missings", "size", "class.distribution"), name)
     }
     assertShapeConform(getTaskData(newdata, target.extra = TRUE)$data, shapeinfo.input, strict.factors, name, TRUE)
   }

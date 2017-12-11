@@ -585,3 +585,77 @@ test_that("presence of control object is checked", {
   expect_error(cpo.df1c %>>% retrafo(cpo.df1c %>>% cpo()), "cpo.retrafo as created by cpo.trafo does not have \\(only\\) the required")
 
 })
+
+
+test_that("retrafoless cannot flip binary classif task", {
+
+  localenv = new.env()
+
+  flipcpotaskflip = makeCPORetrafoless("flipcpo",
+    dataformat = "task",
+    cpo.trafo = {
+      expect_equal(localenv$pos, data$task.desc$positive)
+      data = subsetTask(data)
+      tmp = data$task.desc$positive
+      data$task.desc$positive = data$task.desc$negative
+      data$task.desc$negative = tmp
+      data
+    })
+
+  flipcpotaskrev = makeCPORetrafoless("flipcpo",
+    dataformat = "task",
+    cpo.trafo = {
+      expect_equal(localenv$pos, data$task.desc$positive)
+      data = subsetTask(data)
+      data$env$data[[target]] = factor(data$env$data[[target]], levels = rev(levels(data$env$data[[target]])))
+      data
+    })
+
+  flipcpodfrev = makeCPORetrafoless("flipcpo",
+    dataformat = "df.all",
+    cpo.trafo = {
+      expect_equal(localenv$pos, levels(data[[target]])[1])
+      data[[target]] = factor(data[[target]], levels = rev(levels(data[[target]])))
+      data
+    })
+
+
+  ortho = pid.task
+  trans = subsetTask(pid.task)
+  tmp = trans$task.desc$negative
+  trans$task.desc$negative = trans$task.desc$positive
+  trans$task.desc$positive = tmp
+
+  ortho.rev = subsetTask(ortho)
+  ortho.rev$env$data = flipTaskTarget(ortho$env$data, getTaskTargetNames(ortho))
+
+  trans.rev = subsetTask(trans)
+  trans.rev$env$data = flipTaskTarget(trans$env$data, getTaskTargetNames(trans))
+
+  expect_equal(isLevelFlipped(ortho), !isLevelFlipped(trans))
+  expect_equal(isLevelFlipped(ortho.rev), !isLevelFlipped(trans.rev))
+  expect_equal(isLevelFlipped(ortho.rev), isLevelFlipped(trans))
+  expect_equal(isLevelFlipped(ortho), isLevelFlipped(trans.rev))
+
+
+
+  localenv$pos = "neg"
+  expect_error(ortho %>>% flipcpotaskflip(), "changed task target feature order")
+  expect_error(ortho %>>% flipcpotaskrev(), "changed task target feature order")
+  expect_error(ortho %>>% flipcpodfrev(), "must not change target class levels")
+
+  expect_error(ortho.rev %>>% flipcpotaskflip(), "changed task target feature order")
+  expect_error(ortho.rev %>>% flipcpotaskrev(), "changed task target feature order")
+  expect_error(ortho.rev %>>% flipcpodfrev(), "must not change target class levels")
+
+  localenv$pos = "pos"
+  expect_error(trans %>>% flipcpotaskflip(), "changed task target feature order")
+  expect_error(trans %>>% flipcpotaskrev(), "changed task target feature order")
+  expect_error(trans %>>% flipcpodfrev(), "must not change target class levels")
+
+  expect_error(trans.rev %>>% flipcpotaskflip(), "changed task target feature order")
+  expect_error(trans.rev %>>% flipcpotaskrev(), "changed task target feature order")
+  expect_error(trans.rev %>>% flipcpodfrev(), "must not change target class levels")
+
+})
+
