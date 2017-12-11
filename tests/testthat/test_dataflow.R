@@ -1,4 +1,4 @@
-context("general operation CPOs")
+context("UI stuff")
 
 test_that("new operators work", {
 
