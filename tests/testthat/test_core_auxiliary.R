@@ -168,6 +168,7 @@ test_that("NULLCPO", {
   expect_identical(NULLCPO %>>% ret, ret)
   expect_identical(composeCPO(NULLCPO, ret), ret)
 
+  expect_identical(retrafo(train("classif.logreg", pid.task)), NULLCPO)
 
 
 })
@@ -254,6 +255,13 @@ test_that("operators", {
   expect_warning(expect_identical(getLearnerCPO(doublewrapped), cpoPca()), "had buried CPOs")
 
   expect_warning(expect_identical(retrafo(train(doublewrapped, bh.task)), retrafo(bh.task %>>% cpoPca())), "CPOs wrapped by other wrappers")
+
+  wm = train("classif.logreg", pid.task)
+  expect_error({retrafo(wm) = NULLCPO}, "Cannot change retrafo of a model")
+
+  expect_error(inverter(wm), "Cannot get inverter of a model")
+  expect_error({inverter(wm) = NULLCPO}, "Cannot change inverter of a model")
+
 
 })
 
