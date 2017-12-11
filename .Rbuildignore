@@ -4,9 +4,10 @@
 ^todo-files
 ^man-roxygen
 \.gitignore
-^.git$
+^\.git$
+^\.ignore$
 \.travis.yml
-^.*tar\.gz$
+^.*\.tar\.gz$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^.editorconfig$
