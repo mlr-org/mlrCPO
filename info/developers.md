@@ -131,7 +131,7 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
-<img src="resources/makeCPO.png" width=800>
+<div style="text-align:center"><img src="resources/makeCPO.png" width=800></div>
 
 `CPO` creation happens in `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. Besides general checking of parameter validity, the `$trafo` and `$retrafo` functions are created. If they are given as special NSE blocks (just curly braces without function headers), `makeFunction` creates the necessary function headers, otherwise the given headers are checked.
 
