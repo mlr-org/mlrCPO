@@ -6,7 +6,7 @@ output:
 geometry: margin=2cm
 ---
 
-<h1>mlrCPO Internals</h1>
+# mlrCPO Internals
 
 <!--![](resources/fullmap.pdf)-->
 <a href="resources/fullmap.png"><img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440></a>
