@@ -192,3 +192,71 @@ hasTaskWeights = function(task) {
 isPropertyStrict = function() {
   getMlrOption("cpo.property.strict", TRUE)
 }
+
+
+#' @title Add 'covr' coverage to CPOs
+#'
+#' @description
+#' Use this if you want to check code coverage of \code{\link{CPO}}s using
+#' \link[https://github.com/r-lib/covr]{covr}. The functions inside \code{\link{CPO}}s is
+#' originally not accessible to \code{covr}, so \code{covrTraceCPOs} needs to be called in
+#' the \code{.onAttach} function. Note that putting it in \code{.onLoad} will \bold{not} work.
+#'
+#' Currently, for this to work, the mb706 fork of \code{covr} needs to be used. To install it,
+#' call
+#'
+#' \code{devtools::install_github("mb706/covr")}
+#'
+#' To use it on Travis CI, add the line \code{- mb706/covr} under the \code{r_github_packages:}
+#' category.
+#'
+#' This function comes at no runtime penalty: If the \code{R_COVR} environment variable is not
+#' set to \dQuote{true}, then it only has an effect if \code{force} is \code{TRUE}.
+#'
+#' @param env [environment]\cr
+#'   The environment to search for \code{\link{CPO}}s. Default is \code{parent.env(parent.frame())},
+#'   which is the package namespace if called from \code{.onLoad}.
+#' @param force [logical(1)]\cr
+#'   Trace \code{\link{CPO}} functions even when \code{R_COVR} is not \dQuote{true}.
+#'   Default is \code{FALSE}.
+#' @return [invisible(NULL)].
+#' @family helper functions
+#' @export
+covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE) {
+  assertFlag(force)
+  if (!identical(Sys.getenv("R_COVR"), "true") && !force) {
+    return(invisible(NULL))
+  }
+
+  trace_calls = covr:::trace_calls
+
+  fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
+
+  cnames = Filter(function(x) "CPOConstructor" %in% class(get(x, envir=env)),
+    ls(env, all.names = TRUE))
+
+  for (objname in cnames) {
+    catf("Tracing cpo %s", objname)
+    cpo = get(objname, envir = env)
+    cpo.name = environment(cpo)$cpo.name
+    cenv = environment(cpo)
+    if ("FauxCPOConstructor" %in% class(cpo)) {
+      cenv$constructorconstructor = trace_calls(get("constructorconstructor", envir = cenv),
+        paste0(cpo.name, "$constructor"))
+      next
+    }
+    for (ifunname in c("cpo.trafo", "cpo.retrafo", "cpo.invert")) {
+      ifun = cenv$trafo.funs[[ifunname]]
+      if (is.null(ifun)) {
+        next
+      }
+      ifenv = environment(ifun)
+      for (fname in fnames) {
+        if (!is.null({oldfun = ifenv[[fname]]})) {
+          catf("interface fun %s environment %s is being replaced", ifunname, fname)
+          ifenv[[fname]] = trace_calls(oldfun, paste0(cpo.name))
+        }
+      }
+    }
+  }
+}
