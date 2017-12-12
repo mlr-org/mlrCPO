@@ -7,11 +7,7 @@ geometry: margin=2cm
 
 # mlrCPO Internals
 
-![](resources/fullmap.pdf)
-
-[![](resources/fullmap.png){#id .class width=440px}](resources/fullmap.png)
-
-img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440
+<a href="resources/fullmap.png"><img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440></a>
 
 *(Almost) full map of mlrCPO function calls*
 
@@ -152,6 +148,9 @@ The most interesting files containing concrete `CPO` implementations.
 ### `CPO` Creation (`makeCPO.R`)
 
 ![](resources/makeCPO.pdf)
+
+[![](resources/makeCPO.png)](resources/makeCPO.png)
+
 <img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=880>
 
 *Map of `makeCPO` function calls, exported functions are bold*
