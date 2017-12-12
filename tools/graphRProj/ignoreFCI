@@ -7,8 +7,10 @@ registerCPO
 CPO_[a-zA-Z0-9_.]*\.R
 print
 isPropertyStrict
-getCPO
+properties.R
 NULLCPO.R
 FormatCheck.R
 callInterface.R
 makeCPO.R
+convertNamesToItemsDVP
+ predict\(\|\..*\)$

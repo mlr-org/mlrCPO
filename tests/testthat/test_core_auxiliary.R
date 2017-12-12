@@ -542,7 +542,9 @@ test_that("stateless target cpo  CPOs must be constant.invert", {
 
 })
 
+test_that("CPOTrainedState works for all CPO types", {
 
+})
 
 ### concrete cpos
 

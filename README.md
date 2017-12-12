@@ -23,10 +23,10 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## Installation
 
-`mlrCPO` relies on small extensions of both [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/190#issuecomment-324618168) and [`mlr`](https://github.com/mlr-org/mlr/pull/1827) which will be merged soon. Until that is the case, you need to install these extensions using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
+`mlrCPO` relies on small extensions of both [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and [`mlr`](https://github.com/mlr-org/mlr/pull/1827) which will be merged soon. Until that is the case, you need to install these extensions using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
 
 ```R
-devtools::install_github("mb706/ParamHelpers", ref = "paramSetSugar")
+devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
 devtools::install_github("mlr-org/mlr", ref = "ComposablePreprocOperators")
 ```
 
@@ -100,7 +100,7 @@ A small intro guide for developers into the code base can be found in [info/deve
 
 ## Project Status
 
-`mlrCPO` is not yet a mature project and may be unstable at times; setting up a CI system is in progress, which should make things much smoother soon. Furthermore, even though it provides extensive functionality already, it is still lacking many concrete implementations of preprocessing operators.
+The foundation of `mlrCPO` is built and is reasonably stable, only small improvements and stability fixes are expected here. There are still many concrete implementations of preprocessing operators to be written.
 
 ## Similar Projects
 
