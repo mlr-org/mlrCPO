@@ -131,6 +131,8 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
+<img src="resources/makeCPO.png" width=800>
+
 `CPO` creation happens in `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. Besides general checking of parameter validity, the `$trafo` and `$retrafo` functions are created. If they are given as special NSE blocks (just curly braces without function headers), `makeFunction` creates the necessary function headers, otherwise the given headers are checked.
 
 The `.dataformat` and `.dataformat.factor.with.ordered` variables are internally put together into one `$datasplit` slot of `CPO`. For this, the `"split"` value of `.dataformat` is translated to either `"most"` (`.dataformat.factor.with.ordered == TRUE`) or `"all"`, and the `"factor"` value is translated to `"onlyfactor"` if `.dataformat.factor.with.ordered` is `FALSE`.
