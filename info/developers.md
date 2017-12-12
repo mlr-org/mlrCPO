@@ -8,6 +8,9 @@ geometry: margin=2cm
 # mlrCPO Internals
 
 ![](resources/fullmap.pdf)
+
+![](resources/fullmap.png)
+
 <img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440>
 
 *(Almost) full map of mlrCPO function calls*
