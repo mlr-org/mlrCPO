@@ -219,25 +219,16 @@ isPropertyStrict = function() {
 #' @param force [logical(1)]\cr
 #'   Trace \code{\link{CPO}} functions even when \code{R_COVR} is not \dQuote{true}.
 #'   Default is \code{FALSE}.
-#' @param override.tracing.already [logical(1)]\cr
-#'   \code{covrTraceCPOs} checks the \code{.cpo.tracing.already} variable in the namespace. If it is present,
-#'   it will not run, otherwise it will set this variable. If \code{override.tracing.already} is \code{TRUE},
-#'   this behaviour is overridden and \code{covrTraceCPOs} will run even when \code{.cpo.tracing.already}
-#'   is found. Default is \code{FALSE}.
 #' @return [invisible(NULL)].
 #' @family helper functions
 #' @export
-covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE, override.tracing.already = FALSE) {
+covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE) {
   assertFlag(force)
   if (!identical(Sys.getenv("R_COVR"), "true") && !force) {
     return(invisible(NULL))
   }
-  if (!override.tracing.already && ".cpo.tracing.already" %in% ls(env, all.names = TRUE)) {
-    return(invisible(NULL))
-  }
-  assign(".cpo.tracing.already", TRUE, envir = env)
 
-  trace_calls = get("trace_calls", mode = "function", envir = getNamespace("covr"))
+  trace_calls = covr:::trace_calls
 
   fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
