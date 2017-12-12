@@ -228,11 +228,11 @@ covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE) {
     return(invisible(NULL))
   }
 
-  trace_calls = covr:::trace_calls
+  trace_calls = covr:::trace_calls  # nolint
 
   fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
-  cnames = Filter(function(x) "CPOConstructor" %in% class(get(x, envir=env)),
+  cnames = Filter(function(x) "CPOConstructor" %in% class(get(x, envir = env)),
     ls(env, all.names = TRUE))
 
   for (objname in cnames) {
