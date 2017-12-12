@@ -5,7 +5,6 @@ cd "$path"
 
 [ -d resources ] || exit 1
 
-rm resources/*.pdf
 rm resources/*.png
 
 ../tools/graphRProj/generateMaps.sh ../R resources png
@@ -16,3 +15,6 @@ convert resources/fullmap.png -font Helvetica -pointsize 600 -draw "gravity cent
 pandoc developers.md -o developers.html
 
 sed 's/<!--\|-->//g' developers.md | sed 's/# mlrCPO.*//' | pandoc - -o developers.pdf --latex-engine=xelatex
+
+rm resources/*.pdf
+
