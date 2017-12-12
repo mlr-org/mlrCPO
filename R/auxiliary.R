@@ -237,7 +237,7 @@ covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE, overri
   }
   assign(".cpo.tracing.already", TRUE, envir = env)
 
-  trace_calls = covr:::trace_calls
+  trace_calls = get("trace_calls", mode = "function", envir = getNamespace("covr"))
 
   fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
