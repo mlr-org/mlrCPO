@@ -131,7 +131,7 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
-<img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=800>
+<img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=880>
 
 *Map of `makeCPO` function calls, exported functions are bold*
 
@@ -141,7 +141,7 @@ The actual `CPOConstructor` is a function that collects its arguments (using `ma
 
 ### `CPO` Invocation (`callCPO.R`, `inverter.R`)
 
-<img src="resources/exported.png" alt="Map of several exported functions and their close dependents" width=800>
+<img src="resources/exported.png" alt="Map of several exported functions and their close dependents" width=880>
 
 *Map of several exported functions and their close dependents*
 
@@ -162,7 +162,7 @@ The map above shows the interaction of the `applyCPO()` / `invertCPO()` function
 
 ### Call Interface (`callInterface.R`)
 
-<img src="resources/callInterface.png" alt="Map of callInterface.R" width=800>
+<img src="resources/callInterface.png" alt="Map of callInterface.R" width=880>
 
 *Map of `callInterface.R`*
 
@@ -172,7 +172,7 @@ The `callInterface.R` functions provide wrapper functions for the different kind
 
 ### Format Check (`FormatCheck.R`)
 
-<img src="resources/FormatCheck.png" alt="Map of FormatCheck.R" width=800>
+<img src="resources/FormatCheck.png" alt="Map of FormatCheck.R" width=880>
 
 *Map of `FormatCheck.R`*
 
