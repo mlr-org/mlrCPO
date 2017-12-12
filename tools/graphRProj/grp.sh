@@ -46,7 +46,7 @@ cat "$tf1" | while read file function ; do
     else
       shape=
     fi
-    grep -m 1 "$fbase" "$tf1" | sed 's/ .*//' | sed "s/\\(.*\\)/\"${fbase}\" [label=\"${fbase}\\\\n(\\1)\"${shape}]/"
+    grep -m 1 " ${fbase}\$" "$tf1" | sed 's/ .*//' | sed "s/\\(.*\\)/\"${fbase}\" [label=\"${fbase}\\\\n(\\1)\"${shape}]/"
   fi
 done | grep -v '"\([^"]*\)" -> "\1"' | sort | uniq
   
