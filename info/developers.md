@@ -141,7 +141,7 @@ The actual `CPOConstructor` is a function that collects its arguments (using `ma
 
 ### `CPO` Invocation (`callCPO.R`, `inverter.R`)
 
-<img src="resources/exported.png" alt="Map of callInterface.R" width=800>
+<img src="resources/exported.png" alt="Map of several exported functions and their close dependents" width=800>
 
 *Map of several exported functions and their close dependents*
 
@@ -172,11 +172,23 @@ The `callInterface.R` functions provide wrapper functions for the different kind
 
 ### Format Check (`FormatCheck.R`)
 
-`FormatCheck.R` is a central part of `CPO` that does checking of input and output data for property adherence, checking that input data to retrafo conforms to input data to the corresponding trafo invocation, and conversion of data depending on `.dataformat` values for a given CPO.
+<img src="resources/FormatCheck.png" alt="Map of FormatCheck.R" width=800>
 
-Data preparation and post-processing is done by the functions `prepareTrafoInput()`, `prepareRetrafoInput()`, `handleTrafoOutput()`, and `handleRetrafoOutput()`. Each of these takes the data, desired properties, and possibly shape-info (data feature column type info), checks the data validity, and returns the converted data according to the `.dataformat`.
+*Map of `FormatCheck.R`*
 
-`FormatCheck.R` also hosts the important `compositeProperties()` function which calculates the properties of a compound `CPO` given the properties of its constituents, after checking if these properties are compatible at all.
+`FormatCheck.R` is a central part of `CPO` that does checking of input and output data for property adherence, checking that input data to retrafo conforms to input data to the corresponding trafo invocation, and conversion of data depending on `dataformat` values for a given CPO.
+
+Data preparation and post-processing is done by the functions `prepareTrafoInput()`, `prepareRetrafoInput()`, `handleTrafoOutput()`, and `handleRetrafoOutput()`. They are called by `callCPO()` for `*Trafo*` and `callCPORetrafoElement()` for `*Retrafo*`. Each of these takes the data, desired properties, and possibly shape-info (data feature column type info), checks the data validity, and returns the converted data according to the `dataformat` and the type of the `CPO`.
+
+Functions in `FormatCheck.R` can be grouped into
+
+- **Top level functions**: `{prepare,handle}{Trafo,Retrafo}{Input,Output}` are called by outside functions `callCPO()` and `callCPORetrafoElement()`.
+- **ShapeInfo handling**: `makeInputShapeInfo()`, `makeOutputShapeInfo()` create `ShapeInfo` objects that contain information about the shape layout of data coming in and going out of a *trafo* function. This is then used during *retrafo* by `assertShapeConform()` and `assertTargetShapeConform()` to check that the data has still the shape it is supposed to have. `fixFactors()` is called when the `fix.factors` flag is set to make sure that factors during `retrafo` have the same levels as during `trafo`.
+- **Properties checking**: The properties of data coming in need to be compared to the properties that a `CPO` is allowed to handle, and to be checked for unallowed additions of column types or missings. The properties of data are collected by `getGeneralDataProperties()` and checked in `assertPropertiesOk()` during `CPO` input and `checkOutputProperties()` during `CPO` output.
+- **Data splitting and recombining**: According to the given `dataformat` of a `CPO`, the data given to its `trafo` and `retrafo` functions needs to be converted and / or split into `data.frame`(s) or a `Task`. This is done during input in `splitIndata()` and by its dependent `split*()` functions. Recombination happens, depending on whether the output will be a `Task` or a `data.frame`, by `recombinetask()` or `recombinedf()` (or `recombineRetrafolessResult()` for a "retrafoless" `CPO`). The recombination functions also check that a `CPO` did not change columns it may not modify (target columns during feature operation, feature columns during target operation) using `checkTaskBasics()`, `checkDFBasics()`, and `checkColumnsEqual()`.
+- **Column type dataformat**: An auxiliary role is played by `getIndata()` and `rebuildOutdata()`: If the `dataformat` is a column type (`"numeric"`, `"factor"` etc.), internally the splitting of data is done according to the `"split"` dataformat (this conversion is done by `getLLDataformat()`). Only right before the data is given to the `CPO`, the split data is subset using `getIndata()`; right when the `CPO` returns its result, it is recombined again in `rebuildOutdata()`.
+- **`affect.*` parameter handling**: `affect.*` parameters are converted into column indices by `getColIndices()` and then handled by `subsetIndata()` during input. `recombineLL()` uses these column indices to rebuild the complete `Task` / `data.frame` from the (subset) returned from the `CPO` `trafo` / `retrafo` and the remaining original data.
+
 
 ### CPO Operators (`CPO_operators.R`)
 
