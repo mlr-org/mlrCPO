@@ -9,9 +9,9 @@ geometry: margin=2cm
 
 ![](resources/fullmap.pdf)
 
-![](resources/fullmap.png)
+[![](resources/fullmap.png){#id .class width=440px}](resources/fullmap.png)
 
-<img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440>
+img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440
 
 *(Almost) full map of mlrCPO function calls*
 
