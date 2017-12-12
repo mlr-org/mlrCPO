@@ -38,7 +38,7 @@ makeFauxCPOConstructor = function(constructorconstructor, cpo.name, cpo.type.ext
 
   formals(constructor) = as.pairlist(c(formals(constructorconstructor), formals(constructor)))
 
-  constructor = addClasses(constructor, "CPOConstructor")
+  constructor = addClasses(constructor, c("FauxCPOConstructor", "CPOConstructor"))
   constructor
 }
 
