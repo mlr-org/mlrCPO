@@ -149,16 +149,16 @@ Invocation of `CPO`s is done when the user calls `applyCPO()*` and happens recur
 
 When the user calls `applyCPO()*` with a `CPORetrafo`, the `callCPORetrafoElement()` function is used. `CPOTrained` objects contain a linked lists in their `$element` slot. Therefore, `callCPORetrafoElement()` recursively calls itself if it finds a `$prev.retrafo.elt`. For target operating `CPO`s, an inverter `CPOTrained` chain is constructed using `makeCPOInverter()` in a similar way to how it is constructed in `callCPO()`, adding newly created `CPOInverter` objects to the top of the `prev.inverter` linked list.
 
-Prediction inversion is done when the user calls `invert()*` and is done in the `invertCPO()` function, which recursively calls itself for all present `InverterElement`s.
+Prediction inversion is done when the user calls `invert()*` and is done in the `invertCPO()` function, which recursively calls itself for all present `InverterElement`s. `invert()*` tries to work with both `mlr` `Prediction` objects and ordinary `data.frame`, `matrix` or vector shaped predictions by first converting them to a common (`data.frame`) shape and then, if necessary, by constructing a new `mlr` `Prediction`.
 
-#### Other Exported Functionality
+#### Other Exported Functionality (`operators.R`, `learner.R`, `RetrafoState.R`)
 
 The map above shows the interaction of the `applyCPO()` / `invertCPO()` functions with other exported functionality:
 
 - **CPO Composition** is done by `composeCPO.CPO()*`, which creates `CPOPipeline` objects that have the constituent `CPO`s in their `$first` and `$second` slot. It also takes care that parameters of composed `CPO`s don't clash (`parameterClashAssert()`) and constructs the properties and `$predict.type` of the resulting compound `CPO` using `composeProperties()` and `chainPredictType()`.
 - **CPOTrained Composition** is done by `composeCPO.CPOTrained()*`, which has similar responsibilities but creates a linked list instead of a tree. It discards the `CPOTrained` head of its inputs, chains their `$element` linked lists, and creates a new `CPOTrained` head that reflects the new `properties`, `predict.type`s and `capabilities` of the chained object.
-- **CPO Learners** are created using `attachCPO()*`, which uses `mlr`'s `mkaeBaseWrapper` functionality to wrap the given `Learner` in a `CPOLearner`. The `trainLearner` and `predictLearner` functions shown in the map are called when a `CPOLearner` is invoked. They use `callCPO()`, `callCPORetrafoElement()` and `invertCPO()` to modify the data that comes in to and goes out of the wrapped `Learner`.
-- **CPOTrained State** can be gotten from a `CPOTrained` using `getCPOTrainedState`, which prepares the `$state` stored in a `RetrafoElement` or `InverterElement` to a common format (since different `CPO`s using different [call interfaces](#call-interface-callinterfacer) have different state layouts) using `getPrettyState()`. For functional `CPO`s, it uses `functionToObjectState()` to convert a function's `environment` to a `list` with appropriate layout.
+- **CPO Learners** are created using `attachCPO()*`, which uses `mlr`'s `mkaeBaseWrapper` functionality to wrap the given `Learner` in a `CPOLearner`. To prevent deep nesting of learners, if a `CPO` is attached to a `CPOLearner`, the `Learner` is *not* wrapped another time, instead the already attached `CPO` is extended by the new `CPO`. A tricky part of extending a `Learner` with a `CPO` is the calculation of resulting learner properties, which is performed by `compositeCPOLearnerProps()`. The predict type of a `CPOLearner` respects the `$predict.type` slot of the attached `CPO`(s); this translation is done by `setPredictType.CPOLearner()`. The `trainLearner` and `predictLearner` functions shown in the map are called when a `CPOLearner` is invoked. They use `callCPO()`, `callCPORetrafoElement()` and `invertCPO()` to modify the data that comes in to and goes out of the wrapped `Learner`.
+- **CPOTrained State** can be gotten from a `CPOTrained` using `getCPOTrainedState`, which prepares the `$state` stored in a `RetrafoElement` or `InverterElement` to a common format (since different `CPO`s using different [call interfaces](#call-interface-callinterfacer) have different state layouts) using `getPrettyState()`. For functional `CPO`s, it uses `functionToObjectState()` to convert a function's `environment` to a `list` with appropriate layout. `makeCPOTrainedFromState()*` creates a bare `CPO` object from the given constructor and puts in the state information.
 
 ### Call Interface (`callInterface.R`)
 
@@ -189,31 +189,11 @@ Functions in `FormatCheck.R` can be grouped into
 - **Column type dataformat**: An auxiliary role is played by `getIndata()` and `rebuildOutdata()`: If the `dataformat` is a column type (`"numeric"`, `"factor"` etc.), internally the splitting of data is done according to the `"split"` dataformat (this conversion is done by `getLLDataformat()`). Only right before the data is given to the `CPO`, the split data is subset using `getIndata()`; right when the `CPO` returns its result, it is recombined again in `rebuildOutdata()`.
 - **`affect.*` parameter handling**: `affect.*` parameters are converted into column indices by `getColIndices()` and then handled by `subsetIndata()` during input. `recombineLL()` uses these column indices to rebuild the complete `Task` / `data.frame` from the (subset) returned from the `CPO` `trafo` / `retrafo` and the remaining original data.
 
-
-### CPO Operators (`CPO_operators.R`)
-
-`CPO` and `CPOTrained` composition and splitting mostly happens as they should happen for functional data structures (trees and linked lists, respectively). Composition also checks properties and computes certain aggregate metavalues (e.g. of properties or parameter values) that are stored at the root of the tree or first element of the linked list, respectively.
-
-`CPO` getters and setters are mostly dumb accessors, with the exception of `setCPOId()*`, which actually changes the `$par.set` and `$par.vals` slots to respect the name changes of the parameters.
-
-### `CPO` Learner Attachment (`CPOLearner.R`)
-
-`CPOLearner`s are created using the `makeBaseWrapper()` `mlr` functionality. To prevent deep nesting of learners, if a `CPO` is attached to a `CPOLearner`, the `Learner` is *not* wrapped another time, instead the already attached `CPO` is extended by the new `CPO`. A tricky part of extending a `Learner` with a `CPO` is the calculation of resulting learner properties, which is performed by `compositeCPOLearnerProps()`. The predict type of a `CPOLearner` respects the `$predict.type` slot of the attached `CPO`(s); this translation is done by `setPredictType.CPOLearner()`.
-
-Training of learners done using the `makeChainModel()` `mlr` function, which contains the child learner's model and also has the `CPORetrafo` created by application of the `CPO`. Prediction then only needs to apply this retrafo to the new data, run the model, and apply the inverter created by application of the retrafo.
-
-
-### Retrafo State (`RetrafoState.R`)
-
-The "retrafo state" is mostly the `$state` slot of the `CPORetrafo` object, with additional information about the data in the `$shapeinfo.input` and `$shapeinfo.output` slots. For functional `CPO`s, the retrafo function's environment is turned into a list (with the `$cpo.retrafo` pointing to that function), for object based `CPO`s, the `$state` object is saved to the retrafo state's `$control` slot, next to the hyperparameter values. `makeRetrafoFromState()*` creates a bare `CPO` object from the given constructor and puts in the state information.
-
-### Inverter functionality (`inverter.R`)
-
-`invert()*`'s main task is to call `invertCPO()` which calls the `$retrafo` slot of a `CPO`, but a major challenge is to convert between prediction formats. Predictions not always carry meta-information about the task type they were generated for, and they are not always in a uniform format (varying between being a vector, a matrix, a data.frame, etc.). Some helper functions take over the tasks of prediction format validation and normalization.
-
 ### The `%>>%`-Operator (`doublecaret.R`)
 
-The `%>>%` operator is syntactic sugar for the `applyCPO`, `composeCPO`, and `attachCPO` functions defined in `callCPO.R`, `CPO_operators.R`, and `attachCPO.R`.
+The `%>>%` operator is syntactic sugar for the `applyCPO()*`, `composeCPO()*`, and `attachCPO()*` functions defined in `callCPO.R`, `operators.R`, and `learner.R`.
+
+To implement the nonstandard right-to-left evaluation order of some operators (`%<<<%`, `%<>>%`, and `%>|%`), a call to one of the `%>*%` operators first triggers a reorganisation of the abstract syntax tree by `deferAssignmentOperator()` to manipulate call order. It replaces all operators by "`internal%>>%()`" and similar functions (so that AST reorganisation is not invoked again). These functions then go on to call the correct operation functions.
 
 ### `retrafo()*` and `inverter()*` (`attributes.R`)
 
