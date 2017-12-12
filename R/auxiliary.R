@@ -198,7 +198,7 @@ isPropertyStrict = function() {
 #'
 #' @description
 #' Use this if you want to check code coverage of \code{\link{CPO}}s using
-#' \link[https://github.com/r-lib/covr]{covr}. The functions inside \code{\link{CPO}}s is
+#' \code{covr}. The functions inside \code{\link{CPO}}s is
 #' originally not accessible to \code{covr}, so \code{covrTraceCPOs} needs to be called in
 #' the \code{.onAttach} function. Note that putting it in \code{.onLoad} will \bold{not} work.
 #'
@@ -228,7 +228,7 @@ covrTraceCPOs = function(env = parent.env(parent.frame()), force = FALSE) {
     return(invisible(NULL))
   }
 
-  trace_calls = covr:::trace_calls  # nolint
+  trace_calls = get("trace_calls", mode = "function", envir = getNamespace("covr"))  # nolint
 
   fnames = c("cpo.trafo", "cpo.retrafo", "cpo.train.invert", "cpo.invert")
 
