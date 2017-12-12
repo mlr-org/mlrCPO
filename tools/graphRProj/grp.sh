@@ -42,7 +42,7 @@ cat "$tf1" | while read file function ; do
       sed "s/^\\(.*\\)\$/  \"${fbase}\" -> \"\\1\";/"
   if [ "$fbase" = "$function" ] ; then
     if tac "$inpath"/*.R | sed -n "/^$fescaped = function/,/^[0-9a-zA-Z._]* = function/ p" | grep "#' @export" > /dev/null ; then
-      shape="; penwidth = 5"
+      shape="; penwidth = 4"
     else
       shape=
     fi

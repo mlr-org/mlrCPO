@@ -12,3 +12,5 @@ NULLCPO.R
 FormatCheck.R
 callInterface.R
 makeCPO.R
+predict
+convertNamesToItemsDVP
