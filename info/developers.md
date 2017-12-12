@@ -132,15 +132,17 @@ The most interesting files containing concrete `CPO` implementations.
 ### `CPO` Creation (`makeCPO.R`)
 
 <img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=800>
+
 *Map of `makeCPO` function calls*
 
-`CPOConstructor`s are created by calling `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. (Before that, `prepareCPOTargetOp` does some preparation that is specific to target operation `CPO`s.) `makeCPOGeneral()` relies on a few helper functions that prepare the slots of the final `CPO` object: `assembleProperties()` generates the `$properties` slot from the given `properties.*` parameters; `prepareParams()` handles parameters and parameter exports; `constructTrafoFunctions()` creates the `$trafo.funs` trafo and retrafo functions (See [callInterface.R](#call-interface-callinterface-r)). If the functions are given as special NSE blocks (just curly braces without function headers), `makeFunction()` creates the necessary function headers, otherwise the given headers are checked.
+`CPOConstructor`s are created by calling `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. (Before that, `prepareCPOTargetOp` does some preparation that is specific to target operation `CPO`s.) `makeCPOGeneral()` relies on a few helper functions that prepare the slots of the final `CPO` object: `assembleProperties()` generates the `$properties` slot from the given `properties.*` parameters; `prepareParams()` handles parameters and parameter exports; `constructTrafoFunctions()` creates the `$trafo.funs` trafo and retrafo functions (See [callInterface.R](#call-interface-callinterfacer)). If the functions are given as special NSE blocks (just curly braces without function headers), `makeFunction()` creates the necessary function headers, otherwise the given headers are checked.
 
 The actual `CPOConstructor` is a function that collects its arguments (using `match.call()`), creates a `par.vals` and `unexported.pars` list, and puts them into a big `CPOPrimitive` S3-object which it returns. The `CPOConstructor` function is created artificially by `makeCPOGeneral` by using a custom function header (*formals* in `R` lingo) that reflects the `CPO`'s `ParamSet`.
 
 ### Call Interface (`callInterface.R`)
 
 <img src="resources/callInterface.png" alt="Map of callInterface.R" width=800>
+
 *Map of `callInterface.R`*
 
 The `callInterface.R` functions provide wrapper functions for the different kinds of "trafo" and "retrafo" calls that different kinds of CPO offer. When a `CPO` is invoked for trafo or retrafo, `callCPO` just calls these wrapper-functions in the `$trafo.funs` slot of the given `CPO`, with a standard set of arguments. The routing between `cpo.train()`, `cpo.trafo()`, `cpo.retrafo()`, `cpo.traininvert()` and `cpo.invert()` functions (as given by the `makeCPO()` user) happens inside these wrapper functions.
