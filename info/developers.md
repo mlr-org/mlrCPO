@@ -132,12 +132,20 @@ The most interesting files containing concrete `CPO` implementations.
 ### `CPO` Creation (`makeCPO.R`)
 
 <img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=800>
+*Map of `makeCPO` function calls*
 
-`CPO` creation happens in `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. Besides general checking of parameter validity, the `$trafo` and `$retrafo` functions are created. If they are given as special NSE blocks (just curly braces without function headers), `makeFunction` creates the necessary function headers, otherwise the given headers are checked.
+`CPOConstructor`s are created by calling `makeCPO.R`. Actual creation happens in `makeCPOGeneral()`, which gets called with different values depending on which `makeCPOXXX()*` is called by the user. (Before that, `prepareCPOTargetOp` does some preparation that is specific to target operation `CPO`s.) `makeCPOGeneral()` relies on a few helper functions that prepare the slots of the final `CPO` object: `assembleProperties()` generates the `$properties` slot from the given `properties.*` parameters; `prepareParams()` handles parameters and parameter exports; `constructTrafoFunctions()` creates the `$trafo.funs` trafo and retrafo functions (See [callInterface.R](#call-interface-callinterface-r)). If the functions are given as special NSE blocks (just curly braces without function headers), `makeFunction()` creates the necessary function headers, otherwise the given headers are checked.
 
-The `.dataformat` and `.dataformat.factor.with.ordered` variables are internally put together into one `$datasplit` slot of `CPO`. For this, the `"split"` value of `.dataformat` is translated to either `"most"` (`.dataformat.factor.with.ordered == TRUE`) or `"all"`, and the `"factor"` value is translated to `"onlyfactor"` if `.dataformat.factor.with.ordered` is `FALSE`.
+The actual `CPOConstructor` is a function that collects its arguments (using `match.call()`), creates a `par.vals` and `unexported.pars` list, and puts them into a big `CPOPrimitive` S3-object which it returns. The `CPOConstructor` function is created artificially by `makeCPOGeneral` by using a custom function header (*formals* in `R` lingo) that reflects the `CPO`'s `ParamSet`.
 
-All `.trafo.type`s are handled as one would expect, with the exception of the `"trafo.returns.control"` trafo type. It is emulated by wrapping the user provided functions into a `"trafo.returns.data"` conforming stub.
+### Call Interface (`callInterface.R`)
+
+<img src="resources/callInterface.png" alt="Map of callInterface.R" width=800>
+*Map of `callInterface.R`*
+
+The `callInterface.R` functions provide wrapper functions for the different kinds of "trafo" and "retrafo" calls that different kinds of CPO offer. When a `CPO` is invoked for trafo or retrafo, `callCPO` just calls these wrapper-functions in the `$trafo.funs` slot of the given `CPO`, with a standard set of arguments. The routing between `cpo.train()`, `cpo.trafo()`, `cpo.retrafo()`, `cpo.traininvert()` and `cpo.invert()` functions (as given by the `makeCPO()` user) happens inside these wrapper functions.
+
+`constructTrafoFunctions()` in `makeCPO.R` calls one of the `makeCall*()` functions (first rank in the map) in `callInterface.R`, which populate the `$trafo.funs` `CPO`-slot. The wrapper functions (mostly generated in the second rank in the map) rely on a few helper functions (third rank) that are used for capturing and checking return values of user-supplied `cpo.train()` etc. functions.
 
 ### `CPO` Invocation (`callCPO.R`)
 
