@@ -17,10 +17,10 @@ suffix="$3"
 graphopts="-Nfontname=helvetica -Nmargin=0.05 -Nfontsize=18 -Nshape=box -Gsize=16,30\!"
 rankdir=LR
 if [ "$suffix" = "small.png" ] ; then
-  graphopts="$graphopts -Gdpi=50"
+  graphopts="$graphopts -Gdpi=55"
   xsuffix=png
 else
-  graphopts="$graphopts -Gdpi=100"
+  graphopts="$graphopts -Gdpi=110"
   xsuffix="${suffix}"
 fi
 
