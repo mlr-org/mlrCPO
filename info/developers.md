@@ -149,7 +149,7 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
-<div style="display:none;"><!--![](resources/makeCPO.pdf)--></div>
+<div style="display:none;">![](resources/makeCPO.pdf)</div>
 <a href="resources/makeCPO.png"><img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=880></a>
 
 *Map of `makeCPO` function calls, exported functions are bold*
