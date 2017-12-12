@@ -8,7 +8,7 @@ geometry: margin=2cm
 
 <h1>mlrCPO Internals</h1>
 
-\includegraphics{resources/fullmap.pdf}
+<!--![](resources/fullmap.pdf)-->
 <a href="resources/fullmap.png"><img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440></a>
 
 *(Almost) full map of mlrCPO function calls*
@@ -149,7 +149,7 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
-\includegraphics{resources/makeCPO.pdf}
+<!--![](resources/makeCPO.pdf)-->
 <a href="resources/makeCPO.png"><img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=880></a>
 
 *Map of `makeCPO` function calls, exported functions are bold*
@@ -160,7 +160,7 @@ The actual `CPOConstructor` is a function that collects its arguments (using `ma
 
 ### `CPO` Invocation (`callCPO.R`, `inverter.R`)
 
-\includegraphics{resources/exported.pdf}
+<!--![](resources/exported.pdf)-->
 <a href="resources/exported.png"><img src="resources/exported.png" alt="Map of several exported functions and their close dependents" width=880></a>
 
 *Map of several exported functions and their close dependents*
@@ -182,7 +182,7 @@ The map above shows the interaction of the `applyCPO()` / `invertCPO()` function
 
 ### Call Interface (`callInterface.R`)
 
-\includegraphics{resources/callInterface.pdf}
+<!--![](resources/callInterface.pdf)-->
 <a href="resources/callInterface.png"><img src="resources/callInterface.png" alt="Map of callInterface.R" width=880></a>
 
 *Map of `callInterface.R`*
@@ -193,7 +193,7 @@ The `callInterface.R` functions provide wrapper functions for the different kind
 
 ### Format Check (`FormatCheck.R`)
 
-\includegraphics{resources/FormatCheck.pdf}
+<!--![](resources/FormatCheck.pdf)-->
 <a href="resources/FormatCheck.png"><img src="resources/FormatCheck.png" alt="Map of FormatCheck.R" width=880></a>
 
 *Map of `FormatCheck.R`*
