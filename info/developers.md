@@ -2,11 +2,13 @@
 title: "mlrCPO Internals"
 author: Martin Binder
 date: December 12, 2017
+output:
 geometry: margin=2cm
 ---
 
 # mlrCPO Internals
 
+<div style="display:none;">![](resources/fullmap.pdf)</div>
 <a href="resources/fullmap.png"><img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440></a>
 
 *(Almost) full map of mlrCPO function calls*
@@ -147,8 +149,7 @@ The most interesting files containing concrete `CPO` implementations.
 
 ### `CPO` Creation (`makeCPO.R`)
 
-<!--![](resources/makeCPO.pdf)-->
-
+<div style="display:none;"><!--![](resources/makeCPO.pdf)--></div>
 <a href="resources/makeCPO.png"><img src="resources/makeCPO.png" alt="Map of makeCPO function calls" width=880></a>
 
 *Map of `makeCPO` function calls, exported functions are bold*
@@ -159,7 +160,7 @@ The actual `CPOConstructor` is a function that collects its arguments (using `ma
 
 ### `CPO` Invocation (`callCPO.R`, `inverter.R`)
 
-<!--![](resources/exported.pdf)-->
+<div style="display:none;">![](resources/exported.pdf)</div>
 <a href="resources/exported.png"><img src="resources/exported.png" alt="Map of several exported functions and their close dependents" width=880></a>
 
 *Map of several exported functions and their close dependents*
@@ -181,7 +182,7 @@ The map above shows the interaction of the `applyCPO()` / `invertCPO()` function
 
 ### Call Interface (`callInterface.R`)
 
-<!--![](resources/callInterface.pdf)-->
+<div style="display:none;">![](resources/callInterface.pdf)</div>
 <a href="resources/callInterface.png"><img src="resources/callInterface.png" alt="Map of callInterface.R" width=880></a>
 
 *Map of `callInterface.R`*
@@ -192,7 +193,7 @@ The `callInterface.R` functions provide wrapper functions for the different kind
 
 ### Format Check (`FormatCheck.R`)
 
-<!--![](resources/FormatCheck.pdf)-->
+<div style="display:none;">![](resources/FormatCheck.pdf)</div>
 <a href="resources/FormatCheck.png"><img src="resources/FormatCheck.png" alt="Map of FormatCheck.R" width=880></a>
 
 *Map of `FormatCheck.R`*
