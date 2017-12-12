@@ -29,5 +29,5 @@ fi
 "$grp" "$outpath" "$inpath" "${path}/ignorelist" "${path}/callinterface" | dot ${graphopts} -Grankdir="${rankdir}" -Granksep=2 "-T${xsuffix}" > "${outpath}/callInterface.${suffix}"
 "$grp" "$outpath" "$inpath" "${path}/ignorelist" "${path}/formatcheck" | sed '/FormatCheck.R/!s/"\]/"; penwidth = 4]/' | dot ${graphopts} -Grankdir="${rankdir}" -Granksep=0.7 "-T${xsuffix}" > "${outpath}/FormatCheck.${suffix}"
 "$grp" "$outpath" "$inpath" "${path}/ignoreFCI" | gvpr -i 'N[$.outdegree!=0 || $.indegree!=0]' | dot ${graphopts} -Grankdir="${rankdir}" -Granksep=0.2 "-T${xsuffix}" > "${outpath}/exported.${suffix}"
-"$grp" "$outpath" "$inpath" "${path}/ignorelist" | gvpr -i 'N[$.outdegree!=0 || $.indegree!=0]' | ccomps -x | dot | gvpack -array3 | neato ${graphopts} -Goverlap=false -Gsplines=true "-T${xsuffix}" -Nshape=oval > "${outpath}/fullmap.${suffix}"
+"$grp" "$outpath" "$inpath" "${path}/ignorelist" | gvpr -i 'N[$.outdegree!=0 || $.indegree!=0]' | ccomps -x | dot | gvpack -array3 | neato ${graphopts} -Goverlap=false -Gsplines=true "-T${xsuffix}" -Nshape=oval -Gsize=32,40\! > "${outpath}/fullmap.${suffix}"
 

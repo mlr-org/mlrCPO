@@ -1,5 +1,9 @@
 # mlrCPO Internals
 
+<img src="resources/fullmap.png" alt="(almost) full map of mlrCPO function calls" width=440>
+
+*(Almost) full map of mlrCPO function calls*
+
 This file is written in markdown and should be found in the `info` directory; a compiled `.pdf` version is also supplied in the same directory.
 
 The following describes the internal design of `mlrCPO`. Package names, file names, and object names are in monospace: `Classname`; functions are monospace with parentheses: `fun()`; exported functions are followed by an asterisk: `exportedFun()*`; list slots are monospace, prepended with a dollar sign: `$slot`.
