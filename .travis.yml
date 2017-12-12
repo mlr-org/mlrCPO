@@ -25,7 +25,7 @@ r_github_packages:
 #  - berndbischl/ParamHelpers
 #  - mlr-org/mlr
   - jimhester/lintr
-  - jimhester/covr
+  - mb706/covr
 
 before_install:
   # we want to see libpaths and installed packages from cache
