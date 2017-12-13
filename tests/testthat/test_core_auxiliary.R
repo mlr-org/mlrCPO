@@ -411,23 +411,21 @@ test_that("fixFactors works", {
           }
           localenv$explvl = c("c", "b", "a")
           localenv$exptarget = c("a", "b", "c")
-          if (dfx != "task") {  # TODO: can be removed when the mlr makeClusterTask check.data bug is solved.
 
-            res = df %>>% cpo
-            expect_identical(clearRI(res), df)
-            expect_identical(clearRI(df %>>% retrafo(res)), df)
+          res = df %>>% cpo
+          expect_identical(clearRI(res), df)
+          expect_identical(clearRI(df %>>% retrafo(res)), df)
 
+          localenv$explvl = c("b", "a")
+          res = dfdroppedall %>>% cpo
+          if (fix) {
             localenv$explvl = c("b", "a")
-            res = dfdroppedall %>>% cpo
-            if (fix) {
-              localenv$explvl = c("b", "a")
-            } else {
-              localenv$explvl = c("c", "b", "a")
-            }
-            expect_identical(clearRI(res), dfdroppedall)
-            expect_identical(clearRI(df %>>% retrafo(res)), dfdropped)
+          } else {
             localenv$explvl = c("c", "b", "a")
           }
+          expect_identical(clearRI(res), dfdroppedall)
+          expect_identical(clearRI(df %>>% retrafo(res)), dfdropped)
+          localenv$explvl = c("c", "b", "a")
 
           res = tsk %>>% cpo
           expect_equal(clearRI(res), tsk)

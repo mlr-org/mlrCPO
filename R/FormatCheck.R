@@ -607,7 +607,7 @@ assertTask = function(task, whichfun, name) {
     multilabel = c("MultilabelTask", "SupervisedTask"),
     stopf("%s task type must be one of classif, regr, cluster, multilabel, surv", taskdesignator()))
 
-  if (!identical(task$type, task.desc$type) && task.desc$type != "surv") {  # TODO: exception because of bug in mlr
+  if (!identical(task$type, task.desc$type)) {
     stopf("%s task type and task.desc type must be the same", taskdesignator())
   }
   required.classes = c(required.classes, "Task")
