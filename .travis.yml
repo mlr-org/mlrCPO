@@ -23,7 +23,7 @@ r_github_packages:
   - berndbischl/BBmisc
 ## The following will return when my PRs are merged
 #  - berndbischl/ParamHelpers
-#  - mlr-org/mlr
+  - mlr-org/mlr
   - jimhester/lintr
   - mb706/covr
 
@@ -35,7 +35,6 @@ before_install:
 before_script:
   - Rscript -e 'install.packages("roxygen2")'
   - Rscript -e 'devtools::install_github("mb706/ParamHelpers", ref = "paramSetSugar")'
-  - Rscript -e 'devtools::install_github("mlr-org/mlr", ref = "ComposablePreprocOperators")'
   - R --no-save <<< 'library("devtools"); document()'
 
 script:
