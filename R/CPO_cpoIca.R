@@ -36,10 +36,10 @@
 #' @template cpo_doc_outro
 #' @export
 cpoIca = makeCPOExtendedTrafo("ica",  # nolint
-  pSS(n.comp = NULL: integer[1, ] [[ special.vals = list(NULL) ]],
+  pSS(n.comp = NULL: integer[1, ] [[special.vals = list(NULL)]],
     alg.typ = "parallel": discrete[parallel, deflation],
     fun = "logcosh": discrete[logcosh, exp],
-    alpha = 1.0: numeric[1, 2] [[ requires = quote(fun == "logcosh") ]],
+    alpha = 1.0: numeric[1, 2] [[requires = quote(fun == "logcosh")]],
     method = "C": discrete[C, R],
     maxit = 200: integer[1, ],
     tol = 1e-4: numeric[~0, ],
