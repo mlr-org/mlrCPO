@@ -12,17 +12,17 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ```R
 > task = iris.task
-> task %<>>% cpoScale(scale = FALSE) %>>% cpoPca()  # pca
-> task %<>>% cpoFilterChiSquared(abs = 2)  # filter
-> task %<>>% cpoModelMatrix(~ 0 + .^2)  # interactions
+> task %<>>% cpoScale(scale = FALSE) %>>% cpoPca() %>>%  # pca
+>   cpoFilterChiSquared(abs = 3) %>>%  # filter
+>   cpoModelMatrix(~ 0 + .^2)  # interactions
 > head(getTaskData(task))
-        PC1        PC2    PC1:PC2 Species
-1 -2.684126 -0.3193972  0.8573023  setosa
-2 -2.714142  0.1770012 -0.4804064  setosa
-3 -2.888991  0.1449494 -0.4187575  setosa
-4 -2.745343  0.3182990 -0.8738398  setosa
-5 -2.728717 -0.3267545  0.8916204  setosa
-6 -2.280860 -0.7413304  1.6908707  setosa
+        PC1        PC2         PC3    PC1:PC2     PC1:PC3      PC2:PC3 Species
+1 -2.684126 -0.3193972  0.02791483  0.8573023 -0.07492690 -0.008915919  setosa
+2 -2.714142  0.1770012  0.21046427 -0.4804064 -0.57122986  0.037252434  setosa
+3 -2.888991  0.1449494 -0.01790026 -0.4187575  0.05171367 -0.002594632  setosa
+4 -2.745343  0.3182990 -0.03155937 -0.8738398  0.08664130 -0.010045316  setosa
+5 -2.728717 -0.3267545 -0.09007924  0.8916204  0.24580071  0.029433798  setosa
+6 -2.280860 -0.7413304 -0.16867766  1.6908707  0.38473006  0.125045884  setosa
 ```
 
 "Composable Preprocessing Operators" are an extension for the [mlr](https://github.com/mlr-org/mlr) ("Machine Learning in R") project which represent preprocessing operations (e.g. imputation or PCA) in the form of R objects. These CPO objects can be composed to form more complex operations, they can be applied to data sets, and they can be attached to mlr `Learner` objects to generate complex machine learning pipelines that perform both preprocessing and model fitting.
