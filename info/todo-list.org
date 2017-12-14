@@ -36,7 +36,7 @@
 - [ ] QR
 - [X] spatialSign
 - [ ] kernelPCA (kernlab) kpca
-- [ ] ICA
+- [X] ICA
 - [-] converting features to nums:
   - [X] 'as.numeric'
   - [ ] ordered -> factor
