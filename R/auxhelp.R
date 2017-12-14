@@ -33,8 +33,8 @@
 #' restrictions in place (e.g. \link{CPOProperties}, \link{CPOTrainedCapability}) that try to make it hard to do the
 #' wrong thing while not being in the way of the right thing.
 #'
-#' Other packages with similar, partially overlapping functionality are \href{https://cran.r-project.org/packages=recipes}{recipes},
-#' \href{https://cran.r-project.org/packages=dplyr}{dplyr}, and \href{https://cran.r-project.org/packages=caret}{caret}.
+#' Other packages with similar, partially overlapping functionality are \href{https://cran.r-project.org/package=recipes}{recipes},
+#' \href{https://cran.r-project.org/package=dplyr}{dplyr}, and \href{https://cran.r-project.org/package=caret}{caret}.
 #'
 #' @name mlrCPO-package
 NULL
