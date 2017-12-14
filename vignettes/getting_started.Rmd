@@ -4,7 +4,7 @@ author: "Martin Binder"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{First Steps}
+  %\VignetteIndexEntry{1. First Steps}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

@@ -4,7 +4,7 @@ author: "Martin Binder"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Custom CPOs}
+  %\VignetteIndexEntry{4. Custom CPOs}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

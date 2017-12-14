@@ -4,7 +4,7 @@ author: "Martin Binder"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{mlrCPO Core (No Output)}
+  %\VignetteIndexEntry{z 2. mlrCPO Core (No Output)}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
