@@ -10,7 +10,7 @@
 #' @param n.comp [\code{numeric(1)} | \code{NULL}]\cr
 #'   Number of components to extract. Default is \code{NULL}, which sets it
 #'   to the number of available numeric columns.
-#' @param alg.type [\code{character(1)}]\cr
+#' @param alg.typ [\code{character(1)}]\cr
 #'   Algorithm type. One of \dQuote{parallel} (default) or \dQuote{deflation}.
 #' @param fun [\code{character(1)}]\cr
 #'   One of \dQuote{logcosh} (default) or \dQuote{exp}.
