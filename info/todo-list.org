@@ -11,7 +11,7 @@
 - [ ] on.par.out.of.bounds setting
 - [ ] test individual CPOs
 ** cosmetic changes
-- [ ] call map
+- [X] call map
 - [ ] !..%in%.. -> %nin%
 - [ ] limit line length
 - [ ] use if ({ = }) more often
