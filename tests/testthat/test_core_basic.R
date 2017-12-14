@@ -1126,7 +1126,7 @@ test_that("CPO trafo functions work", {
 
 test_that("CPO arguments may be missing if requirements allow", {
 
-  cpoc = makeCPOObject("testCPO", a = FALSE: logical, b: integer[, ] [[requires = quote(!!a)]],
+  cpoc = makeCPOObject("testCPO", a = FALSE: logical, b: integer[, ] [[requires = quote(!(!a))]],
     cpo.trafo = {
       if (!a) {
         expect_true(missing(b))
@@ -1158,10 +1158,10 @@ test_that("CPO arguments may be missing if requirements allow", {
   t = train(cpoc(a = TRUE, b = 1L, id = "test") %>>% makeLearner("classif.logreg"), pid.task)
   predict(t, pid.task)
 
-  expect_identical(getParamSet(cpoc(a = TRUE, id = "test"))$pars$test.b$requires, quote(!!test.a))
+  expect_identical(getParamSet(cpoc(a = TRUE, id = "test"))$pars$test.b$requires, quote(!(!test.a)))
 
 
-  cpoc = makeCPOFunctional("testCPO", a = FALSE: logical, b: integer[, ] [[requires = quote(!!a)]],
+  cpoc = makeCPOFunctional("testCPO", a = FALSE: logical, b: integer[, ] [[requires = quote(!(!a))]],
     cpo.trafo = {
       if (!a) {
         expect_true(missing(b))
@@ -1181,7 +1181,7 @@ test_that("CPO arguments may be missing if requirements allow", {
   expect_error(train(cpoc(a = TRUE, id = "test") %>>% makeLearner("classif.logreg"), pid.task), "Parameter test\\.b .*missing")
   train(cpoc(a = TRUE, b = 1L, id = "test") %>>% makeLearner("classif.logreg"), pid.task)
 
-  expect_identical(getParamSet(cpoc(a = TRUE, id = "test"))$pars$test.b$requires, quote(!!test.a))
+  expect_identical(getParamSet(cpoc(a = TRUE, id = "test"))$pars$test.b$requires, quote(!(!test.a)))
 })
 
 test_that("CPOs can be applied to data", {

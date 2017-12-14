@@ -574,3 +574,9 @@ regr.num.train = regr.num.df[regr.num.train.inds, ]
 regr.num.test  = regr.num.df[regr.num.test.inds, ]
 regr.num.class.col = 13
 regr.num.task = makeRegrTask("regrnumtask", data = regr.num.df, target = regr.num.target)
+
+
+df.factorial = data.frame(F1 = factor(c("b", "b", "a")), F2 = factor(c("b", "b", "c")), F3 = factor(c("a", "b", "c")), F4 = factor(c("c", "b", "c")))
+
+factors.classif = makeClassifTask("factors.classif", df.factorial, target = "F4")
+

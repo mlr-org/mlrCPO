@@ -23,11 +23,11 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## Installation
 
-`mlrCPO` relies on small extensions of both [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and [`mlr`](https://github.com/mlr-org/mlr/pull/1827) which will be merged soon. Until that is the case, you need to install these extensions using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
+`mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current github version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
 
 ```R
 devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
-devtools::install_github("mlr-org/mlr", ref = "ComposablePreprocOperators")
+devtools::install_github("mlr-org/mlr")
 ```
 
 Now install `mlrCPO`:

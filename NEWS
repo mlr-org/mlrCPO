@@ -1,9 +1,12 @@
-# mlrCPO 0.3
+mlrCPO 0.3.1
+* new cpo cpoMakeCols, cpoAddCols, cpoIca
+
+mlrCPO 0.3
 * great code and test quality improvement, bugfixes
 * retrafoless and target operating CPO backend works
 * new cpo cpoCache
 
-# mlrCPO 0.2
+mlrCPO 0.2
 * refactoring retrafoless and target operating CPOs (they still don't work)
 * standardised file names
 * much improved documentation
@@ -16,5 +19,5 @@
 * new property handling: adding.min and needed.max, for different standards internally & externally
 * new cpo cpoSelectFreeProperties, cpoCache, cpoTransformParams
 
-# mlrCPO 0.1
+mlrCPO 0.1
 * Initial release on GitHub, retrafoless and target operating CPOs don't work yet

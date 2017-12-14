@@ -76,7 +76,7 @@
 #'   Default is \code{TRUE}.
 #' @template cpo_doc_outro
 #' @export
-#' @family impute
+#' @family imputation CPOs
 cpoImpute = makeCPOExtendedTrafo("impute", # nolint
   par.set = c(
       makeParamSet(makeUntypedLearnerParam("target.cols", default = character(0)),
