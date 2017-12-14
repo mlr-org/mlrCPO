@@ -63,3 +63,5 @@ after_failure:
 on_success: change
 on_failure: always
 
+notifications:
+  email: false
