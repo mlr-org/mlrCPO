@@ -29,8 +29,10 @@ test_that("cpoMakeCols behaves as expected", {
 
   expect_identical(clearRI(indat %>>% cpoAddCols(c = a + b, d = onetwothree, e = 1:2)), cbind(indat, c = 7L, d = c(1:3, 1:3), e = rep(1:2, 3)))
 
+  expect_identical(clearRI(indat %>>% cpoMakeCols(x = TRUE, y = c("a", "b"))), data.frame(x = factor(rep(TRUE, 6)), y = factor(rep(c("a", "b"), 3))))
 
 
 
 
 })
+
