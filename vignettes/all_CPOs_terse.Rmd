@@ -1,0 +1,15 @@
+---
+title: "CPOs Built Into mlrCPO (No Output)"
+author: "Martin Binder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Builtin CPOs (No Output)}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+```{r, results = "asis"}
+cat(knitr::knit_child("all_CPOs.Rmd", options = list(eval = FALSE)), sep = "\n")
+```
