@@ -1,5 +1,5 @@
 mlrCPO 0.3.1
-* new cpo cpoMakeCols, cpoAddCols
+* new cpo cpoMakeCols, cpoAddCols, cpoIca
 
 mlrCPO 0.3
 * great code and test quality improvement, bugfixes
