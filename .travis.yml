@@ -39,11 +39,11 @@ before_script:
 
 script:
   - R CMD build .
-#  - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-#  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+  - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
 
 after_success:
-#  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
+  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
   - git checkout master
   - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
   - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
