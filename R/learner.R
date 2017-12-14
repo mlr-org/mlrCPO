@@ -83,7 +83,7 @@ compositeCPOLearnerProps = function(cpo, learner) {
 #' @export
 trainLearner.CPOLearner = function(.learner, .task, .subset = NULL, ...) {
   if (!is.null(.subset) && !identical(as.integer(c(.subset)), seq_along(.subset))) {
-    .task = subsetTask(.task, .subset)
+    .task = subsetTask(.task, .subset)  # nocov
   }
 
   cpo = .learner$cpo
