@@ -71,6 +71,7 @@ Collate:
     'CPO_filterFeatures.R'
     'CPO_fixFactors.R'
     'CPO_impute.R'
+    'CPO_makeCols.R'
     'CPO_missingIndicators.R'
     'CPO_modelMatrix.R'
     'CPO_pca.R'
