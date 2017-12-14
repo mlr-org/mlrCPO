@@ -24,5 +24,4 @@ Thumbs.db
 .settings
 .ipynb_checkpoints
 man/*.Rd
-!/inst/doc/*.html
 
