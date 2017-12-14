@@ -18,7 +18,7 @@
 #'   In range [1, 2], Used for negentropy calculation when \code{fun} is \dQuote{logcosh}.
 #'   Default is 1.0.
 #' @param method [\code{character(1)}]\cr
-#'   Internal calculation method. \dQuote{C} (default} or \dQuote{R}.
+#'   Internal calculation method. \dQuote{C} (default) or \dQuote{R}.
 #' @param maxit [\code{numeric(1)}]\cr
 #'   Maximum number of iterations. Default is 200.
 #' @param tol [\code{numeric(1)}]\cr
@@ -26,7 +26,7 @@
 #' @param verbose [\code{logical(1)}]\cr
 #'   Default is \code{FALSE}.
 #'
-#' @section CPOTrained State
+#' @section CPOTrained State:
 #' The state contains a \code{$control} slot with the \code{$K},
 #' \code{$W} and \code{$A} slots of the \code{\link[fastICA]{fastICA}} call,
 #' as well as a \code{$center} slot indicating the row-wise center of the
