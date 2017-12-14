@@ -15,7 +15,7 @@ env:
     - _R_CHECK_TIMINGS_=0
     - _R_CHECK_FORCE_SUGGESTS_=0  # no error if suggested packs are not avail
     - _R_CHECK_TESTS_NLINES_=999
-    - secure: "d0xff7hriQyReF4y3/iR5sHJlXocKNKcN6/Gi/r9Hxsfuh2Hx3fouQCMSPP+Oba6MDgEvAfryToAxcmaoZByQMwgevB0OBy5xkatj3oTHmhN5Nbk3jNXxXfA6P0Oqxaf7lXVZk2+Ly+PWnbgXn0uhjzdaZo0cWtVJ660ajS0x9Q="
+    - github_token: $GITHUB_TOKEN
 
 warnings_are_errors: true
 r_check_args: "--as-cran --run-donttest"
@@ -40,11 +40,11 @@ before_script:
 
 script:
   - R CMD build .
-  - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+#  - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+#  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
 
 after_success:
-  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
+#  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
   - git checkout master
   - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
   - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
@@ -57,7 +57,6 @@ after_success:
   - git add --force inst/doc/*.html
   - git commit man inst DESCRIPTION NAMESPACE -m "update auto-generated documentation [ci skip]" || true
   - git push
-  - "[ $TRAVIS_PULL_REQUEST == \"false\" -a $TRAVIS_BRANCH == \"master\" ] && curl -s -X POST -H \"Content-Type:application/json\" -H \"Accept:application/json\" -H \"Travis-API-Version:3\" -H \"Authorization:token $TT\" -d \"{\\\"request\\\":{\\\"branch\\\":\\\"gh-pages\\\", \\\"message\\\":\\\"commit $TRAVIS_COMMIT $TRAVIS_COMMIT_MSG\\\"}}\" https://api.travis-ci.org/repo/mlr-org%2Fmlr-tutorial/requests"
 
 after_failure:
   - ./travis-tool.sh dump_logs
