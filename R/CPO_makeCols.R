@@ -5,7 +5,7 @@
 #
 # Since the 'expr' and 'superceding.env' is not very user-friendly, this is wrapped
 # by `cpoMakeCols`, see there.
-barecpoMakeCols = makeCPO("make.cols", pSS(expr: untyped, superceding.env: untyped, make.factors: logical, add.cols: logical),  # nolint
+barecpoMakeCols = makeCPO("new.cols", pSS(expr: untyped, superceding.env: untyped, make.factors: logical, add.cols: logical),  # nolint
   dataformat = "df.all",
   properties.adding = c("numerics.sometimes", "factors.sometimes", "ordered.sometimes"),
   properties.needed = c("numerics.sometimes", "factors.sometimes", "ordered.sometimes"),
@@ -76,8 +76,9 @@ cpoMakeCols = function(..., .make.factors = TRUE) {
   expr = eval.parent(mc)
   superceding.env = parent.frame()
 
-  barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
+  cpo = barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
 }
+registerCPO(list(name = "cpoMakeCols", cponame = "new.cols"), "data", "features", "Replace columns by columns generated from expressions")
 
 #' @rdname cpoMakeCols
 #' @export
@@ -89,3 +90,4 @@ cpoAddCols = function(..., .make.factors = TRUE) {
 
   barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = TRUE, export = character(0))
 }
+registerCPO(list(name = "cpoAddCols", cponame = "new.cols"), "data", "features", "Add columns generated from expressions")
