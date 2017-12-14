@@ -227,5 +227,26 @@ The `NULLCPO` object is implemented by implementing all generics for it, and hav
 
 ### `CPO` listing (`listCPO.R`)
 
-A `CPO` is registered in a global variable `CPOLIST` by calling `registerCPO` with the respective descriptive items. To have definition and documentation relatively close, `registerCPO` should be called right after the definition of an internal `CPO`. The `listCPO` function then only creates a `data.frame` from this list.
+A `CPO` is registered in a global variable `CPOLIST` by calling `registerCPO` with the respective descriptive items. To have definition and documentation relatively close, `registerCPO()` should be called right after the definition of an internal `CPO`. The `listCPO()` function then only creates a `data.frame` from this list.
 
+### Constructor Wrapper (`fauxCPOConstructor.R`)
+
+Sometimes the `CPOConstructor` functionality of creating `CPO`s is too rigid for a given case. `cpoMultiplex`, for example, needs certain parameters (the `CPO`s to be multiplexed), that need to be specially checked during creation, and which do not fit in the "hyperparameters" scheme. `cpoCbind` may create more than one `CPO` at once.
+
+This flexibility is provided by `makeFauxCPOConstructor()`, which takes a function that *returns* a `CPOConstructor`, and turns this function into an object of class `CPOConstructor` itself. In the process, it adds the general `CPOConstructor` arguments (`affect.*`, `id`). The function given to `makeFauxCPOConstructor()` can thus do specific parameter checking and configuration that could not easily be configured when using the ordinary `makeCPO()` calls.
+
+## Specific CPOs
+
+Description of a few `CPO`s that merit their own documentation.
+
+### Meta CPOs (`CPO_meta.R`)
+
+`cpoMultiplex`, `cpoCase`, `cpoTransformParams`, and `cpoCache` all work in a very similar fashion: On Construction, they are given one or more `CPO`s which they then go on to apply in their own `cpo.trafo` and `cpo.retrafo()` functions. `CPO_meta.R` contains a few helper functions that are common to all these `CPO`s: Creating a named list from constructed or unconstructed `CPO`s (`constructCPOList()`), generating the list of type information and properties necessary to represent the aggregate of `CPO`s (`collectCPOTypeInfo()`, `collectCPOProperties()`, `propertiesToMakeCPOProperties()`), and generation of `cpo.trafo()` / `cpo.retrafo()` functions that apply a `CPO` during trafo and use the stored `retrafo` during `cpo.retrafo()` (`makeWrappingCPOConstructor()`).
+
+### Feature Filtering (`CPO_filterFeatures.R`)
+
+Currently the `filterFeatures()` functionality of `mlr` is used here. `CPOConstructor`s are created by `declareFilterCPO()`, which takes the method name and looks it up in `mlr`'s `.FilterRegister` variable. This variable provides some information about supported tasks and required packages of the resulting `CPO`.
+
+### Imputation (`CPO_impute.R`)
+
+Similarly to feature filters, `mlr` provides many imputation methods that it provides with its `impute()` function, which are all turned into specific `CPOConstructor`s using `declareImputeFunction()`.
