@@ -9,6 +9,9 @@ src/*.dll
 tests/testthat/Rplots.pdf
 testinfo.RData
 /inst/doc/*
+!/inst/doc/*.html
+!/inst/doc/*.Rmd
+!/inst/doc/*.R
 .directory
 .gdb_history
 .DS_Store
