@@ -63,8 +63,12 @@ barecpoMakeCols = makeCPO("new.cols", pSS(expr: untyped, superceding.env: untype
 #'   Expressions of the form \code{colname = expr}. See Examples.
 #' @param .make.factors [\code{logical(1)}]\cr
 #'   Whether to turn resulting \code{logical} and \code{character}
-#'   columns into \code{factor} columns (which are preferentially
-#'   handled by \code{mlr}). Default is \code{TRUE}.
+#'   columns into \code{factor} columns (which are preferred
+#'   by \code{mlr}). Default is \code{TRUE}.
+#'
+#' @section CPOTrained State:
+#' The created state is empty.
+#'
 #' @examples
 #' res = pid.task %>>% cpoAddCols(gpi = glucose * pressure * insulin, pm = pregnant * mass)
 #' head(getTaskData(res))
@@ -74,6 +78,7 @@ cpoMakeCols = function(..., .make.factors = TRUE) {
   mc = match.call()
   mc[[1]] = alist
   expr = eval.parent(mc)
+  expr$.make.factors = NULL
   superceding.env = parent.frame()
 
   cpo = barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
