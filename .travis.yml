@@ -35,7 +35,7 @@ before_install:
 before_script:
   - Rscript -e 'install.packages("roxygen2")'
   - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers", ref = "paramSetSugar")'
-  - R --no-save <<< 'library("devtools"); document()'
+  - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
 
 script:
   - R CMD build .
