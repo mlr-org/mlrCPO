@@ -11,5 +11,5 @@ vignette: >
 
 
 ```{r, results = "asis"}
-cat(knitr::knit_child("3_all_CPOs.Rmd", options = list(eval = FALSE)), sep = "\n")
+cat(knitr::knit_child("a_3_all_CPOs.Rmd", options = list(eval = FALSE)), sep = "\n")
 ```
