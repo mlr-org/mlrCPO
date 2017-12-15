@@ -47,16 +47,20 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
       innerfun = fun
     } else {
       innerfun = function(col) {
-        result = sapply(col, function(x) {
+        sapply(col, function(x) {
           ret = fun(x)
           if (length(ret) != 1) {
             stop("cpoApplyFun 'fun' did not return a result with length 1")
           }
+          ret
         })
       }
     }
     outerfun = function(col) {
       result = innerfun(col)
+      if (length(result) != nrow(data)) {
+        stop("cpoApplyFun 'fun' return value had the wrong length.")
+      }
       if (!is.atomic(result)) {
         stop("cpoApplyFun 'fun' did not return values that simplified to an atomic vector.")
       }
