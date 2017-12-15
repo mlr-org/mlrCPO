@@ -29,27 +29,12 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## Table of Contents
 
-* [Installation](#installation)
 * [Short Overview](#short-overview)
+* [Installation](#installation)
 * [Documentation](#documentation)
 * [Project Status](#project-status)
 * [Similar Projects](#similar-projects)
 * [License](#license)
-
-## Installation
-
-`mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current github version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
-
-```R
-devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
-devtools::install_github("mlr-org/mlr")
-```
-
-Now install `mlrCPO`:
-
-```R
-devtools::install_github("mlr-org/mlrCPO")
-```
 
 ## Short Overview
 
@@ -105,13 +90,34 @@ Hyperparameters: model=FALSE,scale.center=TRUE,scale.scale=TRUE
 
 Get a list of all `CPO`s by calling `listCPO()`.
 
+## Installation
+
+`mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current github version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
+
+```R
+devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
+devtools::install_github("mlr-org/mlr")
+```
+
+Now install `mlrCPO`:
+
+```R
+devtools::install_github("mlr-org/mlrCPO")
+```
+
 ## Documentation
 
 To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
 
-A thorough reference of `mlrCPO`'s capabilities can be found in the [vignette](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/mlrCPO.html) ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/mlrCPO_terse.html)). For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
+To get familiar with `mlrCPO`, it is recommended that you read the **vignettes**. For each vignette, there is also a *compact version* that has all the R output removed.
 
-A small intro guide for developers into the code base can be found in [info/developers.md](info/developers.md).
+1. [First Steps](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_1_getting_started.html): Introduction and short overview ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_1_getting_started_terse.html)).
+2. [`mlrCPO` Core](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_2_mlrCPO_core.html): Description of general tools for `CPO` handling ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_2_mlrCPO_core_terse.html)).
+3. [Builtin `CPO`s](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_3_all_CPOs.html): Listing and description of all builtin `CPO`s ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_3_all_CPOs_terse.html)).
+4. [Custom `CPO`s](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs.html): How to create your own `CPO`s. ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs_terse.html)).
+5. [CPO Internals](info/developers.md): A small intro guide for developers into the code base. See the `info` directory for pdf / html versions.
+
+For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
 
 ## Project Status
 
@@ -119,7 +125,7 @@ The foundation of `mlrCPO` is built and is reasonably stable, only small improve
 
 ## Similar Projects
 
-There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://topepo.github.io/recipes/). [scikit learn](http://scikit-learn.org/stable/) also has [preprocessing functionality](http://scikit-learn.org/stable/modules/preprocessing.html) built in.
+There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. [dplyr](https://github.com/tidyverse/dplyr) has similar syntax and some overlapping functionality, but is focused ultimately more on (manual) *data manipulation* instead of (machine learning pipeline integrated) *preprocessing*. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://topepo.github.io/recipes/). [scikit learn](http://scikit-learn.org/stable/) also has [preprocessing functionality](http://scikit-learn.org/stable/modules/preprocessing.html) built in.
 
 ## License
 

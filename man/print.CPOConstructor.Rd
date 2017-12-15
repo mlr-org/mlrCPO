@@ -10,7 +10,7 @@
 
 \method{print}{CPO}(x, verbose = FALSE, ...)
 
-\method{print}{CPOTrained}(x, ...)
+\method{print}{CPOTrained}(x, verbose = FALSE, ...)
 }
 \arguments{
 \item{x}{[\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
