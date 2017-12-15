@@ -4,6 +4,9 @@
 \alias{print.CPOConstructor}
 \alias{print.CPO}
 \alias{print.CPOTrained}
+\alias{!.CPOConstructor}
+\alias{!.CPO}
+\alias{!.CPOTrained}
 \title{Print CPO Objects}
 \usage{
 \method{print}{CPOConstructor}(x, verbose = FALSE, ...)
@@ -11,6 +14,12 @@
 \method{print}{CPO}(x, verbose = FALSE, ...)
 
 \method{print}{CPOTrained}(x, verbose = FALSE, ...)
+
+\method{!}{CPOConstructor}(x)
+
+\method{!}{CPO}(x)
+
+\method{!}{CPOTrained}(x)
 }
 \arguments{
 \item{x}{[\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
@@ -32,6 +41,9 @@ Prints a simple representation of a \code{\link{CPOConstructor}},
 will be given. For \code{\link{CPOConstructor}}, that is the trafo and retrafo
 functions, for \code{\link{CPO}}, the individual constituents of a compound
 CPO will be printed.
+
+Verbose printing can also be done using the \code{!} operator. \code{!cpo} is equivalent to
+\code{print(cpo, verbose = TRUE)}.
 }
 \seealso{
 Other CPOConstructor related: \code{\link{CPOConstructor}},

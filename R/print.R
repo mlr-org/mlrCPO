@@ -13,6 +13,9 @@
 #' functions, for \code{\link{CPO}}, the individual constituents of a compound
 #' CPO will be printed.
 #'
+#' Verbose printing can also be done using the \code{!} operator. \code{!cpo} is equivalent to
+#' \code{print(cpo, verbose = TRUE)}.
+#'
 #' @param x [\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The \code{\link{CPOConstructor}} to print.
 #' @param verbose [\code{logical(1)}]\cr
@@ -166,6 +169,22 @@ print.CPOTrained = function(x, verbose = FALSE, ...) {
   }
   cat("\n")
 }
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPOConstructor` = function(x) print(x, verbose = TRUE)
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPO` = function(x) print(x, verbose = TRUE)
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPOTrained` = function(x) print(x, verbose = TRUE)
+
 
 # helper function for retrafo / inverter 'element's
 # The user shouldn't see these too often
