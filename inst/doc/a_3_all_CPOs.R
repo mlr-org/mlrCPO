@@ -10,6 +10,7 @@ knitr::knit_hooks$set(document = function(x) {
   lines = readLines(rpath)
   lines = gsub(" *(\n|$)", "\\1", lines)
   cat(lines, file = rpath, sep = "\n", append = FALSE)
+  x
 })
 
 
