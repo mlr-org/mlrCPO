@@ -26,21 +26,28 @@
 #'   once for each element. If \code{fun} vectorizes,
 #'   it is recommended to have this set to \code{TRUE}
 #'   for better performance. Default is \code{TRUE}.
+#' @param make.factors [\code{logical(1)}]\cr
+#'   Whether to turn resulting \code{logical} and \code{character}
+#'   columns into \code{factor} columns (which are preferred by
+#'   \code{mlr}). Default is \code{TRUE}.
+#'
+#' @section CPOTrained State:
+#' The created state is empty.
+#'
 #' @template cpo_doc_outro
 #' @export
 cpoApplyFun = makeCPO("fun.apply",  # nolint
-  makeParamSet(
-      makeFunctionLearnerParam("fun"),
-      makeLogicalLearnerParam("vectorize", default = TRUE)),
+  pSS(fun: funct, vectorize = TRUE: logical, make.factors = TRUE: logical),
   properties.adding = paste0(cpo.dataproperties, ".sometimes"),
   properties.needed = paste0(cpo.dataproperties, ".sometimes"),
   dataformat = "df.features",
-  cpo.train = {
+  cpo.train = NULL,
+  cpo.retrafo = {
     if (vectorize) {
-      fun
+      innerfun = fun
     } else {
-      function(col) {
-        sapply(col, function(x) {
+      innerfun = function(col) {
+        result = sapply(col, function(x) {
           ret = fun(x)
           if (length(ret) != 1) {
             stop("cpoApplyFun 'fun' did not return a result with length 1")
@@ -48,9 +55,17 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
         })
       }
     }
-  },
-  cpo.retrafo = {
-    as.data.frame(lapply(data, control))
+    outerfun = function(col) {
+      result = innerfun(col)
+      if (!is.atomic(result)) {
+        stop("cpoApplyFun 'fun' did not return values that simplified to an atomic vector.")
+      }
+      if (make.factors && (is.character(result) || is.logical(result))) {
+        result = factor(result)
+      }
+      result
+    }
+    as.data.frame(lapply(data, outerfun), stringsAsFactors = FALSE, row.names = rownames(data))
   })
 registerCPO(cpoApplyFun, "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
 

@@ -1240,6 +1240,7 @@ recombinedf = function(df, newdata, dataformat = c("df.features", "split", "df.a
   if (identical(datanames, setdiff(names(df), targetcols)[subset.index])) {
     # names didn't change, so we preserve column order
     newdata = newdata[names(df)]
+    names(newdata) = names(df)
   }
 
   row.names(newdata) = attr(df, "row.names")
