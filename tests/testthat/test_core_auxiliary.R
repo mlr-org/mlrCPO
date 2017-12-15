@@ -94,7 +94,10 @@ test_that("printers", {
     "CPO Retrafo / Inverter chain {type:multilabel} (able to predict 'response')\n[RETRAFO notrans(param = 1){type:multilabel}", fixed = TRUE)
 
   expect_output(print(cpo.df4l %>|% (cpoPca() %>>% dotrans(1))),
-    "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca()] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
+    "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca(center = TRUE, scale = FALSE)] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
+
+  expect_output(print(cpo.df4l %>|% (cpoPca() %>>% dotrans(1)), verbose = TRUE),
+    "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca(center = TRUE, scale = FALSE, tol = <NULL>, rank = <NULL>)] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
 
   expect_output(print(inverter(cpo.df4l %>>% dotrans(1))),
     "CPO Inverter chain {conv:regr->multilabel} (able to predict 'response', 'prob')\n[INVERTER dotrans(param = 1){conv:regr->multilabel}", fixed = TRUE)

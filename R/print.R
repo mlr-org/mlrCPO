@@ -106,7 +106,7 @@ print.CPO = function(x, verbose = FALSE, ...) {
 #' @family retrafo related
 #' @family inverter related
 #' @export
-print.CPOTrained = function(x, ...) {
+print.CPOTrained = function(x, verbose = FALSE, ...) {
   first = TRUE
   object.type = getCPOClass(x)
   invcap = getCPOTrainedCapability(x)
@@ -141,7 +141,7 @@ print.CPOTrained = function(x, ...) {
       cat(" =>\n")
     }
     first = FALSE
-    pv = getHyperPars(primitive)
+    pv = getBareHyperPars(primitive$element$cpo, include.unexported = verbose)
     argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
     pcap = getCPOTrainedCapability(primitive)
     if (pcap["invert"] > 0) {
