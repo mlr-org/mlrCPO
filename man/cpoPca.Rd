@@ -4,13 +4,30 @@
 \alias{cpoPca}
 \title{Construct a CPO for PCA Preprocessing}
 \usage{
-cpoPca(id, export = "export.default", affect.type = NULL,
+cpoPca(center = TRUE, scale = FALSE, tol = NULL, rank = NULL, id,
+  export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
   affect.pattern.fixed = FALSE)
 }
 \arguments{
+\item{center}{[\code{logical(1)}]\cr
+Whether to center columns before PCA. Default is \code{TRUE}.}
+
+\item{scale}{[\code{logical(1)}]\cr
+Whether to scale columns to unit variance before PCA.
+Default is \code{FALSE}.}
+
+\item{tol}{[\code{numeric(1)} | \code{NULL}]\cr
+Magnitude below which components are omitted. Default is
+\code{NULL}: all columns returned. Sensible settings are
+\code{tol = 0}, \code{tol = sqrt(.Machine$double.eps)}.}
+
+\item{rank}{[\code{numeric(1)} | \code{NULL}]\cr
+Maximal number of components to return. Default is \code{NULL},
+no limit.}
+
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
 must be used to avoid name clashes when composing two
@@ -62,10 +79,15 @@ This is a \code{\link{CPOConstructor}} to be used to create a
 \code{\link{CPO}}. It is called like any R function and returns
 the created \code{\link{CPO}}.
 
-Note that data is neither scaled nor centered. Often
-this needs to be done for PCA, in which case, \code{\link{cpoScale}}
-should be used in addition (and before) \code{cpoPca}.
+Performs principal component analysis using \code{\link[stats]{prcomp}}.
 }
+\section{CPOTrained State}{
+
+The state's \code{$control} slot a list with the \code{$rotation} matrix,
+the \code{$scale} vector and the \code{$center} vector
+as returned by \code{\link[stats]{prcomp}}.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

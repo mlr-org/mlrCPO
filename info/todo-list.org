@@ -49,7 +49,7 @@
 - [ ] cpoMergeSmallLevels
 - [ ] cpo crossval
   - [ ] learner wrapping cpo:
-    input -[X]-> cluster. training by data %>>% X. prediction by [dummy] -> inverter(preddata %>>% retrafo(MODEL))
+    input -[X]-> cluster. training by MODEL = data %>|% X. prediction by [dummy] -> inverter(preddata %>>% MODEL)
 ** news
 - [ ] colApplyCPO
 - [ ] cpoRangeScale
