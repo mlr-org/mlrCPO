@@ -92,7 +92,7 @@ Get a list of all `CPO`s by calling `listCPO()`.
 
 ## Installation
 
-`mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current github version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
+`mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current GitHub version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
 
 ```R
 devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
@@ -112,9 +112,9 @@ To effectively use `mlrCPO`, you should first familiarize yourself a little with
 To get familiar with `mlrCPO`, it is recommended that you read the **vignettes**. For each vignette, there is also a *compact version* that has all the R output removed.
 
 1. [First Steps](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_1_getting_started.html): Introduction and short overview ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_1_getting_started_terse.html)).
-2. [`mlrCPO` Core](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_2_mlrCPO_core.html): Description of general tools for `CPO` handling ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_2_mlrCPO_core_terse.html)).
-3. [Builtin `CPO`s](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_3_all_CPOs.html): Listing and description of all builtin `CPO`s ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_3_all_CPOs_terse.html)).
-4. [Custom `CPO`s](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs.html): How to create your own `CPO`s. ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs_terse.html)).
+2. [mlrCPO Core](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_2_mlrCPO_core.html): Description of general tools for `CPO` handling ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_2_mlrCPO_core_terse.html)).
+3. [Builtin CPOs](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_3_all_CPOs.html): Listing and description of all builtin `CPO`s ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_3_all_CPOs_terse.html)).
+4. [Custom CPOs](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs.html): How to create your own `CPO`s. ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs_terse.html)).
 5. [CPO Internals](info/developers.md): A small intro guide for developers into the code base. See the `info` directory for pdf / html versions.
 
 For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
