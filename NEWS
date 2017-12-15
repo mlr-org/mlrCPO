@@ -1,6 +1,7 @@
 mlrCPO 0.3.1
 * new cpo cpoMakeCols, cpoAddCols, cpoIca
 * Split vignettes up into 4 vignettes
+* Verbose printing using exclamation point: !cpo
 
 mlrCPO 0.3
 * great code and test quality improvement, bugfixes
