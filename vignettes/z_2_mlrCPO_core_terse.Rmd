@@ -9,7 +9,6 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-
-```{r, results = "asis"}
+```{r, results = "asis", echo = FALSE}
 cat(knitr::knit_child("a_2_mlrCPO_core.Rmd", options = list(eval = FALSE)), sep = "\n")
 ```

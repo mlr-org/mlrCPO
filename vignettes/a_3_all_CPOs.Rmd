@@ -9,6 +9,9 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
+```
+
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library("mlrCPO")
