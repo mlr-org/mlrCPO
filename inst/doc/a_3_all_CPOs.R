@@ -1,6 +1,18 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
 path = names(knitr::opts_knit$get("encoding"))[1]
+
+rpath = gsub("\\.[^.]*", ".R", path)
+
+knitr::knit_hooks$set(document = function(x) {
+  lines = readLines(rpath)
+  lines = gsub(" *(\n|$)", "\\1", lines)
+  cat(lines, file = rpath, sep = "\n", append = FALSE)
+})
+
+
 
 base = dirname(path)
 file = basename(path)
@@ -62,7 +74,6 @@ for (idx in seq_along(fileinfolist)) {
 
 
 ## ---- echo = FALSE-------------------------------------------------------
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library("mlrCPO")
 
 ## ------------------------------------------------------------------------
@@ -92,7 +103,7 @@ head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
 
 ## ------------------------------------------------------------------------
 s.and.p = cpoCase(pSS(logical.param: logical),
-  export.cpos = list(cpoScale(), 
+  export.cpos = list(cpoScale(),
   cpoPca()),
   cpo.build = function(data, target, logical.param, scale, pca) {
   if (logical.param || mean(data[[1]]) > 10) {

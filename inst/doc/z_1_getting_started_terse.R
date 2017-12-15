@@ -1,6 +1,18 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
 path = names(knitr::opts_knit$get("encoding"))[1]
+
+rpath = gsub("\\.[^.]*", ".R", path)
+
+knitr::knit_hooks$set(document = function(x) {
+  lines = readLines(rpath)
+  lines = gsub(" *(\n|$)", "\\1", lines)
+  cat(lines, file = rpath, sep = "\n", append = FALSE)
+})
+
+
 
 base = dirname(path)
 file = basename(path)
@@ -60,9 +72,6 @@ for (idx in seq_along(fileinfolist)) {
 
 
 
-
-## ---- echo = FALSE-------------------------------------------------------
-#  knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ------------------------------------------------------------------------
 #  library("mlrCPO")
@@ -134,7 +143,7 @@ for (idx in seq_along(fileinfolist)) {
 #      makeDiscreteParam(
 #          "model.matrix.formula",
 #          values = list(first = ~0 + ., second = ~0 + .^2, third = ~0 + .^3)))
-#  
+#
 #  tuneParams(clrn, pid.task, cv5, par.set = ps,
 #             control = makeTuneControlGrid(),
 #             show.info=TRUE)
@@ -207,12 +216,12 @@ for (idx in seq_along(fileinfolist)) {
 ## ------------------------------------------------------------------------
 #  (clrn = cpoModelMatrix() %>>% makeLearner("classif.logreg"))
 #  getParamSet(clrn)
-#  
+#
 #  ps = makeParamSet(
 #      makeDiscreteParam(
 #          "model.matrix.formula",
 #          values = list(first = ~0 + ., second = ~0 + .^2, third = ~0 + .^3)))
-#  
+#
 #  tuneParams(clrn, pid.task, cv5, par.set = ps,
 #             control = makeTuneControlGrid(),
 #             show.info=TRUE)
@@ -236,7 +245,7 @@ for (idx in seq_along(fileinfolist)) {
 #          "gain.ratio.perc",
 #          values = list(0.333, 0.667, 1.0)),
 #      makeDiscreteParam("teststat", values = c("quad", "max")))
-#  
+#
 #  tuneParams(tlrn, pid.task, cv5, par.set = ps2,
 #             control = makeTuneControlGrid())
 

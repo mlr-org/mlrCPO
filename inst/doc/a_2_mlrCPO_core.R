@@ -1,6 +1,18 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
 path = names(knitr::opts_knit$get("encoding"))[1]
+
+rpath = gsub("\\.[^.]*", ".R", path)
+
+knitr::knit_hooks$set(document = function(x) {
+  lines = readLines(rpath)
+  lines = gsub(" *(\n|$)", "\\1", lines)
+  cat(lines, file = rpath, sep = "\n", append = FALSE)
+})
+
+
 
 base = dirname(path)
 file = basename(path)
@@ -60,9 +72,6 @@ for (idx in seq_along(fileinfolist)) {
 
 
 
-
-## ---- echo = FALSE-------------------------------------------------------
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ------------------------------------------------------------------------
 library("mlrCPO")
@@ -207,12 +216,12 @@ pipeCPO(retrafolist)
 #      target[[1]] = log(target[[1]])
 #      target
 #    }, cpo.invert = { exp(target) })
-#  
-#  
+#
+#
 #  log.retrafo = retrafo(bh.task %>>% logtransform())  # get a target-bound retrafo
 #  getCPOKind(log.retrafo)  # logtransform is *stateless*, so it is a retrafo *and* an inverter
 #  getCPOBound(log.retrafo)
-#  
+#
 #  inverter(bh.task %>>% log.retrafo)
 
 ## ---- eval = FALSE-------------------------------------------------------
