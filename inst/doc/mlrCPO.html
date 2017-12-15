@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-14" />
+<meta name="date" content="2017-12-15" />
 
 <title>mlrCPO: Composable Preprocessing Operators for mlr</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">mlrCPO: Composable Preprocessing Operators for mlr</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-14</em></h4>
+<h4 class="date"><em>2017-12-15</em></h4>
 
 
 
@@ -947,12 +947,12 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoCbind</span>(NULL
 <p>Convert (non-numeric) features to numeric</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(iris[<span class="kw">sample</span>(<span class="kw">nrow</span>(iris), <span class="dv">10</span>), ] %&gt;&gt;%<span class="st"> </span><span class="kw">cpoAsNumeric</span>())
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
-<span class="co">#&gt; 71           5.9         3.2          4.8         1.8       2</span>
-<span class="co">#&gt; 27           5.0         3.4          1.6         0.4       1</span>
-<span class="co">#&gt; 141          6.7         3.1          5.6         2.4       3</span>
-<span class="co">#&gt; 23           4.6         3.6          1.0         0.2       1</span>
-<span class="co">#&gt; 73           6.3         2.5          4.9         1.5       2</span>
-<span class="co">#&gt; 4            4.6         3.1          1.5         0.2       1</span></code></pre></div>
+<span class="co">#&gt; 68           5.8         2.7          4.1         1.0       2</span>
+<span class="co">#&gt; 28           5.2         3.5          1.5         0.2       1</span>
+<span class="co">#&gt; 24           5.1         3.3          1.7         0.5       1</span>
+<span class="co">#&gt; 133          6.4         2.8          5.6         2.2       3</span>
+<span class="co">#&gt; 130          7.2         3.0          5.8         1.6       3</span>
+<span class="co">#&gt; 54           5.5         2.3          4.0         1.3       2</span></code></pre></div>
 </div>
 <div id="cpocollapsefact" class="section level3">
 <h3>cpoCollapseFact</h3>
@@ -1260,9 +1260,9 @@ ps =<span class="st"> </span><span class="kw">makeParamSet</span>(
 <span class="co">#&gt; With control class: TuneControlGrid</span>
 <span class="co">#&gt; Imputation value: 1</span>
 <span class="co">#&gt; [Tune-x] 1: model.matrix.formula=first</span>
-<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2265427; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2212970; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 2: model.matrix.formula=second</span>
-<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2304898; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2355997; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 3: model.matrix.formula=third</span>
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
@@ -1271,11 +1271,11 @@ ps =<span class="st"> </span><span class="kw">makeParamSet</span>(
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
-<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2708429; time: 0.0 min</span>
-<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2265427</span>
+<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2695102; time: 0.0 min</span>
+<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2212970</span>
 <span class="co">#&gt; Tune result:</span>
 <span class="co">#&gt; Op. pars: model.matrix.formula=first</span>
-<span class="co">#&gt; mmce.test.mean=0.2265427</span></code></pre></div>
+<span class="co">#&gt; mmce.test.mean=0.2212970</span></code></pre></div>
 <p>Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tlrn =<span class="st"> </span><span class="kw">cpoModelMatrix</span>() %&gt;&gt;%
 <span class="st">       </span><span class="kw">cpoWrap</span>() %&gt;&gt;%
