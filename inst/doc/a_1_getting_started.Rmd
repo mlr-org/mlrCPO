@@ -16,7 +16,7 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-# Preprocessing Operators
+## Preprocessing Operators
 
 Data preprocessing can be performed using the "mlrCPO" ("Composable Preprocessing Operators") addon package for mlr.
 CPO makes it easy to use a variety of preprocessing operations, to chain different operations, and to integrate

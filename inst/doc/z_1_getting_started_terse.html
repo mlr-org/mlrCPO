@@ -74,8 +74,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="cpo-vignette-navigation" class="section level3">
-<h3>CPO Vignette Navigation</h3>
+<div id="cpo-vignette-navigation" class="section level4">
+<h4>CPO Vignette Navigation</h4>
 <ol style="list-style-type: decimal">
 <li><a href="a_1_getting_started.html">First Steps</a> (compact version)</li>
 <li><a href="a_2_mlrCPO_core.html">mlrCPO Core</a> (<a href="z_2_mlrCPO_core_terse.html">compact version</a>)</li>
@@ -83,12 +83,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="a_4_custom_CPOs.html">Building Custom CPOs</a> (<a href="z_4_custom_CPOs_terse.html">compact version</a>)</li>
 </ol>
 </div>
-<div id="preprocessing-operators" class="section level1">
-<h1>Preprocessing Operators</h1>
+<div id="preprocessing-operators" class="section level2">
+<h2>Preprocessing Operators</h2>
 <p>Data preprocessing can be performed using the “mlrCPO” (“Composable Preprocessing Operators”) addon package for mlr. CPO makes it easy to use a variety of preprocessing operations, to chain different operations, and to integrate preprocessing with mlr learners, and to define custom preprocessing operations.</p>
 <p>To chain different operations, to apply a CPO to a dataset, and to attach a CPO to a learner, the operator <code>%&gt;&gt;%</code> can be used. This way, it is possible to quickly create natural looking pipelines that are very flexible and can even be optimized over.</p>
 <p>The following requires the <code>mlrCPO</code> package to be loaded:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;mlrCPO&quot;</span>)</code></pre></div>
+</div>
 <div id="cpo-objects" class="section level2">
 <h2>CPO Objects</h2>
 <p>Different preprocessing operations are provided in the form of <em>CPO Constructors</em>, which can be called like functions to create <em>CPO</em> objects. These CPO objects are then used to apply the operation to a data set.</p>
@@ -245,7 +246,6 @@ ps2 =<span class="st"> </span><span class="kw">makeParamSet</span>(
 
 <span class="kw">tuneParams</span>(tlrn, pid.task, cv5, <span class="dt">par.set =</span> ps2,
            <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>())</code></pre></div>
-</div>
 </div>
 
 

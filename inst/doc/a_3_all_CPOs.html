@@ -74,8 +74,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="cpo-vignette-navigation" class="section level3">
-<h3>CPO Vignette Navigation</h3>
+<div id="cpo-vignette-navigation" class="section level4">
+<h4>CPO Vignette Navigation</h4>
 <ol style="list-style-type: decimal">
 <li><a href="a_1_getting_started.html">First Steps</a> (<a href="z_1_getting_started_terse.html">compact version</a>)</li>
 <li><a href="a_2_mlrCPO_core.html">mlrCPO Core</a> (<a href="z_2_mlrCPO_core_terse.html">compact version</a>)</li>
@@ -517,12 +517,12 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoCbind</span>(NULL
 <p>Convert (non-numeric) features to numeric</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(iris[<span class="kw">sample</span>(<span class="kw">nrow</span>(iris), <span class="dv">10</span>), ] %&gt;&gt;%<span class="st"> </span><span class="kw">cpoAsNumeric</span>())
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
+<span class="co">#&gt; 138          6.4         3.1          5.5         1.8       3</span>
+<span class="co">#&gt; 1            5.1         3.5          1.4         0.2       1</span>
+<span class="co">#&gt; 147          6.3         2.5          5.0         1.9       3</span>
 <span class="co">#&gt; 120          6.0         2.2          5.0         1.5       3</span>
-<span class="co">#&gt; 129          6.4         2.8          5.6         2.1       3</span>
-<span class="co">#&gt; 107          4.9         2.5          4.5         1.7       3</span>
-<span class="co">#&gt; 18           5.1         3.5          1.4         0.3       1</span>
-<span class="co">#&gt; 57           6.3         3.3          4.7         1.6       2</span>
-<span class="co">#&gt; 140          6.9         3.1          5.4         2.1       3</span></code></pre></div>
+<span class="co">#&gt; 6            5.4         3.9          1.7         0.4       1</span>
+<span class="co">#&gt; 59           6.6         2.9          4.6         1.3       2</span></code></pre></div>
 </div>
 <div id="cpocollapsefact" class="section level3">
 <h3>cpoCollapseFact</h3>
