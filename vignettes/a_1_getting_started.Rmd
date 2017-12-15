@@ -12,10 +12,6 @@ vignette: >
 ```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
 ```
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
-
 ## Preprocessing Operators
 
 Data preprocessing can be performed using the "mlrCPO" ("Composable Preprocessing Operators") addon package for mlr.

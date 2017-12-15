@@ -12,11 +12,6 @@ vignette: >
 ```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
 ```
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
-
-
 ## CPO
 
 **CPO**s are first-class objects in R that represent data manipulation. They can be combined to form networks of operation, they can be attached to `mlr` `Learner`s, and they have tunable Hyperparameters that influence their behaviour.
