@@ -30,6 +30,7 @@ cpoPca = makeCPOExtendedTrafo("pca",  # nolint
     tol = NULL: numeric[0, ] [[special.vals = list(NULL)]],
     rank = NULL: integer[1, ] [[special.vals = list(NULL)]]),
   dataformat = "numeric",
+  export = c("center", "scale"),
   cpo.trafo = {
     if (!ncol(data)) {
       emat = matrix(data = numeric(0), nrow = 0, ncol = 0)
