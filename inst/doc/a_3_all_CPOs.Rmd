@@ -1,0 +1,290 @@
+---
+title: "CPOs Built Into mlrCPO"
+author: "Martin Binder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{3. Builtin CPOs}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
+```
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library("mlrCPO")
+```
+
+## Special CPOs
+
+### NULLCPO
+`NULLCPO` is the neutral element of `%>>%`. It is returned by some functions when no other CPO or Retrafo is present.
+
+```{r}
+NULLCPO
+is.nullcpo(NULLCPO)
+NULLCPO %>>% cpoScale()
+NULLCPO %>>% NULLCPO
+print(as.list(NULLCPO))
+pipeCPO(list())
+```
+
+### CPO Wrapper
+A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument's parameters to the outside.
+
+```{r}
+cpa = cpoWrap()
+print(cpa, verbose = TRUE)
+head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoScale()))
+head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoPca()))
+# attaching the cpo applicator to a learner gives this learner a "cpo" hyperparameter
+# that can be set to any CPO.
+getParamSet(cpoWrap() %>>% makeLearner("classif.logreg"))
+```
+
+### CPO Multiplexer
+Combine many CPOs into one, with an extra `selected.cpo` parameter that chooses between them.
+
+```{r}
+cpm = cpoMultiplex(list(cpoScale, cpoPca))
+print(cpm, verbose = TRUE)
+head(iris %>>% setHyperPars(cpm, selected.cpo = "scale"))
+# every CPO's Hyperparameters are exported
+head(iris %>>% setHyperPars(cpm, selected.cpo = "scale", scale.center = FALSE))
+head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
+```
+
+### Case-CPO
+A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO's Hyperparameters are exported as well. This is a generalization of `cpoMultiplex`; however, `requires` of the involved parameters are not adjusted, since this is impossible in principle.
+
+```{r}
+s.and.p = cpoCase(pSS(logical.param: logical),
+  export.cpos = list(cpoScale(), 
+  cpoPca()),
+  cpo.build = function(data, target, logical.param, scale, pca) {
+  if (logical.param || mean(data[[1]]) > 10) {
+    scale %>>% pca
+  } else {
+    pca %>>% scale
+  }
+  })
+print(s.and.p, verbose = TRUE)
+```
+
+The resulting CPO `s.and.p` performs scaling and PCA, with the order depending on the parameter `logical.param` and on whether the mean of the data's first column exceeds 10. If either of those is true, the data will be first scaled, then PCA'd, otherwise the order is reversed.
+The all CPOs listed in `.export` are passed to the `cpo.build`.
+
+### CBind CPO
+`cbind` other CPOs as operation. The `cbinder` makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.
+
+```{r}
+scale = cpoScale(id = "scale")
+scale.pca = scale %>>% cpoPca()
+cbinder = cpoCbind(scaled = scale, pcad = scale.pca, original = NULLCPO)
+```
+```{r}
+# cpoCbind recognises that "scale.scale" happens before "pca.pca" but is also fed to the
+# result directly. The summary draws a (crude) ascii-art graph.
+print(cbinder, verbose = TRUE)
+head(iris %>>% cbinder)
+```
+```{r}
+# the unnecessary copies of "Species" are unfortunate. Remove them with cpoSelect:
+selector = cpoSelect(type = "numeric")
+cbinder.select = cpoCbind(scaled = selector %>>% scale, pcad = selector %>>% scale.pca, original = NULLCPO)
+cbinder.select
+head(iris %>>% cbinder)
+```
+```{r}
+# alternatively, we apply the cbinder only to numerical data
+head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
+```
+
+
+## Builtin CPOs
+
+### Listing CPOs
+Builtin CPOs can be listed with `listCPO()`.
+
+```{r}
+listCPO()$name
+```
+
+### cpoScale
+Implements the `base::scale` function.
+
+```{r}
+df = data.frame(a = 1:3, b = -(1:3) * 10)
+df %>>% cpoScale()
+df %>>% cpoScale(scale = FALSE)  # center = TRUE
+```
+
+### cpoPca
+Implements `stats::prcomp`. No scaling or centering is performed.
+
+```{r}
+df %>>% cpoPca()
+```
+
+### cpoDummyEncode
+Dummy encoding of factorial variables. Optionally uses the first factor as reference variable.
+
+```{r}
+head(iris %>>% cpoDummyEncode())
+head(iris %>>% cpoDummyEncode(reference.cat = TRUE))
+```
+
+### cpoSelect
+Select to use only certain columns of a dataset. Select by column index, name, or regex pattern.
+
+```{r}
+head(iris %>>% cpoSelect(pattern = "Width"))
+# selection is additive
+head(iris %>>% cpoSelect(pattern = "Width", type = "factor"))
+```
+
+### cpoDropConstants
+Drops constant features or numerics, with variable tolerance
+
+```{r}
+head(iris) %>>% cpoDropConstants()  # drops 'species'
+head(iris) %>>% cpoDropConstants(abs.tol = 0.2)  # also drops 'Petal.Width'
+```
+
+### cpoFixFactors
+Drops unused factors and makes sure prediction data has the same factor levels as training data.
+
+```{r}
+levels(iris$Species)
+```
+```{r}
+irisfix = head(iris) %>>% cpoFixFactors()  # Species only has level 'setosa' in train
+levels(irisfix$Species)
+```
+```{r}
+rf = retrafo(irisfix)
+iris[c(1, 100, 140), ]
+iris[c(1, 100, 140), ] %>>% rf
+```
+
+### cpoMissingIndicators
+Creates columns indicating missing data. Most useful in combination with cpoCbind.
+
+```{r}
+impdata = df
+impdata[[1]][1] = NA
+impdata
+```
+```{r}
+impdata %>>% cpoMissingIndicators()
+impdata %>>% cpoCbind(NULLCPO, dummy = cpoMissingIndicators())
+```
+
+### cpoApplyFun
+Apply an univariate function to data columns
+
+```{r}
+head(iris %>>% cpoApplyFun(function(x) sqrt(x) - 10, affect.type = "numeric"))
+```
+
+### cpoAsNumeric
+Convert (non-numeric) features to numeric
+
+```{r}
+head(iris[sample(nrow(iris), 10), ] %>>% cpoAsNumeric())
+```
+
+### cpoCollapseFact
+Combine low prevalence factors. Set `max.collapsed.class.prevalence` how big the combined factor level may be.
+
+```{r}
+iris2 = iris
+iris2$Species = factor(c("a", "b", "c", "b", "b", "c", "b", "c",
+                        as.character(iris2$Species[-(1:8)])))
+head(iris2, 10)
+head(iris2 %>>% cpoCollapseFact(max.collapsed.class.prevalence = 0.2), 10)
+```
+
+### cpoModelMatrix
+Specify which columns get used, and how they are transformed, using a `formula`.
+
+```{r}
+head(iris %>>% cpoModelMatrix(~0 + Species:Petal.Width))
+# use . + ... to retain originals
+head(iris %>>% cpoModelMatrix(~0 + . + Species:Petal.Width))
+```
+
+### cpoScaleRange
+scale values to a given range
+
+```{r}
+head(iris %>>% cpoScaleRange(-1, 1))
+```
+
+### cpoScaleMaxAbs
+Multiply features to set the maximum absolute value.
+
+```{r}
+head(iris %>>% cpoScaleMaxAbs(0.1))
+```
+
+### cpoSpatialSign
+Normalize values row-wise
+
+```{r}
+head(iris %>>% cpoSpatialSign())
+```
+
+### Imputation
+There are two *general* and many *specialised* imputation CPOs. The general imputation CPOs have parameters that let them use different imputation methods on different columns. They are a thin wrapper around `mlr`'s `impute()` and `reimpute()` functions. The specialised imputation CPOs each implement exactly one imputation method and are closer to the behaviour of typical CPOs.
+
+#### General Imputation Wrappers
+`cpoImpute` and `cpoImputeAll` both have parameters very much like `impute()`. The latter assumes that *all* columns of its input is somehow being imputed and can be preprended to a learner to give it the ability to work with missing data. It will, however, throw an error if data is missing after imputation.
+
+```{r}
+impdata %>>% cpoImpute(cols = list(a = imputeMedian()))
+```
+```{r, error = TRUE}
+impdata %>>% cpoImpute(cols = list(b = imputeMedian()))  # NAs remain
+impdata %>>% cpoImputeAll(cols = list(b = imputeMedian()))  # error, since NAs remain
+```
+
+```{r, error = TRUE}
+missing.task = makeRegrTask("missing.task", impdata, target = "b")
+# the following gives an error, since 'cpoImpute' does not make sure all missings are removed
+# and hence does not add the 'missings' property.
+train(cpoImpute(cols = list(a = imputeMedian())) %>>% makeLearner("regr.lm"), missing.task)
+```
+```{r}
+# instead, the following works:
+train(cpoImputeAll(cols = list(a = imputeMedian())) %>>% makeLearner("regr.lm"), missing.task)
+```
+
+#### Specialised Imputation Wrappers
+There is one for each imputation method.
+
+```{r}
+impdata %>>% cpoImputeConstant(10)
+getTaskData(missing.task %>>% cpoImputeMedian())
+# The specialised impute CPOs are:
+listCPO()[listCPO()$category == "imputation" & listCPO()$subcategory == "specialised",
+          c("name", "description")]
+```
+
+### Feature Filtering
+There is one *general* and many *specialised* feature filtering CPOs. The general filtering CPO, `cpoFilterFeatures`, is a thin wrapper around `filterFeatures` and takes the filtering method as its argument. The specialised CPOs each call a specific filtering method.
+
+Most arguments of `filterFeatures` are reflected in the CPOs. The exceptions being:
+1. for `filterFeatures`, the filter method arguments are given in a list `filter.args`, instead of in `...`
+2. The argument `fval` was dropped for the specialised filter CPOs.
+3. The argument `mandatory.feat` was dropped. Use `affect.*` parameters to prevent features from being filtered.
+
+```{r}
+head(getTaskData(iris.task %>>% cpoFilterFeatures(method = "variance", perc = 0.5)))
+head(getTaskData(iris.task %>>% cpoFilterVariance(perc = 0.5)))
+# The specialised filter CPOs are:
+listCPO()[listCPO()$category == "featurefilter" & listCPO()$subcategory == "specialised",
+          c("name", "description")]
+```
