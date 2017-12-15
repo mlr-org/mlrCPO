@@ -133,6 +133,9 @@ Since the hyperparameters remain intact for learners, is possible to tune hyperp
 ```{r}
 getParamSet(clrn)
 ```
+```{r, echo = FALSE}
+set.seed(123)
+```
 ```{r}
 ps = makeParamSet(
     makeDiscreteParam(

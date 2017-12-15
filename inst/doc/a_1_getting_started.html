@@ -285,9 +285,9 @@ lrn =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class
 <span class="co">#&gt; With control class: TuneControlGrid</span>
 <span class="co">#&gt; Imputation value: 1</span>
 <span class="co">#&gt; [Tune-x] 1: model.matrix.formula=first</span>
-<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2226127; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2264918; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 2: model.matrix.formula=second</span>
-<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2278584; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2434683; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 3: model.matrix.formula=third</span>
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
@@ -296,11 +296,11 @@ lrn =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
-<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2747390; time: 0.0 min</span>
-<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2226127</span>
+<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2890247; time: 0.0 min</span>
+<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2264918</span>
 <span class="co">#&gt; Tune result:</span>
 <span class="co">#&gt; Op. pars: model.matrix.formula=first</span>
-<span class="co">#&gt; mmce.test.mean=0.2226127</span></code></pre></div>
+<span class="co">#&gt; mmce.test.mean=0.2264918</span></code></pre></div>
 </div>
 </div>
 <div id="special-cpos" class="section level2">
@@ -563,20 +563,22 @@ ps =<span class="st"> </span><span class="kw">makeParamSet</span>(
 <span class="co">#&gt; With control class: TuneControlGrid</span>
 <span class="co">#&gt; Imputation value: 1</span>
 <span class="co">#&gt; [Tune-x] 1: model.matrix.formula=first</span>
-<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2317036; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 1: mmce.test.mean=0.2265597; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 2: model.matrix.formula=second</span>
-<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2473814; time: 0.0 min</span>
+<span class="co">#&gt; [Tune-y] 2: mmce.test.mean=0.2369663; time: 0.0 min</span>
 <span class="co">#&gt; [Tune-x] 3: model.matrix.formula=third</span>
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
 
 <span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
-<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2681691; time: 0.0 min</span>
-<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2317036</span>
+
+<span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span>
+<span class="co">#&gt; [Tune-y] 3: mmce.test.mean=0.2526356; time: 0.0 min</span>
+<span class="co">#&gt; [Tune] Result: model.matrix.formula=first : mmce.test.mean=0.2265597</span>
 <span class="co">#&gt; Tune result:</span>
 <span class="co">#&gt; Op. pars: model.matrix.formula=first</span>
-<span class="co">#&gt; mmce.test.mean=0.2317036</span></code></pre></div>
+<span class="co">#&gt; mmce.test.mean=0.2265597</span></code></pre></div>
 <p>Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tlrn =<span class="st"> </span><span class="kw">cpoModelMatrix</span>() %&gt;&gt;%
 <span class="st">       </span><span class="kw">cpoWrap</span>() %&gt;&gt;%

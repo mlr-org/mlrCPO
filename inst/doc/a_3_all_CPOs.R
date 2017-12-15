@@ -185,6 +185,9 @@ impdata %>>% cpoCbind(NULLCPO, dummy = cpoMissingIndicators())
 ## ------------------------------------------------------------------------
 head(iris %>>% cpoApplyFun(function(x) sqrt(x) - 10, affect.type = "numeric"))
 
+## ---- echo = FALSE-------------------------------------------------------
+set.seed(123)
+
 ## ------------------------------------------------------------------------
 head(iris[sample(nrow(iris), 10), ] %>>% cpoAsNumeric())
 

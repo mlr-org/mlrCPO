@@ -191,6 +191,9 @@ head(iris %>>% cpoApplyFun(function(x) sqrt(x) - 10, affect.type = "numeric"))
 ### cpoAsNumeric
 Convert (non-numeric) features to numeric
 
+```{r, echo = FALSE}
+set.seed(123)
+```
 ```{r}
 head(iris[sample(nrow(iris), 10), ] %>>% cpoAsNumeric())
 ```
