@@ -111,8 +111,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 cpoAddCols
 <span class="co">#&gt; &lt;&lt;CPO new.cols(..., .make.factors = TRUE)&gt;&gt;</span>
 
-<span class="kw">cpoScale</span>()  <span class="co"># create a CPO object that scales and centers data</span>
-<span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span>
+<span class="kw">cpoScale</span>(<span class="dt">center =</span> <span class="ot">FALSE</span>)  <span class="co"># create a CPO object that scales, but does not center, data</span>
+<span class="co">#&gt; scale(center = FALSE, scale = TRUE)</span>
 <span class="kw">cpoAddCols</span>(<span class="dt">Sepal.Area =</span> Sepal.Length *<span class="st"> </span>Sepal.Width)  <span class="co">#  this would add a column</span>
 <span class="co">#&gt; new.cols()[not exp'd: expr = Sepal.Area=&lt;call&gt;, superceding.env = &lt;environment&gt;, make.factors = TRUE, add.cols = TRUE]</span></code></pre></div>
 <p><code>CPO</code>s exist first to be <em>applied</em> to data. Every <code>CPO</code> represents a certain data transformation, and this transformation is performed when the <code>CPO</code> is applied. This can be done using the <strong><code>applyCPO</code></strong> function, or the <strong><code>%&gt;&gt;%</code></strong> operator. <code>CPO</code>s can be applied to <code>data.frame</code> objects, and to <code>mlr</code> “<code>Task</code>” objects.</p>
@@ -125,69 +125,129 @@ cpoAddCols
 <span class="co">#&gt; 52    (5.8, Inf]  (-Inf,3.2]   (-Inf,4.5]  (1.4, Inf] versicolor</span>
 <span class="co">#&gt; 102   (-Inf,5.8]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></code></pre></div>
 <p>A useful feature of <code>CPO</code>s is that they can be concatenated t form new operations. Two <code>CPO</code>s can be combines using the <strong><code>composeCPO</code></strong> function or, as before, the <strong><code>%&gt;&gt;%</code></strong> operator. When two <code>CPO</code>s are combined, the product is a new <code>CPO</code> that can itself be composed or applied. When two <code>CPO</code>s are composed, the result represents the operation of first applying the first, then the second <code>CPO</code>. Therefore, <code>data %&gt;&gt;% (cpo1 %&gt;&gt;% cpo2)</code> is the same as <code>(data %&gt;&gt;% cpo1) %&gt;&gt;% cpo2</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># first create bins, then as.numeric() all columns to get 1 or 2 for below &amp; above median</span>
-quantilenum =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>() %&gt;&gt;%<span class="st"> </span><span class="kw">cpoAsNumeric</span>()
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># first create three quantile bins, then as.numeric() all columns to</span>
+<span class="co"># get 1, 2 or 3 as the bin number</span>
+quantilenum =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) %&gt;&gt;%<span class="st"> </span><span class="kw">cpoAsNumeric</span>()
 iris.demo %&gt;&gt;%<span class="st"> </span>quantilenum
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
-<span class="co">#&gt; 1              1           2            1           1       1</span>
+<span class="co">#&gt; 1              1           3            1           1       1</span>
 <span class="co">#&gt; 2              1           1            1           1       1</span>
-<span class="co">#&gt; 51             2           1            2           1       2</span>
-<span class="co">#&gt; 52             2           1            1           2       2</span>
-<span class="co">#&gt; 102            1           1            2           2       3</span></code></pre></div>
+<span class="co">#&gt; 51             3           2            3           2       2</span>
+<span class="co">#&gt; 52             3           2            2           3       2</span>
+<span class="co">#&gt; 102            2           1            3           3       3</span></code></pre></div>
 <p>The last example shows that it is sometimes not a good idea to have a <code>CPO</code> affect the whole dataset. Therefore, when a <code>CPO</code> is created, it is possible to choose what columns the <code>CPO</code> should affect. The CPO Constructor has a variety of parameters, starting with <code>affect.</code>, that can be used to choose what columns the <code>CPO</code> operates on. To prevent <code>cpoAsNumeric</code> from influencing the <code>Species</code> column, we can thus do</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">quantilenum.restricted =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>() %&gt;&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">quantilenum.restricted =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) %&gt;&gt;%
 <span class="st">  </span><span class="kw">cpoAsNumeric</span>(<span class="dt">affect.names =</span> <span class="st">&quot;Species&quot;</span>, <span class="dt">affect.invert =</span> <span class="ot">TRUE</span>)
 iris.demo %&gt;&gt;%<span class="st"> </span>quantilenum.restricted
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
-<span class="co">#&gt; 1              1           2            1           1     setosa</span>
+<span class="co">#&gt; 1              1           3            1           1     setosa</span>
 <span class="co">#&gt; 2              1           1            1           1     setosa</span>
-<span class="co">#&gt; 51             2           1            2           1 versicolor</span>
-<span class="co">#&gt; 52             2           1            1           2 versicolor</span>
-<span class="co">#&gt; 102            1           1            2           2  virginica</span></code></pre></div>
+<span class="co">#&gt; 51             3           2            3           2 versicolor</span>
+<span class="co">#&gt; 52             3           2            2           3 versicolor</span>
+<span class="co">#&gt; 102            2           1            3           3  virginica</span></code></pre></div>
 <p>A more convenient method in this case, however, is to use an <code>mlr</code> “<code>Task</code>”, which keeps track of the target column. “Feature Operation” <code>CPO</code>s (as all the ones shown) do not influence the target column.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">demo.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Species&quot;</span>)
 result =<span class="st"> </span>demo.task %&gt;&gt;%<span class="st"> </span>quantilenum
 <span class="kw">getTaskData</span>(result)
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
-<span class="co">#&gt; 1              1           2            1           1     setosa</span>
+<span class="co">#&gt; 1              1           3            1           1     setosa</span>
 <span class="co">#&gt; 2              1           1            1           1     setosa</span>
-<span class="co">#&gt; 51             2           1            2           1 versicolor</span>
-<span class="co">#&gt; 52             2           1            1           2 versicolor</span>
-<span class="co">#&gt; 102            1           1            2           2  virginica</span></code></pre></div>
+<span class="co">#&gt; 51             3           2            3           2 versicolor</span>
+<span class="co">#&gt; 52             3           2            2           3 versicolor</span>
+<span class="co">#&gt; 102            2           1            3           3  virginica</span></code></pre></div>
+</div>
+<div id="hyperparameters" class="section level2">
+<h2>Hyperparameters</h2>
+<p>When performing preprocessing, it is sometimes necessary to change a small aspect of a long preprocessing pipeline. Instead of having to re-construct the whole pipeline, <code>mlrCPO</code> offers the possibility to change <em>hyperparameters</em> of a <code>CPO</code>. This makes it very easy e.g. for tuning of preprocessing in combination with a machine learning algorithm.</p>
+<p>Hyperparameters of <code>CPO</code>s can be manipulated in the same way as they are manipulated for <code>Learners</code> in <code>mlr</code>, using <strong><code>getParamSet</code></strong> (to list the parameters), <strong><code>getHyperPars</code></strong> (to list the parameter values), and <strong><code>setHyperPars</code></strong> (to change these values). To get the parameter set of a <code>CPO</code>, it is also possible to use <strong>verbose printing</strong> using the <code>!</code> (exclamation mark) operator.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoScale</span>()
+cpo
+<span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span>
+<span class="kw">getHyperPars</span>(cpo)  <span class="co"># list of parameter names and values</span>
+<span class="co">#&gt; $scale.center</span>
+<span class="co">#&gt; [1] TRUE</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $scale.scale</span>
+<span class="co">#&gt; [1] TRUE</span>
+<span class="kw">getParamSet</span>(cpo)  <span class="co"># more detailed view of parameters and their type / range</span>
+<span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span>
+<span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span>
+<span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span>
+!cpo  <span class="co"># equivalent to print(cpo, verbose = TRUE)</span>
+<span class="co">#&gt; Trafo chain of 1 cpos:</span>
+<span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span>
+<span class="co">#&gt; Operating: feature</span>
+<span class="co">#&gt; ParamSet:</span>
+<span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span>
+<span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span>
+<span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></code></pre></div>
+<p><code>CPO</code>s use copy semantics, therefore <code>setHyperPars</code> creates a copy of a <code>CPO</code> that has the changed hyperparameters.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo2 =<span class="st"> </span><span class="kw">setHyperPars</span>(cpo, <span class="dt">scale.scale =</span> <span class="ot">FALSE</span>)
+cpo2
+<span class="co">#&gt; scale(center = TRUE, scale = FALSE)</span>
+iris.demo %&gt;&gt;%<span class="st"> </span>cpo  <span class="co"># scales and centers</span>
+<span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
+<span class="co">#&gt; 1    -0.84167024   1.2883207   -1.0880046  -1.0642294     setosa</span>
+<span class="co">#&gt; 2    -1.06914869  -0.4068381   -1.0880046  -1.0642294     setosa</span>
+<span class="co">#&gt; 51    1.31937497   0.2712254    0.6894287   0.4560983 versicolor</span>
+<span class="co">#&gt; 52    0.63693964   0.2712254    0.5817054   0.5827923 versicolor</span>
+<span class="co">#&gt; 102  -0.04549569  -1.4239334    0.9048751   1.0895682  virginica</span>
+iris.demo %&gt;&gt;%<span class="st"> </span>cpo2 <span class="co"># only centers</span>
+<span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
+<span class="co">#&gt; 1          -0.74        0.38        -2.02       -0.84     setosa</span>
+<span class="co">#&gt; 2          -0.94       -0.12        -2.02       -0.84     setosa</span>
+<span class="co">#&gt; 51          1.16        0.08         1.28        0.36 versicolor</span>
+<span class="co">#&gt; 52          0.56        0.08         1.08        0.46 versicolor</span>
+<span class="co">#&gt; 102        -0.04       -0.42         1.68        0.86  virginica</span></code></pre></div>
+<p>When chaining many <code>CPO</code>s, it is possible for the many hyperparameters to lead to very cluttered <code>ParamSet</code>s, or even for hyperparameter names to clash. <code>mlrCPO</code> has two remedies for that.</p>
+<p>First, any <code>CPO</code> also has an <strong><code>id</code></strong> that is always prepended to the hyperparameter names. It can be set during construction, using the <code>id</code> parameter, or changed later using <code>setCPOId</code>. The latter one only works on primitive, i.e. not compound, <code>CPO</code>s. Set the <code>id</code> to <code>NULL</code> to use the <code>CPO</code>’s hyperparameters without a prefix.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;a&quot;</span>) %&gt;&gt;%<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;b&quot;</span>)  <span class="co"># not very useful example</span>
+<span class="kw">getHyperPars</span>(cpo)
+<span class="co">#&gt; $a.center</span>
+<span class="co">#&gt; [1] TRUE</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $a.scale</span>
+<span class="co">#&gt; [1] TRUE</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $b.center</span>
+<span class="co">#&gt; [1] TRUE</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $b.scale</span>
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<p>The second remedy against hyperparameter clashes is different “exports” of hyperparameters: The hyperparameters that can be changed using <code>setHyperPars</code>, i.e. that are <em>exported</em> by a <code>CPO</code>, are a subset of the parameters of the <code>CPOConstructor</code>. For each kind of <code>CPO</code>, there is a standard set of parameters that are exported, but during construction, it is possible to influence the parameters that actually get exported via the <code>export</code> parameter. <code>export</code> can be one of a set of standard export settings (among them “<code>export.all</code>” and “<code>export.none</code>”) or a <code>character</code> vector of the parameters to export.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;rank&quot;</span>))
+<span class="kw">getParamSet</span>(cpo)
+<span class="co">#&gt;               Type len    Def   Constr Req Tunable Trafo</span>
+<span class="co">#&gt; pca.center logical   -   TRUE        -   -    TRUE     -</span>
+<span class="co">#&gt; pca.rank   integer   - &lt;NULL&gt; 1 to Inf   -    TRUE     -</span></code></pre></div>
 </div>
 <div id="retrafo" class="section level2">
 <h2>Retrafo</h2>
 <p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “retrafo” object. To obtain this retrafo object, one can use <code>retrafo()</code>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">transformed =<span class="st"> </span>iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">transformed =<span class="st"> </span>iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)
+transformed
+<span class="co">#&gt;        Species       PC1        PC2         PC3</span>
+<span class="co">#&gt; 1       setosa -2.326799 -0.1705362 -0.18670853</span>
+<span class="co">#&gt; 2       setosa -2.367078  0.2089459  0.19298274</span>
+<span class="co">#&gt; 51  versicolor  1.636074 -0.6560244  0.11319581</span>
+<span class="co">#&gt; 52  versicolor  1.288712 -0.1633624 -0.10102199</span>
+<span class="co">#&gt; 102  virginica  1.769091  0.7809771 -0.01844804</span>
+
 ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)
-!ret
+ret
 <span class="co">#&gt; CPO Retrafo chain</span>
-<span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE, tol = &lt;NULL&gt;, rank = &lt;NULL&gt;)]</span></code></pre></div>
-<p>Comparing the first lines of the transformed data with the lines of “retransforming” the same input data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(transformed)
-<span class="co">#&gt;        Species       PC1        PC2         PC3          PC4</span>
-<span class="co">#&gt; 1       setosa -2.326799 -0.1705362 -0.18670853  0.008112764</span>
-<span class="co">#&gt; 2       setosa -2.367078  0.2089459  0.19298274 -0.006220439</span>
-<span class="co">#&gt; 51  versicolor  1.636074 -0.6560244  0.11319581  0.009002830</span>
-<span class="co">#&gt; 52  versicolor  1.288712 -0.1633624 -0.10102199 -0.018105986</span>
-<span class="co">#&gt; 102  virginica  1.769091  0.7809771 -0.01844804  0.007210830</span>
-<span class="kw">head</span>(iris) %&gt;&gt;%<span class="st"> </span>ret
-<span class="co">#&gt;   Species       PC1        PC2          PC3          PC4</span>
-<span class="co">#&gt; 1  setosa -2.326799 -0.1705362 -0.186708529  0.008112764</span>
-<span class="co">#&gt; 2  setosa -2.367078  0.2089459  0.192982745 -0.006220439</span>
-<span class="co">#&gt; 3  setosa -2.535597  0.2723523 -0.045183485  0.023072983</span>
-<span class="co">#&gt; 4  setosa -2.392270  0.4367770 -0.006013387  0.127416737</span>
-<span class="co">#&gt; 5  setosa -2.367941 -0.1292556 -0.309918822  0.045828267</span>
-<span class="co">#&gt; 6  setosa -1.914764 -0.4762659 -0.524216688 -0.045228614</span></code></pre></div>
-<p>Note that using the PCA on only the head of ‘iris’ gives a different (wrong) result:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(iris) %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
-<span class="co">#&gt;   Species        PC1          PC2         PC3           PC4</span>
-<span class="co">#&gt; 1  setosa -0.1634147  0.017230444 -0.11038321 -0.0231625616</span>
-<span class="co">#&gt; 2  setosa  0.3324970 -0.189351624 -0.08152883  0.0005612917</span>
-<span class="co">#&gt; 3  setosa  0.3268659  0.101103375 -0.02238439  0.0464537730</span>
-<span class="co">#&gt; 4  setosa  0.4202367  0.005523981  0.17106514 -0.0222757931</span>
-<span class="co">#&gt; 5  setosa -0.1768684  0.140149101 -0.04185224 -0.0194870755</span>
-<span class="co">#&gt; 6  setosa -0.7393165 -0.074655279  0.08508352  0.0179103657</span></code></pre></div>
+<span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)]</span></code></pre></div>
+<p>To show that <code>ret</code> actually represents the exact same preprocessing operation, we can feed the first line of <code>iris.demo</code> back to it, to verify that the transformation is the same.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span>ret
+<span class="co">#&gt;   Species       PC1        PC2        PC3</span>
+<span class="co">#&gt; 1  setosa -2.326799 -0.1705362 -0.1867085</span></code></pre></div>
+<p>Obviously we would not have gotten there by feeding the first line to <code>cpoPca</code> directly:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)
+<span class="co">#&gt;   Species PC1</span>
+<span class="co">#&gt; 1  setosa   0</span></code></pre></div>
+</div>
+<div id="the-rest" class="section level2">
+<h2>THE REST</h2>
 <p>When attaching a <code>CPO</code> to a <code>Learner</code> using the <code>%&gt;&gt;%</code>-operator, all this is performed by <code>mlrCPO</code>, so there is no need to worry about keeping <code>CPOTrained</code> objects around.</p>
 <p><code>retrafo()</code> gets the retrafo object from an attribute of the <code>transformed</code> object. The retrafo is always generated by the application of a <code>CPO</code> already. Retrafos that are attached to an object also stack, so multiple applications of different <code>CPO</code>s only need one <code>retrafo()</code> call to get the respective retrafo operation.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trans.a =<span class="st"> </span>iris %&gt;&gt;%<span class="st"> </span><span class="kw">cpoScale</span>()
@@ -210,34 +270,6 @@ ret =<span class="st"> </span><span class="kw">retrafo</span>(trans.b)</code></p
 <span class="co">#&gt; 4  setosa -2.291707  0.5953999 -0.09098530 -0.065735340</span>
 <span class="co">#&gt; 5  setosa -2.381863 -0.6446757 -0.01568565 -0.035802870</span>
 <span class="co">#&gt; 6  setosa -2.068701 -1.4842053 -0.02687825  0.006586116</span></code></pre></div>
-</div>
-<div id="hyperparameters" class="section level2">
-<h2>Hyperparameters</h2>
-<p><code>CPO</code> objects have hyperparameters that can be adjusted at creation, or later using <code>setHyperPars</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(cpoScale)
-<span class="co">#&gt; &lt;&lt;CPO scale(center = TRUE, scale = TRUE)&gt;&gt;</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">do.center =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">FALSE</span>, <span class="dt">center =</span> <span class="ot">TRUE</span>)
-<span class="kw">print</span>(do.center, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)  <span class="co"># note the 'scale.' prefix of parameters</span>
-<span class="co">#&gt; Trafo chain of 1 cpos:</span>
-<span class="co">#&gt; scale(center = TRUE, scale = FALSE)</span>
-<span class="co">#&gt; Operating: feature</span>
-<span class="co">#&gt; ParamSet:</span>
-<span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span>
-<span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span>
-<span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">do.scale =<span class="st"> </span><span class="kw">setHyperPars</span>(do.center,
-  <span class="dt">scale.scale =</span> <span class="ot">TRUE</span>, <span class="dt">scale.center =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<p>These hyperparameters even survive <code>CPO</code> composition and attachment to Learners:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoScale</span>() %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
-lrn =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)
-<span class="kw">print</span>(lrn)
-<span class="co">#&gt; Learner classif.logreg.pca.scale from package stats</span>
-<span class="co">#&gt; Type: classif</span>
-<span class="co">#&gt; Name: ; Short name: </span>
-<span class="co">#&gt; Class: CPOLearner</span>
-<span class="co">#&gt; Properties: numerics,factors,twoclass,prob</span>
-<span class="co">#&gt; Predict-Type: response</span>
-<span class="co">#&gt; Hyperparameters: model=FALSE</span></code></pre></div>
 <div id="tuning" class="section level3">
 <h3>Tuning</h3>
 <p>Since the hyperparameters remain intact for learners, is possible to tune hyperparameters parameters of preprocessing operations.</p>
