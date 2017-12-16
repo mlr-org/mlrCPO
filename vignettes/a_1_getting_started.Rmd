@@ -9,7 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
+```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
 ## Preprocessing Operators
