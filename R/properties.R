@@ -688,7 +688,7 @@ getCPOAffect.CPO = function(cpo, drop.defaults = TRUE) {
 #' @export
 identicalCPO.CPOPrimitive = function(cpo1, cpo2) {
   assertClass(cpo2, "CPO")
-  "CPOPrimitive" %in% class(cpo2) &&
+  identical(class(cpo1), class(cpo2)) &&
     identical(environment(getCPOConstructor(cpo1)),
       environment(getCPOConstructor(cpo2)))
 }

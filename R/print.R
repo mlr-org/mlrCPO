@@ -52,6 +52,7 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
       }
     }
   }
+  invisible(NULL)
 }
 
 # verbose print function for CPOs:
