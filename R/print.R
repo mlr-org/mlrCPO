@@ -184,7 +184,7 @@ print.CPOTrained = function(x, verbose = FALSE, ...) {
 invisible.return = makeS3Obj("cpoinvisible")
 
 #' @export
-print.cpoinvisible = function(x) invisible(NULL)
+print.cpoinvisible = function(x, ...) invisible(NULL)
 
 # verbose printing
 #' @rdname print.CPOConstructor
