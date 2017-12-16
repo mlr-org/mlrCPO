@@ -181,20 +181,25 @@ print.CPOTrained = function(x, verbose = FALSE, ...) {
   cat("\n")
 }
 
-# verbose printing
-#' @rdname print.CPOConstructor
+invisible.return = makeS3Obj("cpoinvisible")
+
 #' @export
-`!.CPOConstructor` = function(x) print(x, verbose = TRUE)
+print.cpoinvisible = function(x) invisible(NULL)
 
 # verbose printing
 #' @rdname print.CPOConstructor
 #' @export
-`!.CPO` = function(x) print(x, verbose = TRUE)
+`!.CPOConstructor` = function(x) { print(x, verbose = TRUE) ; invisible.return }
 
 # verbose printing
 #' @rdname print.CPOConstructor
 #' @export
-`!.CPOTrained` = function(x) print(x, verbose = TRUE)
+`!.CPO` = function(x) { print(x, verbose = TRUE) ; invisible.return }
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPOTrained` = function(x) { print(x, verbose = TRUE) ; invisible.return }
 
 
 # helper function for retrafo / inverter 'element's
