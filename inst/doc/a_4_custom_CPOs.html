@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-15" />
+<meta name="date" content="2017-12-16" />
 
 <title>Building Custom CPOs</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building Custom CPOs</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-15</em></h4>
+<h4 class="date"><em>2017-12-16</em></h4>
 
 
 
@@ -94,7 +94,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">#&gt;  [9] &quot;properties.adding&quot;              &quot;properties.needed&quot;             </span>
 <span class="co">#&gt; [11] &quot;properties.target&quot;              &quot;packages&quot;                      </span>
 <span class="co">#&gt; [13] &quot;cpo.train&quot;                      &quot;cpo.retrafo&quot;</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     <span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {  <span class="co"># names of columns to keep</span>
@@ -126,7 +126,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">#&gt;     data[control]</span>
 <span class="co">#&gt;   }</span></code></pre></div>
 <p>It is also possible to set <code>cpo.retrafo = NULL</code>. Then <code>cpo.trafo</code> must return a function that takes a <code>data</code> argument, which is a (possibly new) dataset to transform, and returns the transformed data. The following example is equivalent to the example above:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     cols.keep =<span class="st"> </span><span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {

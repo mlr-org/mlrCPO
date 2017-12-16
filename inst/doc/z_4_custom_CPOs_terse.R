@@ -1,10 +1,12 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+cat("hi", file = "/tmp/wri", append = TRUE)
+
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 path = names(knitr::opts_knit$get("encoding"))[1]
 
-rpath = gsub("\\.[^.]*", ".R", path)
+rpath = gsub("\\.[^.]*$", ".R", path)
 
 knitr::knit_hooks$set(document = function(x) {
   lines = readLines(rpath)
@@ -81,7 +83,7 @@ for (idx in seq_along(fileinfolist)) {
 #  names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
 
 ## ------------------------------------------------------------------------
-#  constFeatRem = makeCPO("constFeatRem",
+#  constFeatRem = makeCPO("constFeatRem",  # nolint
 #    dataformat = "df.features",
 #    cpo.train = function(data, target) {
 #      names(Filter(function(x) {  # names of columns to keep
@@ -94,7 +96,7 @@ for (idx in seq_along(fileinfolist)) {
 #  print(constFeatRem, verbose = TRUE)
 
 ## ------------------------------------------------------------------------
-#  constFeatRem = makeCPO("constFeatRem",
+#  constFeatRem = makeCPO("constFeatRem",  # nolint
 #    dataformat = "df.features",
 #    cpo.train = function(data, target) {
 #      cols.keep = names(Filter(function(x) {

@@ -1,10 +1,12 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+cat("hi", file = "/tmp/wri", append = TRUE)
+
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 path = names(knitr::opts_knit$get("encoding"))[1]
 
-rpath = gsub("\\.[^.]*", ".R", path)
+rpath = gsub("\\.[^.]*$", ".R", path)
 
 knitr::knit_hooks$set(document = function(x) {
   lines = readLines(rpath)
@@ -150,7 +152,7 @@ ps = makeParamSet(
 
 tuneParams(clrn, pid.task, cv5, par.set = ps,
            control = makeTuneControlGrid(),
-           show.info=TRUE)
+           show.info = TRUE)
 
 ## ------------------------------------------------------------------------
 cpm = cpoMultiplex(list(cpoScale, cpoPca))
@@ -205,7 +207,7 @@ head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
 names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
 
 ## ------------------------------------------------------------------------
-constFeatRem = makeCPO("constFeatRem",
+constFeatRem = makeCPO("constFeatRem",  # nolint
   dataformat = "df.features",
   cpo.train = function(data, target) {
     names(Filter(function(x) {  # names of columns to keep
@@ -228,7 +230,7 @@ ps = makeParamSet(
 
 tuneParams(clrn, pid.task, cv5, par.set = ps,
            control = makeTuneControlGrid(),
-           show.info=TRUE)
+           show.info = TRUE)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  tlrn = cpoModelMatrix() %>>%

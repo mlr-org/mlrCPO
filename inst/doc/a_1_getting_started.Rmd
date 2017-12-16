@@ -9,7 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
+```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
 ## Preprocessing Operators
@@ -144,7 +144,7 @@ ps = makeParamSet(
 
 tuneParams(clrn, pid.task, cv5, par.set = ps,
            control = makeTuneControlGrid(),
-           show.info=TRUE)
+           show.info = TRUE)
 ```
 
 ## Special CPOs
@@ -230,7 +230,7 @@ names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
 ```
 
 ```{r}
-constFeatRem = makeCPO("constFeatRem",
+constFeatRem = makeCPO("constFeatRem",  # nolint
   dataformat = "df.features",
   cpo.train = function(data, target) {
     names(Filter(function(x) {  # names of columns to keep
@@ -259,7 +259,7 @@ ps = makeParamSet(
 
 tuneParams(clrn, pid.task, cv5, par.set = ps,
            control = makeTuneControlGrid(),
-           show.info=TRUE)
+           show.info = TRUE)
 ```
 Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.
 ```{r, eval = FALSE}

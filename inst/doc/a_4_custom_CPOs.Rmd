@@ -9,7 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r, eval = TRUE, child = '../tools/vignettetoc.Rmd'}
+```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
 ```{r, echo = FALSE}
@@ -24,7 +24,7 @@ names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
 ```
 
 ```{r}
-constFeatRem = makeCPO("constFeatRem",
+constFeatRem = makeCPO("constFeatRem",  # nolint
   dataformat = "df.features",
   cpo.train = function(data, target) {
     names(Filter(function(x) {  # names of columns to keep
@@ -39,7 +39,7 @@ print(constFeatRem, verbose = TRUE)
 
 It is also possible to set `cpo.retrafo = NULL`. Then `cpo.trafo` must return a function that takes a `data` argument, which is a (possibly new) dataset to transform, and returns the transformed data. The following example is equivalent to the example above:
 ```{r}
-constFeatRem = makeCPO("constFeatRem",
+constFeatRem = makeCPO("constFeatRem",  # nolint
   dataformat = "df.features",
   cpo.train = function(data, target) {
     cols.keep = names(Filter(function(x) {

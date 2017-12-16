@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-15" />
+<meta name="date" content="2017-12-16" />
 
 <title>First Steps</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">First Steps</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-15</em></h4>
+<h4 class="date"><em>2017-12-16</em></h4>
 
 
 
@@ -88,7 +88,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>Data preprocessing can be performed using the “mlrCPO” (“Composable Preprocessing Operators”) addon package for mlr. CPO makes it easy to use a variety of preprocessing operations, to chain different operations, and to integrate preprocessing with mlr learners, and to define custom preprocessing operations.</p>
 <p>To chain different operations, to apply a CPO to a dataset, and to attach a CPO to a learner, the operator <code>%&gt;&gt;%</code> can be used. This way, it is possible to quickly create natural looking pipelines that are very flexible and can even be optimized over.</p>
 <p>The following requires the <code>mlrCPO</code> package to be loaded:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;mlrCPO&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;mlrCPO&quot;</span>)
+<span class="co">#&gt; Loading required package: ParamHelpers</span>
+<span class="co">#&gt; Loading required package: mlr</span></code></pre></div>
 </div>
 <div id="cpo-objects" class="section level2">
 <h2>CPO Objects</h2>
@@ -142,9 +144,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">listCPO</span>()$name
 <span class="co">#&gt;  [1] &quot;cpoDropConstants&quot;                &quot;cpoFixFactors&quot;                  </span>
 <span class="co">#&gt;  [3] &quot;cpoCollapseFact&quot;                 &quot;cpoAsNumeric&quot;                   </span>
-<span class="co">#&gt;  [5] &quot;cpoCollapseFact&quot;                 &quot;cpoDummyEncode&quot;                 </span>
-<span class="co">#&gt;  [7] &quot;cpoImpactEncodeClassif&quot;          &quot;cpoImpactEncodeRegr&quot;            </span>
-<span class="co">#&gt;  [9] &quot;cpoProbEncode&quot;                   &quot;cpoSelect&quot;                      </span>
+<span class="co">#&gt;  [5] &quot;cpoDummyEncode&quot;                  &quot;cpoImpactEncodeClassif&quot;         </span>
+<span class="co">#&gt;  [7] &quot;cpoImpactEncodeRegr&quot;             &quot;cpoProbEncode&quot;                  </span>
+<span class="co">#&gt;  [9] &quot;cpoQuantileBinNumerics&quot;          &quot;cpoSelect&quot;                      </span>
 <span class="co">#&gt; [11] &quot;cpoSelectFreeProperties&quot;         &quot;cpoAddCols&quot;                     </span>
 <span class="co">#&gt; [13] &quot;cpoMakeCols&quot;                     &quot;cpoApplyFun&quot;                    </span>
 <span class="co">#&gt; [15] &quot;cpoModelMatrix&quot;                  &quot;cpoIca&quot;                         </span>
@@ -278,7 +280,7 @@ lrn =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class
 
 <span class="kw">tuneParams</span>(clrn, pid.task, cv5, <span class="dt">par.set =</span> ps,
            <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),
-           <span class="dt">show.info=</span><span class="ot">TRUE</span>)
+           <span class="dt">show.info =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; [Tune] Started tuning learner classif.logreg.model.matrix for parameter set:</span>
 <span class="co">#&gt;                          Type len Def             Constr Req Tunable Trafo</span>
 <span class="co">#&gt; model.matrix.formula discrete   -   - first,second,third   -    TRUE     -</span>
@@ -501,7 +503,7 @@ cbinder.select
 <span class="co">#&gt;  [9] &quot;properties.adding&quot;              &quot;properties.needed&quot;             </span>
 <span class="co">#&gt; [11] &quot;properties.target&quot;              &quot;packages&quot;                      </span>
 <span class="co">#&gt; [13] &quot;cpo.train&quot;                      &quot;cpo.retrafo&quot;</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     <span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {  <span class="co"># names of columns to keep</span>
@@ -556,7 +558,7 @@ ps =<span class="st"> </span><span class="kw">makeParamSet</span>(
 
 <span class="kw">tuneParams</span>(clrn, pid.task, cv5, <span class="dt">par.set =</span> ps,
            <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),
-           <span class="dt">show.info=</span><span class="ot">TRUE</span>)
+           <span class="dt">show.info =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; [Tune] Started tuning learner classif.logreg.model.matrix for parameter set:</span>
 <span class="co">#&gt;                          Type len Def             Constr Req Tunable Trafo</span>
 <span class="co">#&gt; model.matrix.formula discrete   -   - first,second,third   -    TRUE     -</span>

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-15" />
+<meta name="date" content="2017-12-16" />
 
 <title>Building Custom CPOs (No Output)</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building Custom CPOs (No Output)</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-15</em></h4>
+<h4 class="date"><em>2017-12-16</em></h4>
 
 
 
@@ -87,7 +87,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2>Creating Custom CPOs</h2>
 <p>Custom CPOs can be created using the <code>makeCPO</code> function. Its most important arguments are <code>cpo.trafo</code> and <code>cpo.retrafo</code>, both of which are functions. The <code>cpo.trafo</code>-function must return a “control” object which contains all information about how to transform a given dataset. <code>cpo.retrafo</code> takes a (potentially new!) dataset <em>and</em> the “control” object returned by <code>cpo.trafo</code>, and transforms the new data according to plan.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(<span class="kw">formals</span>(makeCPO))  <span class="co"># see help(makeCPO) for explanation of arguments</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     <span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {  <span class="co"># names of columns to keep</span>
@@ -99,7 +99,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">head</span>(iris) %&gt;&gt;%<span class="st"> </span><span class="kw">constFeatRem</span>()
 <span class="kw">print</span>(constFeatRem, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p>It is also possible to set <code>cpo.retrafo = NULL</code>. Then <code>cpo.trafo</code> must return a function that takes a <code>data</code> argument, which is a (possibly new) dataset to transform, and returns the transformed data. The following example is equivalent to the example above:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     cols.keep =<span class="st"> </span><span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {

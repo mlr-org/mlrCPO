@@ -1,10 +1,12 @@
 ## ---- results = "asis", echo = FALSE-------------------------------------
 
+cat("hi", file = "/tmp/wri", append = TRUE)
+
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 path = names(knitr::opts_knit$get("encoding"))[1]
 
-rpath = gsub("\\.[^.]*", ".R", path)
+rpath = gsub("\\.[^.]*$", ".R", path)
 
 knitr::knit_hooks$set(document = function(x) {
   lines = readLines(rpath)

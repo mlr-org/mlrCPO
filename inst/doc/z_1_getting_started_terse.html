@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-15" />
+<meta name="date" content="2017-12-16" />
 
 <title>First Steps (No Output)</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">First Steps (No Output)</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-15</em></h4>
+<h4 class="date"><em>2017-12-16</em></h4>
 
 
 
@@ -149,7 +149,7 @@ lrn =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class
 
 <span class="kw">tuneParams</span>(clrn, pid.task, cv5, <span class="dt">par.set =</span> ps,
            <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),
-           <span class="dt">show.info=</span><span class="ot">TRUE</span>)</code></pre></div>
+           <span class="dt">show.info =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 </div>
 <div id="special-cpos" class="section level2">
@@ -198,7 +198,7 @@ cbinder.select
 <h2>Custom CPOs</h2>
 <p>Even though <code>CPO</code>s are very flexible and can be combined in many ways, it may be necessary to create completely custom <code>CPO</code>s. Custom CPOs can be created using the <code>makeCPO</code> function. Its most important arguments are <code>cpo.trafo</code> and <code>cpo.retrafo</code>, both of which are functions. In principle, a <code>CPO</code> needs a function that “trains” a control object depending on the data (<code>cpo.trafo</code>), and another function that uses this control object, and new data, to perform the preprocessing operation (<code>cpo.retrafo</code>). The <code>cpo.trafo</code>-function must return a “control” object which contains all information about how to transform a given dataset. <code>cpo.retrafo</code> takes a (potentially new!) dataset <em>and</em> the “control” object returned by <code>cpo.trafo</code>, and transforms the new data according to plan.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(<span class="kw">formals</span>(makeCPO))  <span class="co"># see help(makeCPO) for explanation of arguments</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constFeatRem =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;constFeatRem&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">dataformat =</span> <span class="st">&quot;df.features&quot;</span>,
   <span class="dt">cpo.train =</span> function(data, target) {
     <span class="kw">names</span>(<span class="kw">Filter</span>(function(x) {  <span class="co"># names of columns to keep</span>
@@ -223,7 +223,7 @@ ps =<span class="st"> </span><span class="kw">makeParamSet</span>(
 
 <span class="kw">tuneParams</span>(clrn, pid.task, cv5, <span class="dt">par.set =</span> ps,
            <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),
-           <span class="dt">show.info=</span><span class="ot">TRUE</span>)</code></pre></div>
+           <span class="dt">show.info =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p>Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tlrn =<span class="st"> </span><span class="kw">cpoModelMatrix</span>() %&gt;&gt;%
 <span class="st">       </span><span class="kw">cpoWrap</span>() %&gt;&gt;%
