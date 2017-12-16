@@ -81,9 +81,10 @@ cpoMakeCols = function(..., .make.factors = TRUE) {
   expr$.make.factors = NULL
   superceding.env = parent.frame()
 
-  cpo = barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
+  barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
 }
-registerCPO(list(name = "cpoMakeCols", cponame = "new.cols"), "data", "features", "Replace columns by columns generated from expressions")
+cpoMakeCols = wrapFauxCPOConstructor(cpoMakeCols)  # nolint
+registerCPO(cpoMakeCols, "data", "features", "Replace columns by columns generated from expressions")
 
 #' @rdname cpoMakeCols
 #' @export
@@ -95,4 +96,5 @@ cpoAddCols = function(..., .make.factors = TRUE) {
 
   barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = TRUE, export = character(0))
 }
-registerCPO(list(name = "cpoAddCols", cponame = "new.cols"), "data", "features", "Add columns generated from expressions")
+cpoAddCols = wrapFauxCPOConstructor(cpoAddCols)  # nolint
+registerCPO(cpoAddCols, "data", "features", "Add columns generated from expressions")

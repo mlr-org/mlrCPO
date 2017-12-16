@@ -82,14 +82,12 @@ test_that("wrapFauxCPOConstructor", {
   expect_true(identicalCPO(sopFauxCo2(pca), sopFauxCo2(scale)))
   expect_false(identicalCPO(sopFauxCo2(scale), sopFauxCo1(scale)))
 
-  sopFauxCo3 = wrapFauxCPOConstructor(scaleOrPCA3, cpo.name = "sop")
+  item = sopFauxCo1(pca)
+  item$constructor = NULL
 
-  identicalCPO(sopFauxCo3(scale), sopFauxCo2(scale))
+  comparison = cpoPca()
+  comparison$constructor = NULL
 
-  expect_false(identicalCPO(sopFauxCo2(pca), sopFauxCo1(scale)))
-  expect_false(identicalCPO(sopFauxCo2(pca), sopFauxCo1()))
-
-  environment(sopFauxCo1)$cpo.type.extended
-  environment(sopFauxCo1)$trafo.funs
+  expect_equal(item, comparison)
 
 })

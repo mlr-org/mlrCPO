@@ -183,8 +183,6 @@ composeCPO.NULLCPO = function(cpo1, cpo2) {
   cpo2
 }
 
-registerS3method("composeCPO", "NULLCPO", composeCPO.NULLCPO)  # apparently this is needed for roxygenise(), idk why
-
 #' @export
 attachCPO.NULLCPO = function(cpo, learner) {
   learner
@@ -210,3 +208,7 @@ as.list.NULLCPO = function(x, ...) {
 print.NULLCPO = function(x, ...) {
   cat("NULLCPO\n")
 }
+
+# apparently this is needed for building
+registerS3method("getCPOOperatingType", "NULLCPO", getCPOOperatingType.NULLCPO)
+registerS3method("composeCPO", "NULLCPO", composeCPO.NULLCPO)

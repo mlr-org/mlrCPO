@@ -28,7 +28,17 @@
 print.CPOConstructor = function(x, verbose = FALSE, ...) {
   assertFlag(verbose)
   args = dropNamed(formals(x), reserved.params)
-  argvals = vcapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
+  mycts = function(x) {
+    short = convertToShortString(x)
+    if (short %in% c("<call>", "<name>")) {
+      trystr = deparse(x)[1]
+      if (nchar(trystr) <= 20) {
+        short = trystr
+      }
+    }
+    short
+  }
+  argvals = vcapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", mycts(y)))
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)
   if (verbose) {
