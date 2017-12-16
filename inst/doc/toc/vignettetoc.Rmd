@@ -3,6 +3,8 @@
 
 ```{r, results = "asis", echo = FALSE}
 
+cat("hi", file = "/tmp/wri", append = TRUE)
+
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 path = names(knitr::opts_knit$get("encoding"))[1]

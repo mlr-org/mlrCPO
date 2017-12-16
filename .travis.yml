@@ -33,9 +33,10 @@ before_install:
   - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
 
 before_script:
+  - rm inst/doc/*.*
   - Rscript -e 'install.packages("roxygen2")'
   - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers", ref = "paramSetSugar")'
-  - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
+  - R --no-save <<< 'library("devtools"); document()'
 
 script:
   - R CMD build .

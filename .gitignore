@@ -12,6 +12,7 @@ testinfo.RData
 !/inst/doc/*.html
 !/inst/doc/*.Rmd
 !/inst/doc/*.R
+!/inst/doc/toc
 .directory
 .gdb_history
 .DS_Store
