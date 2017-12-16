@@ -366,7 +366,12 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     if (length(par.set$pars) == 0) {
       assert(identical(export, character(0)))
     } else {
-      assertSubset(export, names2(par.set$pars))
+      # assertChoice also with 'export.possibilities' for nicer output.
+      if (length(export) == 1) {
+        assertChoice(export, c(names2(par.set$pars), export.possibilities))
+      } else {
+        assertSubset(export, names2(par.set$pars))
+      }
     }
     needed = setdiff(names2(Filter(function(x) is.null(x$requires), par.set$pars)), names2(present.pars))
     missing = setdiff(needed, export)
