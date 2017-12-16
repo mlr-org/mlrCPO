@@ -1,5 +1,5 @@
 
-#' @include makeCPO.R fauxCPOConstructor.R
+#' @include makeCPO.R fauxCPOConstructor.R NULLCPO.R
 
 #' @title CPO Multiplexer
 #'
@@ -244,7 +244,7 @@ registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO
 #' in \code{additional.parameters}).
 #'
 #' @param cpo [\code{\link{CPO}}]\cr
-#'   The CPO to use. Currently this may only have a single \link{OperatingType}.
+#'   The CPO to use. Currently this may only have a single \link{OperatingType}. Default is \code{NULLCPO}.
 #' @param transformations [named \code{list} of \code{language}]\cr
 #'   This list is contains \code{\link[base]{expression}}s or \code{\link[base:substitute]{quote}}s
 #'   that are evaluated in the context of the \emph{externally given} hyperparameters and
@@ -255,6 +255,8 @@ registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO
 #'
 #'   Hyperparameters of \code{cpo} named in this list are not exported by the TransformParams CPO. It is,
 #'   however, possible to create synonymous parameters in \code{additional.parameters}.
+#'
+#'   Default is \code{list()}.
 #' @param additional.parameters [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
 #'   Additional parameters to create, on which expressions in \code{transformations} may depend.
 #'   They may contain the same names as \code{transformations}, but may not have names of hyperparameters
@@ -266,20 +268,21 @@ registerCPO(list(name = "cpoCase", cponame = "case"), "meta", NULL, "Apply a CPO
 #' @template cpo_doc_outro
 #' @family special CPOs
 #' @export
-cpoTransformParams = function(cpo, transformations, additional.parameters = makeParamSet(), par.vals = list()) {
+cpoTransformParams = function(cpo = NULLCPO, transformations = list(), additional.parameters = makeParamSet(), par.vals = list()) {
+  assertClass(cpo, "CPO")
   assertClass(additional.parameters, "ParamSet")
   assertList(transformations, names = "unique")
   assert(all(vlapply(transformations, is.language)))
-  assertClass(cpo, "CPO")
   assertList(par.vals, names = "unique")
   assertSubset(names(par.vals), getParamIds(additional.parameters))
 
   ctinfo = collectCPOTypeInfo(list(cpo))
 
   orig.param.ids = getParamIds(getParamSet(cpo))
-  exp.params$pars = dropNamed(getParamSet(cpo)$pars, names(transformations))
+  exp.params = getParamSet(cpo)
+  exp.params$pars = dropNamed(exp.params$pars, names2(transformations))
 
-  exp.par.vals = dropNamed(getHyperPars(cpo), names(transformations))
+  exp.par.vals = dropNamed(getHyperPars(cpo), names2(transformations))
 
   if (length({badparams = intersect(getParamIds(additional.parameters), getParamIds(exp.params))})) {
     stop("Parameter(s) '%s' of cpo listed in additional.parameters. That is only allowed if for parameters that also occur as names of transformations.",
@@ -310,8 +313,6 @@ cpoTransformParams = function(cpo, transformations, additional.parameters = make
     },
     exp.params, exp.par.vals, props.creator, ctinfo, "transformparams")(id = NULL)
 }
-registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "meta", NULL, "Transform a CPO's Hyperparameters.")
-
 
 #' @title Caches the Result of CPO Transformations
 #'
@@ -336,12 +337,12 @@ registerCPO(list(name = "cpoTransformParams", cponame = "transformparams"), "met
 #'
 #' @param cpo [\code{\link{CPO}}]\cr
 #'   The \code{\link{CPO}} to wrap. The \code{\link{CPO}} may only have a single
-#'   \code{\link{OperatingType}}.
+#'   \code{\link{OperatingType}}. Default is \code{NULLCPO}.
 #' @param cache.entries [\code{numeric(1)}]\cr
 #'   Number of entries in the least recently used cache.
 #' @template cpo_doc_outro
 #' @export
-cpoCache = function(cpo, cache.entries = 1024) {
+cpoCache = function(cpo = NULLCPO, cache.entries = 1024) {
   usage.counter = 0
   usage.tracker = numeric(cache.entries)
   cache = vector("list", cache.entries)
@@ -381,7 +382,7 @@ cpoCache = function(cpo, cache.entries = 1024) {
     },
     makeParamSet(), list(), props.creator, ctinfo, "cache", packages = "digest")(id = NULL)
 }
-registerCPO(list(name = "cpoCache", cponame = "cache"), "meta", NULL, "Cache a CPO's results.")
+
 
 # Given a list of CPOs, construct them and make sure they are uniquely named
 #
@@ -670,3 +671,13 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
 
   constructor = do.call(maker, c(arguments, arguments.addnl, props.creator, list(...)))
 }
+
+
+###
+# registering needs to go to the end of the file, since all the functions above need to be defined for this
+
+cpoTransformParams = wrapFauxCPOConstructor(cpoTransformParams)  # nolint
+registerCPO(cpoTransformParams, "meta", NULL, "Transform a CPO's Hyperparameters.")
+
+cpoCache = wrapFauxCPOConstructor(cpoCache)  # nolint
+registerCPO(cpoCache, "meta", NULL, "Cache a CPO's results.")

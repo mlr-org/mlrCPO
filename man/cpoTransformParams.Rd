@@ -4,12 +4,12 @@
 \alias{cpoTransformParams}
 \title{Transform CPO Hyperparameters}
 \usage{
-cpoTransformParams(cpo, transformations,
+cpoTransformParams(cpo = NULLCPO, transformations = list(),
   additional.parameters = makeParamSet(), par.vals = list())
 }
 \arguments{
 \item{cpo}{[\code{\link{CPO}}]\cr
-The CPO to use. Currently this may only have a single \link{OperatingType}.}
+The CPO to use. Currently this may only have a single \link{OperatingType}. Default is \code{NULLCPO}.}
 
 \item{transformations}{[named \code{list} of \code{language}]\cr
   This list is contains \code{\link[base]{expression}}s or \code{\link[base:substitute]{quote}}s
@@ -20,7 +20,9 @@ The CPO to use. Currently this may only have a single \link{OperatingType}.}
   Expressions can not depend on the results of other expressions.
 
   Hyperparameters of \code{cpo} named in this list are not exported by the TransformParams CPO. It is,
-  however, possible to create synonymous parameters in \code{additional.parameters}.}
+  however, possible to create synonymous parameters in \code{additional.parameters}.
+
+  Default is \code{list()}.}
 
 \item{additional.parameters}{[\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
 Additional parameters to create, on which expressions in \code{transformations} may depend.

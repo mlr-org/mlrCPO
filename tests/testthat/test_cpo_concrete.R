@@ -1,27 +1,6 @@
 
 context("cpo concrete implementations")
 
-test_that("cpoPca test", {
-
-  ip = iris %>>% cpoPca()
-
-  ret = retrafo(ip)
-  retrafo(ip) = NULL
-
-
-  expect_equal(iris %>>% ret, ip)
-  hip = head(ip)
-  expect_equal(head(iris) %>>% ret, hip)
-
-  prc = prcomp(iris[1:4], center = FALSE)
-
-  expect_equal(getCPOTrainedState(ret)$control$rotation, prc$rotation)
-
-  expect_equal(getTaskData(iris.task %>>% cpoPca(), target.extra = TRUE)$data,
-               as.data.frame(prcomp(iris[1:4], center = FALSE, scale. = FALSE)$x))
-
-})
-
 test_that("cpoScale test", {
 
   for (sets in list(list(FALSE, FALSE),

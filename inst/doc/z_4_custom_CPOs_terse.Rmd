@@ -1,0 +1,14 @@
+---
+title: "Building Custom CPOs (No Output)"
+author: "Martin Binder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{z 4. Custom CPOs (No Output)}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, results = "asis", echo = FALSE}
+cat(knitr::knit_child("a_4_custom_CPOs.Rmd", options = list(eval = FALSE)), sep = "\n")
+```

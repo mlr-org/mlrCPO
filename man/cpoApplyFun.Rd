@@ -4,11 +4,12 @@
 \alias{cpoApplyFun}
 \title{Apply a Function Element-Wise}
 \usage{
-cpoApplyFun(fun, vectorize = TRUE, id, export = "export.default",
-  affect.type = NULL, affect.index = integer(0),
-  affect.names = character(0), affect.pattern = NULL,
-  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
-  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+cpoApplyFun(fun, vectorize = TRUE, make.factors = TRUE, id,
+  export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.names = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{fun}{[\code{function}]\cr
@@ -24,6 +25,11 @@ Whether to call \code{fun} once for each column, or
 once for each element. If \code{fun} vectorizes,
 it is recommended to have this set to \code{TRUE}
 for better performance. Default is \code{TRUE}.}
+
+\item{make.factors}{[\code{logical(1)}]\cr
+Whether to turn resulting \code{logical} and \code{character}
+columns into \code{factor} columns (which are preferred by
+\code{mlr}). Default is \code{TRUE}.}
 
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
@@ -85,6 +91,11 @@ data must remain numeric etc.
 If the function can only handle a subset of the given columns,
 e.g. only a certain type, use \code{affect.*} arguments.
 }
+\section{CPOTrained State}{
+
+The created state is empty.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

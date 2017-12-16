@@ -15,8 +15,8 @@ Expressions of the form \code{colname = expr}. See Examples.}
 
 \item{.make.factors}{[\code{logical(1)}]\cr
 Whether to turn resulting \code{logical} and \code{character}
-columns into \code{factor} columns (which are preferentially
-handled by \code{mlr}). Default is \code{TRUE}.}
+columns into \code{factor} columns (which are preferred
+by \code{mlr}). Default is \code{TRUE}.}
 }
 \value{
 [\code{\link{CPO}}].
@@ -40,6 +40,11 @@ column names and may not clash with the target column name.
 \code{cpoMakeCols} replaces existing cols by the newly created
 ones, \code{cpoAddCols} adds them to the data already present.
 }
+\section{CPOTrained State}{
+
+The created state is empty.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

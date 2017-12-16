@@ -70,5 +70,6 @@ listCPO = function() {
   df = df[order(paste(df$category, df$subcategory, df$name, sep = "$")), ]
   df$description = as.character(df$description)
   df$name = as.character(df$name)
+  df$cponame = as.character(df$cponame)
   addClasses(df, "ListCPO")
 }

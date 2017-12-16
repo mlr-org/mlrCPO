@@ -1,0 +1,56 @@
+---
+title: "Building Custom CPOs"
+author: "Martin Binder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{4. Custom CPOs}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
+```
+
+```{r, echo = FALSE}
+library("mlrCPO")
+```
+
+
+## Creating Custom CPOs
+Custom CPOs can be created using the `makeCPO` function. Its most important arguments are `cpo.trafo` and `cpo.retrafo`, both of which are functions. The `cpo.trafo`-function must return a "control" object which contains all information about how to transform a given dataset. `cpo.retrafo` takes a (potentially new!) dataset *and* the "control" object returned by `cpo.trafo`, and transforms the new data according to plan.
+```{r}
+names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
+```
+
+```{r}
+constFeatRem = makeCPO("constFeatRem",  # nolint
+  dataformat = "df.features",
+  cpo.train = function(data, target) {
+    names(Filter(function(x) {  # names of columns to keep
+        length(unique(x)) > 1
+      }, data))
+    }, cpo.retrafo = function(data, control) {
+    data[control]
+  })
+head(iris) %>>% constFeatRem()
+print(constFeatRem, verbose = TRUE)
+```
+
+It is also possible to set `cpo.retrafo = NULL`. Then `cpo.trafo` must return a function that takes a `data` argument, which is a (possibly new) dataset to transform, and returns the transformed data. The following example is equivalent to the example above:
+```{r}
+constFeatRem = makeCPO("constFeatRem",  # nolint
+  dataformat = "df.features",
+  cpo.train = function(data, target) {
+    cols.keep = names(Filter(function(x) {
+    length(unique(x)) > 1
+      }, data))
+    # the following function will do both the trafo and retrafo
+    result = function(data) {
+      data[cols.keep]
+    }
+    result
+  }, cpo.retrafo = NULL)
+head(iris) %>>% constFeatRem()
+print(constFeatRem, verbose = TRUE)
+```

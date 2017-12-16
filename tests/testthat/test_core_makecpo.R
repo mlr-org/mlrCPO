@@ -214,6 +214,8 @@ test_that("cpo.trafo has expected effects", {
         expect_identical(getTaskData(ret), exp1)
         if (!is.retrafoless) {
           expect_identical(getTaskData(task %>>% retrafo(ret)), exp1)
+          expect_identical(clearRI(getTaskData(task) %>>% retrafo(ret)), exp1)
+          expect_identical(clearRI(getTaskData(task, target.extra = TRUE)$data %>>% retrafo(ret)), dropNamed(exp1, getTaskTargetNames(task)))
         }
 
         ret = task %>>% cpo %>>% cpo

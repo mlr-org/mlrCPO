@@ -4,12 +4,12 @@
 \alias{cpoCache}
 \title{Caches the Result of CPO Transformations}
 \usage{
-cpoCache(cpo, cache.entries = 1024)
+cpoCache(cpo = NULLCPO, cache.entries = 1024)
 }
 \arguments{
 \item{cpo}{[\code{\link{CPO}}]\cr
 The \code{\link{CPO}} to wrap. The \code{\link{CPO}} may only have a single
-\code{\link{OperatingType}}.}
+\code{\link{OperatingType}}. Default is \code{NULLCPO}.}
 
 \item{cache.entries}{[\code{numeric(1)}]\cr
 Number of entries in the least recently used cache.}

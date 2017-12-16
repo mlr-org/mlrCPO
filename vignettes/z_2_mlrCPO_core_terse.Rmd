@@ -1,0 +1,14 @@
+---
+title: "mlrCPO Core (No Output)"
+author: "Martin Binder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{z 2. mlrCPO Core (No Output)}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, results = "asis", echo = FALSE}
+cat(knitr::knit_child("a_2_mlrCPO_core.Rmd", options = list(eval = FALSE)), sep = "\n")
+```

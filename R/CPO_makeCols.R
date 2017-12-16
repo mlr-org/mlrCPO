@@ -63,8 +63,12 @@ barecpoMakeCols = makeCPO("new.cols", pSS(expr: untyped, superceding.env: untype
 #'   Expressions of the form \code{colname = expr}. See Examples.
 #' @param .make.factors [\code{logical(1)}]\cr
 #'   Whether to turn resulting \code{logical} and \code{character}
-#'   columns into \code{factor} columns (which are preferentially
-#'   handled by \code{mlr}). Default is \code{TRUE}.
+#'   columns into \code{factor} columns (which are preferred
+#'   by \code{mlr}). Default is \code{TRUE}.
+#'
+#' @section CPOTrained State:
+#' The created state is empty.
+#'
 #' @examples
 #' res = pid.task %>>% cpoAddCols(gpi = glucose * pressure * insulin, pm = pregnant * mass)
 #' head(getTaskData(res))
@@ -74,11 +78,13 @@ cpoMakeCols = function(..., .make.factors = TRUE) {
   mc = match.call()
   mc[[1]] = alist
   expr = eval.parent(mc)
+  expr$.make.factors = NULL
   superceding.env = parent.frame()
 
-  cpo = barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
+  barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = FALSE, export = character(0))
 }
-registerCPO(list(name = "cpoMakeCols", cponame = "new.cols"), "data", "features", "Replace columns by columns generated from expressions")
+cpoMakeCols = wrapFauxCPOConstructor(cpoMakeCols)  # nolint
+registerCPO(cpoMakeCols, "data", "features", "Replace columns by columns generated from expressions")
 
 #' @rdname cpoMakeCols
 #' @export
@@ -90,4 +96,5 @@ cpoAddCols = function(..., .make.factors = TRUE) {
 
   barecpoMakeCols(expr = expr, superceding.env = superceding.env, make.factors = .make.factors, add.cols = TRUE, export = character(0))
 }
-registerCPO(list(name = "cpoAddCols", cponame = "new.cols"), "data", "features", "Add columns generated from expressions")
+cpoAddCols = wrapFauxCPOConstructor(cpoAddCols)  # nolint
+registerCPO(cpoAddCols, "data", "features", "Add columns generated from expressions")

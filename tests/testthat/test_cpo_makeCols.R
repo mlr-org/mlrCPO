@@ -37,5 +37,12 @@ test_that("cpoMakeCols behaves as expected", {
   expect_identical(getTaskData(pid.task %>>% cpoMakeCols()), pd[trg])
   expect_equal(clearRI(pid.task %>>% cpoAddCols()), pid.task)
 
+  expect_identical(getTaskData(factors.classif %>>% cpoMakeCols(F1 = as.character(F1), F2 = as.character(F2), F3 = as.character(F3))),
+    getTaskData(factors.classif))
+
+  expect_identical(getTaskData(factors.classif %>>% cpoMakeCols(F1 = as.character(F1), F2 = as.character(F2), F3 = as.character(F3), .make.factors = FALSE),
+    target.extra = TRUE)$data,
+    as.data.frame(as.matrix(getTaskData(factors.classif, target.extra = TRUE)$data), stringsAsFactors = FALSE))
+
 })
 

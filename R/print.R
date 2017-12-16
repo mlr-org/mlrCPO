@@ -13,6 +13,9 @@
 #' functions, for \code{\link{CPO}}, the individual constituents of a compound
 #' CPO will be printed.
 #'
+#' Verbose printing can also be done using the \code{!} operator. \code{!cpo} is equivalent to
+#' \code{print(cpo, verbose = TRUE)}.
+#'
 #' @param x [\code{\link{CPOConstructor}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr
 #'   The \code{\link{CPOConstructor}} to print.
 #' @param verbose [\code{logical(1)}]\cr
@@ -25,7 +28,17 @@
 print.CPOConstructor = function(x, verbose = FALSE, ...) {
   assertFlag(verbose)
   args = dropNamed(formals(x), reserved.params)
-  argvals = vcapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", convertToShortString(y)))
+  mycts = function(x) {
+    short = convertToShortString(x)
+    if (short %in% c("<call>", "<name>")) {
+      trystr = deparse(x)[1]
+      if (nchar(trystr) <= 20) {
+        short = trystr
+      }
+    }
+    short
+  }
+  argvals = vcapply(args, function(y) if (identical(y, substitute())) "" else paste(" =", mycts(y)))
   argstring = paste(names(args), argvals, collapse = ", ", sep = "")
   catf("<<CPO %s(%s)>>", getCPOName(x), argstring)
   if (verbose) {
@@ -49,6 +62,7 @@ print.CPOConstructor = function(x, verbose = FALSE, ...) {
       }
     }
   }
+  invisible(NULL)
 }
 
 # verbose print function for CPOs:
@@ -106,7 +120,7 @@ print.CPO = function(x, verbose = FALSE, ...) {
 #' @family retrafo related
 #' @family inverter related
 #' @export
-print.CPOTrained = function(x, ...) {
+print.CPOTrained = function(x, verbose = FALSE, ...) {
   first = TRUE
   object.type = getCPOClass(x)
   invcap = getCPOTrainedCapability(x)
@@ -141,7 +155,7 @@ print.CPOTrained = function(x, ...) {
       cat(" =>\n")
     }
     first = FALSE
-    pv = getHyperPars(primitive)
+    pv = getBareHyperPars(primitive$element$cpo, include.unexported = verbose)
     argstring = paste(names(pv), vcapply(pv, convertToShortString), sep = " = ", collapse = ", ")
     pcap = getCPOTrainedCapability(primitive)
     if (pcap["invert"] > 0) {
@@ -166,6 +180,22 @@ print.CPOTrained = function(x, ...) {
   }
   cat("\n")
 }
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPOConstructor` = function(x) print(x, verbose = TRUE)
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPO` = function(x) print(x, verbose = TRUE)
+
+# verbose printing
+#' @rdname print.CPOConstructor
+#' @export
+`!.CPOTrained` = function(x) print(x, verbose = TRUE)
+
 
 # helper function for retrafo / inverter 'element's
 # The user shouldn't see these too often

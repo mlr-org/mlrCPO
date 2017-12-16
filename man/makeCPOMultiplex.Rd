@@ -7,12 +7,11 @@
 \usage{
 makeCPOMultiplex(cpos, selected.cpo = NULL)
 
-cpoMultiplex(cpos, selected.cpo = NULL, id = NULL,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoMultiplex(cpos, selected.cpo = NULL, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{cpos}{[\code{list} of (\code{\link{CPO}} | \code{\link{CPOConstructor}})]\cr

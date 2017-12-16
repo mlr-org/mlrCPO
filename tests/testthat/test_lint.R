@@ -8,6 +8,7 @@ if (isLintrVersionOk(identical(Sys.getenv("TRAVIS"), "true"))) {
       skip("Coverage")
     }
     expect_lint_free(linters = linters)
+#      exclusions = paste0("inst/doc/", list.files("../../inst/doc/", ".*\\.R$")))
   })
 } else {
   warning(paste("lintr test was disabled because of missing lintr.",
