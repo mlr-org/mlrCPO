@@ -30,7 +30,7 @@ test_that("all CPOs are listed with the right name", {
 
 test_that("all exported CPOConstructors are listed", {
 
-  nspath = dirname(system.file("NAMESPACE", package="mlrCPO"))
+  nspath = dirname(system.file("NAMESPACE", package = "mlrCPO"))
 
   exports = parseNamespaceFile(basename(nspath), dirname(nspath))$exports
 

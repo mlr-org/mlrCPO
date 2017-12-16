@@ -621,5 +621,5 @@ printGraph = function(children, descriptions, width = getOption("width")) {
   }
 }
 
-cpoCbind = wrapFauxCPOConstructor(cpoCbind)
+cpoCbind = wrapFauxCPOConstructor(cpoCbind)  # nolint
 registerCPO(cpoCbind, "meta", NULL, "Combine multiple CPO operations by joining their outputs column-wise.")

@@ -23,7 +23,7 @@ test_that("makeFauxCPOConstructor does what it is supposed to do", {
     }
   }
 
-  sopFauxNOEXP = makeFauxCPOConstructor(scaleOrPCANoExpect, "scale.or.pca", "other")
+  sopFauxNOEXP = makeFauxCPOConstructor(scaleOrPCANoExpect, "scale.or.pca", "other")  # nolint
   expect_output(print(sopFauxNOEXP()), "scale\\(center = TRUE, scale = TRUE\\)")
 
   sopFauxCPO = makeFauxCPOConstructor(scaleOrPCA, "scale.or.pca", "target",  # nolint
@@ -87,7 +87,7 @@ test_that("wrapFauxCPOConstructor", {
   expect_output(print(sopFauxCo1), "<<CPO scale\\(which\\)>>")
   expect_output(print(sopFauxCo1, verbose = TRUE), "<<CPO scale\\(which\\)>>.*cpo.trafo:\nfunction .*cpo.retrafo:\nfunction \\(")
 
-  sopFauxCo2 = wrapFauxCPOConstructor(scaleOrPCA2, cpo.name = "sop")
+  sopFauxCo2 = wrapFauxCPOConstructor(scaleOrPCA2, cpo.name = "sop")  # nolint
 
   expect_output(print(sopFauxCo2), "<<CPO sop\\(which\\)>>")
   expect_output(print(sopFauxCo2, verbose = TRUE), "<<CPO sop\\(which\\)>>.*cpo.trafo:\nfunction .*cpo.retrafo:\nfunction \\(")
