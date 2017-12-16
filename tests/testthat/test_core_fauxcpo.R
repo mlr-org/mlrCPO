@@ -14,11 +14,24 @@ test_that("makeFauxCPOConstructor does what it is supposed to do", {
     }
   }
 
+  scaleOrPCANoExpect = function(which) {
+    wstr = as.character(substitute(which))
+    if (wstr == "pca") {
+      cpoPca
+    } else {
+      cpoScale
+    }
+  }
+
+  sopFauxNOEXP = makeFauxCPOConstructor(scaleOrPCANoExpect, "scale.or.pca", "other")
+  expect_output(print(sopFauxNOEXP()), "scale\\(center = TRUE, scale = TRUE\\)")
+
   sopFauxCPO = makeFauxCPOConstructor(scaleOrPCA, "scale.or.pca", "target",  # nolint
     trafo.funs = list(cpo.train.orig = NULL, cpo.retrafo.orig = identity), default.id.null = TRUE)
 
   sopFauxCPO2 = makeFauxCPOConstructor(scaleOrPCA, "scale.or.pca", "target",  # nolint
     trafo.funs = list(cpo.train.orig = NULL, cpo.retrafo.orig = identity), default.id.null = FALSE)
+
 
 
   expect_output(print(sopFauxCPO), "<<CPO scale.or.pca\\(which\\)>>")

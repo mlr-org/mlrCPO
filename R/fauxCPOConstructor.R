@@ -17,12 +17,18 @@ makeFauxCPOConstructor = function(constructorconstructor, cpo.name, cpo.type.ext
            affect.type = NULL, affect.index = integer(0), affect.names = character(0), affect.pattern = NULL,
            affect.invert = FALSE, affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE) {
     cc = constructorconstructor
-    constconstcall = dropNamed(match.call(), const.params)
+    constconstcall = match.call()
+    if (!is.null(names(constconstcall))) {
+      constconstcall = dropNamed(constconstcall, const.params)  # drop affect.* etc.
+    }
     constconstcall[[1]] = cc
     cpoconst = eval.parent(constconstcall)
 
-    constcall = dropNamed(match.call(), constconst.params)
-    constcall[[1]] = substitute(cpoconst)
+    constcall = match.call()
+    if (!is.null(names(constcall))) {
+      constcall = dropNamed(constcall, constconst.params)  # keep affect.* etc., drop the others
+    }
+    constcall[[1]] = cpoconst
     newcpo = eval.parent(constcall)
     newcpo$old.constructor = newcpo$constructor
     newcpo$constructor = constructor
