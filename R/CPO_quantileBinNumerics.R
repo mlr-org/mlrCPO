@@ -21,4 +21,4 @@ cpoQuantileBinNumerics = makeCPO("bin.numerics",  # nolint
     as.data.frame(mapply(function(d, b) ordered(cut(d, breaks = b)), d = data, b = control, SIMPLIFY = FALSE),
       row.names = rownames(data))
   })
-registerCPO(cpoCollapseFact, "data", "feature conversion", "Convert Numerics to Ordered by binning.")
+registerCPO(cpoQuantileBinNumerics, "data", "feature conversion", "Convert Numerics to Ordered by binning.")
