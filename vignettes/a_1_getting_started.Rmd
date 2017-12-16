@@ -12,50 +12,84 @@ vignette: >
 ```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
-## Preprocessing Operators
-
-Data preprocessing can be performed using the "mlrCPO" ("Composable Preprocessing Operators") addon package for mlr.
-CPO makes it easy to use a variety of preprocessing operations, to chain different operations, and to integrate
-preprocessing with mlr learners, and to define custom preprocessing operations.
-
-To chain different operations, to apply a CPO to a dataset, and to attach a CPO to a learner, the operator `%>>%` can
-be used. This way, it is possible to quickly create natural looking pipelines that are very flexible and can even be
-optimized over.
-
-The following requires the `mlrCPO` package to be loaded:
-```{r}
-library("mlrCPO")
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-## CPO Objects
+## About the Vignettes
 
-Different preprocessing operations are provided in the form of *CPO Constructors*, which can be called like functions
-to create *CPO* objects. These CPO objects are then used to apply the operation to a data set.
+Since `mlrCPO` is a package with some depth to it, it comes with a few vignettes that each explain different aspects of its operation. These are the current document ("First Steps"), offering a short introduction and information on where to get started, "[mlrCPO Core](a_2_mlrCPO_core.html)", describing all the functions and tools offered by `mlrCPO` that are independent from specific `CPO`s, "[CPOs Built Into mlrCPO](a_3_all_CPOs.html)", listing all `CPO`s included in the `mlrCPO` package, and "[Building Custom CPOs](a_4_custom_CPOs.html)", describing the process of creating new `CPO`s that offer new functionality.
+
+All vignettes also have a "compact version" with the R output suppressed for readability. They are linked in the navigation section at the top.
+
+All vignettes assume that `mlrCPO` (and therefore its requirement `mlr`) is installed successfully and loaded using `library("mlrCPO")`. Help with installation is provided on the [project's GitHub page](https://github.com/mlr-org/mlrCPO).
+
+## What is mlrCPO?
+
+"Composable Preprocessing Operators", "CPO", are an extension for the [mlr](https://github.com/mlr-org/mlr) ("Machine Learning in R") project which present preprocessing operations in the form of R objects. These CPO objects can be composed to form complex operations, they can be applied to data sets, and can be attached to mlr `Learner` objects to generate machine learning pipelines that combine preprocessing and model fitting.
+
+### What is Preprocessing
+
+"Preprocessing", as understood by `mlrCPO`, is any manipulation of data used in a machine learning process to get it from its form as found in the wild into a form more fitting for the machine learning algorithm ("`Learner`") used for model fitting. It is important that the exact method of preprocessing is kept track of, to be able to perform this method when the resulting model is used to make predictions on new data. It is also important, when evaluating preprocessing methods e.g. using *resampling*, that the parameters of these methods are independent of the validation dataset and only depend on the training data set.
+
+`mlrCPO` tries to support the user in all these aspects of preprocessing:
+
+1. By providing a large set of atomic preprocessing `CPO`s that can perform many different operations. Operations that go beyond the provided toolset can be implemented in custom `CPO`s.
+2. By using "`CPOTrained`" objects that represent the preprocessing done on training data that should, in that way, be re-applied to new prediction data.
+3. By making it possible to combine preprocessing objects with `mlr` "`Learner`" objects that represent the entinre machine learning pipeline to be tuned and evaluated.
+
+## Preprocessing Operations
+
+At the centre of `mlrCPO` are "`CPO`" objects. To get a `CPO` object, it is necessary to call a
+*CPO Constructor*. A CPO Constructor sets up the parameters of a `CPO` and provides further
+options for its behaviour. Internally, CPO Constructors are *functions* that have a common
+interface and a friendly printer method.
 ```{r}
 cpoScale  # a cpo constructor
-```
-```{r}
-print(cpoScale, verbose = TRUE)  # more information
+cpoAddCols
+
 cpoScale()  # create a CPO object that scales and centers data
+cpoAddCols(Sepal.Area = Sepal.Length * Sepal.Width)  #  this would add a column
 ```
 
-`CPO` objects are central to `mlrCPO`, and they are very flexible. They can be applied to a dataset or a Task:
+`CPO`s exist first to be *applied* to data. Every `CPO` represents a certain data transformation,
+and this transformation is performed when the `CPO` is applied. This can be done using the
+**`applyCPO`** function, or the **`%>>%`** operator. `CPO`s can be applied to `data.frame` objects,
+and to `mlr` "`Task`" objects.
 ```{r}
-head(iris %>>% cpoScale())
+iris.demo = iris[c(1, 2, 51, 52, 102), ]
+tail(iris.demo %>>% cpoQuantileBinNumerics())  # bin the data in below & above median
 ```
-```{r}
-head(getTaskData(iris.task %>>% cpoScale()))
-```
-they can be concatenated to create new operations:
-```{r}
-cpoScale() %>>% cpoPca()
-```
-and they can be fused with a `Learner` to create a machine learning pipeline that performs preprocessing on the learning data
-and also pre-processes the data that is fed to the model for prediction.
 
-A list of all internal `CPO`s can be retrieved using `listCPO`, which returns a data frame of names, descriptions, and categories.
+A useful feature of `CPO`s is that they can be concatenated t form new operations. Two `CPO`s
+can be combines using the **`composeCPO`** function or, as before, the **`%>>%`** operator.
+When two `CPO`s are combined, the product is a new `CPO` that can itself be composed or applied.
+When two `CPO`s are composed, the result represents the operation of first applying the first, then
+the second `CPO`. Therefore, `data %>>% (cpo1 %>>% cpo2)` is the same as `(data %>>% cpo1) %>>% cpo2`.
 ```{r}
-listCPO()$name
+# first create bins, then as.numeric() all columns to get 1 or 2 for below & above median
+quantilenum = cpoQuantileBinNumerics() %>>% cpoAsNumeric()
+iris.demo %>>% quantilenum
+```
+
+The last example shows that it is sometimes not a good idea to have a `CPO` affect the whole
+dataset. Therefore, when a `CPO` is created, it is possible to choose what columns the `CPO`
+should affect. The CPO Constructor has a variety of parameters, starting with `affect.`,
+that can be used to choose what columns the `CPO` operates on. To prevent `cpoAsNumeric`
+from influencing the `Species` column, we can thus do
+```{r}
+quantilenum.restricted = cpoQuantileBinNumerics() %>>%
+  cpoAsNumeric(affect.names = "Species", affect.invert = TRUE)
+iris.demo %>>% quantilenum.restricted
+```
+
+A more convenient method in this case, however, is to use an `mlr` "`Task`", which keeps track of
+the target column. "Feature Operation" `CPO`s (as all the ones shown) do not influence the target
+column.
+```{r}
+demo.task = makeClassifTask(data = iris.demo, target = "Species")
+result = demo.task %>>% quantilenum
+getTaskData(result)
 ```
 
 ## Retrafo
@@ -64,17 +98,17 @@ Manipulating data for preprocessing itself is relatively easy. A challenge comes
 into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed
 on the new prediction data. However, the transformation performed for prediction often needs information from the training step.
 For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs
-to be rotated by the rotation matrix found by the training PCA. The process of obtaining the rotation matrix will be called
+to be rotated by the *rotation matrix* found by the training PCA. The process of obtaining the rotation matrix will be called
 "training" the `CPO`, and the object that contains the trained information is called `CPOTrained`. For preprocessing operations
 that operate only on *features* of a task (as opposed to the target column), the `CPOTrained` will always be applied to new
 incoming data, and hence be of class `CPORetrafo` and called a "retrafo" object. To obtain this retrafo object, one can use
 `retrafo()`. Retrafo objects can be applied to data just as `CPO`s can, by using the `%>>%` operator.
-
 ```{r}
-transformed = iris %>>% cpoPca()
+transformed = iris.demo %>>% cpoPca()
 ret = retrafo(transformed)
-print(ret)
+!ret
 ```
+
 Comparing the first lines of the transformed data with the lines of "retransforming" the same input data:
 ```{r}
 head(transformed)
