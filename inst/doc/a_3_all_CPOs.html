@@ -380,9 +380,9 @@ df %&gt;&gt;%<span class="st"> </span><span class="kw">cpoScale</span>(<span cla
 <p>Implements <code>stats::prcomp</code>. No scaling or centering is performed.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
 <span class="co">#&gt;         PC1           PC2</span>
-<span class="co">#&gt; 1 -10.04988  4.163336e-16</span>
+<span class="co">#&gt; 1 -10.04988  4.440892e-16</span>
 <span class="co">#&gt; 2   0.00000  0.000000e+00</span>
-<span class="co">#&gt; 3  10.04988 -4.163336e-16</span></code></pre></div>
+<span class="co">#&gt; 3  10.04988 -4.440892e-16</span></code></pre></div>
 </div>
 <div id="cpodummyencode" class="section level3">
 <h3>cpoDummyEncode</h3>
@@ -661,7 +661,7 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="kw">train</span>(<span class="kw">cpoImputeAll</span>(<span class="dt">cols =</span> <span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">imputeMedian</span>())) %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.lm&quot;</span>), missing.task)
 <span class="co">#&gt; Model for learner.id=regr.lm.impute; learner.class=CPOLearner</span>
 <span class="co">#&gt; Trained on: task.id = missing.task; obs = 3; features = 1</span>
-<span class="co">#&gt; Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></code></pre></div>
+<span class="co">#&gt; Hyperparameters: impute.target.cols=character(0),impute.classes=list(),impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></code></pre></div>
 </div>
 <div id="specialised-imputation-wrappers" class="section level4">
 <h4>Specialised Imputation Wrappers</h4>
