@@ -3,6 +3,8 @@
 #' @title Use the \dQuote{se} \code{predict.type} for \dQuote{response} Prediction
 #'
 #' @template cpo_doc_intro
+#'
+#' @description
 #' Some \code{\link[mlr:makeLearner]{Learners}} may give better \dQuote{response} prediction
 #' if their \dQuote{se} \code{predict.type} is used, especially when a \code{\link{cpoApplyFunRegrTarget}}is used
 #' on it. This \code{\link{CPO}} performs no transformation of the data, but instructs

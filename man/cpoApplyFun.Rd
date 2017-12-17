@@ -4,7 +4,7 @@
 \alias{cpoApplyFun}
 \title{Apply a Function Element-Wise}
 \usage{
-cpoApplyFun(fun, vectorize = TRUE, make.factors = TRUE, id,
+cpoApplyFun(fun, param = NULL, vectorize = TRUE, make.factors = TRUE, id,
   export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
@@ -13,12 +13,20 @@ cpoApplyFun(fun, vectorize = TRUE, make.factors = TRUE, id,
 }
 \arguments{
 \item{fun}{[\code{function}]\cr
-The function to apply. Must take one argument. If
-\code{vectorize} is \code{TRUE}, the argument is the
-whole column, \code{fun} must vectorize over it;
-otherwise, the function gets called once for
-every data item, and both the function argument and
-the return value must have length 1.}
+  The function to apply. If
+  \code{vectorize} is \code{TRUE}, the argument is a vector of the
+  whole column, \code{fun} must vectorize over it and return
+  a vector of the same length;
+  otherwise, the function gets called once for
+  every data item, and both the function argument and
+  the return value must have length 1.
+
+  The function must take one or two arguments. If it takes
+  two arguments, the second argument will be \code{param}.}
+
+\item{param}{[any]\cr
+Optional argument to be given to \code{fun}. If \code{fun}
+only takes one argument, this is ignored. Default is \code{NULL}.}
 
 \item{vectorize}{[\code{logical(1)}]\cr
 Whether to call \code{fun} once for each column, or
@@ -121,9 +129,9 @@ data features are affected by default.
 }
 
 \seealso{
-Other CPOs: \code{\link{cpoAsNumeric}},
-  \code{\link{cpoCache}}, \code{\link{cpoCbind}},
-  \code{\link{cpoCollapseFact}},
+Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
+  \code{\link{cpoAsNumeric}}, \code{\link{cpoCache}},
+  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -161,6 +169,7 @@ Other CPOs: \code{\link{cpoAsNumeric}},
   \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
   \code{\link{cpoProbEncode}},
   \code{\link{cpoQuantileBinNumerics}},
+  \code{\link{cpoResponseFromSE}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},

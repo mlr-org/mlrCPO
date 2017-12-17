@@ -90,9 +90,10 @@ data features are affected by default.
 }
 
 \seealso{
-Other CPOs: \code{\link{cpoApplyFun}},
-  \code{\link{cpoAsNumeric}}, \code{\link{cpoCache}},
-  \code{\link{cpoCbind}}, \code{\link{cpoCollapseFact}},
+Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
+  \code{\link{cpoApplyFun}}, \code{\link{cpoAsNumeric}},
+  \code{\link{cpoCache}}, \code{\link{cpoCbind}},
+  \code{\link{cpoCollapseFact}},
   \code{\link{cpoDropConstants}},
   \code{\link{cpoDummyEncode}},
   \code{\link{cpoFilterAnova}},
@@ -129,6 +130,7 @@ Other CPOs: \code{\link{cpoApplyFun}},
   \code{\link{cpoMissingIndicators}},
   \code{\link{cpoModelMatrix}}, \code{\link{cpoPca}},
   \code{\link{cpoProbEncode}},
+  \code{\link{cpoResponseFromSE}},
   \code{\link{cpoScaleMaxAbs}},
   \code{\link{cpoScaleRange}}, \code{\link{cpoScale}},
   \code{\link{cpoSelect}}, \code{\link{cpoSpatialSign}},
