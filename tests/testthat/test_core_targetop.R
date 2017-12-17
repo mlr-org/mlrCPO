@@ -1160,13 +1160,13 @@ test_that("sanitizePrediction", {
       if (px == "prob") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "predict.type 'prob' must have numeric data")
         expect_error(sanitizePrediction(data.frame(a = 1:3), type = type, predict.type = "se"), "predict.type 'se' only valid for 'regr'")
-        input = data.frame(a=1:10, b=1:10)
+        input = data.frame(a = 1:10, b = 1:10)
         expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
       } else if (px == "se") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "'regr' 'se' prediction must be a numeric matrix with two columns")
         expect_error(invert(inverter, predict.type = px, 1:10), "'regr' 'se' prediction must be a numeric matrix with two columns")
-        expect_error(invert(inverter, predict.type = px, data.frame(a=1:10, b=1:10, c = 1:10)), "'regr' 'se' prediction must be a numeric matrix with two columns")
-        input = data.frame(a=1:10, b=1:10)
+        expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 1:10, c = 1:10)), "'regr' 'se' prediction must be a numeric matrix with two columns")
+        input = data.frame(a = 1:10, b = 1:10)
         expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
       } else if (type == "multilabel") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3)), "'multilabel' response prediction must be logical")
