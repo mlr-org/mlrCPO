@@ -1,4 +1,4 @@
-#' @include makeCPO.R auxiliary.R
+#' @include makeCPO.R auxiliary.R fauxCPOConstructor.R
 
 #' @title Apply a Function Element-Wise
 #'
@@ -135,6 +135,7 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
     invert.response = NULL: funct [[special.vals = list(NULL)]],
     invert.se = NULL: funct [[special.vals = list(NULL)]],
     param = NULL: untyped, vectorize = TRUE: logical),
+  properties.target = "regr",
   export = "param",
   constant.invert = TRUE,
   cpo.train = NULL, cpo.train.invert = NULL,
@@ -249,4 +250,36 @@ vectorizeFun = function(fun, numreturns, cponame) {
   }
 }
 
+#' @title Log-Transform a Regression Target Variable.
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Log-transforms the regression \code{\link[mlr:Task]{Task}}'s target variable.
+#'
+#' If \code{predict.type} is \dQuote{response} for inversion, the model's prediction is
+#' exponentiated.
+#'
+#' If \code{predict.type} = \dQuote{se} prediction is performed, the model's prediction
+#' is taken as the parameters of a lognormal random variable; the inverted prediction is then
+#' \code{mean = exp(mean + se / 2)}, \code{se = sqrt((exp(se) - 1) * exp(2 * mean + se))}.
+#'
+#' It is therefore recommended to use \dQuote{se} prediction, possibly with the help of
+#' \code{\link{cpoResponseFromSE}}.
+#'
+#' @template cpo_doc_outro
+#' @export
+cpoLogTrafoRegr = function(id) {
+  cpo = cpoApplyFunRegrTarget(trafo = log, invert.response = exp,
+    invert.se = function(mean, se) { c(mean = exp(mean + se / 2), se = sqrt((exp(se) - 1) * exp(2 * mean + se))) },
+    export = "export.none")
+  if (!missing(id)) {
+    cpo = setCPOId(id)
+  }
+  cpo
+}
+cpoLogTrafoRegr = wrapFauxCPOConstructor(cpoLogTrafoRegr)
+
 registerCPO(cpoApplyFun(fun = identity), "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
+registerCPO(cpoApplyFunRegrTarget(trafo = identity), "target", "general target transformation", "Apply an arbitrary function to a regression target.")
+registerCPO(cpoLogTrafoRegr(), "target", "target transformation", "Log-transform a regression target.")
