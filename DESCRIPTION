@@ -83,6 +83,7 @@ Collate:
     'CPO_scaleRange.R'
     'CPO_select.R'
     'CPO_spatialSign.R'
+    'CPO_targettrafo.R'
     'CPO_wrap.R'
     'RetrafoState.R'
     'attributes.R'

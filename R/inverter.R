@@ -264,9 +264,9 @@ sanitizePrediction = function(data, type, predict.type) {
 
   # if data is a matrix, we allow it if it is a 1-column matrix
   if (is.matrix(data)) {
-    if (ncol(matrix) > 1) {
+    if (ncol(data) > 1) {
       stopf("'%s' response prediction must be a vector, but is matrix with %s columns.",
-        type, ncol(matrix))
+        type, ncol(data))
     }
     data = data[, 1, drop = TRUE]
   }

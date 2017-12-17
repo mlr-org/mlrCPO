@@ -13,7 +13,10 @@
 # @return [invisible(NULL)]
 registerCPO = function(cpo, category, subcategory = NULL, description) {
   name = deparse(substitute(cpo))
-  if (!is.function(cpo)) {
+  if ("CPO" %in% class(cpo)) {
+    name = deparse(substitute(cpo)[[1]])
+    cponame = getCPOName(cpo)
+  } else if (!is.function(cpo)) {
     name = cpo$name
     cponame = cpo$cponame
   } else {
