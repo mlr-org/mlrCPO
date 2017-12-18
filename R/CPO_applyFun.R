@@ -86,6 +86,12 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #'   advisable to prepend this \code{\link{CPO}} with the \code{\link{cpoResponseFromSE}}
 #'   \code{\link{CPO}}.
 #'
+#'   Note when \code{trafo} or \code{invert.response} take more than one argument, the
+#'   second argument will be set to the value of \code{param}. This may lead to unexpected
+#'   results when using functions with rarely used parameters, e.g. \code{\link[base]{log}}.
+#'   In these cases, it may be necessary to wrap the function:
+#'   \code{trafo = function(x) log(x)}.
+#'
 #' @param trafo [\code{function}]\cr
 #'   A function transforming the target column. If \code{vectorize} is \code{TRUE},
 #'   the argument is a vector of the whole column, \code{trafo} must vectorize over it
@@ -135,26 +141,26 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
     invert.response = NULL: funct [[special.vals = list(NULL)]],
     invert.se = NULL: funct [[special.vals = list(NULL)]],
     param = NULL: untyped, vectorize = TRUE: logical),
-  properties.target = "regr",
+  properties.target = "regr", predict.type.map = c(response = "response", se = "se"),
   export = "param",
   constant.invert = TRUE,
   cpo.train = NULL, cpo.train.invert = NULL,
   cpo.retrafo = {
-    trafo = augmentFun(trafo)
+    trafo = augmentFun(trafo, 1, param)
     if (!vectorize) {
       trafo = vectorizeFun(trafo, 1, "cpoApplyFunRegrTarget")
     }
     if (!is.null(invert.response)) augmentFun(invert.response, 1, param)  # just for checking
     if (!is.null(invert.se)) augmentFun(invert.se, 2, param)  # just for checking
-    inlength = length(target)
-    target = trafo(target)
-    if (!is.numeric(target)) {
+    targettrans = trafo(target[[1]])
+    if (!is.numeric(targettrans)) {
       stop("cpoApplyFunRegrTarget trafo did not return a numeric.\n To convert between Task types, use makeCPOTargetOp.")
     }
-    if (length(target) != inlength) {
+    if (length(targettrans) != nrow(target)) {
       stop("trafo may not change length")
     }
-    trafo
+    target[[1]] = targettrans
+    target
   },
   cpo.invert = {
     if (predict.type == "se") {
@@ -178,8 +184,11 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
           target = as.matrix(target)
         }
       }
-      if (ncol(target) != 2) {
+      if (!is.matrix(target) || ncol(target) != 2) {
         stop("invert.se returned data needs to have two columns")
+      }
+      if (!is.numeric(target)) {
+        stop("cpoAppluFunRegrTarget invert.se did not return a numeric.")
       }
       if (nrow(target) != inlength) {
         stop("invert.se output had length different from input length.")
@@ -195,12 +204,12 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
       if (!vectorize) {
         invert.response = vectorizeFun(invert.response, 1, "cpoApplyFunRegrTarget")
       }
-      target = trafo(target)
+      target = invert.response(target)
       if (!is.numeric(target)) {
         stop("cpoAppluFunRegrTarget invert.response did not return a numeric.")
       }
       if (length(target) != inlength) {
-        stop("invert.se output length different from input length.")
+        stop("invert.response output length different from input length.")
       }
     }
     target
@@ -243,8 +252,8 @@ vectorizeFun = function(fun, numreturns, cponame) {
   force(fun)
   fun.name = as.character(substitute(fun))
   function(...) {
-    mapply(function(x) {
-      ret = fun(x)
+    mapply(function(...) {
+      ret = fun(...)
       if (length(ret) != numreturns) {
         stopf("%s '%s' did not return a result with length %s", cponame, fun.name, numreturns)
       }
@@ -277,7 +286,8 @@ vectorizeFun = function(fun, numreturns, cponame) {
 #' @export
 cpoLogTrafoRegr = function(id) {
   cpo = cpoApplyFunRegrTarget(trafo = log, invert.response = exp,
-    invert.se = function(mean, se) { c(mean = exp(mean + se / 2), se = sqrt((exp(se) - 1) * exp(2 * mean + se))) },
+    invert.se = function(mean, se) { cbind(mean = exp(mean + se / 2), se = sqrt((exp(se) - 1) * exp(2 * mean + se))) },
+    param = exp(1),
     export = "export.none")
   if (!missing(id)) {
     cpo = setCPOId(id)
