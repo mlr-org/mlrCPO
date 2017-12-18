@@ -1,5 +1,6 @@
 mlrCPO 0.3.1
-* new cpo cpoMakeCols, cpoAddCols, cpoIca
+* new cpo cpoMakeCols, cpoAddCols, cpoIca, cpoApplyFunRegrTarget, cpoLogTrafoRegr
+* refactoring of cpoPca, cpoApplyFun
 * Split vignettes up into 4 vignettes
 * Verbose printing using exclamation point: !cpo
 
