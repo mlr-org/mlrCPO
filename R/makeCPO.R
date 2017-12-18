@@ -255,7 +255,9 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
 
   assertString(cpo.name)
 
-  assertList(par.vals, names = "unique")
+  if (!is.null(par.vals)) {
+    assertList(par.vals, names = "unique")
+  }
   assertFlag(dataformat.factor.with.ordered)
 
   if (dataformat == "ordered" && dataformat.factor.with.ordered) {
@@ -544,7 +546,9 @@ prepareParams = function(par.set, par.vals, export.params) {
   if (any(names(par.set$pars) %in% reserved.params)) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
-  par.vals = insert(getParamSetDefaults(par.set), par.vals)
+  if (is.null(par.vals)) {
+    par.vals = getParamSetDefaults(par.set)
+  }
   if (length({badpars = setdiff(names(par.vals), names(par.set$pars))})) {
     stopf("Values '%s' given in par.vals that are not parameters", collapse(badpars, "', '"))
   }

@@ -78,6 +78,7 @@ Collate:
     'CPO_modelMatrix.R'
     'CPO_pca.R'
     'CPO_quantileBinNumerics.R'
+    'CPO_regrResiduals.R'
     'CPO_responseFromSE.R'
     'CPO_scale.R'
     'CPO_scaleMaxAbs.R'
