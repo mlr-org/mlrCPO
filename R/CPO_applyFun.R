@@ -218,7 +218,12 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
 augmentFun = function(fun, minparams, param) {
   force(fun)
   fun.name = as.character(substitute(fun))
-  forms = formals(fun)
+  if (is.primitive(fun)) {
+    # formals() works different on primitive functions like e.g. 'as.character'
+    forms = formals(args(fun))
+  } else {
+    forms = formals(fun)
+  }
   hasdots = "..." %in% names(forms)
   if (!length(forms) || (length(forms) < minparams && !hasdots)) {
     stopf("%s must take at least %s arguments", fun.name, minparams)
@@ -235,15 +240,16 @@ augmentFun = function(fun, minparams, param) {
 # Return a function that vectorizes over any number of columns
 # and returns a data.frame with `numreturns` return values.
 vectorizeFun = function(fun, numreturns, cponame) {
+  force(fun)
   fun.name = as.character(substitute(fun))
   function(...) {
     mapply(function(x) {
       ret = fun(x)
       if (length(ret) != numreturns) {
-        stop("%s '%s' did not return a result with length %s", cponame, fun.name, numreturns)
+        stopf("%s '%s' did not return a result with length %s", cponame, fun.name, numreturns)
       }
-      if (!is.atomic(result)) {
-        stop("%s '%s' did not return values that simplified to an atomic vector.", cponame, fun.name)
+      if (!is.atomic(ret)) {
+        stopf("%s '%s' did not return values that simplified to an atomic vector.", cponame, fun.name)
       }
       ret
     }, ...)

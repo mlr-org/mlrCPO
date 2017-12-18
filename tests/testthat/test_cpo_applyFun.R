@@ -54,12 +54,29 @@ test_that("cpoApplyFun works as expected", {
 
   expect_error(iris %>>% cpoApplyFun(function(x) 1:2, vectorize = TRUE), "cpoApplyFun 'fun' .*wrong length")
   expect_error(iris %>>% cpoApplyFun(function(x) list(x), vectorize = TRUE), "cpoApplyFun 'fun' .*wrong length")
+  expect_error(iris %>>% cpoApplyFun(function(x) as.list(x), vectorize = TRUE), "cpoApplyFun 'fun' .*not return values that simplified")
 
   expect_error(iris %>>% cpoApplyFun(function(x) 1:2, vectorize = FALSE), "did not return a result with length 1")
   expect_error(iris %>>% cpoApplyFun(function(x) list(x), vectorize = FALSE), "cpoApplyFun 'fun' did not return values that simplified to an atomic vector")
 
+  expect_error(iris %>>% cpoApplyFun(function() 1, vectorize = TRUE), "must take at least 1 arguments")
+  expect_error(iris %>>% cpoApplyFun(function() 1, vectorize = FALSE), "must take at least 1 arguments")
+
   iriscounter = data.frame(rep(list(seq_len(nrow(iris))), ncol(iris)))
   colnames(iriscounter) = colnames(iris)
   expect_identical(clearRI(iris %>>% cpoApplyFun(function(x) seq_len(nrow(iris)))), iriscounter)
+
+})
+
+
+test_that("cpoApplyFun param comes through", {
+
+  expect_true(all(as.matrix(iris %>>% cpoApplyFun(function(a, b) b, vectorize = FALSE, param = 10)) == 10))
+  expect_true(all(as.matrix(iris %>>% cpoApplyFun(function(a, b) b, vectorize = TRUE, param = rep(11, nrow(iris)))) == 11))
+
+  expect_true(all(as.matrix(iris %>>% cpoApplyFun(function(a, ...) list(...)[[1]], vectorize = FALSE, param = 12)) == 12))
+
+  expect_identical(clearRI(iris %>>% cpoApplyFun(function(a, ...) list(...)[[1]], vectorize = FALSE, param = 13)),
+    clearRI(iris %>>% cpoApplyFun(function(x) rep(13, length(x)), vectorize = TRUE)))
 
 })
