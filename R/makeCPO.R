@@ -34,7 +34,7 @@ reserved.params = c("data", "target", "data.reduced", "target.reduced",
 
 #' @rdname makeCPO
 #' @export
-makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = NULL, dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
@@ -54,7 +54,7 @@ makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = list(), datafo
 
 #' @rdname makeCPO
 #' @export
-makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                    dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE,
                    export.params = TRUE,  # FALSE, TRUE, names of parameters to export
@@ -77,7 +77,7 @@ makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = l
 
 #' @rdname makeCPO
 #' @export
-makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = list(), dataformat = c("df.all", "task"),
+makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = NULL, dataformat = c("df.all", "task"),
                               dataformat.factor.with.ordered = TRUE,
                    export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered", "missings"),
@@ -99,7 +99,7 @@ makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = lis
 
 #' @rdname makeCPO
 #' @export
-makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                            dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            dataformat.factor.with.ordered = TRUE,
                            export.params = TRUE, fix.factors = FALSE,
@@ -129,7 +129,7 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
 
 #' @rdname makeCPO
 #' @export
-makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                            dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            dataformat.factor.with.ordered = TRUE,
                            export.params = TRUE, fix.factors = FALSE,
