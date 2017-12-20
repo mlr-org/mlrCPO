@@ -82,6 +82,6 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
 #' The \code{CPOInverter} state's \code{$control} slot is a \code{data.frame} of the \dQuote{response} and
 #' (if \code{predict.se} is \code{TRUE}) \dQuote{se} columns of the prediction done by the model on the data.
 #' @export
-cpoRegrResiduals = makeFauxCPOConstructor(makeCPORegrResiduals, "regr.residuals", "target")
+cpoRegrResiduals = makeFauxCPOConstructor(makeCPORegrResiduals, "regr.residuals", "target")  # nolint
 
 registerCPO(cpoRegrResiduals(learner = "regr.lm"), "target", "residual fitting", "Replace a regression target by regression residuals.")

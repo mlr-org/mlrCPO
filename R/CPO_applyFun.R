@@ -294,7 +294,7 @@ cpoLogTrafoRegr = function(id) {
   }
   cpo
 }
-cpoLogTrafoRegr = wrapFauxCPOConstructor(cpoLogTrafoRegr)
+cpoLogTrafoRegr = wrapFauxCPOConstructor(cpoLogTrafoRegr)  # nolint
 
 registerCPO(cpoApplyFun(fun = identity), "data", "general data preprocessing", "Apply an arbitrary function column-wise.")
 registerCPO(cpoApplyFunRegrTarget(trafo = identity), "target", "general target transformation", "Apply an arbitrary function to a regression target.")
