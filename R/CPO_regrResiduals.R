@@ -10,7 +10,7 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
   learner = setPredictType(learner, if (predict.se) "se" else "response")
 
   addnl.params = getParamSet(learner)
-  addnl.params$pars = dropNamed(addnl.params, reserved.params)  # prevent clashes
+  addnl.params$pars = dropNamed(addnl.params$pars, reserved.params)  # prevent clashes
   addnl.params$pars = lapply(addnl.params$pars, function(x) {
     # this is necessary so the CPO does not complain about unset hyperparameters.
     # TODO there should be a better way.

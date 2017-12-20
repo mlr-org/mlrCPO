@@ -9,7 +9,7 @@
 \alias{makeCPO}
 \title{Create a Custom CPO Constructor}
 \usage{
-makeCPO(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPO(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   dataformat = c("df.features", "split", "df.all", "task", "factor",
   "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
   export.params = TRUE, fix.factors = FALSE,
@@ -19,7 +19,7 @@ makeCPO(cpo.name, par.set = makeParamSet(), par.vals = list(),
   "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.train,
   cpo.retrafo)
 
-makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   dataformat = c("df.features", "split", "df.all", "task", "factor",
   "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
   export.params = TRUE, fix.factors = FALSE,
@@ -29,7 +29,7 @@ makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(), par.vals = list(),
   "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.trafo,
   cpo.retrafo)
 
-makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   dataformat = c("df.all", "task"), dataformat.factor.with.ordered = TRUE,
   export.params = TRUE, fix.factors = FALSE,
   properties.data = c("numerics", "factors", "ordered", "missings"),
@@ -37,7 +37,7 @@ makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = list(),
   properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
   "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.trafo)
 
-makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   dataformat = c("df.features", "split", "df.all", "task", "factor",
   "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
   export.params = TRUE, fix.factors = FALSE,
@@ -48,16 +48,15 @@ makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = list(),
   constant.invert = FALSE, cpo.train, cpo.retrafo, cpo.train.invert,
   cpo.invert)
 
-makeCPOExtendedTargetOp(cpo.name, par.set = makeParamSet(),
-  par.vals = list(), dataformat = c("df.features", "split", "df.all",
-  "task", "factor", "ordered", "numeric"),
-  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
-  fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered",
-  "missings"), properties.adding = character(0),
-  properties.needed = character(0), properties.target = "cluster",
-  task.type.out = NULL, predict.type.map = c(response = "response"),
-  packages = character(0), constant.invert = FALSE, cpo.trafo, cpo.retrafo,
-  cpo.invert)
+makeCPOExtendedTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
+  dataformat = c("df.features", "split", "df.all", "task", "factor",
+  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE, fix.factors = FALSE,
+  properties.data = c("numerics", "factors", "ordered", "missings"),
+  properties.adding = character(0), properties.needed = character(0),
+  properties.target = "cluster", task.type.out = NULL,
+  predict.type.map = c(response = "response"), packages = character(0),
+  constant.invert = FALSE, cpo.trafo, cpo.retrafo, cpo.invert)
 }
 \arguments{
 \item{cpo.name}{[\code{character(1)}]\cr
@@ -70,11 +69,11 @@ Default is an empty \code{\link[ParamHelpers:makeParamSet]{ParamSet}}.
 It is recommended to use ParamHelpers::\code{\link[ParamHelpers]{pSS}} to construct this, as it greatly reduces the verbosity of
 creating a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and makes it more readable.}
 
-\item{par.vals}{[\code{list}]\cr
-Named list of default parameter values for the CPO. These are used additionally to the
-parameter default values in \code{par.set}. It is preferred to use
+\item{par.vals}{[\code{list} | \code{NULL}]\cr
+Named list of default parameter values for the CPO. These are used \emph{instead of} the
+parameter default values in \code{par.set}, if not \code{NULL}. It is preferred to use
 \code{\link[ParamHelpers:makeParamSet]{ParamSet}} default values,
-and not \code{par.vals}. Default is \code{list()}.}
+and not \code{par.vals}. Default is \code{NULL}.}
 
 \item{dataformat}{[\code{character(1)}]\cr
   Indicate what format the data should be as seen by the \code{cpo.train} and \code{cpo.retrafo} function.
