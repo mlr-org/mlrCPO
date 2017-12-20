@@ -23,11 +23,17 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
   makeCPOTargetOp("regr.residuals", addnl.params, par.vals,
     dataformat = "task",
     properties.data = intersect(cpo.dataproperties, getLearnerProperties(learner)),
+    properties.target = "regr",
+    predict.type.map = c(response = "response", se = if (predict.se) "se"),
     cpo.train = function(data, target, ...) {
-      train(setHyperPars(learner, ...), data)
+      pars = list(...)  # avoid possible name clash through partial matching with par.vals parameter of setHyperPars
+      train(setHyperPars(learner, par.vals = pars), data)
     },
     cpo.retrafo = {
-      target[[1]] %-=% predict(control, newdata = data)$data$response
+      tdata = getTaskData(target)
+      tname = getTaskTargetNames(target)
+      tdata[[tname]] %-=% predict(control, newdata = data)$data$response
+      changeData(target, tdata)
     },
     cpo.train.invert = {
       dropNamed(predict(control, newdata = data)$data, c("id", "truth"))
@@ -40,7 +46,7 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
       if (predict.type == "response") {
         target + control.invert$response
       } else {
-        target + as.matrix(control.invert[c("response", "se")])
+        cbind(target[, 1, drop = TRUE] + control.invert$response, sqrt(target[, 2, drop = TRUE]^2 + control.invert$se^2))
       }
     })
 }
@@ -68,6 +74,13 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
 #'   Whether to fit the model with \dQuote{se} predict type. This enables the resulting
 #'   \code{\link{CPOInverter}} to be used for \code{property.type == "se"} inversion.
 #'   Default is \code{FALSE}.
+#'
+#' @section CPOTrained State:
+#' The \code{CPORetrafo} state's \code{$control} slot is the \code{\link[mlr:makeWrappedModel]{WrappedModel}}
+#' created when training the \code{learner} on the given data.
+#'
+#' The \code{CPOInverter} state's \code{$control} slot is a \code{data.frame} of the \dQuote{response} and
+#' (if \code{predict.se} is \code{TRUE}) \dQuote{se} columns of the prediction done by the model on the data.
 #' @export
 cpoRegrResiduals = makeFauxCPOConstructor(makeCPORegrResiduals, "regr.residuals", "target")
 
