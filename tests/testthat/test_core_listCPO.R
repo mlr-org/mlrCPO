@@ -44,3 +44,35 @@ test_that("all exported CPOConstructors are listed", {
   expect_equal(sort(cpocons), sort(listCPO()$name))
 
 })
+
+
+test_that("registerCPO works", {
+
+  testrcpo = function() {  # do this in a function so on.exit restores prior state even on error.
+
+    origlist = asNamespace("mlrCPO")$CPOLIST
+
+    on.exit({
+      assign("CPOLIST", origlist, asNamespace("mlrCPO"))
+      lockBinding("CPOLIST", asNamespace("mlrCPO"))
+    })
+    unlockBinding("CPOLIST", asNamespace("mlrCPO"))
+    assign("CPOLIST", NULL, asNamespace("mlrCPO"))
+
+
+    registerCPO(cpoPca, "cat", "subcat", "desc")
+    registerCPO(cpoPca(), "cat", "subcat", "desc")
+    registerCPO(list(name = "cpoPca", cponame = getCPOName(cpoPca)), "cat", "subcat", "desc")
+
+    list(cpolist = asNamespace("mlrCPO")$CPOLIST, listcpo = listCPO())
+  }
+
+  res = testrcpo()
+
+  expect_equal(res$cpolist, rep(list(list(name = "cpoPca", cponame = "pca", category = "cat", subcategory = "subcat", description = "desc")), 3))
+
+  indf = data.frame(name = "cpoPca", cponame = "pca", category = factor("cat"), subcategory = factor("subcat"), description = "desc", stringsAsFactors = FALSE)
+
+  expect_equal(res$listcpo, addClasses(rbind(indf, indf, indf), "ListCPO"))
+
+})
