@@ -2,41 +2,116 @@
 
 # a constructorconstructor for cpoRegrResiduals, wrapped using makeFauxCPOConstructor
 # documentation below
-makeCPORegrResiduals = function(learner, predict.se = FALSE) {
+makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals = "resample", crr.resampling = cv5) {
 
-  checkFlag(predict.se)
-  learner = checkLearner(learner, "regr", if (predict.se) "se")
+  assertFlag(predict.se)
+  assertChoice(crr.train.residuals, c("resample", "oob", "plain"))
+  if (crr.train.residuals == "resample") {
+    assert(checkClass(crr.resampling, "ResampleInstance"),
+      checkClass(crr.resampling, "ResampleDesc"))
+  }
+  learner = checkLearner(learner, "regr", c(if (predict.se) "se", if (crr.train.residuals == "oob") "oobpreds"))
 
   learner = setPredictType(learner, if (predict.se) "se" else "response")
 
+  forbidden.pars = c(reserved.params, "crr.train.residuals", "crr.resampling")
+
   addnl.params = getParamSet(learner)
-  addnl.params$pars = dropNamed(addnl.params$pars, reserved.params)  # prevent clashes
+  addnl.params$pars = dropNamed(addnl.params$pars, forbidden.pars)  # prevent clashes
   addnl.params$pars = lapply(addnl.params$pars, function(x) {
     # this is necessary so the CPO does not complain about unset hyperparameters.
     # TODO there should be a better way.
     x$requires = FALSE
     x
   })
-  par.vals = getHyperPars(learner)
-  par.vals = dropNamed(par.vals, reserved.params)
+  addnl.params %c=% pSSLrn(crr.train.residuals: discrete[list("resample", "oob", "plain")], crr.resampling: untyped)
 
-  makeCPOTargetOp("regr.residuals", addnl.params, par.vals,
+  par.vals = getHyperPars(learner)
+  par.vals = dropNamed(par.vals, forbidden.pars)
+  par.vals %c=% list(crr.train.residuals = crr.train.residuals, crr.resampling = crr.resampling)
+
+  # average out-of-resample-fold prediction / se
+  # average se is calculated as root-mean-squared
+  # rr [ResampleResult]
+  # what [character(1)] "response" or "se"
+  predMatFromRR = function(rr, what) {
+    rows = rr$task.desc$size
+    plist = getRRPredictionList(rr)
+    sapply(plist$test, function(p) {
+      out = rep(NA_real_, rows)
+      out[p$data$id] = p$data[[what]]
+      out
+    })
+  }
+
+  # subtract the prediction from task to get to residuals
+  # task [Task]
+  # prediction.data [data.frame] the result of predict(...)$data
+  taskSubtractPrediction = function(task, prediction.data) {
+    tdata = getTaskData(task)
+    tname = getTaskTargetNames(task)
+    tdata[[tname]] %-=% prediction.data$response
+    changeData(task, tdata)
+  }
+
+  makeCPOExtendedTargetOp("regr.residuals", addnl.params, par.vals,
     dataformat = "task",
     properties.data = intersect(cpo.dataproperties, getLearnerProperties(learner)),
     properties.target = "regr",
     predict.type.map = c(response = "response", se = if (predict.se) "se"),
-    cpo.train = function(data, target, ...) {
+    cpo.trafo = function(data, target, ...) {
       pars = list(...)  # avoid possible name clash through partial matching with par.vals parameter of setHyperPars
-      train(setHyperPars(learner, par.vals = pars), data)
+      control = train(setHyperPars(learner, par.vals = pars), data)
+      control.invert = dropNamed(predict(control, newdata = data)$data, c("id", "truth"))
+
+      if (crr.train.residuals == "oob") {
+        if ("oobpreds" %nin% getLearnerProperties(learner)) {
+          stop("for crr.resampling == 'oob' the Learner needs property 'oobpreds'.")
+        }
+        if (predict.se) {
+          # since 'se' models don't support oobpreds
+          # TODO: can go away when mlr-org/mlr#2116 is fixed
+          model = train(setHyperPars(setPredictType(learner, "response"), par.vals = pars), data)
+        } else {
+          model = control
+        }
+        newresponse = getOOBPreds(model, data)$data$response
+        control.invert$response[!is.na(newresponse)] = newresponse[!is.na(newresponse)]
+      } else if (crr.train.residuals == "resample") {
+        assert(checkClass(crr.resampling, "ResampleInstance"),
+          checkClass(crr.resampling, "ResampleDesc"))
+        if ("ResampleDesc" %in% class(crr.resampling)) {
+          assertString(crr.resampling$predict)
+          crr.resampling$predict = "test"
+        } else {
+          assertString(crr.resampling$desc$predict)
+          crr.resampling$desc$predict = "test"
+        }
+        rr = resample(learner, data, crr.resampling, keep.pred = TRUE, show.info = FALSE)
+        if (predict.se) {
+          pmat = predMatFromRR(rr, "response")
+          precmat = 1 / predMatFromRR(rr, "se")^2
+          for (row in seq_along(control.invert$response)) {
+            wmean = weighted.mean(pmat[row, , drop = TRUE], precmat[row, , drop = TRUE], na.rm = TRUE)
+            if (is.na(wmean)) {
+              next
+            }
+            control.invert$response[row] = wmean
+            control.invert$se[row] = 1 / sqrt(mean(precmat[row, , drop = TRUE], na.rm = TRUE))
+          }
+        } else {
+          pmat = predMatFromRR(rr, "response")
+          newresponse = apply(pmat, 1, mean, na.rm = TRUE)
+          control.invert$response[!is.na(newresponse)] = newresponse[!is.na(newresponse)]
+        }
+      }
+      taskSubtractPrediction(data, control.invert)
     },
     cpo.retrafo = {
-      tdata = getTaskData(target)
-      tname = getTaskTargetNames(target)
-      tdata[[tname]] %-=% predict(control, newdata = data)$data$response
-      changeData(target, tdata)
-    },
-    cpo.train.invert = {
-      dropNamed(predict(control, newdata = data)$data, c("id", "truth"))
+      control.invert = dropNamed(predict(control, newdata = data)$data, c("id", "truth"))
+      if (!is.null(target)) {
+        taskSubtractPrediction(target, control.invert)
+      }
     },
     cpo.invert = {
       inlen = if (predict.type == "se") nrow(target) else length(target)
@@ -74,7 +149,18 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE) {
 #'   Whether to fit the model with \dQuote{se} predict type. This enables the resulting
 #'   \code{\link{CPOInverter}} to be used for \code{property.type == "se"} inversion.
 #'   Default is \code{FALSE}.
-#'
+#' @param crr.train.residuals [\code{character(1)}]\cr
+#'   What residuals to use for training (i.e. initial transformation). One of \dQuote{resample}, \dQuote{oob},
+#'   \dQuote{plain}. If \dQuote{resample} is given, the out-of-resampling-fold predictions are used when resampling
+#'   according to the \code{resampling} parameter. If \dQuote{oob} is used, the \code{\link[mlr]{Learner}} must
+#'   have the \dQuote{oobpreds} property; the out-of-bag predictions are then used. If \code{train.residuals} is
+#'   \dQuote{plain}, the simple regression residuals are used. Default is \dQuote{resample}.
+#' @param crr.resampling [\code{\link[mlr]{ResampleDesc}} | \code{\link[mlr]{ResampleInstance}}]\cr
+#'   What resampling to use when \code{train.residuals} is \dQuote{resample}; otherwise has no effect.
+#'   The \code{$predict} slot of the resample description will be ignored and set to \code{test}.
+#'   If a data point is predicted by multiple resampling folds, the average residual is used. If a data
+#'   point is not predicted by any resampling fold, the \dQuote{plain} residual is used for that one.
+#'   Default is \code{cv5}.
 #' @section CPOTrained State:
 #' The \code{CPORetrafo} state's \code{$control} slot is the \code{\link[mlr:makeWrappedModel]{WrappedModel}}
 #' created when training the \code{learner} on the given data.
