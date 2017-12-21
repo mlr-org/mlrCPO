@@ -2,7 +2,7 @@
 
 # a constructorconstructor for cpoRegrResiduals, wrapped using makeFauxCPOConstructor
 # documentation below
-makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals = "resample", crr.resampling = cv5) {
+makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals = "plain", crr.resampling = cv5) {
 
   assertFlag(predict.se)
   assertChoice(crr.train.residuals, c("resample", "oob", "plain"))
@@ -24,7 +24,7 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
     x$requires = FALSE
     x
   })
-  addnl.params = c(pSSLrn(crr.train.residuals: discrete[list("resample", "oob", "plain")], crr.resampling: untyped),
+  addnl.params = c(pSSLrn(crr.train.residuals = "plain": discrete[list("resample", "oob", "plain")], crr.resampling: untyped),
     addnl.params)
 
   par.vals = getHyperPars(learner)
@@ -160,7 +160,7 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
 #'   \dQuote{plain}. If \dQuote{resample} is given, the out-of-resampling-fold predictions are used when resampling
 #'   according to the \code{resampling} parameter. If \dQuote{oob} is used, the \code{\link[mlr:makeLearner]{Learner}} must
 #'   have the \dQuote{oobpreds} property; the out-of-bag predictions are then used. If \code{train.residuals} is
-#'   \dQuote{plain}, the simple regression residuals are used. Default is \dQuote{resample}.
+#'   \dQuote{plain}, the simple regression residuals are used. Default is \dQuote{plain}.
 #' @param crr.resampling [\code{\link[mlr:makeResampleDesc]{ResampleDesc}} | \code{\link[mlr:makeResampleInstance]{ResampleInstance}}]\cr
 #'   What resampling to use when \code{train.residuals} is \dQuote{resample}; otherwise has no effect.
 #'   The \code{$predict} slot of the resample description will be ignored and set to \code{test}.

@@ -80,7 +80,7 @@ test_that("cpoRegrResiduals with crr.train.residuals 'resample'", {
   # "response"
 
   set.seed(123)
-  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = hout)
+  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = hout, crr.train.residuals = "resample")
 
   cpo = cpoRegrResiduals("regr.lm", crr.train.residuals = "plain", id = NULL)
   set.seed(123)
@@ -103,7 +103,7 @@ test_that("cpoRegrResiduals with crr.train.residuals 'resample'", {
 
   boots = makeResampleDesc("Bootstrap", iters = 2)
   set.seed(123)
-  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = boots, predict.se = TRUE)
+  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = boots, predict.se = TRUE, crr.train.residuals = "resample")
 
   cpo = cpoRegrResiduals("regr.lm", crr.train.residuals = "plain", id = NULL, predict.se = TRUE)
   set.seed(123)
@@ -177,7 +177,7 @@ test_that("cpoRegrResiduals has expected properties and parameters", {
   cpo = cpoRegrResiduals(setHyperPars(makeLearner("regr.randomForest"), ntree = 100, se.boot = 101), export = "ntree")
   expect_equal(getHyperPars(cpo), list(regr.residuals.ntree = 100))
 
-  expect_equal(getBareHyperPars(cpo), list(ntree = 100, crr.train.residuals = "resample", crr.resampling = cv5, se.boot = 101))
+  expect_equal(getBareHyperPars(cpo), list(ntree = 100, crr.train.residuals = "plain", crr.resampling = cv5, se.boot = 101))
 
 })
 
