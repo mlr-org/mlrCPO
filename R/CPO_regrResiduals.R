@@ -24,11 +24,12 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
     x$requires = FALSE
     x
   })
-  addnl.params %c=% pSSLrn(crr.train.residuals: discrete[list("resample", "oob", "plain")], crr.resampling: untyped)
+  addnl.params = c(pSSLrn(crr.train.residuals: discrete[list("resample", "oob", "plain")], crr.resampling: untyped),
+    addnl.params)
 
   par.vals = getHyperPars(learner)
   par.vals = dropNamed(par.vals, forbidden.pars)
-  par.vals %c=% list(crr.train.residuals = crr.train.residuals, crr.resampling = crr.resampling)
+  par.vals = c(list(crr.train.residuals = crr.train.residuals, crr.resampling = crr.resampling), par.vals)
 
   # average out-of-resample-fold prediction / se
   # average se is calculated as root-mean-squared
@@ -59,10 +60,10 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
     properties.data = intersect(cpo.dataproperties, getLearnerProperties(learner)),
     properties.target = "regr",
     predict.type.map = c(response = "response", se = if (predict.se) "se"),
-    cpo.trafo = function(data, target, ...) {
+    cpo.trafo = function(data, target, crr.train.residuals, crr.resampling, ...) {
       pars = list(...)  # avoid possible name clash through partial matching with par.vals parameter of setHyperPars
       control = train(setHyperPars(learner, par.vals = pars), data)
-      control.invert = dropNamed(predict(control, newdata = data)$data, c("id", "truth"))
+      control.invert = dropNamed(predict(control, data)$data, c("id", "truth"))
 
       if (crr.train.residuals == "oob") {
         if ("oobpreds" %nin% getLearnerProperties(learner)) {

@@ -6,7 +6,7 @@ test_that("cpoRegrResiduals trafo works as expected", {
 
   residuals = train("regr.lm", bh.task)$learner.model$residuals
 
-  trafo = bh.task %>>% cpoRegrResiduals("regr.lm")
+  trafo = bh.task %>>% cpoRegrResiduals("regr.lm", crr.train.residuals = "plain")
 
   expect_equal(getTaskData(trafo, target.extra = TRUE)$target, unname(residuals))
 
@@ -17,7 +17,7 @@ test_that("cpoRegrResiduals trafo works as expected", {
   residuals = getTaskData(bh.task, target.extra = TRUE)$target - preds
 
   set.seed(123)
-  trafo = subsetTask(bh.task, 1:100) %>>% cpoRegrResiduals("regr.randomForest")
+  trafo = subsetTask(bh.task, 1:100) %>>% cpoRegrResiduals("regr.randomForest", crr.train.residuals = "plain")
 
   expect_equal(getTaskData(trafo, target.extra = TRUE)$target, residuals[1:100])
 
@@ -28,17 +28,18 @@ test_that("cpoRegrResiduals trafo works as expected", {
 test_that("cpoRegrResiduals has expected properties and parameters", {
 
   expect_set_equal(intersect(getLearnerProperties("regr.lm"), cpo.dataproperties),
-    intersect(getCPOProperties(cpoRegrResiduals("regr.lm"))$handling, cpo.dataproperties))
+    intersect(getCPOProperties(cpoRegrResiduals("regr.lm", crr.train.residuals = "plain"))$handling, cpo.dataproperties))
 
 
   expect_set_equal(intersect(getLearnerProperties("regr.randomForest"), cpo.dataproperties),
-    intersect(getCPOProperties(cpoRegrResiduals("regr.randomForest"))$handling, cpo.dataproperties))
+    intersect(getCPOProperties(cpoRegrResiduals("regr.randomForest", crr.train.residuals = "plain"))$handling, cpo.dataproperties))
 
   delreq = function(ps) {
     ps$pars = lapply(ps$pars, function(x) {
       x$requires = NULL
       x
     })
+    ps$pars = dropNamed(ps$pars, c("crr.train.residuals", "crr.resampling"))
     ps
   }
 
@@ -49,12 +50,13 @@ test_that("cpoRegrResiduals has expected properties and parameters", {
     delreq(getParamSet(cpoRegrResiduals("regr.randomForest", id = NULL, export = c("ntree", "se.boot"))))$pars)
 
   tlrn = setHyperPars(makeLearner("regr.lm"), tol = .2)
-  expect_equal(getHyperPars(cpoRegrResiduals(tlrn, id = NULL)), getHyperPars(tlrn))
+  expect_equal(dropNamed(getHyperPars(cpoRegrResiduals(tlrn, id = NULL, crr.train.residuals = "plain")), c("crr.train.residuals", "crr.resampling")),
+    getHyperPars(tlrn))
 
   cpo = cpoRegrResiduals(setHyperPars(makeLearner("regr.randomForest"), ntree = 100, se.boot = 101), export = "ntree")
   expect_equal(getHyperPars(cpo), list(regr.residuals.ntree = 100))
 
-  expect_equal(getBareHyperPars(cpo), list(ntree = 100, se.boot = 101))
+  expect_equal(getBareHyperPars(cpo), list(ntree = 100, crr.train.residuals = "resample", crr.resampling = cv5, se.boot = 101))
 
 })
 
@@ -62,7 +64,7 @@ test_that("cpoRegrResiduals hyperparameters are used", {
 
   lrn = setHyperPars(makeLearner("regr.rpart"), minsplit = 3, minbucket = 5, maxdepth = 4)
 
-  crr = cpoRegrResiduals(lrn, export = c("minsplit", "minbucket"), affect.index = 1:4)
+  crr = cpoRegrResiduals(lrn, crr.train.residuals = "plain", export = c("minsplit", "minbucket"), affect.index = 1:4)
 
   set.seed(123)
   trafo = bh.task %>>% setHyperPars(crr, regr.residuals.minsplit = 4)
@@ -84,7 +86,7 @@ test_that("cpoRegrResiduals hyperparameters are used", {
 
 test_that("cpoRegrResiduals inverts as expected", {
 
-  trafo = bh.task %>>% cpoRegrResiduals("regr.lm")
+  trafo = bh.task %>>% cpoRegrResiduals("regr.lm", crr.train.residuals = "plain")
 
   expect_equal(getCPOTrainedCapability(retrafo(trafo)), c(retrafo = 1, invert = -1))
 
@@ -98,7 +100,7 @@ test_that("cpoRegrResiduals inverts as expected", {
 
 
   set.seed(123)
-  trafo = subsetTask(bh.task, 1:10) %>>% cpoRegrResiduals("regr.randomForest")
+  trafo = subsetTask(bh.task, 1:10) %>>% cpoRegrResiduals("regr.randomForest", crr.train.residuals = "plain")
 
   retrafo = subsetTask(bh.task, 11:20) %>>% retrafo(trafo)
 
@@ -126,7 +128,7 @@ test_that("cpoRegrResiduals se inversion", {
 
   expect_equal(getCPOPredictType(cpoRegrResiduals("regr.lm", predict.se = TRUE)), c(response = "response", se = "se"))
 
-  trafo = subsetTask(bh.task, 100:200) %>>% cpoRegrResiduals("regr.lm", predict.se = TRUE)
+  trafo = subsetTask(bh.task, 100:200) %>>% cpoRegrResiduals("regr.lm", predict.se = TRUE, crr.train.residuals = "plain")
 
   model = train(setPredictType(makeLearner("regr.lm"), "se"), subsetTask(bh.task, 100:200))
 
@@ -193,7 +195,7 @@ test_that("cpoRegrResiduals handles discrete parameters correctly", {
 
 
   # test that the dvlp are given to the crr as they should
-  crr = cpoRegrResiduals(setHyperPars(lrx, dvlp1 = list("a", "x"), dvlp2 = list(a = function() NULL, b = function() NULL)))
+  crr = cpoRegrResiduals(setHyperPars(lrx, dvlp1 = list("a", "x"), dvlp2 = list(a = function() NULL, b = function() NULL)), crr.train.residuals = "plain")
 
   x = bh.task %>>% crr
 
