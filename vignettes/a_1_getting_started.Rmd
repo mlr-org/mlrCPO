@@ -239,7 +239,7 @@ getCPOTrainedCapability(inv)  # a pure inverter, can not be used for retrafo
 
 As an example of a `CPO` that does not have a constant inverter, consider `cpoRegrResiduals`, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the `invert` action is to add predictions by the `CPO`'s model to the incoming predictions made by a model trained on the residuals.
 
-```{r}
+```{r, warnings = FALSE}
 iris.resid = iris.regr %>>% cpoRegrResiduals("regr.lm")
 getTaskData(iris.resid)
 
@@ -248,8 +248,13 @@ model.resid = train("regr.randomForest", iris.resid)
 newdata.resid = newdata %>>% retrafo(iris.resid)
 getTaskData(newdata.resid)  # Petal.Width are now the residuals of lm model predictions
 
-predict(model.resid, newdata.resid)
+pred = predict(model.resid, newdata.resid)
+pred
 
+# transforming this prediction back to compare
+# it to the original 'Petal.Width'
+inv.newdata = inverter(newdata.resid)
+invert(inv.newdata, pred)
 ```
 
 ## THE REST
