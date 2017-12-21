@@ -112,7 +112,7 @@ cpoAddCols
 <span class="kw">cpoScale</span>(<span class="dt">center =</span> <span class="ot">FALSE</span>)  <span class="co"># create a CPO object that scales, but does not center, data</span>
 <span class="kw">cpoAddCols</span>(<span class="dt">Sepal.Area =</span> Sepal.Length *<span class="st"> </span>Sepal.Width)  <span class="co">#  this would add a column</span></code></pre></div>
 <p><code>CPO</code>s exist first to be <em>applied</em> to data. Every <code>CPO</code> represents a certain data transformation, and this transformation is performed when the <code>CPO</code> is applied. This can be done using the <strong><code>applyCPO</code></strong> function, or the <strong><code>%&gt;&gt;%</code></strong> operator. <code>CPO</code>s can be applied to <code>data.frame</code> objects, and to <code>mlr</code> “<code>Task</code>” objects.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>), ]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>, <span class="dv">103</span>), ]
 <span class="kw">tail</span>(iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>())  <span class="co"># bin the data in below &amp; above median</span></code></pre></div>
 <p>A useful feature of <code>CPO</code>s is that they can be concatenated t form new operations. Two <code>CPO</code>s can be combines using the <strong><code>composeCPO</code></strong> function or, as before, the <strong><code>%&gt;&gt;%</code></strong> operator. When two <code>CPO</code>s are combined, the product is a new <code>CPO</code> that can itself be composed or applied. When two <code>CPO</code>s are composed, the result represents the operation of first applying the first, then the second <code>CPO</code>. Therefore, <code>data %&gt;&gt;% (cpo1 %&gt;&gt;% cpo2)</code> is the same as <code>(data %&gt;&gt;% cpo1) %&gt;&gt;% cpo2</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># first create three quantile bins, then as.numeric() all columns to</span>
@@ -152,7 +152,7 @@ iris.demo %&gt;&gt;%<span class="st"> </span>cpo2 <span class="co"># only center
 </div>
 <div id="retrafo" class="section level2">
 <h2>Retrafo</h2>
-<p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “retrafo” object. To obtain this retrafo object, one can use <code>retrafo()</code>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
+<p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “<strong>retrafo</strong>” object. To obtain this retrafo object, one can use <strong><code>retrafo()</code></strong>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">transformed =<span class="st"> </span>iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)
 transformed
 
@@ -162,6 +162,69 @@ ret</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span>ret</code></pre></div>
 <p>Obviously we would not have gotten there by feeding the first line to <code>cpoPca</code> directly:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)</code></pre></div>
+</div>
+<div id="inverter" class="section level2">
+<h2>Inverter</h2>
+<p>So far only <code>CPO</code>s were introduced that change the feature columns of a <code>Task</code>. (“Feature Operation <code>CPO</code>s”–<em>FOCPO</em>s). There is another class of <code>CPO</code>s, “Target Operation <code>CPO</code>s” or <em>TOCPO</em>s, that can change a <code>Task</code>’s target columns.</p>
+<p>This comes at the cost of some complexity when performing prediction: Since the training data that was ultimately fed into a <code>Learner</code> had a transformed target column, the predictions made by the resulting model will not be directly comparable to the original target values. Consider <code>cpoLogTrafoRegr</code>, a <code>CPO</code> that log-transforms the target variable of a regression <code>Task</code>. The predictions made with a <code>Learner</code> on a log-transformed target variable will be in log-space and need to be exponentiated (or otherwise re-transformed). This inversion operation is represented by an “<strong>inverter</strong>” object that is attached to a transformation result similarly to a retrafo object, and can be obtained using the <strong><code>inverter()</code></strong> function. It is of class <code>CPOInverter</code>, a subclass of <code>CPOTrained</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.regr =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>)
+iris.logd =<span class="st"> </span>iris.regr %&gt;&gt;%<span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()
+
+<span class="kw">getTaskData</span>(iris.logd)  <span class="co"># log-transformed target 'Petal.Width'</span>
+
+inv =<span class="st"> </span><span class="kw">inverter</span>(iris.logd)  <span class="co"># inverter object</span>
+inv</code></pre></div>
+<p>The inverter object is used by the <code>invert()</code> function that inverts the prediction made by a model trained on the transformed task, and re-transforms this prediction to fit the space of the original target data. The inverter object caches the “truth” of the data being inverted (<code>iris.logd</code>, in the example), so <code>invert</code> can give information on the truth of the inverted data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logmodel =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, iris.logd)
+pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, iris.logd)  <span class="co"># prediction on the task itself</span>
+pred
+
+<span class="kw">invert</span>(inv, pred)</code></pre></div>
+<p>This procedure can also be done with new incoming data. In general, more than just the <code>cpoLogTrafoRegr</code> operation could be done on the <code>iris.regr</code> task in the example, so to perform the complete preprocessing <em>and</em> inversion, one needs to use the retrafo object as well. When applying the retrafo object, a new inverter object is generated, which is specific to the exact new data that was being retransformed:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">newdata =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="st">&quot;newiris&quot;</span>, iris[<span class="dv">7</span>:<span class="dv">9</span>, ], <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>,
+  <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)
+
+<span class="co"># the retrafo does the same transformation(s) on newdata that were</span>
+<span class="co"># done on the training data of the model, iris.logd. In general, this</span>
+<span class="co"># could be more than just the target log transformation.</span>
+newdata.transformed =<span class="st"> </span>newdata %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(iris.logd)
+<span class="kw">getTaskData</span>(newdata.transformed)
+
+pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, newdata.transformed)
+pred
+
+<span class="co"># the inverter of the newly transformed data contains information specific</span>
+<span class="co"># to the newly transformed data. In the current case, that is just the</span>
+<span class="co"># new &quot;truth&quot; column for the new data.</span>
+inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.transformed)
+<span class="kw">invert</span>(inv.newdata, pred)</code></pre></div>
+<div id="constant-inverters" class="section level3">
+<h3>Constant Inverters</h3>
+<p>The <code>cpoLogTrafoRegr</code> is a special case of TOCPO in that its inversion operation is <em>constant</em>: It does not depend on the new incoming data, so in theory it is not necessary to get a new inverter object for every piece of data that is being transformed. Therefore, it is possible to use the <em>retrafo</em> object for inversion in this case. However, the “truth” column will not be available in this case:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(<span class="kw">retrafo</span>(iris.logd), pred)</code></pre></div>
+<p>Whether a retrafo object is capable of performing inversion can be checked with the <strong><code>getCPOTrainedCapability()</code></strong> function. It returns a vector with named elements <code>&quot;retrafo&quot;</code> and <code>&quot;invert&quot;</code>, indicating whether a <code>CPOTrained</code> is capable of performing retrafo or inversion. A <code>1</code> indicates that the object can perform the action and has an effect, a <code>0</code> indicates that the action would have no effect (but also throws no error), and a <code>-1</code> means that the object is not capable of performing the action.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedCapability</span>(<span class="kw">retrafo</span>(iris.logd))  <span class="co"># can do both retrafo and inversion</span>
+<span class="kw">getCPOTrainedCapability</span>(inv)  <span class="co"># a pure inverter, can not be used for retrafo</span></code></pre></div>
+</div>
+<div id="general-inverters" class="section level3">
+<h3>General Inverters</h3>
+<p>As an example of a <code>CPO</code> that does not have a constant inverter, consider <code>cpoRegrResiduals</code>, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the <code>invert</code> action is to add predictions by the <code>CPO</code>’s model to the incoming predictions made by a model trained on the residuals.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.resid =<span class="st"> </span>iris.regr %&gt;&gt;%<span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>)
+<span class="kw">getTaskData</span>(iris.resid)
+
+model.resid =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.randomForest&quot;</span>, iris.resid)
+
+newdata.resid =<span class="st"> </span>newdata %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(iris.resid)
+<span class="kw">getTaskData</span>(newdata.resid)  <span class="co"># Petal.Width are now the residuals of lm model predictions</span>
+
+pred =<span class="st"> </span><span class="kw">predict</span>(model.resid, newdata.resid)
+pred
+
+<span class="co"># transforming this prediction back to compare</span>
+<span class="co"># it to the original 'Petal.Width'</span>
+inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.resid)
+<span class="kw">invert</span>(inv.newdata, pred)</code></pre></div>
+</div>
 </div>
 <div id="the-rest" class="section level2">
 <h2>THE REST</h2>

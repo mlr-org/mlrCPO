@@ -116,14 +116,15 @@ cpoAddCols
 <span class="kw">cpoAddCols</span>(<span class="dt">Sepal.Area =</span> Sepal.Length *<span class="st"> </span>Sepal.Width)  <span class="co">#  this would add a column</span>
 <span class="co">#&gt; new.cols()[not exp'd: expr = Sepal.Area=&lt;call&gt;, superceding.env = &lt;environment&gt;, make.factors = TRUE, add.cols = TRUE]</span></code></pre></div>
 <p><code>CPO</code>s exist first to be <em>applied</em> to data. Every <code>CPO</code> represents a certain data transformation, and this transformation is performed when the <code>CPO</code> is applied. This can be done using the <strong><code>applyCPO</code></strong> function, or the <strong><code>%&gt;&gt;%</code></strong> operator. <code>CPO</code>s can be applied to <code>data.frame</code> objects, and to <code>mlr</code> “<code>Task</code>” objects.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>), ]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>, <span class="dv">103</span>), ]
 <span class="kw">tail</span>(iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>())  <span class="co"># bin the data in below &amp; above median</span>
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
-<span class="co">#&gt; 1     (-Inf,5.8]  (3.2, Inf]   (-Inf,4.5]  (-Inf,1.4]     setosa</span>
 <span class="co">#&gt; 2     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span>
+<span class="co">#&gt; 3     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span>
 <span class="co">#&gt; 51    (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (-Inf,1.4] versicolor</span>
 <span class="co">#&gt; 52    (5.8, Inf]  (-Inf,3.2]   (-Inf,4.5]  (1.4, Inf] versicolor</span>
-<span class="co">#&gt; 102   (-Inf,5.8]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></code></pre></div>
+<span class="co">#&gt; 102   (-Inf,5.8]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span>
+<span class="co">#&gt; 103   (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></code></pre></div>
 <p>A useful feature of <code>CPO</code>s is that they can be concatenated t form new operations. Two <code>CPO</code>s can be combines using the <strong><code>composeCPO</code></strong> function or, as before, the <strong><code>%&gt;&gt;%</code></strong> operator. When two <code>CPO</code>s are combined, the product is a new <code>CPO</code> that can itself be composed or applied. When two <code>CPO</code>s are composed, the result represents the operation of first applying the first, then the second <code>CPO</code>. Therefore, <code>data %&gt;&gt;% (cpo1 %&gt;&gt;% cpo2)</code> is the same as <code>(data %&gt;&gt;% cpo1) %&gt;&gt;% cpo2</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># first create three quantile bins, then as.numeric() all columns to</span>
 <span class="co"># get 1, 2 or 3 as the bin number</span>
@@ -132,9 +133,11 @@ iris.demo %&gt;&gt;%<span class="st"> </span>quantilenum
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
 <span class="co">#&gt; 1              1           3            1           1       1</span>
 <span class="co">#&gt; 2              1           1            1           1       1</span>
-<span class="co">#&gt; 51             3           2            3           2       2</span>
-<span class="co">#&gt; 52             3           2            2           3       2</span>
-<span class="co">#&gt; 102            2           1            3           3       3</span></code></pre></div>
+<span class="co">#&gt; 3              1           2            1           1       1</span>
+<span class="co">#&gt; 51             3           2            2           2       2</span>
+<span class="co">#&gt; 52             2           2            2           2       2</span>
+<span class="co">#&gt; 102            2           1            3           3       3</span>
+<span class="co">#&gt; 103            3           1            3           3       3</span></code></pre></div>
 <p>The last example shows that it is sometimes not a good idea to have a <code>CPO</code> affect the whole dataset. Therefore, when a <code>CPO</code> is created, it is possible to choose what columns the <code>CPO</code> should affect. The CPO Constructor has a variety of parameters, starting with <code>affect.</code>, that can be used to choose what columns the <code>CPO</code> operates on. To prevent <code>cpoAsNumeric</code> from influencing the <code>Species</code> column, we can thus do</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">quantilenum.restricted =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) %&gt;&gt;%
 <span class="st">  </span><span class="kw">cpoAsNumeric</span>(<span class="dt">affect.names =</span> <span class="st">&quot;Species&quot;</span>, <span class="dt">affect.invert =</span> <span class="ot">TRUE</span>)
@@ -142,9 +145,11 @@ iris.demo %&gt;&gt;%<span class="st"> </span>quantilenum.restricted
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
 <span class="co">#&gt; 1              1           3            1           1     setosa</span>
 <span class="co">#&gt; 2              1           1            1           1     setosa</span>
-<span class="co">#&gt; 51             3           2            3           2 versicolor</span>
-<span class="co">#&gt; 52             3           2            2           3 versicolor</span>
-<span class="co">#&gt; 102            2           1            3           3  virginica</span></code></pre></div>
+<span class="co">#&gt; 3              1           2            1           1     setosa</span>
+<span class="co">#&gt; 51             3           2            2           2 versicolor</span>
+<span class="co">#&gt; 52             2           2            2           2 versicolor</span>
+<span class="co">#&gt; 102            2           1            3           3  virginica</span>
+<span class="co">#&gt; 103            3           1            3           3  virginica</span></code></pre></div>
 <p>A more convenient method in this case, however, is to use an <code>mlr</code> “<code>Task</code>”, which keeps track of the target column. “Feature Operation” <code>CPO</code>s (as all the ones shown) do not influence the target column.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">demo.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Species&quot;</span>)
 result =<span class="st"> </span>demo.task %&gt;&gt;%<span class="st"> </span>quantilenum
@@ -152,9 +157,11 @@ result =<span class="st"> </span>demo.task %&gt;&gt;%<span class="st"> </span>qu
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
 <span class="co">#&gt; 1              1           3            1           1     setosa</span>
 <span class="co">#&gt; 2              1           1            1           1     setosa</span>
-<span class="co">#&gt; 51             3           2            3           2 versicolor</span>
-<span class="co">#&gt; 52             3           2            2           3 versicolor</span>
-<span class="co">#&gt; 102            2           1            3           3  virginica</span></code></pre></div>
+<span class="co">#&gt; 3              1           2            1           1     setosa</span>
+<span class="co">#&gt; 51             3           2            2           2 versicolor</span>
+<span class="co">#&gt; 52             2           2            2           2 versicolor</span>
+<span class="co">#&gt; 102            2           1            3           3  virginica</span>
+<span class="co">#&gt; 103            3           1            3           3  virginica</span></code></pre></div>
 </div>
 <div id="hyperparameters" class="section level2">
 <h2>Hyperparameters</h2>
@@ -187,18 +194,22 @@ cpo2
 <span class="co">#&gt; scale(center = TRUE, scale = FALSE)</span>
 iris.demo %&gt;&gt;%<span class="st"> </span>cpo  <span class="co"># scales and centers</span>
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
-<span class="co">#&gt; 1    -0.84167024   1.2883207   -1.0880046  -1.0642294     setosa</span>
-<span class="co">#&gt; 2    -1.06914869  -0.4068381   -1.0880046  -1.0642294     setosa</span>
-<span class="co">#&gt; 51    1.31937497   0.2712254    0.6894287   0.4560983 versicolor</span>
-<span class="co">#&gt; 52    0.63693964   0.2712254    0.5817054   0.5827923 versicolor</span>
-<span class="co">#&gt; 102  -0.04549569  -1.4239334    0.9048751   1.0895682  virginica</span>
+<span class="co">#&gt; 1    -0.75858917   1.5562541   -1.0268892  -1.0276683     setosa</span>
+<span class="co">#&gt; 2    -0.95897121  -0.4611123   -1.0268892  -1.0276683     setosa</span>
+<span class="co">#&gt; 3    -1.15935326   0.3458343   -1.0764631  -1.0276683     setosa</span>
+<span class="co">#&gt; 51    1.14504025   0.3458343    0.6090515   0.3874815 versicolor</span>
+<span class="co">#&gt; 52    0.54389412   0.3458343    0.5099036   0.5054106 versicolor</span>
+<span class="co">#&gt; 102  -0.05725201  -1.6715322    0.8073474   0.9771273  virginica</span>
+<span class="co">#&gt; 103   1.24523128  -0.4611123    1.2039390   1.2129856  virginica</span>
 iris.demo %&gt;&gt;%<span class="st"> </span>cpo2 <span class="co"># only centers</span>
 <span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
-<span class="co">#&gt; 1          -0.74        0.38        -2.02       -0.84     setosa</span>
-<span class="co">#&gt; 2          -0.94       -0.12        -2.02       -0.84     setosa</span>
-<span class="co">#&gt; 51          1.16        0.08         1.28        0.36 versicolor</span>
-<span class="co">#&gt; 52          0.56        0.08         1.08        0.46 versicolor</span>
-<span class="co">#&gt; 102        -0.04       -0.42         1.68        0.86  virginica</span></code></pre></div>
+<span class="co">#&gt; 1    -0.75714286  0.38571429    -2.071429  -0.8714286     setosa</span>
+<span class="co">#&gt; 2    -0.95714286 -0.11428571    -2.071429  -0.8714286     setosa</span>
+<span class="co">#&gt; 3    -1.15714286  0.08571429    -2.171429  -0.8714286     setosa</span>
+<span class="co">#&gt; 51    1.14285714  0.08571429     1.228571   0.3285714 versicolor</span>
+<span class="co">#&gt; 52    0.54285714  0.08571429     1.028571   0.4285714 versicolor</span>
+<span class="co">#&gt; 102  -0.05714286 -0.41428571     1.628571   0.8285714  virginica</span>
+<span class="co">#&gt; 103   1.24285714 -0.11428571     2.428571   1.0285714  virginica</span></code></pre></div>
 <p>When chaining many <code>CPO</code>s, it is possible for the many hyperparameters to lead to very cluttered <code>ParamSet</code>s, or even for hyperparameter names to clash. <code>mlrCPO</code> has two remedies for that.</p>
 <p>First, any <code>CPO</code> also has an <strong><code>id</code></strong> that is always prepended to the hyperparameter names. It can be set during construction, using the <code>id</code> parameter, or changed later using <code>setCPOId</code>. The latter one only works on primitive, i.e. not compound, <code>CPO</code>s. Set the <code>id</code> to <code>NULL</code> to use the <code>CPO</code>’s hyperparameters without a prefix.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;a&quot;</span>) %&gt;&gt;%<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;b&quot;</span>)  <span class="co"># not very useful example</span>
@@ -223,15 +234,17 @@ iris.demo %&gt;&gt;%<span class="st"> </span>cpo2 <span class="co"># only center
 </div>
 <div id="retrafo" class="section level2">
 <h2>Retrafo</h2>
-<p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “retrafo” object. To obtain this retrafo object, one can use <code>retrafo()</code>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
+<p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “<strong>retrafo</strong>” object. To obtain this retrafo object, one can use <strong><code>retrafo()</code></strong>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">transformed =<span class="st"> </span>iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)
 transformed
-<span class="co">#&gt;        Species       PC1        PC2         PC3</span>
-<span class="co">#&gt; 1       setosa -2.326799 -0.1705362 -0.18670853</span>
-<span class="co">#&gt; 2       setosa -2.367078  0.2089459  0.19298274</span>
-<span class="co">#&gt; 51  versicolor  1.636074 -0.6560244  0.11319581</span>
-<span class="co">#&gt; 52  versicolor  1.288712 -0.1633624 -0.10102199</span>
-<span class="co">#&gt; 102  virginica  1.769091  0.7809771 -0.01844804</span>
+<span class="co">#&gt;        Species       PC1         PC2         PC3</span>
+<span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span>
+<span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031</span>
+<span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403</span>
+<span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477</span>
+<span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449</span>
+<span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907</span>
+<span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707</span>
 
 ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)
 ret
@@ -239,12 +252,169 @@ ret
 <span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)]</span></code></pre></div>
 <p>To show that <code>ret</code> actually represents the exact same preprocessing operation, we can feed the first line of <code>iris.demo</code> back to it, to verify that the transformation is the same.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span>ret
-<span class="co">#&gt;   Species       PC1        PC2        PC3</span>
-<span class="co">#&gt; 1  setosa -2.326799 -0.1705362 -0.1867085</span></code></pre></div>
+<span class="co">#&gt;   Species       PC1        PC2       PC3</span>
+<span class="co">#&gt; 1  setosa -2.380452 -0.2754891 0.1725646</span></code></pre></div>
 <p>Obviously we would not have gotten there by feeding the first line to <code>cpoPca</code> directly:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo[<span class="dv">1</span>, ] %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)
 <span class="co">#&gt;   Species PC1</span>
 <span class="co">#&gt; 1  setosa   0</span></code></pre></div>
+</div>
+<div id="inverter" class="section level2">
+<h2>Inverter</h2>
+<p>So far only <code>CPO</code>s were introduced that change the feature columns of a <code>Task</code>. (“Feature Operation <code>CPO</code>s”–<em>FOCPO</em>s). There is another class of <code>CPO</code>s, “Target Operation <code>CPO</code>s” or <em>TOCPO</em>s, that can change a <code>Task</code>’s target columns.</p>
+<p>This comes at the cost of some complexity when performing prediction: Since the training data that was ultimately fed into a <code>Learner</code> had a transformed target column, the predictions made by the resulting model will not be directly comparable to the original target values. Consider <code>cpoLogTrafoRegr</code>, a <code>CPO</code> that log-transforms the target variable of a regression <code>Task</code>. The predictions made with a <code>Learner</code> on a log-transformed target variable will be in log-space and need to be exponentiated (or otherwise re-transformed). This inversion operation is represented by an “<strong>inverter</strong>” object that is attached to a transformation result similarly to a retrafo object, and can be obtained using the <strong><code>inverter()</code></strong> function. It is of class <code>CPOInverter</code>, a subclass of <code>CPOTrained</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.regr =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>)
+iris.logd =<span class="st"> </span>iris.regr %&gt;&gt;%<span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()
+
+<span class="kw">getTaskData</span>(iris.logd)  <span class="co"># log-transformed target 'Petal.Width'</span>
+<span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span>
+<span class="co">#&gt; 1            5.1         3.5          1.4  -1.6094379     setosa</span>
+<span class="co">#&gt; 2            4.9         3.0          1.4  -1.6094379     setosa</span>
+<span class="co">#&gt; 3            4.7         3.2          1.3  -1.6094379     setosa</span>
+<span class="co">#&gt; 51           7.0         3.2          4.7   0.3364722 versicolor</span>
+<span class="co">#&gt; 52           6.4         3.2          4.5   0.4054651 versicolor</span>
+<span class="co">#&gt; 102          5.8         2.7          5.1   0.6418539  virginica</span>
+<span class="co">#&gt; 103          7.1         3.0          5.9   0.7419373  virginica</span>
+
+inv =<span class="st"> </span><span class="kw">inverter</span>(iris.logd)  <span class="co"># inverter object</span>
+inv
+<span class="co">#&gt; CPO Inverter chain {type:regr} (able to predict 'response', 'se')</span>
+<span class="co">#&gt; [INVERTER fun.apply.regr.target(){type:regr}]</span></code></pre></div>
+<p>The inverter object is used by the <code>invert()</code> function that inverts the prediction made by a model trained on the transformed task, and re-transforms this prediction to fit the space of the original target data. The inverter object caches the “truth” of the data being inverted (<code>iris.logd</code>, in the example), so <code>invert</code> can give information on the truth of the inverted data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logmodel =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, iris.logd)
+pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, iris.logd)  <span class="co"># prediction on the task itself</span>
+pred
+<span class="co">#&gt; Prediction: 7 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;     id      truth   response</span>
+<span class="co">#&gt; 1    1 -1.6094379 -1.6155677</span>
+<span class="co">#&gt; 2    2 -1.6094379 -1.6182648</span>
+<span class="co">#&gt; 3    3 -1.6094379 -1.5944813</span>
+<span class="co">#&gt; 51   4  0.3364722  0.3429698</span>
+<span class="co">#&gt; 52   5  0.4054651  0.3989676</span>
+<span class="co">#&gt; 102  6  0.6418539  0.6416087</span>
+<span class="co">#&gt; ... (#rows: 7, #cols: 3)</span>
+
+<span class="kw">invert</span>(inv, pred)
+<span class="co">#&gt; Prediction: 7 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;     id truth  response</span>
+<span class="co">#&gt; 1    1   0.2 0.1987778</span>
+<span class="co">#&gt; 2    2   0.2 0.1982424</span>
+<span class="co">#&gt; 3    3   0.2 0.2030138</span>
+<span class="co">#&gt; 51   4   1.4 1.4091262</span>
+<span class="co">#&gt; 52   5   1.5 1.4902853</span>
+<span class="co">#&gt; 102  6   1.9 1.8995342</span>
+<span class="co">#&gt; ... (#rows: 7, #cols: 3)</span></code></pre></div>
+<p>This procedure can also be done with new incoming data. In general, more than just the <code>cpoLogTrafoRegr</code> operation could be done on the <code>iris.regr</code> task in the example, so to perform the complete preprocessing <em>and</em> inversion, one needs to use the retrafo object as well. When applying the retrafo object, a new inverter object is generated, which is specific to the exact new data that was being retransformed:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">newdata =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="st">&quot;newiris&quot;</span>, iris[<span class="dv">7</span>:<span class="dv">9</span>, ], <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>,
+  <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)
+
+<span class="co"># the retrafo does the same transformation(s) on newdata that were</span>
+<span class="co"># done on the training data of the model, iris.logd. In general, this</span>
+<span class="co"># could be more than just the target log transformation.</span>
+newdata.transformed =<span class="st"> </span>newdata %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(iris.logd)
+<span class="kw">getTaskData</span>(newdata.transformed)
+<span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
+<span class="co">#&gt; 7          4.6         3.4          1.4   -1.203973  setosa</span>
+<span class="co">#&gt; 8          5.0         3.4          1.5   -1.609438  setosa</span>
+<span class="co">#&gt; 9          4.4         2.9          1.4   -1.609438  setosa</span>
+
+pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, newdata.transformed)
+pred
+<span class="co">#&gt; Prediction: 3 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;   id     truth  response</span>
+<span class="co">#&gt; 7  1 -1.203973 -1.494340</span>
+<span class="co">#&gt; 8  2 -1.609438 -1.548810</span>
+<span class="co">#&gt; 9  3 -1.609438 -1.497037</span>
+
+<span class="co"># the inverter of the newly transformed data contains information specific</span>
+<span class="co"># to the newly transformed data. In the current case, that is just the</span>
+<span class="co"># new &quot;truth&quot; column for the new data.</span>
+inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.transformed)
+<span class="kw">invert</span>(inv.newdata, pred)
+<span class="co">#&gt; Prediction: 3 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;   id truth  response</span>
+<span class="co">#&gt; 7  1   0.3 0.2243966</span>
+<span class="co">#&gt; 8  2   0.2 0.2125006</span>
+<span class="co">#&gt; 9  3   0.2 0.2237922</span></code></pre></div>
+<div id="constant-inverters" class="section level3">
+<h3>Constant Inverters</h3>
+<p>The <code>cpoLogTrafoRegr</code> is a special case of TOCPO in that its inversion operation is <em>constant</em>: It does not depend on the new incoming data, so in theory it is not necessary to get a new inverter object for every piece of data that is being transformed. Therefore, it is possible to use the <em>retrafo</em> object for inversion in this case. However, the “truth” column will not be available in this case:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(<span class="kw">retrafo</span>(iris.logd), pred)
+<span class="co">#&gt; Prediction: 3 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;   id  response</span>
+<span class="co">#&gt; 7  1 0.2243966</span>
+<span class="co">#&gt; 8  2 0.2125006</span>
+<span class="co">#&gt; 9  3 0.2237922</span></code></pre></div>
+<p>Whether a retrafo object is capable of performing inversion can be checked with the <strong><code>getCPOTrainedCapability()</code></strong> function. It returns a vector with named elements <code>&quot;retrafo&quot;</code> and <code>&quot;invert&quot;</code>, indicating whether a <code>CPOTrained</code> is capable of performing retrafo or inversion. A <code>1</code> indicates that the object can perform the action and has an effect, a <code>0</code> indicates that the action would have no effect (but also throws no error), and a <code>-1</code> means that the object is not capable of performing the action.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedCapability</span>(<span class="kw">retrafo</span>(iris.logd))  <span class="co"># can do both retrafo and inversion</span>
+<span class="co">#&gt; retrafo  invert </span>
+<span class="co">#&gt;       1       1</span>
+<span class="kw">getCPOTrainedCapability</span>(inv)  <span class="co"># a pure inverter, can not be used for retrafo</span>
+<span class="co">#&gt; retrafo  invert </span>
+<span class="co">#&gt;      -1       1</span></code></pre></div>
+</div>
+<div id="general-inverters" class="section level3">
+<h3>General Inverters</h3>
+<p>As an example of a <code>CPO</code> that does not have a constant inverter, consider <code>cpoRegrResiduals</code>, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the <code>invert</code> action is to add predictions by the <code>CPO</code>’s model to the incoming predictions made by a model trained on the residuals.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.resid =<span class="st"> </span>iris.regr %&gt;&gt;%<span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>)
+<span class="kw">getTaskData</span>(iris.resid)
+<span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length   Petal.Width    Species</span>
+<span class="co">#&gt; 1            5.1         3.5          1.4  0.0086897922     setosa</span>
+<span class="co">#&gt; 2            4.9         3.0          1.4  0.0125133007     setosa</span>
+<span class="co">#&gt; 3            4.7         3.2          1.3 -0.0212030929     setosa</span>
+<span class="co">#&gt; 51           7.0         3.2          4.7 -0.0092111797 versicolor</span>
+<span class="co">#&gt; 52           6.4         3.2          4.5  0.0092111797 versicolor</span>
+<span class="co">#&gt; 102          5.8         2.7          5.1  0.0003475917  virginica</span>
+<span class="co">#&gt; 103          7.1         3.0          5.9 -0.0003475917  virginica</span>
+
+model.resid =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.randomForest&quot;</span>, iris.resid)
+
+newdata.resid =<span class="st"> </span>newdata %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(iris.resid)
+<span class="kw">getTaskData</span>(newdata.resid)  <span class="co"># Petal.Width are now the residuals of lm model predictions</span>
+<span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
+<span class="co">#&gt; 7          4.6         3.4          1.4  -0.0883876  setosa</span>
+<span class="co">#&gt; 8          5.0         3.4          1.5  -0.1045896  setosa</span>
+<span class="co">#&gt; 9          4.4         2.9          1.4  -0.1845641  setosa</span>
+
+pred =<span class="st"> </span><span class="kw">predict</span>(model.resid, newdata.resid)
+pred
+<span class="co">#&gt; Prediction: 3 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;   id      truth      response</span>
+<span class="co">#&gt; 7  1 -0.0883876 -0.0013674894</span>
+<span class="co">#&gt; 8  2 -0.1045896  0.0028774161</span>
+<span class="co">#&gt; 9  3 -0.1845641 -0.0005377533</span>
+
+<span class="co"># transforming this prediction back to compare</span>
+<span class="co"># it to the original 'Petal.Width'</span>
+inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.resid)
+<span class="kw">invert</span>(inv.newdata, pred)
+<span class="co">#&gt; Prediction: 3 observations</span>
+<span class="co">#&gt; predict.type: response</span>
+<span class="co">#&gt; threshold: </span>
+<span class="co">#&gt; time: 0.00</span>
+<span class="co">#&gt;   id truth  response</span>
+<span class="co">#&gt; 7  1   0.3 0.3870201</span>
+<span class="co">#&gt; 8  2   0.2 0.3074670</span>
+<span class="co">#&gt; 9  3   0.2 0.3840263</span></code></pre></div>
+</div>
 </div>
 <div id="the-rest" class="section level2">
 <h2>THE REST</h2>

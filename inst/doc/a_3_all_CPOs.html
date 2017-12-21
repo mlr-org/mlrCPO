@@ -358,7 +358,9 @@ cbinder.select
 <span class="co">#&gt; [55] &quot;cpoCase&quot;                         &quot;cpoCbind&quot;                       </span>
 <span class="co">#&gt; [57] &quot;cpoMultiplex&quot;                    &quot;cpoTransformParams&quot;             </span>
 <span class="co">#&gt; [59] &quot;cpoWrap&quot;                         &quot;cpoWrapRetrafoless&quot;             </span>
-<span class="co">#&gt; [61] &quot;cpoMissingIndicators&quot;</span></code></pre></div>
+<span class="co">#&gt; [61] &quot;cpoApplyFunRegrTarget&quot;           &quot;cpoRegrResiduals&quot;               </span>
+<span class="co">#&gt; [63] &quot;cpoLogTrafoRegr&quot;                 &quot;cpoMissingIndicators&quot;           </span>
+<span class="co">#&gt; [65] &quot;cpoResponseFromSE&quot;</span></code></pre></div>
 </div>
 <div id="cposcale" class="section level3">
 <h3>cpoScale</h3>
@@ -680,12 +682,12 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="kw">listCPO</span>()[<span class="kw">listCPO</span>()$category ==<span class="st"> &quot;imputation&quot;</span> &amp;<span class="st"> </span><span class="kw">listCPO</span>()$subcategory ==<span class="st"> &quot;specialised&quot;</span>,
           <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;description&quot;</span>)]
 <span class="co">#&gt;                 name</span>
-<span class="co">#&gt; 38 cpoImputeConstant</span>
-<span class="co">#&gt; 46     cpoImputeHist</span>
-<span class="co">#&gt; 47  cpoImputeLearner</span>
-<span class="co">#&gt; 43      cpoImputeMax</span>
-<span class="co">#&gt; 40     cpoImputeMean</span>
-<span class="co">#&gt; 39   cpoImputeMedian</span>
+<span class="co">#&gt; 40 cpoImputeConstant</span>
+<span class="co">#&gt; 48     cpoImputeHist</span>
+<span class="co">#&gt; 49  cpoImputeLearner</span>
+<span class="co">#&gt; 45      cpoImputeMax</span>
+<span class="co">#&gt; 42     cpoImputeMean</span>
+<span class="co">#&gt; 41   cpoImputeMedian</span>
 <span class="co">#&gt; ... (#rows: 10, #cols: 1)</span></code></pre></div>
 </div>
 </div>
@@ -713,12 +715,12 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="kw">listCPO</span>()[<span class="kw">listCPO</span>()$category ==<span class="st"> &quot;featurefilter&quot;</span> &amp;<span class="st"> </span><span class="kw">listCPO</span>()$subcategory ==<span class="st"> &quot;specialised&quot;</span>,
           <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;description&quot;</span>)]
 <span class="co">#&gt;                        name</span>
-<span class="co">#&gt; 30           cpoFilterAnova</span>
-<span class="co">#&gt; 16        cpoFilterCarscore</span>
-<span class="co">#&gt; 26      cpoFilterChiSquared</span>
-<span class="co">#&gt; 24       cpoFilterGainRatio</span>
-<span class="co">#&gt; 23 cpoFilterInformationGain</span>
-<span class="co">#&gt; 31         cpoFilterKruskal</span>
+<span class="co">#&gt; 32           cpoFilterAnova</span>
+<span class="co">#&gt; 18        cpoFilterCarscore</span>
+<span class="co">#&gt; 28      cpoFilterChiSquared</span>
+<span class="co">#&gt; 26       cpoFilterGainRatio</span>
+<span class="co">#&gt; 25 cpoFilterInformationGain</span>
+<span class="co">#&gt; 33         cpoFilterKruskal</span>
 <span class="co">#&gt; ... (#rows: 19, #cols: 1)</span></code></pre></div>
 </div>
 </div>
