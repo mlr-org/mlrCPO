@@ -55,6 +55,11 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
     changeData(task, tdata)
   }
 
+  control = NULL  # pacify static R code check
+  data = NULL
+  target = NULL
+  predict.type = NULL
+
   makeCPOExtendedTargetOp("regr.residuals", addnl.params, par.vals,
     dataformat = "task",
     properties.data = intersect(cpo.dataproperties, getLearnerProperties(learner)),
@@ -93,7 +98,7 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
           pmat = predMatFromRR(rr, "response")
           precmat = 1 / predMatFromRR(rr, "se")^2
           for (row in seq_along(control.invert$response)) {
-            wmean = weighted.mean(pmat[row, , drop = TRUE], precmat[row, , drop = TRUE], na.rm = TRUE)
+            wmean = stats::weighted.mean(pmat[row, , drop = TRUE], precmat[row, , drop = TRUE], na.rm = TRUE)
             if (is.na(wmean)) {
               next
             }
@@ -143,9 +148,9 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
 #' be performed. In that case, the \code{se} of the incoming prediction and the \code{se}
 #' of the internal model are assumed to be independently distributed, and the resulting
 #' \code{se} is the pythagorean sum of the \code{se}s.
-#' @param learner [\code{character(1)} | \code{\link[mlr]{Learner}}]\cr
-#'   A regression \code{\link[mlr]{Learner}}, or a \code{character(1)} identifying a
-#'   \code{\link[mlr]{Learner}} to be constructed.
+#' @param learner [\code{character(1)} | \code{\link[mlr:makeLearner]{Learner}}]\cr
+#'   A regression \code{\link[mlr:makeLearner]{Learner}}, or a \code{character(1)} identifying a
+#'   \code{\link[mlr:makeLearner]{Learner}} to be constructed.
 #' @param predict.se [\code{logical(1)}]\cr
 #'   Whether to fit the model with \dQuote{se} predict type. This enables the resulting
 #'   \code{\link{CPOInverter}} to be used for \code{property.type == "se"} inversion.
@@ -153,10 +158,10 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
 #' @param crr.train.residuals [\code{character(1)}]\cr
 #'   What residuals to use for training (i.e. initial transformation). One of \dQuote{resample}, \dQuote{oob},
 #'   \dQuote{plain}. If \dQuote{resample} is given, the out-of-resampling-fold predictions are used when resampling
-#'   according to the \code{resampling} parameter. If \dQuote{oob} is used, the \code{\link[mlr]{Learner}} must
+#'   according to the \code{resampling} parameter. If \dQuote{oob} is used, the \code{\link[mlr:makeLearner]{Learner}} must
 #'   have the \dQuote{oobpreds} property; the out-of-bag predictions are then used. If \code{train.residuals} is
 #'   \dQuote{plain}, the simple regression residuals are used. Default is \dQuote{resample}.
-#' @param crr.resampling [\code{\link[mlr]{ResampleDesc}} | \code{\link[mlr]{ResampleInstance}}]\cr
+#' @param crr.resampling [\code{\link[mlr:makeResampleDesc]{ResampleDesc}} | \code{\link[mlr:makeResampleInstance]{ResampleInstance}}]\cr
 #'   What resampling to use when \code{train.residuals} is \dQuote{resample}; otherwise has no effect.
 #'   The \code{$predict} slot of the resample description will be ignored and set to \code{test}.
 #'   If a data point is predicted by multiple resampling folds, the average residual is used. If a data
@@ -168,6 +173,8 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
 #'
 #' The \code{CPOInverter} state's \code{$control} slot is a \code{data.frame} of the \dQuote{response} and
 #' (if \code{predict.se} is \code{TRUE}) \dQuote{se} columns of the prediction done by the model on the data.
+#'
+#' @template cpo_doc_outro
 #' @export
 cpoRegrResiduals = makeFauxCPOConstructor(makeCPORegrResiduals, "regr.residuals", "target")  # nolint
 

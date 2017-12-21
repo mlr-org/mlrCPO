@@ -88,7 +88,7 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #'
 #'   Note when \code{trafo} or \code{invert.response} take more than one argument, the
 #'   second argument will be set to the value of \code{param}. This may lead to unexpected
-#'   results when using functions with rarely used parameters, e.g. \code{\link[base]{log}}.
+#'   results when using functions with rarely used parameters, e.g. \code{\link[base:Log]{log}}.
 #'   In these cases, it may be necessary to wrap the function:
 #'   \code{trafo = function(x) log(x)}.
 #'

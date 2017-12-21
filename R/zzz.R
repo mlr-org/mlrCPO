@@ -1,5 +1,5 @@
 #' @import methods
-#' @importFrom stats setNames
+#' @importFrom stats setNames predict
 #' @import BBmisc
 #' @import checkmate
 #' @import stringi
