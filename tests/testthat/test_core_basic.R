@@ -295,15 +295,15 @@ test_that("CPO with no parameters don't crash", {
 
 test_that("CPO parameters behave as expected", {
 
-  globalenv$cpotest.parvals = list()
-  globalenv$cpotest.parvals2 = list()
-  globalenv$cpotest.parvals3 = list()
+  testglobalenv$cpotest.parvals = list()
+  testglobalenv$cpotest.parvals2 = list()
+  testglobalenv$cpotest.parvals3 = list()
 
   cpof = makeCPOFunctional("testCPOF",
     a: integer[, ], b = 1: integer[, ], c = 1: integer[, ], d: integer[, ], e: integer[, ],
-    .par.vals = list(a = 1, b = 2, d = 1),
+    .par.vals = list(a = 1, b = 2, c = 1, d = 1),
     cpo.trafo = {
-      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
+      testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -311,7 +311,7 @@ test_that("CPO parameters behave as expected", {
   cpo2f = makeCPOFunctional("testCPO2F",
     a: numeric[, ], z: integer[, ], model = TRUE: logical,
     cpo.trafo = {
-      globalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
+      testglobalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -319,16 +319,16 @@ test_that("CPO parameters behave as expected", {
   cpo3f = makeCPOFunctional("testCPO3F",
     f: integer[, ],
     cpo.trafo = {
-      globalenv$cpotest.parvals3 = c(globalenv$cpotest.parvals3, f)  # nolint
+      testglobalenv$cpotest.parvals3 = c(testglobalenv$cpotest.parvals3, f)  # nolint
       cpo.retrafo = function(data) data
       data
     })
 
   cpoo = makeCPOObject("testCPOO",
     a: integer[, ], b = 1: integer[, ], c = 1: integer[, ], d: integer[, ], e: integer[, ],
-    .par.vals = list(a = 1, b = 2, d = 1),
+    .par.vals = list(a = 1, b = 2, c = 1, d = 1),
     cpo.trafo = {
-      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
+      testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = e)  # nolint
       control = 0
       data
     },
@@ -339,7 +339,7 @@ test_that("CPO parameters behave as expected", {
   cpo2o = makeCPOObject("testCPO2O",
     a: numeric[, ], z: integer[, ], model = TRUE: logical,
     cpo.trafo = {
-      globalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
+      testglobalenv$cpotest.parvals2 = list(a = a, z = z)  # nolint
       control = 0
         data
     },
@@ -350,7 +350,7 @@ test_that("CPO parameters behave as expected", {
   cpo3o = makeCPOObject("testCPO3O",
     f: integer[, ],
     cpo.trafo = {
-      globalenv$cpotest.parvals3 = c(globalenv$cpotest.parvals3, f)  # nolint
+      testglobalenv$cpotest.parvals3 = c(testglobalenv$cpotest.parvals3, f)  # nolint
       control = 0
       data
     },
@@ -389,9 +389,9 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     train(setHyperPars(cpo.learner, par.vals = addid(id1, list(e = 900))), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
 
     # ID = NULL parameters
@@ -411,9 +411,9 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(cpo.learner, pid.task), "Parameter .*e.*missing")
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     train(setHyperPars(cpo.learner, par.vals = list(e = 900)), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 900))
 
 
     # parameters of cpo with id
@@ -435,9 +435,9 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(cpo.learner, pid.task), "Parameter (y\\.)?e .*missing")
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     train(setHyperPars(cpo.learner, y.e = 901), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 901))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = 3, b = 0, c = -1, d = 1, e = 901))
 
     expect_error(setCPOId(cpo.obj %>>% cpo3(), "testx"), "Cannot set ID of compound CPO")
 
@@ -456,23 +456,23 @@ test_that("CPO parameters behave as expected", {
 
     expect_error(train(setHyperPars(lrn, fst.e = 90), pid.task), "Parameters? (2nd\\.)?z.*missing")
 
-    globalenv$cpotest.parvals = list()  # nolint
-    globalenv$cpotest.parvals2 = list()  # nolint
-    globalenv$cpotest.parvals3 = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals2 = list()  # nolint
+    testglobalenv$cpotest.parvals3 = list()  # nolint
     train(setHyperPars(lrn, fst.e = 90, `2nd.a` = 9000, `2nd.z` = -10, thrd.f = 222), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = 3, b = 2, c = 1, d = 1, e = 90))
-    expect_identical(globalenv$cpotest.parvals2, list(a = 9000, z = -10))
-    expect_identical(globalenv$cpotest.parvals3, list(222))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = 3, b = 2, c = 1, d = 1, e = 90))
+    expect_identical(testglobalenv$cpotest.parvals2, list(a = 9000, z = -10))
+    expect_identical(testglobalenv$cpotest.parvals3, list(222))
 
     # multiple instances of the same CPO
-    globalenv$cpotest.parvals3 = list()  # nolint
+    testglobalenv$cpotest.parvals3 = list()  # nolint
     train(cpo3(id = "a", 100) %>>% cpo3(id = "b", 10) %>>% cpo3(20) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(globalenv$cpotest.parvals3, list(100, 10, 20))
+    expect_identical(testglobalenv$cpotest.parvals3, list(100, 10, 20))
 
-    globalenv$cpotest.parvals3 = list()  # nolint
+    testglobalenv$cpotest.parvals3 = list()  # nolint
     lrn = cpo3(id = "a") %>>% cpo3(id = "b", 10) %>>% cpo3(id = "x") %>>% makeLearner("classif.logreg")
     train(setHyperPars(lrn, a.f = 1000, x.f = 99), pid.task)
-    expect_identical(globalenv$cpotest.parvals3, list(1000, 10, 99))
+    expect_identical(testglobalenv$cpotest.parvals3, list(1000, 10, 99))
   }
 
   testCPO(cpof, cpo2f, cpo3f)
@@ -488,24 +488,25 @@ test_that("CPO Parameters of new makeCPO interface", {
     c: integer[, ],
     d = 1: integer[, ])
 
-  par.vals = list(c = 2, d = 3)
+  # obsolete:  par.vals = list(c = 2, d = 3)
+  par.vals = list(b = 1, c = 2, d = 3)
 
   param.cpos = list(
       makeCPO("paramCPO", par.set, par.vals, cpo.train = {
-        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
-      }, cpo.retrafo = { globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+      }, cpo.retrafo = { testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         data
       }),
 
       makeCPO("paramCPO.sl", par.set, par.vals, cpo.train = NULL, cpo.retrafo = {
-        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         data
       }),
 
       makeCPO("paramCPO.fr", par.set, par.vals, cpo.train = {
-        globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+        testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         function(x) {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           x
         }
       }, cpo.retrafo = NULL),
@@ -513,28 +514,28 @@ test_that("CPO Parameters of new makeCPO interface", {
       makeCPOTargetOp("paramCPO.target", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.train = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.train.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         }, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOTargetOp("paramCPO.target.fni", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.train = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.train.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
         }, cpo.invert = NULL),
@@ -543,93 +544,93 @@ test_that("CPO Parameters of new makeCPO interface", {
         properties.target = c("classif", "twoclass"),
         cpo.train = {
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           cpo.train.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             function(target, ...) {
-              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
               target
             }
           }
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
 
       makeCPOTargetOp("paramCPO.target.fnr", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.train = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           cpo.train.invert = function(...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             NULL
           }
         }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOTargetOp("paramCPO.target.ci.sl", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.train = NULL, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.train.invert = NULL, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOTargetOp("paramCPO.target.ci", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.train = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.train.invert = NULL, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOTargetOp("paramCPO.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.train = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
         }, cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL),
 
       makeCPORetrafoless("paramCPO.retrafoless", par.set, par.vals,
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           data
         }),
 
       makeCPOExtendedTrafo("paramCPO.extended", par.set, par.vals,
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control = NULL
           data
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           data
         }),
 
       makeCPOExtendedTrafo("paramCPO.extended.fr", par.set, par.vals,
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(x) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             x
           }
           data
@@ -638,17 +639,17 @@ test_that("CPO Parameters of new makeCPO interface", {
       makeCPOExtendedTargetOp("paramCPO.extended.target.fi", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control = NULL
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           target
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           target
@@ -657,33 +658,33 @@ test_that("CPO Parameters of new makeCPO interface", {
       makeCPOExtendedTargetOp("paramCPO.extended.target.fr", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             control.invert = NULL
             target
           }
           control.invert = NULL
           target
         }, cpo.retrafo = NULL, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOExtendedTargetOp("paramCPO.extended.target.fr.fi", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             cpo.invert = function(target, ...) {
-              globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+              testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
               target
             }
             target
           }
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           target
@@ -692,59 +693,59 @@ test_that("CPO Parameters of new makeCPO interface", {
       makeCPOExtendedTargetOp("paramCPO.extended.target", par.set, par.vals,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control.invert = NULL
           control = NULL
           target
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control.invert = NULL
           target
         }, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fi", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control = NULL
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           target
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.invert = NULL),
 
       makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           control.invert = NULL
           target
         }, cpo.retrafo = NULL, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }),
 
       makeCPOExtendedTargetOp("paramCPO.extended.target.ci.fr.fi", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           cpo.retrafo = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           cpo.invert = function(target, ...) {
-            globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+            testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
             target
           }
           target
@@ -753,15 +754,15 @@ test_that("CPO Parameters of new makeCPO interface", {
       makeCPOExtendedTargetOp("paramCPO.extended.target.ci", par.set, par.vals, constant.invert = TRUE,
         properties.target = c("classif", "twoclass"),
         cpo.trafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           control.invert = NULL
           control = NULL
           target
         }, cpo.retrafo = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }, cpo.invert = {
-          globalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
+          testglobalenv$cpotest.parvals %c=% list(a = a, b = b, c = c, d = d)
           target
         }))
 
@@ -773,30 +774,30 @@ test_that("CPO Parameters of new makeCPO interface", {
                      rep.tl = rep.train,
                      rep.rl = rep.retrafo + rep.invert) {
     expect_error(pid.task %>>% pcpo(), ".a of CPO.*missing")
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     pt = pid.task %>>% setHyperPars(pcpo(id = NULL, a = 0), a = -1)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.train))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.train))
 
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     pt2 = pid.task %>>% retrafo(pt)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.retrafo))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.retrafo))
 
     targ = getTaskData(pid.task, target.extra = TRUE)$target
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     tx1 = invert(inverter(pt), targ)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.invert))
 
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     tx2 = invert(inverter(pt2), targ)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.invert))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.invert))
 
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     trn = train(pcpo(a = -1) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.tl))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.tl))
 
-    globalenv$cpotest.parvals = namedList()
+    testglobalenv$cpotest.parvals = namedList()
     predict(trn, pid.task)
-    expect_identical(globalenv$cpotest.parvals, rep(expvals, rep.rl))
+    expect_identical(testglobalenv$cpotest.parvals, rep(expvals, rep.rl))
   }
 
   testCPO(param.cpos$paramCPO, 2, 1, 0)  # simple cpo
@@ -959,7 +960,7 @@ test_that("discrete parameters work well", {
   cpof = makeCPOFunctional("testCPOF",
     a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
     cpo.trafo = {
-      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
+      testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       cpo.retrafo = function(data) data
       data
     })
@@ -967,7 +968,7 @@ test_that("discrete parameters work well", {
   cpoo = makeCPOObject("testCPOO",
     a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
     cpo.trafo = {
-      globalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
+      testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       control = 0
       data
     },
@@ -976,13 +977,13 @@ test_that("discrete parameters work well", {
     })
 
   testCPO = function(cpo) {
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     train(cpo(TRUE, "a", e = list(function() 1, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = TRUE, b = "a", c = 1, d = c(TRUE, TRUE), e = c(1, 1)))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = TRUE, b = "a", c = 1, d = c(TRUE, TRUE), e = c(1, 1)))
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     train(cpo(TRUE, 1, e = list(function() Y, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
-    expect_identical(globalenv$cpotest.parvals, list(a = TRUE, b = 1, c = 1, d = c(TRUE, TRUE), e = c(2, 1)))
+    expect_identical(testglobalenv$cpotest.parvals, list(a = TRUE, b = 1, c = 1, d = c(TRUE, TRUE), e = c(2, 1)))
   }
 
   testCPO(cpof)
@@ -991,27 +992,27 @@ test_that("discrete parameters work well", {
 
 test_that("preprocessing actually changes data", {
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   t = train(testlearnercpo, testtaskcpo)
   predict(t, testtaskcpo2)
-  expect_equal(globalenv$cpotest.parvals, list(1, 3))
+  expect_equal(testglobalenv$cpotest.parvals, list(1, 3))
 
   testCPO = function(cpoMultiplier, cpoAdder) {
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     t = train(testlearnercpo, testtaskcpo)
     predict(t, testtaskcpo2)
-    expect_identical(globalenv$cpotest.parvals, list(1, 3))
+    expect_identical(testglobalenv$cpotest.parvals, list(1, 3))
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoMultiplier(10) %>>% testlearnercpo, testtaskcpo), testtaskcpo2)
-    expect_identical(globalenv$cpotest.parvals, list(10, 0.3))
+    expect_identical(testglobalenv$cpotest.parvals, list(10, 0.3))
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoAdder(3) %>>% testlearnercpo, testtaskcpo), testtaskcpo2)
-    expect_identical(globalenv$cpotest.parvals, list(4, -1.5))
+    expect_identical(testglobalenv$cpotest.parvals, list(4, -1.5))
 
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     predict(train(cpoAdder(3) %>>%
                   cpoMultiplier(3) %>>%
                   cpoAdder(2, id = "second") %>>%
@@ -1023,7 +1024,7 @@ test_that("preprocessing actually changes data", {
     #   first adder gets a meandata of 1.5, second adder gets meandata of 13.5
     # Prediction:
     #   c(3, 4) - 3 - 1.5, / 3, - 2 - 13.5, / 10 -> c(-1.6, -1.57)
-    expect_identical(globalenv$cpotest.parvals, list(140, -1.6))
+    expect_identical(testglobalenv$cpotest.parvals, list(140, -1.6))
   }
 
   testCPO(cpomultiplier.task.f, cpoadder.task.f)
@@ -1038,23 +1039,23 @@ test_that("preprocessing with inverter changes data", {
   trivialtask2 = makeRegrTask("3-4-task", data.frame(A = c(3, 4), B = c(3, 4)), "B")
 
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   t = train(testregressorcpo, trivialtask)
   predict(t, trivialtask2)
-  expect_identical(globalenv$cpotest.parvals, list(1, 3))
+  expect_identical(testglobalenv$cpotest.parvals, list(1, 3))
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   expect_identical(predict(train(cpoinvertmultiplier(10) %>>% testregressorcpo, trivialtask),
     trivialtask2)$data$response, c(1000, 10))
-  expect_identical(globalenv$cpotest.parvals, list(10, 3))
+  expect_identical(testglobalenv$cpotest.parvals, list(10, 3))
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   expect_identical(predict(train(cpoinvertadder(3) %>>% testregressorcpo, trivialtask),
     trivialtask2)$data$response, c(10, 4))
-  expect_identical(globalenv$cpotest.parvals, list(4, 3))
+  expect_identical(testglobalenv$cpotest.parvals, list(4, 3))
 
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   pr = predict(train(cpoinvertadder(3) %>>%
                 cpoinvertmultiplier(3) %>>%
                 cpoinvertadder(2, id = "second") %>>%
@@ -1066,7 +1067,7 @@ test_that("preprocessing with inverter changes data", {
   #   first adder gets a meandata of 1.5, second adder gets meandata of 13.5
   # Prediction:
   #   140 * 100 + 4 * 9 + 6
-  expect_identical(globalenv$cpotest.parvals, list(140, 3))
+  expect_identical(testglobalenv$cpotest.parvals, list(140, 3))
   expect_identical(pr$data$response, c(((140 * 100) + 4) * 9 + 6, 140))
 
 })
@@ -1088,39 +1089,39 @@ test_that("CPO trafo functions work", {
   expect_class(makeCPOFunctional("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(a, ...) { }), "CPOConstructor")
 
-  globalenv$cpotest.parvals = list()
+  testglobalenv$cpotest.parvals = list()
   t = train(makeCPOObject("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(data, target, b, ...) {
-      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
+      testglobalenv$cpotest.parvals = list(b, slist(...))  # nolint
       control = 0
       data
     }, cpo.retrafo = function(data, b, ...) {
-      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
+      testglobalenv$cpotest.parvals = list(b, slist(...))  # nolint
       data
     })(1, 2) %>>% makeLearner("classif.logreg"), pid.task)
 
-  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1)))
+  expect_identical(testglobalenv$cpotest.parvals, list(2, list(a = 1)))
 
-  globalenv$cpotest.parvals = list()
+  testglobalenv$cpotest.parvals = list()
   predict(t, pid.task)
-  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1, control = 0)))
+  expect_identical(testglobalenv$cpotest.parvals, list(2, list(a = 1, control = 0)))
 
-  globalenv$cpotest.parvals = list()
+  testglobalenv$cpotest.parvals = list()
   t = train(makeCPOFunctional("testCPO", a: integer[, ], b: integer[, ],
     cpo.trafo = function(data, target, b, ...) {
-      globalenv$cpotest.parvals = list(b, slist(...))  # nolint
+      testglobalenv$cpotest.parvals = list(b, slist(...))  # nolint
       cpo.retrafo = function(data, ...) {
-        globalenv$cpotest.parvals = list(b, slist(...))  # nolint
+        testglobalenv$cpotest.parvals = list(b, slist(...))  # nolint
         data
       }
       data
     })(1, 2) %>>% makeLearner("classif.logreg"), pid.task)
 
-  expect_identical(globalenv$cpotest.parvals, list(2, list(a = 1)))
+  expect_identical(testglobalenv$cpotest.parvals, list(2, list(a = 1)))
 
-  globalenv$cpotest.parvals = list()
+  testglobalenv$cpotest.parvals = list()
   predict(t, pid.task)
-  expect_identical(globalenv$cpotest.parvals, list(2, list()))
+  expect_identical(testglobalenv$cpotest.parvals, list(2, list()))
 
 })
 
@@ -1234,10 +1235,10 @@ test_that("retrafo accessor does what it is supposed to do", {
 
   expect_equal(getTaskData(pid.task %>>% retrafo(transformed)), getTaskData(transformed))
 
-  globalenv$cpotest.parvals = list()  # nolint
+  testglobalenv$cpotest.parvals = list()  # nolint
   t = train(testlearnercpo, testtaskcpo)
   predict(t, testtaskcpo2)
-  expect_identical(globalenv$cpotest.parvals, list(1, 3))
+  expect_identical(testglobalenv$cpotest.parvals, list(1, 3))
 
   f1 = function(data, target, args) {
     data[[1]] = data[[1]] * 10
@@ -1276,54 +1277,54 @@ test_that("retrafo accessor does what it is supposed to do", {
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
 
     # short chain, learner model
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     m = train(cpoadder(10) %>>% testlearnercpo, testtaskcpo)
 
-    expect_equal(globalenv$cpotest.parvals, list(11))
+    expect_equal(testglobalenv$cpotest.parvals, list(11))
     expect_equal(getTaskData(testtaskcpo2 %>>% retrafo(m))$A, c(-8.5, -7.5))
     expect_equal((testdfcpo2 %>>% retrafo(m))$A, c(-8.5, -7.5))
     predict(m, testtaskcpo2)
-    expect_equal(globalenv$cpotest.parvals, list(11, -8.5))
+    expect_equal(testglobalenv$cpotest.parvals, list(11, -8.5))
 
 
     # long chain, learner model
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")) %>>%
               ((cpoadder(-10, id = "thd") %>>% cpomultiplier(2, id = "frth")) %>>% testlearnercpo), testtaskcpo)
 
-    expect_equal(globalenv$cpotest.parvals,  list(24))
+    expect_equal(testglobalenv$cpotest.parvals,  list(24))
     expect_equal(getTaskData(testtaskcpo2 %>>% retrafo(m))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     expect_equal((testdfcpo2 %>>% retrafo(result))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     predict(m, testtaskcpo2)
-    expect_equal(globalenv$cpotest.parvals, list(24, ((3 - 10 - 1.5) / 2 + 10 - 23) / 2))
+    expect_equal(testglobalenv$cpotest.parvals, list(24, ((3 - 10 - 1.5) / 2 + 10 - 23) / 2))
 
     # message when learner contains something else
     # THIS WILL NOT WORK WHEN PREPROC WRAPPERS ARE GONE!
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")) %>>%
               ((cpoadder(-10, id = "thd") %>>% cpomultiplier(2, id = "frth")) %>>% wrappedlearner), testtaskcpo)
-    expect_equal(globalenv$cpotest.parvals, list(240))
+    expect_equal(testglobalenv$cpotest.parvals, list(240))
 
     expect_message({ retr = retrafo(m) }, "has some wrappers besides CPOs", all = TRUE)
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     predict(m, testtaskcpo2)
-    expect_equal(globalenv$cpotest.parvals, list(240, (((3 - 10 - 1.5) / 2 + 10 - 23) / 2) / 10))
+    expect_equal(testglobalenv$cpotest.parvals, list(240, (((3 - 10 - 1.5) / 2 + 10 - 23) / 2) / 10))
 
     # warning when learner contains buried CPOs
     # THIS WILL NOT HAPPEN WHEN PREPROC WRAPPERS ARE GONE!
     buriedlearner = makePreprocWrapper(cpoadder(-10, id = "thd") %>>% (cpomultiplier(2, id = "frth") %>>% testlearnercpo),
       train = f1, predict = f2, par.set = makeParamSet(), par.vals = list())
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     m = train((cpoadder(10, id = "fst") %>>% (cpomultiplier(2, id = "snd")) %>>% buriedlearner), testtaskcpo)
-    expect_equal(globalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2))
+    expect_equal(testglobalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2))
 
     expect_warning({ retr = retrafo(m) }, "has some CPOs wrapped by other wrappers", all = TRUE)
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2))
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2))
     predict(m, testtaskcpo2)
-    expect_equal(globalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2, (((3 - 10 - 1.5) / 2 / 10 + 10 - 230) / 2)))
+    expect_equal(testglobalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2, (((3 - 10 - 1.5) / 2 / 10 + 10 - 230) / 2)))
   }
 
   testCPO(cpoadder.f, cpomultiplier.f)
@@ -1580,7 +1581,7 @@ test_that("retrafo catabolization and anabolization work", {
 
     expect_equal((testdfcpo2 %>>% (firsthalf %>>% secondhalf))[[1]], (((c(3, 4) - 20 - 1.5) / 2 + 10 - 43) / -2 - 10 + 3) / 2)
 
-    globalenv$cpotest.parvals = list()  # nolint
+    testglobalenv$cpotest.parvals = list()  # nolint
     retrafos = list(
         (testdfcpo %>>% cpoadder(10, id = "fst")) %>>% cpomultiplier(2, id = "snd"),  # apply CPO twice
         testdfcpo %>>% (cpoadder(10, id = "fst") %>>% cpomultiplier(2, id = "snd")),  # apply compound CPO
@@ -1589,7 +1590,7 @@ test_that("retrafo catabolization and anabolization work", {
         train(setHyperPars((cpoadder(1, id = "fst") %>>% cpomultiplier(1, id = "snd")), fst.summand = 10, snd.factor = 2) %>>%
               testlearnercpo, testtaskcpo))  # wrap with compound CPO
 
-    expect_equal(globalenv$cpotest.parvals, list(22, 22))
+    expect_equal(testglobalenv$cpotest.parvals, list(22, 22))
 
 
     for (retgen in retrafos) {
@@ -1656,8 +1657,6 @@ test_that("warning about buried cpos", {
   expect_subset(c("multiplierF.factor", "int", "adderF.summand", "fst.summand", "snd.summand"), names(getParamSet(combined2)$pars))
 
   combined2 = setHyperPars(combined2, env = environment(), int = 100, snd.summand = 3, fst.summand = 2, multiplierF.factor = 3)
-
-
 
   expect_warning({gotten.cpo = getLearnerCPO(combined2)}, "Learner.*buried CPOs")
 

@@ -27,3 +27,5 @@ cpoResponseFromSE = makeCPOTargetOp("response.from.se",  # nolint
       target
     }
   })
+
+registerCPO(cpoResponseFromSE, "tools", "predict.type", "Use the 'se' predict.type for 'response' prediction.")

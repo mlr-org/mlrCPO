@@ -343,7 +343,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
     expect_true(!is.na(holdout(cpo %>>% lrn, data, show.info = FALSE)$aggr))
   }
 
-  options(mlr.debug.seed = 3)
+  options(mlr.debug.seed = 123)
   testinv(iris.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(pid.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(bh.task, reg.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))

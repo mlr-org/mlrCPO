@@ -90,7 +90,6 @@ test_that("cpoRegrResiduals with crr.train.residuals 'resample'", {
 
   set.seed(123)
   rr = holdout("regr.lm", bh.task, show.info = FALSE)
-  rr$pred
 
   ctrl = getCPOTrainedState(inverter(trafo1))$control$response
 

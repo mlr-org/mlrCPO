@@ -60,7 +60,7 @@ makeCPOMultiplex = function(cpos, selected.cpo = NULL) {
     do.call(base::c, param.list))
 
   # get the parameter values
-  paramvals = unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE)
+  paramvals = insert(getParamSetDefaults(paramset), unlist(unname(lapply(constructed, getHyperPars)), recursive = FALSE))
 
 
   props = collectProperties(constructed, "multiplex")
