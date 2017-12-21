@@ -25,6 +25,128 @@ test_that("cpoRegrResiduals trafo works as expected", {
 
 })
 
+test_that("cpoRegrResiduals with crr.train.residuals 'oob'", {
+
+  expect_error(cpoRegrResiduals("regr.lm", crr.train.residuals = "oob"), "must support properties 'oobpreds'")
+
+  set.seed(123)
+  trafo = bh.task %>>% cpoRegrResiduals("regr.randomForest", crr.train.residuals = "oob")
+
+  set.seed(123)
+  rfoob = getOOBPreds(train("regr.randomForest", bh.task), bh.task)$data$response
+
+  expect_equal(getCPOTrainedState(inverter(trafo))$control$response, rfoob)
+  expect_equal(getTaskData(trafo, target.extra = TRUE)$target, getTaskData(bh.task, target.extra = TRUE)$target - rfoob)
+
+  set.seed(123)
+  trafo = bh.task %>>% cpoRegrResiduals("regr.randomForest", predict.se = TRUE, crr.train.residuals = "oob")
+
+  set.seed(123)
+  trafo2 = bh.task %>>% setHyperPars(cpoRegrResiduals("regr.randomForest", predict.se = TRUE), regr.residuals.crr.train.residuals = "oob")
+
+  expect_equal(getCPOTrainedState(inverter(trafo)), getCPOTrainedState(inverter(trafo2)))
+
+  cpo = setHyperPars(cpoRegrResiduals("regr.lm"), regr.residuals.crr.train.residuals = "oob")
+  expect_error(bh.task %>>% cpo, "for crr.resampling == 'oob' the Learner needs property 'oobpreds'")
+
+  set.seed(123)
+  rfse = predict(train(makeLearner("regr.randomForest", predict.type = "se"), bh.task), bh.task)
+  rfoob = getOOBPreds(train("regr.randomForest", bh.task), bh.task)$data$response
+
+  expect_equal(getCPOTrainedState(inverter(trafo))$control$response, rfoob)
+  expect_equal(getTaskData(trafo, target.extra = TRUE)$target, getTaskData(bh.task, target.extra = TRUE)$target - rfoob)
+
+  expect_equal(getCPOTrainedState(inverter(trafo))$control$se, rfse$data$se)
+
+
+  set.seed(123)
+  trafo = bh.task %>>% cpoRegrResiduals(makeLearner("regr.randomForest", ntree = 3), crr.train.residuals = "oob")
+
+  set.seed(123)
+  resp = predict(train(makeLearner("regr.randomForest", ntree = 3), bh.task), bh.task)$data$response
+
+  set.seed(123)
+  rfoob = getOOBPreds(train(makeLearner("regr.randomForest", ntree = 3), bh.task), bh.task)$data$response
+
+  expect_equal(getCPOTrainedState(inverter(trafo))$control$response[is.na(rfoob)], resp[is.na(rfoob)])
+  expect_equal(getCPOTrainedState(inverter(trafo))$control$response[!is.na(rfoob)], rfoob[!is.na(rfoob)])
+
+  expect_equal(getTaskData(trafo, target.extra = TRUE)$target + getCPOTrainedState(inverter(trafo))$control$response,
+    getTaskData(bh.task, target.extra = TRUE)$target)
+})
+
+test_that("cpoRegrResiduals with crr.train.residuals 'resample'", {
+
+  # "response"
+
+  set.seed(123)
+  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = hout)
+
+  cpo = cpoRegrResiduals("regr.lm", crr.train.residuals = "plain", id = NULL)
+  set.seed(123)
+  trafo2 = bh.task %>>% setHyperPars(cpo, crr.train.residuals = "resample", crr.resampling = hout)
+
+  expect_equal(getCPOTrainedState(inverter(trafo1))$control, getCPOTrainedState(inverter(trafo2))$control)
+
+  set.seed(123)
+  rr = holdout("regr.lm", bh.task, show.info = FALSE)
+  rr$pred
+
+  ctrl = getCPOTrainedState(inverter(trafo1))$control$response
+
+  expect_equal(ctrl[rr$pred$data$id], rr$pred$data$response)
+  expect_equal(ctrl[-rr$pred$data$id], predict(train("regr.lm", bh.task), bh.task)$data$response[-rr$pred$data$id])
+
+  expect_equal(getTaskData(trafo1, target.extra = TRUE)$target + ctrl, getTaskData(bh.task, target.extra = TRUE)$target)
+  expect_equal(getTaskData(trafo2, target.extra = TRUE)$target + ctrl, getTaskData(bh.task, target.extra = TRUE)$target)
+
+  # "se"
+
+  boots = makeResampleDesc("Bootstrap", iters = 2)
+  set.seed(123)
+  trafo1 = bh.task %>>% cpoRegrResiduals("regr.lm", crr.resampling = boots, predict.se = TRUE)
+
+  cpo = cpoRegrResiduals("regr.lm", crr.train.residuals = "plain", id = NULL, predict.se = TRUE)
+  set.seed(123)
+  trafo2 = bh.task %>>% setHyperPars(cpo, crr.train.residuals = "resample", crr.resampling = boots)
+
+  expect_equal(getCPOTrainedState(inverter(trafo1))$control, getCPOTrainedState(inverter(trafo2))$control)
+
+  set.seed(123)
+  rr = resample(makeLearner("regr.lm", predict.type = "se"), bh.task, boots, show.info = FALSE)
+
+  ctrl = getCPOTrainedState(inverter(trafo1))$control$response
+  ctrlse = getCPOTrainedState(inverter(trafo1))$control$se
+
+  idtimes = table(rr$pred$data$id)
+  double = as.integer(names(idtimes)[idtimes == 2])
+  single = as.integer(names(idtimes)[idtimes == 1])
+  nocover = setdiff(seq_len(getTaskSize(bh.task)), c(double, single))
+
+  expect_equal(ctrl[single], sapply(seq_along(single), function(i) rr$pred$data$response[rr$pred$data$id == single[i]]))
+  expect_equal(ctrlse[single], sapply(seq_along(single), function(i) rr$pred$data$se[rr$pred$data$id == single[i]]))
+  expect_equal(ctrl[nocover], predict(train("regr.lm", bh.task), bh.task)$data$response[nocover])
+  expect_equal(ctrlse[nocover], predict(train(makeLearner("regr.lm", predict.type = "se"), bh.task), bh.task)$data$se[nocover])
+
+  expect_equal(ctrl[double], sapply(seq_along(double), function(i) {
+    res = rr$pred$data$response[rr$pred$data$id == double[i]]
+    se = rr$pred$data$se[rr$pred$data$id == double[i]]
+    prec = 1 / se^2
+    sum(res * prec) / sum(prec)
+  }))
+
+
+  expect_equal(ctrlse[double], sapply(seq_along(double), function(i) {
+    se = rr$pred$data$se[rr$pred$data$id == double[i]]
+    prec = 1 / se^2
+    1 / sqrt(sum(prec) / 2)
+  }))
+
+  expect_equal(getTaskData(trafo1, target.extra = TRUE)$target + ctrl, getTaskData(bh.task, target.extra = TRUE)$target)
+  expect_equal(getTaskData(trafo2, target.extra = TRUE)$target + ctrl, getTaskData(bh.task, target.extra = TRUE)$target)
+
+})
+
 test_that("cpoRegrResiduals has expected properties and parameters", {
 
   expect_set_equal(intersect(getLearnerProperties("regr.lm"), cpo.dataproperties),
