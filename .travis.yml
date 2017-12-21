@@ -55,7 +55,8 @@ after_success:
   - git config push.default matching
   - git difftool -yx "diff -qI '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'" | grep 'and inst/doc' | sed -e 's|.*and inst/doc|inst/doc|' -e 's/ differ$//' | xargs git add
   - git add --force man/*
-  - git commit man inst DESCRIPTION NAMESPACE -m "update auto-generated documentation [ci skip]" || true
+  - git add DESCRIPTION NAMESPACE
+  - git commit -m "update auto-generated documentation [ci skip]" || true
   - git push
 
 after_failure:
