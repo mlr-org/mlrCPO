@@ -71,12 +71,14 @@ test_that("printers", {
   expect_output(print(cpoScale(scale = FALSE, export = "center")), "scale(center = TRUE)[not exp'd: scale = FALSE]", fixed = TRUE)
 
   expect_output(print(cpoScale(), verbose = TRUE), "Trafo chain of 1 cpos:\nscale(center = TRUE, scale = TRUE)\nOperating: feature\nParamSet:", fixed = TRUE)
-  expect_output(!cpoScale(), "Trafo chain of 1 cpos:\nscale(center = TRUE, scale = TRUE)\nOperating: feature\nParamSet:", fixed = TRUE)
+  expect_output({invprint = !cpoScale()}, "Trafo chain of 1 cpos:\nscale(center = TRUE, scale = TRUE)\nOperating: feature\nParamSet:", fixed = TRUE)
+  expect_output(print(invprint), NA)
+
   expect_output(print(cpoScale(export = character(0)), verbose = TRUE),
     "Trafo chain of 1 cpos:\nscale()[not exp'd: center = TRUE, scale = TRUE]\nOperating: feature\nParamSet:", fixed = TRUE)
-  expect_output(!cpoScale(export = character(0)),
+  expect_output({invprint = !cpoScale(export = character(0))},
     "Trafo chain of 1 cpos:\nscale()[not exp'd: center = TRUE, scale = TRUE]\nOperating: feature\nParamSet:", fixed = TRUE)
-
+  expect_output(print(invprint), NA)
 
   notrans = makeCPOTargetOp("notrans", properties.target = "multilabel", pSS(param: integer[, ]), constant.invert = TRUE, cpo.train.invert = NULL,
     cpo.train = NULL, cpo.retrafo = { target }, cpo.invert = { target })
@@ -84,10 +86,12 @@ test_that("printers", {
   expect_output(print(notrans), "<<CPO notrans(param)>>", fixed = TRUE)
 
   expect_output(print(notrans, verbose = TRUE), "<<CPO notrans(param)>>\n\ncpo.retrafo:\nfunction (param, data, target) \n{\n", fixed = TRUE)
-  expect_output(!notrans, "<<CPO notrans(param)>>\n\ncpo.retrafo:\nfunction (param, data, target) \n{\n", fixed = TRUE)
+  expect_output({invprint = !notrans}, "<<CPO notrans(param)>>\n\ncpo.retrafo:\nfunction (param, data, target) \n{\n", fixed = TRUE)
+  expect_output(print(invprint), NA)
 
   expect_output(print(notrans(), verbose = TRUE), "Conversion: multilabel -> multilabel\nPredict type mapping:\nresponse -> response", fixed = TRUE)
-  expect_output(!notrans(), "Conversion: multilabel -> multilabel\nPredict type mapping:\nresponse -> response", fixed = TRUE)
+  expect_output({invprint = !notrans()}, "Conversion: multilabel -> multilabel\nPredict type mapping:\nresponse -> response", fixed = TRUE)
+  expect_output(print(invprint), NA)
 
   dotrans = makeCPOTargetOp("dotrans", pSS(param: integer[, ]), constant.invert = FALSE, cpo.train.invert = { },
     cpo.train = { }, cpo.retrafo = { target[[1]] = as.numeric(target[[1]]) ; target[1] }, cpo.invert = { target }, task.type.out = "regr",
@@ -105,15 +109,15 @@ test_that("printers", {
   expect_output(print(cpo.df4l %>|% (cpoPca() %>>% dotrans(1)), verbose = TRUE),
     "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca(center = TRUE, scale = FALSE, tol = <NULL>, rank = <NULL>)] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
 
-  expect_output(!cpo.df4l %>|% (cpoPca() %>>% dotrans(1)),
+  expect_output({invprint = !cpo.df4l %>|% (cpoPca() %>>% dotrans(1))},
     "CPO Retrafo chain {conv:multilabel->regr}\n[RETRAFO pca(center = TRUE, scale = FALSE, tol = <NULL>, rank = <NULL>)] =>\n[RETRAFO dotrans(param = 1)]", fixed = TRUE)
+  expect_output(print(invprint), NA)
 
   expect_output(print(inverter(cpo.df4l %>>% dotrans(1))),
     "CPO Inverter chain {conv:regr->multilabel} (able to predict 'response', 'prob')\n[INVERTER dotrans(param = 1){conv:regr->multilabel}", fixed = TRUE)
 
   expect_output(print(inverter(cpo.df4l %>>% notrans(0) %>>% dotrans(1))),
     "CPO Inverter chain {conv:regr->multilabel} (able to predict 'response')\n[INVERTER dotrans(param = 1){conv:regr->multilabel}] =>\n[INVERTER notrans(param = 0){type:multilabel}]", fixed = TRUE)
-
 
 })
 
