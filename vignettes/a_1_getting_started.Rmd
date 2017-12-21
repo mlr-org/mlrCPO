@@ -202,7 +202,8 @@ invert(inv, pred)
 
 This procedure can also be done with new incoming data. In general, more than just the `cpoLogTrafoRegr` operation could be done on the `iris.regr` task in the example, so to perform the complete preprocessing *and* inversion, one needs to use the retrafo object as well. When applying the retrafo object, a new inverter object is generated, which is specific to the exact new data that was being retransformed:
 ```{r}
-newdata = makeRegrTask("newiris", iris[7:9, ], target = "Petal.Width")
+newdata = makeRegrTask("newiris", iris[7:9, ], target = "Petal.Width",
+  fixup.data = "no", check.data = FALSE)
 
 # the retrafo does the same transformation(s) on newdata that were
 # done on the training data of the model, iris.logd. In general, this
@@ -234,8 +235,22 @@ getCPOTrainedCapability(retrafo(iris.logd))  # can do both retrafo and inversion
 getCPOTrainedCapability(inv)  # a pure inverter, can not be used for retrafo
 ```
 
+### General Inverters
 
+As an example of a `CPO` that does not have a constant inverter, consider `cpoRegrResiduals`, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the `invert` action is to add predictions by the `CPO`'s model to the incoming predictions made by a model trained on the residuals.
 
+```{r}
+iris.resid = iris.regr %>>% cpoRegrResiduals("regr.lm")
+getTaskData(iris.resid)
+
+model.resid = train("regr.randomForest", iris.resid)
+
+newdata.resid = newdata %>>% retrafo(iris.resid)
+getTaskData(newdata.resid)  # Petal.Width are now the residuals of lm model predictions
+
+predict(model.resid, newdata.resid)
+
+```
 
 ## THE REST
 
