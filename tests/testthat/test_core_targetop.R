@@ -343,7 +343,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
     expect_true(!is.na(holdout(cpo %>>% lrn, data, show.info = FALSE)$aggr))
   }
 
-  options(mlr.debug.seed = 3)
+  options(mlr.debug.seed = 123)
   testinv(iris.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(pid.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(bh.task, reg.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
@@ -357,7 +357,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
   testinv(yeast.task, multilab.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
 
   testinv(bh.task, reg.to.clas.new %>>% clas.to.multilab %>>% multilab.to.clas %>>% clas.to.surv, makeLearner("surv.coxph"))
-
+  options(mlr.debug.seed = NULL)
 })
 
 test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", {
@@ -1120,5 +1120,80 @@ test_that("web demo", {
   expect_identical(pred.trans$data, pred.trans.manual$data)
 
   expect_identical(pred.trans.manual$data[c("id", "response")], pred.trans.manual.notruth$data)
+
+})
+
+
+test_that("sanitizePrediction", {
+
+  ptypes = list(regr = "se", cluster = "prob", classif = "prob", surv = "prob", multilabel = "prob")
+
+  dfs = list(regr = cpo.df5r, cluster = cpo.df5cc, classif = cpo.df1c,
+    surv = makeSurvTask("st", cpo.df3[, -2], target = c("N2", "T2")), multilabel = cpo.df4l)
+
+  for (type in names(ptypes)) {
+    tx = type
+    if (type == "classif") {
+      tx %c=% c("multiclass", "twoclass")
+    }
+    peixes = c("response", ptypes[[type]])
+    pm = peixes
+    names(pm) = pm
+    noinvert = makeCPOTargetOp("noinv", properties.target = tx,
+      constant.invert = TRUE, predict.type.map = pm,
+      cpo.train = NULL, cpo.train.invert = NULL,
+      cpo.retrafo = { target }, cpo.invert = { target })
+    for (px in peixes) {
+      if (type == "surv" && px == "prob") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c(.1, .2), b = c(.2, .3))), "'surv' prediction has no predict.type 'prob'")
+        next
+      }
+      inverter = dfs[[type]] %>|% noinvert()
+      expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10)[character(0)]), "Prediction was empty.")
+      expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3, b = c("a", "b", "c"))), "Prediction had columns of multiple modes")
+      if (type == "classif" && px == "response") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 2:11)), "'classif' response prediction needs single factor")
+      } else if (px == "response" && type != "multilabel") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 2:11)), "' response prediction must be a vector, but is matrix with 2 columns")
+      }
+      expect_error(invert(inverter, predict.type = px, c("a", "b", "c")), "data was not in any valid prediction format")
+      if (px == "prob") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "predict.type 'prob' must have numeric data")
+        expect_error(sanitizePrediction(data.frame(a = 1:3), type = type, predict.type = "se"), "predict.type 'se' only valid for 'regr'")
+        input = data.frame(a = 1:10, b = 1:10)
+        expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
+      } else if (px == "se") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "'regr' 'se' prediction must be a numeric matrix with two columns")
+        expect_error(invert(inverter, predict.type = px, 1:10), "'regr' 'se' prediction must be a numeric matrix with two columns")
+        expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 1:10, c = 1:10)), "'regr' 'se' prediction must be a numeric matrix with two columns")
+        input = data.frame(a = 1:10, b = 1:10)
+        expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
+        input = as.matrix(data.frame(a = 1:10, b = 1:10))
+        expect_equal(invert(inverter, predict.type = px, input), input)
+      } else if (type == "multilabel") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3)), "'multilabel' response prediction must be logical")
+        input = data.frame(a = c(TRUE, FALSE, FALSE))
+        expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(TRUE, FALSE, FALSE))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
+      } else if (type == "cluster") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c(1, 2, 2.1))), "'cluster' response prediction must be an integer vector")
+        input = data.frame(a = c(1, 2, 3))
+        expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(1, 2, 3))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
+      } else if (type == "classif") {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c(1, 2, 2.1))), "'classif' response prediction must be a factor")
+        input = data.frame(a = c("a", "b", "c"))
+        expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+      } else {
+        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "' response prediction must be a numeric vector")
+        input = data.frame(a = c(1, 2, 2.45))
+        expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(1, 2, 2.45))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
+      }
+    }
+  }
 
 })

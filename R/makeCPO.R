@@ -34,7 +34,7 @@ reserved.params = c("data", "target", "data.reduced", "target.reduced",
 
 #' @rdname makeCPO
 #' @export
-makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = list(), dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
+makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = NULL, dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE, export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered", "missings"),
                    properties.adding = character(0), properties.needed = character(0),
@@ -54,7 +54,7 @@ makeCPO = function(cpo.name, par.set = makeParamSet(), par.vals = list(), datafo
 
 #' @rdname makeCPO
 #' @export
-makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                    dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                    dataformat.factor.with.ordered = TRUE,
                    export.params = TRUE,  # FALSE, TRUE, names of parameters to export
@@ -77,7 +77,7 @@ makeCPOExtendedTrafo = function(cpo.name, par.set = makeParamSet(), par.vals = l
 
 #' @rdname makeCPO
 #' @export
-makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = list(), dataformat = c("df.all", "task"),
+makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = NULL, dataformat = c("df.all", "task"),
                               dataformat.factor.with.ordered = TRUE,
                    export.params = TRUE,  # FALSE, TRUE, names of parameters to export
                    fix.factors = FALSE, properties.data = c("numerics", "factors", "ordered", "missings"),
@@ -99,7 +99,7 @@ makeCPORetrafoless = function(cpo.name, par.set = makeParamSet(), par.vals = lis
 
 #' @rdname makeCPO
 #' @export
-makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                            dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            dataformat.factor.with.ordered = TRUE,
                            export.params = TRUE, fix.factors = FALSE,
@@ -129,7 +129,7 @@ makeCPOTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list()
 
 #' @rdname makeCPO
 #' @export
-makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = list(),
+makeCPOExtendedTargetOp = function(cpo.name, par.set = makeParamSet(), par.vals = NULL,
                            dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered", "numeric"),
                            dataformat.factor.with.ordered = TRUE,
                            export.params = TRUE, fix.factors = FALSE,
@@ -255,7 +255,9 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
 
   assertString(cpo.name)
 
-  assertList(par.vals, names = "unique")
+  if (!is.null(par.vals)) {
+    assertList(par.vals, names = "unique")
+  }
   assertFlag(dataformat.factor.with.ordered)
 
   if (dataformat == "ordered" && dataformat.factor.with.ordered) {
@@ -366,7 +368,12 @@ makeCPOGeneral = function(cpo.type = c("feature", "feature.extended", "target", 
     if (length(par.set$pars) == 0) {
       assert(identical(export, character(0)))
     } else {
-      assertSubset(export, names2(par.set$pars))
+      # assertChoice also with 'export.possibilities' for nicer output.
+      if (length(export) == 1) {
+        assertChoice(export, c(names2(par.set$pars), export.possibilities))
+      } else {
+        assertSubset(export, names2(par.set$pars))
+      }
     }
     needed = setdiff(names2(Filter(function(x) is.null(x$requires), par.set$pars)), names2(present.pars))
     missing = setdiff(needed, export)
@@ -539,7 +546,9 @@ prepareParams = function(par.set, par.vals, export.params) {
   if (any(names(par.set$pars) %in% reserved.params)) {
     stopf("Parameters %s are reserved", collapse(reserved.params, ", "))
   }
-  par.vals = insert(getParamSetDefaults(par.set), par.vals)
+  if (is.null(par.vals)) {
+    par.vals = getParamSetDefaults(par.set)
+  }
   if (length({badpars = setdiff(names(par.vals), names(par.set$pars))})) {
     stopf("Values '%s' given in par.vals that are not parameters", collapse(badpars, "', '"))
   }

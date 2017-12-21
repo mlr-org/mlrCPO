@@ -3,14 +3,20 @@
 
 ```{r, results = "asis", echo = FALSE}
 
-cat("hi", file = "/tmp/wri", append = TRUE)
-
+# output format should be of the form
+#> output
+#> output
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-path = names(knitr::opts_knit$get("encoding"))[1]
+# initialize: load library, make everything deterministic
+library("mlrCPO")
+set.seed(123)
 
+# get the path of the parent document
+path = names(knitr::opts_knit$get("encoding"))[1]
 rpath = gsub("\\.[^.]*$", ".R", path)
 
+# strip whitespace from lines in tangle (R file) output for lintr
 knitr::knit_hooks$set(document = function(x) {
   lines = readLines(rpath)
   lines = gsub(" *(\n|$)", "\\1", lines)
@@ -18,17 +24,17 @@ knitr::knit_hooks$set(document = function(x) {
   x
 })
 
-
-
+#############################
+# do the trans-vignette ToC #
+#############################
 base = dirname(path)
 file = basename(path)
 
 allfiles = list.files(path = base, pattern = ".*\\.Rmd$")
-
 stopifnot(file %in% allfiles)
 
+# collect information (title, url, main / compact) for each file in vignette dir
 fileinfolist = list()
-
 for (cf in allfiles) {
   ismain = TRUE
   if (grepl("^z_", cf)) {
@@ -53,6 +59,7 @@ for (cf in allfiles) {
   fileinfolist[[infoslot]] = c(fileinfolist[[infoslot]], applist)
 }
 
+# helper function that creates a link for all files except the current one
 linkify = function(info, title) {
   if (info$iscurrent) {
     title
@@ -61,8 +68,8 @@ linkify = function(info, title) {
   }
 }
 
+# output ToC
 for (idx in seq_along(fileinfolist)) {
-
   content = fileinfolist[[sort(names(fileinfolist))[idx]]]
   if (!is.null(content$compact)) {
     if (paste(content$main$title, "(No Output)") != content$compact$title) {

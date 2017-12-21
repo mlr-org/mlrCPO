@@ -51,6 +51,7 @@ ByteCompile: yes
 Version: 0.3.1
 Collate: 
     'CPOHelp.R'
+    'fauxCPOConstructor.R'
     'auxiliary.R'
     'callInterface.R'
     'FormatCheck.R'
@@ -63,7 +64,6 @@ Collate:
     'CPO_asNumeric.R'
     'operators.R'
     'NULLCPO.R'
-    'fauxCPOConstructor.R'
     'CPO_meta.R'
     'CPO_cbind.R'
     'CPO_collapseFact.R'
@@ -78,6 +78,8 @@ Collate:
     'CPO_modelMatrix.R'
     'CPO_pca.R'
     'CPO_quantileBinNumerics.R'
+    'CPO_regrResiduals.R'
+    'CPO_responseFromSE.R'
     'CPO_scale.R'
     'CPO_scaleMaxAbs.R'
     'CPO_scaleRange.R'

@@ -52,6 +52,7 @@ test_that("filterFeatures default test", {
 
 test_that("specialised CPOs work", {
   specd = listCPO()[listCPO()$category == "featurefilter" & listCPO()$subcategory == "specialised", "name"]
+  expect_true(length(specd) > 0)
   for (filter in specd) {
     cpoconst = get(filter)
     cpo = cpoconst(perc = 0.5)

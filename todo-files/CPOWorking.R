@@ -37,8 +37,7 @@ devtools::load_all("..")
 
 
 
-devtools::test(pkg = "..")
-
+devtools::test(pkg = "..", filter = "^_meta_")
 
 
 
@@ -61,7 +60,7 @@ devtools::test(pkg = "..", filter = "dataflow")
 
 devtools::test(pkg = "..", filter = "lint")         # [ ?? ]
 
-
+devtools::test(pkg = "..")
 
 
 system.time(devtools::test(pkg = "..", filter = "cpo_dataformat"), gcFirst = FALSE)

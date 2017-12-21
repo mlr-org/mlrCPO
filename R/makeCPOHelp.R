@@ -228,11 +228,11 @@
 #'   Default is an empty \code{\link[ParamHelpers:makeParamSet]{ParamSet}}.
 #'   It is recommended to use ParamHelpers::\code{\link[ParamHelpers]{pSS}} to construct this, as it greatly reduces the verbosity of
 #'   creating a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and makes it more readable.
-#' @param par.vals [\code{list}]\cr
-#'   Named list of default parameter values for the CPO. These are used additionally to the
-#'   parameter default values in \code{par.set}. It is preferred to use
+#' @param par.vals [\code{list} | \code{NULL}]\cr
+#'   Named list of default parameter values for the CPO. These are used \emph{instead of} the
+#'   parameter default values in \code{par.set}, if not \code{NULL}. It is preferred to use
 #'   \code{\link[ParamHelpers:makeParamSet]{ParamSet}} default values,
-#'   and not \code{par.vals}. Default is \code{list()}.
+#'   and not \code{par.vals}. Default is \code{NULL}.
 #' @param dataformat [\code{character(1)}]\cr
 #'   Indicate what format the data should be as seen by the \code{cpo.train} and \code{cpo.retrafo} function.
 #'   The following table shows what values of \code{dataformat} lead to what is given to \code{cpo.train} and \code{cpo.retrafo}

@@ -1100,7 +1100,7 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
 
   if (is.data.frame(task)) {
     # only if 'targetbound'
-    task = makeClusterTask(id = "[CPO CONSTRUCTED]", data = task)
+    task = makeClusterTask(id = "[CPO CONSTRUCTED]", data = task, fixup.data = "no", check.data = FALSE)
   }
 
   if (dataformat %in% c("df.features", "split")) {
@@ -1324,8 +1324,8 @@ checkTaskBasics = function(task, newdata, allowed.td.changes, name) {
 
   # check most of task description didn't change
   for (n in setdiff(names(old.td), allowed.td.changes)) {
-    if (!identical(old.td[[n]], new.td[[n]])) {
-      stopf("CPO %s changed task description item %s.", name, n)
+    if (!isTRUE({complaint = all.equal(old.td[[n]], new.td[[n]])})) {
+      stopf("CPO %s changed task description item %s:\n%s", name, n, complaint)
     }
   }
 }

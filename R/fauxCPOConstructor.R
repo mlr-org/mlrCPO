@@ -90,3 +90,4 @@ wrapFauxCPOConstructor = function(constructor, cpo.name = NULL, cpo.type.extende
   # need the extra following line so that 'constructor' as seen by itself has the right classes.
   cons
 }
+
