@@ -160,7 +160,9 @@ makeCPORegrResiduals = function(learner, predict.se = FALSE, crr.train.residuals
 #'   \dQuote{plain}. If \dQuote{resample} is given, the out-of-resampling-fold predictions are used when resampling
 #'   according to the \code{resampling} parameter. If \dQuote{oob} is used, the \code{\link[mlr:makeLearner]{Learner}} must
 #'   have the \dQuote{oobpreds} property; the out-of-bag predictions are then used. If \code{train.residuals} is
-#'   \dQuote{plain}, the simple regression residuals are used. Default is \dQuote{plain}.
+#'   \dQuote{plain}, the simple regression residuals are used. \dQuote{plain} may offer slightly worse performance
+#'   than the alternatives, but few \code{mlr} \code{\link[mlr:makeLearner]{Learners}} support \dQuote{oobpreds}, and
+#'   \dQuote{resample} can come at a considerable run time penalty. Default is \dQuote{plain}.
 #' @param crr.resampling [\code{\link[mlr:makeResampleDesc]{ResampleDesc}} | \code{\link[mlr:makeResampleInstance]{ResampleInstance}}]\cr
 #'   What resampling to use when \code{train.residuals} is \dQuote{resample}; otherwise has no effect.
 #'   The \code{$predict} slot of the resample description will be ignored and set to \code{test}.
