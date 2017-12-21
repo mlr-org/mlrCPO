@@ -76,7 +76,7 @@ test_that("cpoRegrResiduals with crr.train.residuals 'oob'", {
 })
 
 test_that("cpoRegrResiduals with crr.train.residuals 'resample'", {
-  skip("skip until mlr-org/mlr#2118 is fixed")
+
   # "response"
 
   set.seed(123)
