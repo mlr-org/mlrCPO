@@ -1168,14 +1168,20 @@ test_that("sanitizePrediction", {
         expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 1:10, c = 1:10)), "'regr' 'se' prediction must be a numeric matrix with two columns")
         input = data.frame(a = 1:10, b = 1:10)
         expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
+        input = as.matrix(data.frame(a = 1:10, b = 1:10))
+        expect_equal(invert(inverter, predict.type = px, input), input)
       } else if (type == "multilabel") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3)), "'multilabel' response prediction must be logical")
         input = data.frame(a = c(TRUE, FALSE, FALSE))
         expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(TRUE, FALSE, FALSE))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
       } else if (type == "cluster") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c(1, 2, 2.1))), "'cluster' response prediction must be an integer vector")
         input = data.frame(a = c(1, 2, 3))
         expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(1, 2, 3))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
       } else if (type == "classif") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c(1, 2, 2.1))), "'classif' response prediction must be a factor")
         input = data.frame(a = c("a", "b", "c"))
@@ -1184,6 +1190,8 @@ test_that("sanitizePrediction", {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "' response prediction must be a numeric vector")
         input = data.frame(a = c(1, 2, 2.45))
         expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
+        input = matrix(c(1, 2, 2.45))
+        expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
       }
     }
   }
