@@ -357,7 +357,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
   testinv(yeast.task, multilab.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
 
   testinv(bh.task, reg.to.clas.new %>>% clas.to.multilab %>>% multilab.to.clas %>>% clas.to.surv, makeLearner("surv.coxph"))
-
+  options(mlr.debug.seed = NULL)
 })
 
 test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", {
