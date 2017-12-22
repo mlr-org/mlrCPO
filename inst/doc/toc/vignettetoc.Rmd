@@ -84,5 +84,28 @@ for (idx in seq_along(fileinfolist)) {
 }
 
 
+#############################
+# Some output settings      #
+#############################
+
+
+replaceprint = function(ofunc) {
+  force(ofunc)
+  function(x, ...) {
+    cu = capture.output({ret = ofunc(x, ...)})
+    cu = grep("time: [-+e0-9.]{1,6}", cu, value = TRUE, invert = TRUE)
+    cat(paste(cu, collapse = "\n"))
+    if (!grepl("\n$", tail(cu, 1))) {
+      cat("\n")
+    }
+    ret
+  }
+}
+
+for (pfunc in grep("print\\.", ls(asNamespace("mlr")), value = TRUE)) {
+  ofunc = get(pfunc, asNamespace("mlr"))
+  assign(pfunc, replaceprint(ofunc))
+}
+
 
 ```
