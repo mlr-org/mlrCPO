@@ -25,7 +25,7 @@
 #'   automatically.
 #' @template cpo_doc_outro
 #' @export
-cpoOversample = makeCPORetrafoless("osw",
+cpoOversample = makeCPORetrafoless("osw",  # nolint
   pSS(rate = NULL: numeric[1, ~.] [[special.vals = list(NULL)]],
     cl = NULL: character [[special.vals = list(NULL)]]),
   dataformat = "task",
@@ -48,7 +48,7 @@ cpoOversample = makeCPORetrafoless("osw",
 
 #' @rdname cpoOversample
 #' @export
-cpoUndersample = makeCPORetrafoless("osw",
+cpoUndersample = makeCPORetrafoless("usw",  # nolint
   pSS(rate = NULL: numeric[~0, 1] [[special.vals = list(NULL)]],
     cl = NULL: character [[special.vals = list(NULL)]]),
   dataformat = "task",
@@ -107,7 +107,7 @@ registerCPO(cpoUndersample(), "subsampling", "binary classif", "undersample majo
 #'   Whether to sample with replacement. Default is \code{FALSE}.
 #' @template cpo_doc_outro
 #' @export
-cpoSample = makeCPORetrafoless("sample",
+cpoSample = makeCPORetrafoless("sample",  # nolint
   pSS(rate = NULL: numeric[~0, ~.] [[special.vals = list(NULL)]],
     size = NULL: integer[1, ] [[special.vals = list(NULL)]],
     replace = FALSE: logical),

@@ -24,7 +24,7 @@
 #'
 #' @template cpo_doc_outro
 #' @export
-cpoSmote = makeCPORetrafoless("sw",
+cpoSmote = makeCPORetrafoless("sw",  # nolint
   pSS(rate = NULL: numeric[1, ~.] [[special.vals = list(NULL)]],
     nn = 5: integer[1, ], standardize = TRUE: logical, alt.logic = FALSE: logical),
   dataformat = "task",
