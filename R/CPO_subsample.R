@@ -84,6 +84,9 @@ getBinClassInfo = function(task) {
     rate = max(cdist) / min(cdist))
 }
 
+registerCPO(cpoOversample(), "subsampling", "binary classif", "oversample minor class")
+registerCPO(cpoUndersample(), "subsampling", "binary classif", "undersample major class")
+
 
 #' @title Sample Data from a Task
 #'
@@ -119,3 +122,5 @@ cpoSample = makeCPORetrafoless("sample",
     indices = sample(nrow(data), size, replace)
     data[indices, ]
   })
+registerCPO(cpoSample(), "subsampling", "general", "sample from task")
+
