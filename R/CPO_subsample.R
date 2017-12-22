@@ -8,7 +8,7 @@
 #' Oversamples the minor or undersamples the major class in
 #' a binary classification task to alleviate class imbalance.
 #' Uses \code{\link[mlr:oversample]{mlr::oversample}} and
-#' \code{\link[mlr:undersample]{mlr::undersample}}, see documentation
+#' \code{\link[mlr:oversample]{mlr::undersample}}, see documentation
 #' there.
 #'
 #' @param rate [\code{numeric(1)} | \code{NULL}]\cr
