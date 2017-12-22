@@ -38,7 +38,7 @@ cpoOversample = makeCPORetrafoless("osw",  # nolint
       assertChoice(cl, classinfo$classes)
     }
     if (is.null(rate)) {
-      if (cl != classinfo$minclass && rate != 1.0) {  # don't complain in a tie
+      if (cl != classinfo$minclass && classinfo$rate != 1.0) {  # don't complain in a tie
         stop("'rate' may not be NULL when 'cl' is neither NULL nor the minor class")
       }
       rate = classinfo$rate
@@ -61,7 +61,7 @@ cpoUndersample = makeCPORetrafoless("usw",  # nolint
       assertChoice(cl, classinfo$classes)
     }
     if (is.null(rate)) {
-      if (cl != classinfo$maxclass && rate != 1.0) {  # don't complain in a tie
+      if (cl != classinfo$maxclass && classinfo$rate != 1.0) {  # don't complain in a tie
         stop("'rate' may not be NULL when 'cl' is neither NULL nor the major class")
       }
       rate = 1 / classinfo$rate
@@ -75,7 +75,7 @@ cpoUndersample = makeCPORetrafoless("usw",  # nolint
 # @return [list] list(classes, maxclass, minclass, rate)
 #   'rate' is number(maxclass) / number(minclass)
 getBinClassInfo = function(task) {
-  cdist = table(getTaskData(data, target.extra = TRUE)$target)
+  cdist = table(getTaskData(task, target.extra = TRUE)$target)
   assert(length(cdist) == 2)
   list(classes = names(cdist),
 
