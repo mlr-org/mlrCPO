@@ -491,8 +491,8 @@ Custom CPOs can be created using the **`makeCPO()`** and related functions. "[Bu
 ## Summary
 
 - **`CPO`**s are built using **`CPOConstructor`**s by calling them like functions.
-- The useful `CPOConstructors` can be found by using **`listCPO()`** or consulting [the relevant vignette](a_3_all_CPOs.html).
-- Verbose printing of many `CPO` objects is available using the **`!`** (exclamation mark) operator.
+- The available `CPOConstructors` can be found by using **`listCPO()`** or consulting [the relevant vignette](a_3_all_CPOs.html).
+- Verbose printing of `CPO`s and many related objects is available using the **`!`** (exclamation mark) operator.
 - `CPO`s export hyperparameters that are accessible using **`getParamSet()`** and **`getHyperPars()`**, and mutable using **`setHyperPars()`**. Which parameters are exported can be controlled using the **`export`** parameter during construction.
 - They can be composed (**`composeCPO()`**), applied to data (**`applyCPO()`**) and attached to `Learner`s (**`attachCPO()`**) using special functions for each of these operations, or using the general **`%>>%`** operator.
 - There are three fundamental kinds of `CPO`: **FOCPO** (Feature Operation `CPO`s), **TOCPO** (Target Operation `CPO`s) and **ROCPO** (Retrafoless `CPO`s). The first may only change feature columns, the second only target columns. While the last one may change both feature *and* target values and even the number of rows of a dataset, it does so with the understanding that new "prediction" data will not be transformed by it and is thus mainly useful for subsampling.
@@ -506,3 +506,4 @@ Custom CPOs can be created using the **`makeCPO()`** and related functions. "[Bu
 - `CPOLearner`s have the `Learner`'s *and* the `CPO`'s hyperparameters and can thus be manipulated using **`setHyperPars()`**, and can be tuned using **`tuneParams()`**.
 - Notable `CPO`s are **`NULLCPO`** (the neutral element of `%>>%`), **`cpoMultiplex`**, **`cpoWrap`**, and **`cpoCbind`**.
 - It is possible to create custom `CPO`s using **`makeCPO`** and similar functions. These are described [in their own vignette](a_4_custom_CPOs.html).
+

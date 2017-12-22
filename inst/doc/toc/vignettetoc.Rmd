@@ -88,6 +88,8 @@ for (idx in seq_along(fileinfolist)) {
 # Some output settings      #
 #############################
 
+options(width = 80)
+
 
 replaceprint = function(ofunc) {
   force(ofunc)
