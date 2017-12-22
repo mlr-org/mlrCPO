@@ -14,6 +14,7 @@ cpoSelect.callargs = alist(  # nolint
             pattern.fixed = FALSE: logical [[requires = quote(!is.null(pattern))]],
             invert = FALSE: logical)),
     dataformat = "df.features",
+    export = FALSE,
     cpo.train = {
       assertCharacter(names, any.missing = FALSE, unique = TRUE)
       assertIntegerish(index, any.missing = FALSE, unique = TRUE)

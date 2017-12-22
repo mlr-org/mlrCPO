@@ -234,11 +234,14 @@ convertPrettyState = function(bare, state, fun.name, control.type, only.basic = 
       assertSubset("control", names(state))
       newstate = state$control
       state$control = NULL
-      assertSubset(names(state), names(bare$bare.par.set$pars))
+      assertSubset(names(state), c(names(bare$bare.par.set$pars), names(bare$unexportedpar.set$pars)))
+      bare$unexported.pars = state[names(bare$unexportedpar.set$pars)]
+      state = dropNamed(state, names(bare$unexportedpar.set$pars))
       if (length(state)) {
         names(state) = paste(bare$id, names2(state), sep = ".")
       }
       bare$par.vals = state
+
     }
   }
   list(bare = bare, newstate = newstate)

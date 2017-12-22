@@ -46,9 +46,15 @@ options for its behaviour. Internally, CPO Constructors are *functions* that hav
 interface and a friendly printer method.
 ```{r}
 cpoScale  # a cpo constructor
+```
+```{r}
 cpoAddCols
+```
 
+```{r}
 cpoScale(center = FALSE)  # create a CPO object that scales, but does not center, data
+```
+```{r}
 cpoAddCols(Sepal.Area = Sepal.Length * Sepal.Width)  #  this would add a column
 ```
 
@@ -107,8 +113,14 @@ use **verbose printing** using the `!` (exclamation mark) operator.
 ```{r}
 cpo = cpoScale()
 cpo
+```
+```{r}
 getHyperPars(cpo)  # list of parameter names and values
+```
+```{r}
 getParamSet(cpo)  # more detailed view of parameters and their type / range
+```
+```{r}
 !cpo  # equivalent to print(cpo, verbose = TRUE)
 ```
 
@@ -116,7 +128,11 @@ getParamSet(cpo)  # more detailed view of parameters and their type / range
 ```{r}
 cpo2 = setHyperPars(cpo, scale.scale = FALSE)
 cpo2
+```
+```{r}
 iris.demo %>>% cpo  # scales and centers
+```
+```{r}
 iris.demo %>>% cpo2 # only centers
 ```
 
@@ -159,7 +175,8 @@ incoming data, and hence be of class `CPORetrafo` and called a "**retrafo**" obj
 ```{r}
 transformed = iris.demo %>>% cpoPca(rank = 3)
 transformed
-
+```
+```{r}
 ret = retrafo(transformed)
 ret
 ```
@@ -175,6 +192,26 @@ Obviously we would not have gotten there by feeding the first line to `cpoPca` d
 iris.demo[1, ] %>>% cpoPca(rank = 3)
 ```
 
+`CPOTrained` objects associated with an object are automatically chained when another `CPO` is applied. To prevent this from happening, it is necessary to "clear" the retrafos and [inverters](#inverter) associated with the object using **`clearRI()`**.
+
+```{r}
+t2 = transformed %>>% cpoScale()
+retrafo(t2)
+```
+```{r}
+t3 = clearRI(transformed) %>>% cpoScale()
+retrafo(t3)
+```
+Note that `clearRI` has no influence on the `CPO` operations themselves, and the resulting data is the same:
+```{r}
+all.equal(t2, t3, check.attributes = FALSE)
+```
+
+It is also possible to chain `CPOTrained` object using `composeCPO()` or `%>>%`. This can be useful if the trafo chain loses access to the `retrafo` attribute for some reason. In general, it is only recommended to compose `CPOTrained` objects that were created in the same process and in correct order, since they are usually closely associated with the training data in a particular place within the preprocessing chain.
+```{r}
+retrafo(transformed) %>>% retrafo(t3)  # is the same as retrafo(t2) above.
+```
+
 ## Inverter
 
 So far only `CPO`s were introduced that change the feature columns of a `Task`. ("Feature Operation `CPO`s"--*FOCPO*s). There is another class of `CPO`s, "Target Operation `CPO`s" or *TOCPO*s, that can change a `Task`'s target columns.
@@ -186,7 +223,9 @@ iris.regr = makeRegrTask(data = iris.demo, target = "Petal.Width")
 iris.logd = iris.regr %>>% cpoLogTrafoRegr()
 
 getTaskData(iris.logd)  # log-transformed target 'Petal.Width'
+```
 
+```{r}
 inv = inverter(iris.logd)  # inverter object
 inv
 ```
@@ -196,7 +235,9 @@ The inverter object is used by the `invert()` function that inverts the predicti
 logmodel = train("regr.lm", iris.logd)
 pred = predict(logmodel, iris.logd)  # prediction on the task itself
 pred
+```
 
+```{r}
 invert(inv, pred)
 ```
 
@@ -204,16 +245,19 @@ This procedure can also be done with new incoming data. In general, more than ju
 ```{r}
 newdata = makeRegrTask("newiris", iris[7:9, ], target = "Petal.Width",
   fixup.data = "no", check.data = FALSE)
-
+```
+```{r}
 # the retrafo does the same transformation(s) on newdata that were
 # done on the training data of the model, iris.logd. In general, this
 # could be more than just the target log transformation.
 newdata.transformed = newdata %>>% retrafo(iris.logd)
 getTaskData(newdata.transformed)
-
+```
+```{r}
 pred = predict(logmodel, newdata.transformed)
 pred
-
+```
+```{r}
 # the inverter of the newly transformed data contains information specific
 # to the newly transformed data. In the current case, that is just the
 # new "truth" column for the new data.
@@ -232,6 +276,8 @@ invert(retrafo(iris.logd), pred)
 Whether a retrafo object is capable of performing inversion can be checked with the **`getCPOTrainedCapability()`** function. It returns a vector with named elements `"retrafo"` and `"invert"`, indicating whether a `CPOTrained` is capable of performing retrafo or inversion. A `1` indicates that the object can perform the action and has an effect, a `0` indicates that the action would have no effect (but also throws no error), and a `-1` means that the object is not capable of performing the action.
 ```{r}
 getCPOTrainedCapability(retrafo(iris.logd))  # can do both retrafo and inversion
+```
+```{r}
 getCPOTrainedCapability(inv)  # a pure inverter, can not be used for retrafo
 ```
 
@@ -240,99 +286,181 @@ getCPOTrainedCapability(inv)  # a pure inverter, can not be used for retrafo
 As an example of a `CPO` that does not have a constant inverter, consider `cpoRegrResiduals`, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the `invert` action is to add predictions by the `CPO`'s model to the incoming predictions made by a model trained on the residuals.
 
 ```{r, warnings = FALSE}
+set.seed(123)  # for reproducibility
 iris.resid = iris.regr %>>% cpoRegrResiduals("regr.lm")
 getTaskData(iris.resid)
+```
 
+```{r}
 model.resid = train("regr.randomForest", iris.resid)
 
 newdata.resid = newdata %>>% retrafo(iris.resid)
 getTaskData(newdata.resid)  # Petal.Width are now the residuals of lm model predictions
+```
 
+```{r}
 pred = predict(model.resid, newdata.resid)
 pred
-
+```
+```{r}
 # transforming this prediction back to compare
 # it to the original 'Petal.Width'
 inv.newdata = inverter(newdata.resid)
 invert(inv.newdata, pred)
 ```
 
-## THE REST
+## Retrafoless CPOs
 
-When attaching a `CPO` to a `Learner` using the `%>>%`-operator, all this is performed by `mlrCPO`, so there is no need to
-worry about keeping `CPOTrained` objects around.
-
-`retrafo()` gets the retrafo object from an attribute of the `transformed` object. The retrafo is always generated by the application
-of a `CPO` already. Retrafos that are attached to an object also stack, so multiple applications of different `CPO`s only need
-one `retrafo()` call to get the respective retrafo operation.
-```{r}
-trans.a = iris %>>% cpoScale()
-trans.b = trans.a %>>% cpoPca()
-ret = retrafo(trans.b)
-```
-Check that 'ret' does what it is supposed to do:
-```{r}
-head(trans.b)
-head(iris) %>>% ret
-```
-
-### Tuning
-Since the hyperparameters remain intact for learners, is possible to tune hyperparameters parameters of preprocessing operations.
+Besides *FOCPO*s and *TOCPO*s, there are also "*Retrafoless*" `CPO`s (*ROCPO*s). These only perform operation in the training part of a machine learning pipeline, but in turn are the only `CPO`s that may change the number of rows in a dataset. The goal of ROCPOs is to change the number of data samples, but not to transform the data or target values themselves. Examples of ROCPOs are `cpoUndersample`, `cpoSmote`, and `cpoSample`.
 
 ```{r}
-(clrn = cpoModelMatrix() %>>% makeLearner("classif.logreg"))
+sampled = iris %>>% cpoSample(size = 3)
+sampled
 ```
+
+There is no retrafo or inverter associated with the result. Instead, both of them are [NULLCPO](#nullcpo)
 ```{r}
-getParamSet(clrn)
+retrafo(sampled)
+inverter(sampled)
 ```
-```{r, echo = FALSE}
-set.seed(123)
+
+## CPO Learners
+
+So far the `CPO`s have been invoked explicitly to manipulate data and get retrafo and inverter objects. It is good to be aware of the data flows in a machine learning process involving preprocessing, but `mlrCPO` makes it very easy to automatize this. It is possible to *attach* a `CPO` to a `Learner` using **`attachCPO`** or the `%>>%`-operator. When a `CPO` is attached to a `Learner`, a `CPOLearner` is created. The `CPOLearner` performs the preprocessing operation dictated by the `CPO` before training the underlying model, and stores and uses the retrafo and inverter objects necessary during prediction. It is possible to attach compound `CPO`s, and it is possible to attach further `CPO`s to a `CPOLearner` to extend the preprocessing pipeline. Exported hyperparamters of a `CPO` are also present in a `CPOLearner` and can be changed using `setHyperPars`, as usual with other `Learner` objects.
+
+Recreating the pipeline from [General Inverters](#general-inverters) with a `CPOLearner` looks like the following. Note the prediction `pred` made in the end is identical with the one made above.
+```{r}
+set.seed(123)  # for reproducibility
+lrn = cpoRegrResiduals("regr.lm") %>>% makeLearner("regr.randomForest")
+lrn
+```
+```{r, warnings = FALSE}
+model = train(lrn, iris.regr)
+
+pred = predict(model, newdata)
+pred
+```
+
+It is possible to get the retrafo object from a model trained with a `CPOLearner` using the `retrafo()` function. In this example, it is identical with the `retrafo(iris.resid)` gotten in the example in [General Inverters](#general-inverters).
+```{r}
+retrafo(model)
+```
+
+## CPO Tuning
+Since the hyperparameters of a `CPO` are present in a `CPOLearner`, is possible to tune hyperparameters parameters of preprocessing operations. It can be done using `mlr`'s **`tuneParams()`** function and works identically to tuning common `Learner`-parameters.
+
+```{r}
+icalrn = cpoIca() %>>% makeLearner("classif.logreg")
+
+getParamSet(icalrn)
 ```
 ```{r}
 ps = makeParamSet(
-    makeDiscreteParam(
-        "model.matrix.formula",
-        values = list(first = ~0 + ., second = ~0 + .^2, third = ~0 + .^3)))
+    makeIntegerParam("ica.n.comp", lower = 1, upper = 8),
+    makeDiscreteParam("ica.alg.typ", values = c("parallel", "deflation")))
+# shorter version using pSS:
+# ps = pSS(ica.n.comp: integer[1, 8], ica.alg.typ: discrete[parallel, deflation])
+```
+```{r}
+tuneParams(icalrn, pid.task, cv5, par.set = ps,
+  control = makeTuneControlGrid(),
+  show.info = FALSE)
+```
 
-tuneParams(clrn, pid.task, cv5, par.set = ps,
-           control = makeTuneControlGrid(),
-           show.info = TRUE)
+## Syntactic Sugar
+
+Besides the `%>>%` operator, there are a few related operators which are short forms of operations that otherwise take more typing.
+
+* **`%<<%`** is similar to `%>>%` but works in the other direction. `a %>>% b` is the same as `b %<<% a`.
+* **`%<>>%` and `%<<<%`** are the `%>>%` or `%<<%` operators, combined with assignment. `a %<>>% b` is the same as `a = a %>>% b`. These operators perform the operations on their right before they do the assignment, so it is not necessary to use parentheses when writing `a = a %>>% b %>>% c` as `a %<>>% b %>>% c`.
+* **`%>|%` and `%|<%`** feed data in a `CPO` and gets the `retrafo()`. `data %>|% a` is the same as `retrafo(data %>>% a)`. The `%>|%` operator performs the operation on its right before getting the retrafo, so it is not necessary to use parentheses when writing `retrafo(data %>>% a %>>% b)` as `data %>|% a %>>% b`.
+
+## Inspecting CPOs
+
+As described before, it is possible to *compose* `CPO`s to create relatively complex preprocessing pipelines. It is therefore necessary to have tools to inspect a `CPO` pipeline or related objects.
+
+The first line of attack when inspecting a `CPO` is always the `print` function. `print(x, verbose = TRUE)` will often print more information about a `CPO` than the ordinary print function. A shorthand alias for this is the exclamation point "**`!`**". When verbosely printing a `CPOConstructor`, the transformation functions are shown. When verbosely printing a `CPO`, the constituent elements are separately printed, each showing their parameter sets.
+
+```{r}
+cpoAsNumeric  # plain print
+!cpoAsNumeric  # verbose print
+```
+```{r}
+cpoScale() %>>% cpoIca()  # plain print
+!cpoScale() %>>% cpoIca()  # verbose print
+```
+
+When working with compound `CPO`s, it is sometimes necessary to manipulate a `CPO` inside a compound `CPO` pipeline. For this purpose, the **`as.list()`** generic is implemented for both `CPO` and `CPOTrained` for splitting a pipeline into a list of the primitive elements. The inverse is **`pipeCPO()`**, which takes a list of `CPO` or `CPOTrained` and concatenates them using `composeCPO()`.
+
+```{r}
+as.list(cpoScale() %>>% cpoIca())
+```
+```{r}
+pipeCPO(list(cpoScale(), cpoIca()))
+```
+
+`CPOTrained` objects contain information about the retrafo or inversion to be performed for a `CPO`. It is possible to access this information using **`getCPOTrainedState()`**. The "state" of a `CPOTrained` object often contains a `$data` slot with information about the expected input and output format ("`ShapeInfo`") of incoming data, a slot for each of its hyperparameters, and a `$control` slot that is specific to the `CPO` in question. The `cpoPca` state, for example, contains the PCA rotation matrix and a vector for scaling and centering. The contents of a state's `$control` object are described in a `CPO`'s help page.
+
+```{r}
+repca = retrafo(iris.demo %>>% cpoPca())
+state = getCPOTrainedState(repca)
+state
+```
+
+It is even possible to change the "state" of a `CPOTrained` and construct a new `CPOTrained` using **`makeCPOTrainedFromState()`**. This is fairly advanced usage and only recommended for users familiar with the inner workings of the particular `CPO`. If we get familiar with the `cpoPca` `CPO` using the `!`-print (i.e. `!cpoPca`) to look at the retrafo function, we notice that the `control$center` and `control$scale` values are given to a call of `scale()`. If we want to create a new `CPOTrained` that does *not* perform centering or scaling during before applying the rotation matrix, we can change these values.
+```{r}
+state$control$center = FALSE
+state$control$scale = FALSE
+nosc.repca = makeCPOTrainedFromState(cpoPca, state)
+```
+Comparing this to the original "`repca`" retrafo shows that the result of applying `repca` has generally smaller values because of the centering.
+```{r}
+iris.demo %>>% repca
+```
+```{r}
+iris.demo %>>% nosc.repca
 ```
 
 ## Special CPOs
 
+There is a large and growin variety of `CPO`s that perform many different operations. It is advisable to browse through [CPOs Built Into mlrCPO](a_3_all_CPOs.html) for an overview. To get a list of all builtin `CPO`s, use **`listCPO()`**. A few important or "meta" `CPO`s that can be used to influence the behaviour of other `CPO`s are described here.
+
+### NULLCPO
+The value associated with "no operation" is the `NULLCPO` value. It is the neutral element of the `%>>%` operations, and the value of `retrafo()` and `inverter()` when there are otherwise no associated retrafo or inverter values.
+```{r}
+NULLCPO
+```
+```{r}
+all.equal(iris %>>% NULLCPO, iris)
+cpoPca() %>>% NULLCPO
+```
+
 ### CPO Multiplexer
-The multiplexer makes it possible to combine many CPOs into one, with an extra `selected.cpo` parameter that chooses between them.
+The multiplexer makes it possible to combine many CPOs into one, with an extra `selected.cpo` parameter that chooses between them. This makes it possible to tune over many different tuner configurations at once.
 
 ```{r}
-cpm = cpoMultiplex(list(cpoScale, cpoPca))
-print(cpm, verbose = TRUE)
+cpm = cpoMultiplex(list(cpoIca, cpoPca(export = "export.all")))
+!cpm
 ```
 ```{r}
-head(iris %>>% setHyperPars(cpm, selected.cpo = "scale"))
-```
-Every CPO's Hyperparameters are exported:
-```{r}
-head(iris %>>% setHyperPars(cpm, selected.cpo = "scale", scale.center = FALSE))
+iris.demo %>>% setHyperPars(cpm, selected.cpo = "ica", ica.n.comp = 3)
 ```
 ```{r}
-head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
+iris.demo %>>% setHyperPars(cpm, selected.cpo = "pca", pca.rank = 3)
 ```
-
-This makes it possible to tune over many different tuner configurations at once.
 
 ### CPO Wrapper
 A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument's parameters to the outside.
 
 ```{r}
 cpa = cpoWrap()
-print(cpa, verbose = TRUE)
+!cpa
 ```
 ```{r}
-head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoScale()))
+iris.demo %>>% setHyperPars(cpa, wrap.cpo = cpoScale())
 ```
 ```{r}
-head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoPca()))
+iris.demo %>>% setHyperPars(cpa, wrap.cpo = cpoPca())
 ```
 Attaching the cpo applicator to a learner gives this learner a "cpo" hyperparameter that can be set to any CPO.
 ```{r}
@@ -340,100 +468,42 @@ getParamSet(cpoWrap() %>>% makeLearner("classif.logreg"))
 ```
 
 ### CBind CPO
-`cbind` other CPOs as operation. The `cbinder` makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.
+`cbind` other CPOs as operation. The `cbinder` makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other. It is often useful to combine `cpoCbind` with `cpoSelect` to filter out columns that would otherwise be duplciated.
 
 ```{r}
-scale = cpoScale(id = "scale")
+scale = cpoSelect(pattern = "Sepal", id = "first") %>>% cpoScale(id = "scale")
 scale.pca = scale %>>% cpoPca()
-cbinder = cpoCbind(scaled = scale, pcad = scale.pca, original = NULLCPO)
+cbinder = cpoCbind(scale, scale.pca, cpoSelect(pattern = "Petal", id = "second"))
 ```
-`cpoCbind` recognises that `"scale.scale"` happens before `"pca.pca"` but is also fed to the result directly. The summary draws a (crude) ascii-art graph.
+`cpoCbind` recognises that `"scale"` happens before `"pca"`, but is also fed to the result directly. The verbose print draws a (crude) ascii-art graph.
 ```{r}
-print(cbinder)
-```
-```{r}
-getParamSet(cbinder)
+!cbinder
 ```
 ```{r}
-head(iris %>>% cbinder)
-```
-The unnecessary copies of "Species" are unfortunate. Remove them with cpoSelect:
-```{r}
-selector = cpoSelect(type = "numeric")
-cbinder.select = cpoCbind(scaled = selector %>>% scale, pcad = selector %>>% scale.pca, original = NULLCPO)
-cbinder.select
-head(iris %>>% cbinder)
-```
-alternatively, we apply the cbinder only to numerical data
-```{r}
-head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
+iris.demo %>>% cbinder
 ```
 
 ## Custom CPOs
 
 Even though `CPO`s are very flexible and can be combined in many ways, it may be necessary to create completely custom `CPO`s.
-Custom CPOs can be created using the `makeCPO` function. Its most important arguments are `cpo.trafo` and `cpo.retrafo`, both of which are functions.
-In principle, a `CPO` needs a function that "trains" a control object depending on the data (`cpo.trafo`),
-and another function that uses this control object, and new data, to perform the preprocessing operation (`cpo.retrafo`).
-The `cpo.trafo`-function must return a "control" object which contains all information about how to transform a given dataset.
-`cpo.retrafo` takes a (potentially new!) dataset *and* the "control" object returned by `cpo.trafo`, and transforms the new data according to plan.
-```{r}
-names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
-```
+Custom CPOs can be created using the **`makeCPO()`** and related functions. "[Building Custom CPOs](a_4_custom_CPOs.html)" is a wide topic which has its own vignette.
 
-```{r}
-constFeatRem = makeCPO("constFeatRem",  # nolint
-  dataformat = "df.features",
-  cpo.train = function(data, target) {
-    names(Filter(function(x) {  # names of columns to keep
-        length(unique(x)) > 1
-      }, data))
-    }, cpo.retrafo = function(data, control) {
-    data[control]
-  })
-head(iris) %>>% constFeatRem()
-print(constFeatRem, verbose = TRUE)
-```
+## Summary
 
+- **`CPO`**s are built using **`CPOConstructor`**s by calling them like functions.
+- The available `CPOConstructors` can be found by using **`listCPO()`** or consulting [the relevant vignette](a_3_all_CPOs.html).
+- Verbose printing of `CPO`s and many related objects is available using the **`!`** (exclamation mark) operator.
+- `CPO`s export hyperparameters that are accessible using **`getParamSet()`** and **`getHyperPars()`**, and mutable using **`setHyperPars()`**. Which parameters are exported can be controlled using the **`export`** parameter during construction.
+- They can be composed (**`composeCPO()`**), applied to data (**`applyCPO()`**) and attached to `Learner`s (**`attachCPO()`**) using special functions for each of these operations, or using the general **`%>>%`** operator.
+- There are three fundamental kinds of `CPO`: **FOCPO** (Feature Operation `CPO`s), **TOCPO** (Target Operation `CPO`s) and **ROCPO** (Retrafoless `CPO`s). The first may only change feature columns, the second only target columns. While the last one may change both feature *and* target values and even the number of rows of a dataset, it does so with the understanding that new "prediction" data will not be transformed by it and is thus mainly useful for subsampling.
+- Data that was transformed by a (non-Retrafoless) `CPO` has a retrafo-**`CPOTrained`** object associated with it that can be retrieved using **`retrafo()`** and used to transform new prediction data in similar way as the original training data.
+- `CPOTrained` objects can themselves be composed using **`composeCPO`** or **`%>>%`**, although it is only recommended to compose `CPOTrained` objects in the same order as they were created, and only if they were created in the same preprocessing pipeline.
+- `CPOTrained` objects can be inspected using **`getCPOTrainedState()`**, and re-built with changed state using **`makeCPOTrainedFromState()`**.
+- Data that was transformed by a *TOCPO* also has an *inverter* associated with it, which can be retrieved using **`inverter()`**. An inverter is also created during application of a retrafo `CPOTrained`.
+- While *retrafo* `CPOTrained` are created during training and used on every prediction data set, *inverter* `CPOTrained` are created anew during each `CPO` and retrafo-`CPOTrained` application and are closely associated with the data that they were created with.
+- `CPOTrained` objects associated with data are stored in their "attributes" and are automatically chained when more `CPO`s are applied. **`clearRI()`** is used to remove the associated `CPOTrained` objects and prevent this chaining.
+- `CPO`s can be attached to `Learner`s to get **`CPOLearner`**s which automatically transform training *and* prediction data and perform prediction inversion.
+- `CPOLearner`s have the `Learner`'s *and* the `CPO`'s hyperparameters and can thus be manipulated using **`setHyperPars()`**, and can be tuned using **`tuneParams()`**.
+- Notable `CPO`s are **`NULLCPO`** (the neutral element of `%>>%`), **`cpoMultiplex`**, **`cpoWrap`**, and **`cpoCbind`**.
+- It is possible to create custom `CPO`s using **`makeCPO`** and similar functions. These are described [in their own vignette](a_4_custom_CPOs.html).
 
-
-## Tuning CPO
-CPOs export their parameters when attached to a learner. Tuning of CPO-Learners works exactly as tuning for ordinary Learners.
-
-```{r}
-(clrn = cpoModelMatrix() %>>% makeLearner("classif.logreg"))
-getParamSet(clrn)
-
-ps = makeParamSet(
-    makeDiscreteParam(
-        "model.matrix.formula",
-        values = list(first = ~0 + ., second = ~0 + .^2, third = ~0 + .^3)))
-
-tuneParams(clrn, pid.task, cv5, par.set = ps,
-           control = makeTuneControlGrid(),
-           show.info = TRUE)
-```
-Tuning of CPOs and tuning of Learners can happen at the same time. The following is not executed to save build time.
-```{r, eval = FALSE}
-tlrn = cpoModelMatrix() %>>%
-       cpoWrap() %>>%
-       cpoFilterGainRatio() %>>%
-       makeLearner("classif.ctree")
-sprintf("Parameters: %s", paste(names(getParamSet(tlrn)$pars), collapse=", "))
-ps2 = makeParamSet(
-    makeDiscreteParam(
-        "model.matrix.formula",
-        values = list(first = ~0 + ., second = ~0 + .^2)),
-    makeDiscreteParam(
-        "wrap.cpo",
-        values = list(nopca = NULLCPO,
-                      onlypca = cpoPca(),
-                      addpca = cpoCbind(NULLCPO, cpoPca()))),
-    makeDiscreteParam(
-        "gain.ratio.perc",
-        values = list(0.333, 0.667, 1.0)),
-    makeDiscreteParam("teststat", values = c("quad", "max")))
-
-tuneParams(tlrn, pid.task, cv5, par.set = ps2,
-           control = makeTuneControlGrid())
-```
