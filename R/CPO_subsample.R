@@ -25,10 +25,67 @@
 #'   automatically.
 #' @template cpo_doc_outro
 #' @export
+cpoOversample = makeCPORetrafoless("osw",
+  pSS(rate = NULL: numeric[1, ~.] [[special.vals = list(NULL)]],
+    cl = NULL: character [[special.vals = list(NULL)]]),
+  dataformat = "task",
+  properties.target = c("classif", "twoclass"),
+  cpo.trafo = {
+    classinfo = getBinClassInfo(data)
+    if (is.null(cl)) {
+      cl = classinfo$minclass
+    } else {
+      assertChoice(cl, classinfo$classes)
+    }
+    if (is.null(rate)) {
+      if (cl != classinfo$minclass && rate != 1.0) {  # don't complain in a tie
+        stop("'rate' may not be NULL when 'cl' is neither NULL nor the minor class")
+      }
+      rate = classinfo$rate
+    }
+    oversample(data, rate, cl)
+  })
+
+#' @rdname cpoOversample
+#' @export
+cpoUndersample = makeCPORetrafoless("osw",
+  pSS(rate = NULL: numeric[~0, 1] [[special.vals = list(NULL)]],
+    cl = NULL: character [[special.vals = list(NULL)]]),
+  dataformat = "task",
+  properties.target = c("classif", "twoclass"),
+  cpo.trafo = {
+    classinfo = getBinClassInfo(data)
+    if (is.null(cl)) {
+      cl = classinfo$maxclass
+    } else {
+      assertChoice(cl, classinfo$classes)
+    }
+    if (is.null(rate)) {
+      if (cl != classinfo$maxclass && rate != 1.0) {  # don't complain in a tie
+        stop("'rate' may not be NULL when 'cl' is neither NULL nor the major class")
+      }
+      rate = 1 / classinfo$rate
+    }
+    undersample(data, rate, cl)
+  })
+
+# Get the major / minor class and their relative size
+#
+# @param task [Task]
+# @return [list] list(classes, maxclass, minclass, rate)
+#   'rate' is number(maxclass) / number(minclass)
+getBinClassInfo = function(task) {
+  cdist = table(getTaskData(data, target.extra = TRUE)$target)
+  assert(length(cdist) == 2)
+  list(classes = names(cdist),
+
+    maxclass = names(which.max(cdist)),
+    minclass = names(which.min(rev(cdist))),  # 'rev' for ties
+    rate = max(cdist) / min(cdist))
+}
 
 
-
-#' @title Subsample a Task
+#' @title Sample Data from a Task
 #'
 #' @template cpo_doc_intro
 #'
@@ -40,11 +97,25 @@
 #'   How many samples to take, relative to the task size. Default is \code{NULL}:
 #'   Not using relative sampling rate. Exactly one of this or \code{size} must be
 #'   non-\code{NULL}.
-#' @param size [\code{numeric(1)} | \code{NULL}]\cr
+#' @param size [\code{integer(1)} | \code{NULL}]\cr
 #'   How many samples to take. Default is \code{NULL}: Not using absolute size.
 #'   Exactly one of this or \code{size} must be non-\code{NULL}.
 #' @param replace [\code{logical(1)}]\cr
 #'   Whether to sample with replacement. Default is \code{FALSE}.
 #' @template cpo_doc_outro
 #' @export
-
+cpoSample = makeCPORetrafoless("sample",
+  pSS(rate = NULL: numeric[~0, ~.] [[special.vals = list(NULL)]],
+    size = NULL: integer[1, ] [[special.vals = list(NULL)]],
+    replace = FALSE: logical),
+  dataformat = "df.all",
+  cpo.trafo = {
+    if (is.null(rate) + is.null(size) != 1) {
+      stop("Exactly one of 'rate' or 'size' must be NULL")
+    }
+    if (is.null(size)) {
+      size = round(nrow(data) * rate)
+    }
+    indices = sample(nrow(data), size, replace)
+    data[indices, ]
+  })
