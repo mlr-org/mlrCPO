@@ -309,7 +309,7 @@ cpoTransformParams = function(cpo = NULLCPO, transformations = list(), additiona
       pv = list(...)
       otherpv = lapply(transformations, eval, envir = pv, enclos = enclosing)
       pv = insert(pv, otherpv)[orig.param.ids]
-      setHyperPars(cpo, pv)
+      setHyperPars(cpo, par.vals = pv)
     },
     exp.params, exp.par.vals, props.creator, ctinfo, "transformparams")(id = NULL)
 }

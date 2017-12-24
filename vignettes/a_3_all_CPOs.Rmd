@@ -16,9 +16,14 @@ vignette: >
 library("mlrCPO")
 ```
 
-## Special CPOs
+## Listing CPOs
+Builtin CPOs can be listed with `listCPO()`.
 
-### NULLCPO
+```{r}
+listCPO()$name
+```
+
+## NULLCPO
 `NULLCPO` is the neutral element of `%>>%`. It is returned by some functions when no other CPO or Retrafo is present.
 
 ```{r}
@@ -29,6 +34,8 @@ NULLCPO %>>% NULLCPO
 print(as.list(NULLCPO))
 pipeCPO(list())
 ```
+
+## Meta-CPO
 
 ### CPO Wrapper
 A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument's parameters to the outside.
@@ -101,15 +108,17 @@ head(iris %>>% cbinder)
 head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
 ```
 
+### Parameter Transforming CPO
 
-## Builtin CPOs
-
-### Listing CPOs
-Builtin CPOs can be listed with `listCPO()`.
+`cpoTransformParams` wraps another `CPO` and sets some of its hyperparameters to the value of expressions depending on other hyperparameter values. This can be used to make a transformation of parameters similar to the `trafo` parameter of a `Param` in `ParamHelpers`, but it can also be used to set multiple parameters at the same time, depending on a single new parameter.
 
 ```{r}
-listCPO()$name
+cpo = cpoTransformParams(cpoPca(), alist(pca.scale = pca.center))
+retr = pid.task %>|% setHyperPars(cpo, pca.center = FALSE)
+getCPOTrainedState(retr)$control  # both 'center' and 'scale' are FALSE
 ```
+
+## Data Manipulation
 
 ### cpoScale
 Implements the `base::scale` function.
@@ -239,7 +248,7 @@ Normalize values row-wise
 head(iris %>>% cpoSpatialSign())
 ```
 
-### Imputation
+## Imputation
 There are two *general* and many *specialised* imputation CPOs. The general imputation CPOs have parameters that let them use different imputation methods on different columns. They are a thin wrapper around `mlr`'s `impute()` and `reimpute()` functions. The specialised imputation CPOs each implement exactly one imputation method and are closer to the behaviour of typical CPOs.
 
 #### General Imputation Wrappers
@@ -275,7 +284,7 @@ listCPO()[listCPO()$category == "imputation" & listCPO()$subcategory == "special
           c("name", "description")]
 ```
 
-### Feature Filtering
+## Feature Filtering
 There is one *general* and many *specialised* feature filtering CPOs. The general filtering CPO, `cpoFilterFeatures`, is a thin wrapper around `filterFeatures` and takes the filtering method as its argument. The specialised CPOs each call a specific filtering method.
 
 Most arguments of `filterFeatures` are reflected in the CPOs. The exceptions being:
