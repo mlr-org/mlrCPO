@@ -47,7 +47,7 @@ pipeCPO(list())
 
 ## Meta-CPO
 
-### CPO Wrapper
+### cpoWrap
 A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument's parameters to the outside.
 
 ```{r}
@@ -60,7 +60,7 @@ head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoPca()))
 getParamSet(cpoWrap() %>>% makeLearner("classif.logreg"))
 ```
 
-### CPO Multiplexer
+### cpoMultiplex
 Combine many CPOs into one, with an extra `selected.cpo` parameter that chooses between them.
 
 ```{r}
@@ -72,7 +72,7 @@ head(iris %>>% setHyperPars(cpm, selected.cpo = "scale", scale.center = FALSE))
 head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
 ```
 
-### Case-CPO
+### cpoCase
 A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO's Hyperparameters are exported as well. This is a generalization of `cpoMultiplex`; however, `requires` of the involved parameters are not adjusted, since this is impossible in principle.
 
 ```{r}
@@ -92,7 +92,7 @@ print(s.and.p, verbose = TRUE)
 The resulting CPO `s.and.p` performs scaling and PCA, with the order depending on the parameter `logical.param` and on whether the mean of the data's first column exceeds 10. If either of those is true, the data will be first scaled, then PCA'd, otherwise the order is reversed.
 The all CPOs listed in `.export` are passed to the `cpo.build`.
 
-### CBind CPO
+### cpoCbind
 `cbind` other CPOs as operation. The `cbinder` makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.
 
 ```{r}
@@ -118,7 +118,7 @@ head(iris %>>% cbinder)
 head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
 ```
 
-### Parameter Transforming CPO
+### cpoTransformParams
 
 `cpoTransformParams` wraps another `CPO` and sets some of its hyperparameters to the value of expressions depending on other hyperparameter values. This can be used to make a transformation of parameters similar to the `trafo` parameter of a `Param` in `ParamHelpers`, but it can also be used to set multiple parameters at the same time, depending on a single new parameter.
 
