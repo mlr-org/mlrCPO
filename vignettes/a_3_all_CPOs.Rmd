@@ -19,8 +19,18 @@ library("mlrCPO")
 ## Listing CPOs
 Builtin CPOs can be listed with `listCPO()`.
 
-```{r}
-listCPO()$name
+```{r, eval = FALSE}
+listCPO()[, c("name", "category", "subcategory")]
+```
+
+```{r, echo = FALSE, asis = TRUE}
+tab = listCPO()[, c("name", "category", "subcategory")]
+owncontent = readLines(path)
+headlines = grep("^#+ +", owncontent, value = TRUE)
+headlines = gsub("^#+ +", "", headlines)
+tab[[1]] = sapply(tab[[1]], function(x)
+  if (x %in% headlines) sprintf("[%s](#%s)", x, tolower(x)) else x)
+knitr::kable(tab, "html")
 ```
 
 ## NULLCPO
@@ -116,6 +126,15 @@ head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
 cpo = cpoTransformParams(cpoPca(), alist(pca.scale = pca.center))
 retr = pid.task %>|% setHyperPars(cpo, pca.center = FALSE)
 getCPOTrainedState(retr)$control  # both 'center' and 'scale' are FALSE
+```
+
+```{r}
+mplx = cpoMultiplex(list(cpoIca(export = "n.comp"), cpoPca(export = "rank")))
+!mplx
+mtx = cpoTransformParams(mplx, alist(ica.n.comp = comp, pca.rank = comp),
+  pSS(comp: integer[1, ]), list(comp = 1))
+head(iris %>>% setHyperPars(mtx, selected.cpo = "ica", comp = 2))
+head(iris %>>% setHyperPars(mtx, selected.cpo = "pca", comp = 3))
 ```
 
 ## Data Manipulation
