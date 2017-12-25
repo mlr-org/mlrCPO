@@ -22,7 +22,7 @@ The [`CPO`s built into `mlrCPO`](a_3_all_CPOs.html) can be used for many differe
 
 For this purpose, `mlrCPO` offers a very powerful interface for the creation of new `CPO`s. The functions and methods described here are also the methods used internally to create `mlrCPO`'s builtin `CPO`s. Therefore, to learn the art of defining `CPO`s, it is also possible to look at the [`mlrCPO` source tree](https://github.com/mlr-org/mlrCPO/tree/master/R) in files starting with "`CPO_`" for example `CPO` definitions.
 
-There are three types of `CPO`: "Feature Operation `CPO`s" (**FOCPO**s) which are only allowed to change feature columns of incoming data, and which are the most common `CPO`s; "Target Operation `CPO`s" (**TOCPO**s) that change only target columns, and "Retrafoless `CPO`s" (**ROCPO**s) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest `CPO`s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all `CPO` defining functions will be described first, followed by the different `CPO` types in order of growing complexity.
+There are three types of `CPO`: "Feature Operation `CPO`s" ([**FOCPO**s](#feature-operation-cpos)) which are only allowed to change feature columns of incoming data, and which are the most common `CPO`s; "Target Operation `CPO`s" (**TOCPO**s) that change only target columns, and "Retrafoless `CPO`s" ([**ROCPO**s](#retrafoless-cpos)) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest `CPO`s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all `CPO` defining functions will be described first, followed by the different `CPO` types in order of growing complexity.
 
 ## Making a CPO
 
@@ -131,64 +131,198 @@ xmpSampleHeadless = makeCPORetrafoless("exsample",  # nolint
 
 ## Feature Operation CPOs
 
+FOCPOs are created with either the `makeCPO()` function, or the `makeCPOExtendedTrafo()` function. The former conceptually separates training from transformation, the latter separates transformation of training data from transformation of prediction data.
 
-In principle, a `CPO` needs a function that "trains" a control object depending on the data (`cpo.trafo`),
+### `makeCPO()`
+
+In principle, a FOCPO needs a function that "trains" a control object depending on the data (`cpo.train`),
 and another function that uses this control object, and new data, to perform the preprocessing operation (`cpo.retrafo`).
-The `cpo.trafo`-function must return a "control" object which contains all information about how to transform a given dataset.
+The `cpo.train`-function must return a "control" object which contains all information about how to transform a given dataset.
 `cpo.retrafo` takes a (potentially new!) dataset *and* the "control" object returned by `cpo.trafo`, and transforms the new data according to plan.
-```{r}
-names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
-```
+
+In contrast to `makeCPORetrafoless()`, the `dataformat` parameter of `makeCPO()` can take all values described in the section [Data Format](#data-format). The `cpo.train` function takes the arguments `data`, `target`, and any other parameter described in `param.set`. The `data` value is the incoming data as a `Task`, a `data.frame` with or without the target column, or a list of `data.frames` of different column types, according to `dataformat`. The `target` value is a `character` vector of target names if `dataformat` is `"task"` or `"df.all"`, or a `data.frame` of the target columns otherwise.
+
+The `cpo.train` function's return value is treated as a `control` object and given to the `cpo.retrafo` function. Its parameters are `data`, `control`, and any parameters in `par.set`. The format of the data given to the `data` parameter is according to `dataformat`, with the exception that if `dataformat` is either `"task"` or `"df.all"`, it will be treated here as if its value were `"df.features"`. This is because the `cpo.retrafo` function is sometimes called with *prediction* data which does not have any target column at all.
+
+It follows the simplified definition of a `CPO` that removes the numeric columns of smallest variance, returning a dataset of only `n.col` numeric columns. The `dataformat` variable is set to `"numeric"`, so that only numeric columns are given to the `CPO`'s transformation functiosn; factorial columns are ignored. In `cpo.trafo`, calculates the variance of each of the data's columns, and in `cpo.retrafo` it subsets the data according to these variances. Since `cpo.retrafo` may also be called during prediction with new data, the variance must *not* be calculated in `cpo.retrafo`--this could lead to `cpo.retrafo` filtering out different columns from `cpo.trafo`. This example also prints out which of its functions are being called.
 
 ```{r}
-constFeatRem = makeCPO("constFeatRem",  # nolint
-  dataformat = "df.features",
-  cpo.train = function(data, target) {
-    names(Filter(function(x) {  # names of columns to keep
-        length(unique(x)) > 1
-      }, data))
-    }, cpo.retrafo = function(data, control) {
-    data[control]
+xmpFilterVar = makeCPO("exemplvar",  # nolint
+  pSS(n.col: integer[0, ]),
+  dataformat = "numeric",
+  cpo.train = function(data, target, n.col) {
+    cat("*** cpo.train ***\n")
+    sapply(data, var, na.rm = TRUE)
+  },
+  cpo.retrafo = function(data, control, n.col) {
+    cat("*** cpo.retrafo ***\n")
+    cat("Control:\n")
+    print(control)
+    cat("\n")
+    greatest = order(-control)  # columns, ordered greatest to smallest var
+    data[greatest[seq_len(n.col)]]
   })
-head(iris) %>>% constFeatRem()
-print(constFeatRem, verbose = TRUE)
+
+cpo = xmpFilterVar(2)
+```
+(Note that the function heads are optional.)
+
+When the `CPO` is called with a dataset, the `cpo.train` function is called first, creating the control object which is then given to `cpo.retrafo`.
+```{r}
+(trafd = head(iris) %>>% cpo)
+```
+Note that the two columns of the entire `iris` dataset with the greatest variance are `Petal.Length` and `Sepal.Length`:
+```{r}
+head(iris %>>% cpo)
+```
+However, when applying the `retrafo()` of `trafd` to the entire dataset, the same columns are filtered out as they were in the first transformation: `Sepal.Width` and `Sepal.Length`. When the `retrafo()` is used, `cpo.train` is *not* called; instead, the `control` object saved inside the retrafo is used.
+```{r}
+head(iris %>>% retrafo(trafd))
 ```
 
-
-## Creating Custom CPOs
-Custom CPOs can be created using the `makeCPO` function. Its most important arguments are `cpo.trafo` and `cpo.retrafo`, both of which are functions. The `cpo.trafo`-function must return a "control" object which contains all information about how to transform a given dataset. `cpo.retrafo` takes a (potentially new!) dataset *and* the "control" object returned by `cpo.trafo`, and transforms the new data according to plan.
+It is also possible to inspect the `CPOTrained` object to see that the `control` is there:
 ```{r}
-names(formals(makeCPO))  # see help(makeCPO) for explanation of arguments
+getCPOTrainedState(retrafo(trafd))
 ```
 
-```{r}
-constFeatRem = makeCPO("constFeatRem",  # nolint
-  dataformat = "df.features",
-  cpo.train = function(data, target) {
-    names(Filter(function(x) {  # names of columns to keep
-        length(unique(x)) > 1
-      }, data))
-    }, cpo.retrafo = function(data, control) {
-    data[control]
-  })
-head(iris) %>>% constFeatRem()
-print(constFeatRem, verbose = TRUE)
-```
+#### Functional CPO
 
-It is also possible to set `cpo.retrafo = NULL`. Then `cpo.trafo` must return a function that takes a `data` argument, which is a (possibly new) dataset to transform, and returns the transformed data. The following example is equivalent to the example above:
+Instead of returning the `control` object, `cpo.train` may also return the `cpo.retrafo` *function*. This may be more succinct to write if there are many little pieces of information from the `cpo.train` run that the `cpo.retrafo` function should have access to.
+
+When `cpo.retrafo` is given functionally, it should be a function with only *one* parameter: the newly incoming data. It can access the values of the `par.set` parameters from its encapsulating environment in `cpo.train`.
+
+Note that the `data` and `target` values given to `cpo.train` are **deleted** after the `cpo.train` call, so `cpo.retrafo` does not have access to it. In fact, the `CPO` framework will give a warning about this.
+
 ```{r}
-constFeatRem = makeCPO("constFeatRem",  # nolint
-  dataformat = "df.features",
-  cpo.train = function(data, target) {
-    cols.keep = names(Filter(function(x) {
-    length(unique(x)) > 1
-      }, data))
-    # the following function will do both the trafo and retrafo
-    result = function(data) {
-      data[cols.keep]
+xmpFilterVarFunc = makeCPO("exemplvar.func",  # nolint
+  pSS(n.col: integer[0, ]),
+  dataformat = "numeric",
+  cpo.retrafo = NULL,
+  cpo.train = function(data, target, n.col) {
+    cat("*** cpo.train ***\n")
+    ctrl = sapply(data, var, na.rm = TRUE)
+    function(x) {  # the data is given to the only present parameter: 'x'
+      cat("*** cpo.retrafo ***\n")
+      cat("Control:\n")
+      print(ctrl)
+      cat("\ndata:\n")
+      print(data)  # 'data' is deleted: NULL
+      cat("target:\n")
+      print(target)  # 'target' is deleted: NULL
+      greatest = order(-ctrl)  # columns, ordered greatest to smallest var
+      x[greatest[seq_len(n.col)]]
     }
-    result
-  }, cpo.retrafo = NULL)
-head(iris) %>>% constFeatRem()
-print(constFeatRem, verbose = TRUE)
+  })
+
+cpo = xmpFilterVarFunc(2)
 ```
+(Note that the function heads are optional.)
+
+```{r}
+(trafd = head(iris) %>>% cpo)
+```
+
+The `CPOTrained` state for a functional `CPO` is the *environment* of the retrafo function. It contains the "`ctrl`" variable defined during training, the parameters given to `cpo.train`, and the `cpo.retrafo` function itself. Note that `data` and `target` are deleted and replaced by different values.
+```{r}
+getCPOTrainedState(retrafo(trafd))
+```
+
+#### Stateless CPO
+
+"Stateless" `CPO`s are `CPO`s that perform the same action during transformation of training and prediction data, independent from information during training. An example would be a `CPO` that converts all its columns to `numeric` columns. When a FOCPO does not need a state, the `cpo.train` parameter of `makeCPO()` can be set to `NULL`. The `cpo.retrafo` function then has no `control` paramter and instead only a `data` and any `par.set` parameter. The `as.numeric`-`CPO` could be written as the following:
+
+```{r}
+xmpAsNum = makeCPO("asnum",  # nolint
+  cpo.train = NULL,
+  cpo.retrafo = function(data) {
+    data.frame(lapply(data, as.numeric))
+  })
+
+cpo = xmpAsNum()
+```
+(Note that the function head is optional.)
+
+```{r}
+(trafd = head(iris) %>>% cpo)
+```
+
+The "state" of the `CPOTrained` object thus created only contains information about the incoming *data shape*, to make sure that the `CPOTrained` object is only used on conforming data (as doing otherwise would indicate a bug).
+```{r}
+getCPOTrainedState(retrafo(trafd))
+```
+
+### `makeCPOExtendedTrafo()`
+
+Sometimes it is advantageous to have the training operation return the transformed data right away. PCA, for example, returns the rotation matrix *and* the transformed data; it would be a waste of time to only return the rotation matrix in a `cpo.train` function and apply it on the training data in `cpo.retrafo`. The `makeCPOExtendedTrafo()` function works very much like `makeCPO()`, with the difference that it has a `cpo.trafo` instead of a `cpo.train` function parameter. The `cpo.trafo` takes the same parameters as `cpo.train`, but returns the *transformed data* instead of a control object. The control object needs to be created *additionally*, as a variable by the `cpo.trafo` function. The `CPO` framework takes the value of a variable named `control` inside the `cpo.trafo` function and gives it to the `cpo.retrafo` function.
+
+The following is a simplified version of the `cpoPca` `CPO`, which does not scale or center the data.
+
+```{r}
+xmpPca = makeCPOExtendedTrafo("simple.pca",  # nolint
+  pSS(n.col: integer[0, ]),
+  dataformat = "numeric",
+  cpo.trafo = function(data, target, n.col) {
+    cat("*** cpo.trafo ***\n")
+    pcr = prcomp(as.matrix(data), center = FALSE, scale. = FALSE, rank = n.col)
+    # save the rotation matrix as 'control' variable
+    control = pcr$rotation
+    pcr$x
+  },
+  cpo.retrafo = function(data, control, n.col) {
+    cat("*** cpo.retrafo ***\n")
+    # rotate the data by the rotation matrix
+    as.matrix(data) %*% control
+  })
+
+cpo = xmpPca(2)
+```
+
+When this `CPO` is applied to data, only the `cpo.trafo` function is called.
+```{r}
+(trafd = head(iris) %>>% cpo)
+```
+When the retrafo `CPOTrained` is used, the `cpo.retrafo` function is called, making use of the rotation matrix.
+```{r}
+tail(iris) %>>% retrafo(trafd)
+```
+
+The rotation matrix can be inspected using `getCPOTrainedState`.
+```{r}
+getCPOTrainedState(retrafo(trafd))
+```
+
+#### Functional CPO
+
+As with `makeCPO()`, `makeCPOExtendedTrafo()` makes it possible to define functional `CPO`s. Instead of *returning* a `cpo.retrafo` function, the `cpo.retrafo` function needs to be *defined* as a variable, instead of a "`control`" variable. Like in `makeCPO()`, the `cpo.retrafo` parameter of `makeCPOExtendedTrafo()` must then be `NULL`. The PCA example above could thus also be written as
+```{r}
+xmpPcaFunc = makeCPOExtendedTrafo("simple.pca.func",  # nolint
+  pSS(n.col: integer[0, ]),
+  dataformat = "numeric",
+  cpo.retrafo = NULL,
+  cpo.trafo = function(data, target, n.col) {
+    cat("*** cpo.trafo ***\n")
+    pcr = prcomp(as.matrix(data), center = FALSE, scale. = FALSE, rank = n.col)
+    # save the rotation matrix as 'control' variable
+    cpo.retrafo = function(data) {
+      cat("*** cpo.retrafo ***\n")
+      # rotate the data by the rotation matrix
+      as.matrix(data) %*% pcr$rotation
+    }
+    pcr$x
+  })
+
+cpo = xmpPcaFunc(2)
+```
+
+```{r}
+(trafd = head(iris) %>>% cpo)
+```
+
+This also serves as an example of the disadvantages of a functional `CPO`: Since the `CPO` state contains all the information contained in the `cpo.trafo` call (except the `data` and `target` variables), it may take up more memory than needed. For this `CPO`, the state contains the `pcr` variable which contains the transformed training data in its `$x` slot. If the training data is a very large dataset, this would result in `CPO` states that take up a lot of working memory.
+```{r}
+getCPOTrainedState(retrafo(trafd))$pcr$x
+```
+
+## Target Operation CPOs
+
+TODO
