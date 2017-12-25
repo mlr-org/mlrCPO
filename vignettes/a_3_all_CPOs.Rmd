@@ -16,9 +16,24 @@ vignette: >
 library("mlrCPO")
 ```
 
-## Special CPOs
+## Listing CPOs
+Builtin CPOs can be listed with `listCPO()`.
 
-### NULLCPO
+```{r, eval = FALSE}
+listCPO()[, c("name", "category", "subcategory")]
+```
+
+```{r, echo = FALSE, asis = TRUE}
+tab = listCPO()[, c("name", "category", "subcategory")]
+owncontent = readLines(path)
+headlines = grep("^#+ +", owncontent, value = TRUE)
+headlines = gsub("^#+ +", "", headlines)
+tab[[1]] = sapply(tab[[1]], function(x)
+  if (x %in% headlines) sprintf("[%s](#%s)", x, tolower(x)) else x)
+knitr::kable(tab, "html")
+```
+
+## NULLCPO
 `NULLCPO` is the neutral element of `%>>%`. It is returned by some functions when no other CPO or Retrafo is present.
 
 ```{r}
@@ -30,7 +45,9 @@ print(as.list(NULLCPO))
 pipeCPO(list())
 ```
 
-### CPO Wrapper
+## Meta-CPO
+
+### cpoWrap
 A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument's parameters to the outside.
 
 ```{r}
@@ -43,7 +60,7 @@ head(iris %>>% setHyperPars(cpa, wrap.cpo = cpoPca()))
 getParamSet(cpoWrap() %>>% makeLearner("classif.logreg"))
 ```
 
-### CPO Multiplexer
+### cpoMultiplex
 Combine many CPOs into one, with an extra `selected.cpo` parameter that chooses between them.
 
 ```{r}
@@ -55,7 +72,7 @@ head(iris %>>% setHyperPars(cpm, selected.cpo = "scale", scale.center = FALSE))
 head(iris %>>% setHyperPars(cpm, selected.cpo = "pca"))
 ```
 
-### Case-CPO
+### cpoCase
 A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO's Hyperparameters are exported as well. This is a generalization of `cpoMultiplex`; however, `requires` of the involved parameters are not adjusted, since this is impossible in principle.
 
 ```{r}
@@ -75,7 +92,7 @@ print(s.and.p, verbose = TRUE)
 The resulting CPO `s.and.p` performs scaling and PCA, with the order depending on the parameter `logical.param` and on whether the mean of the data's first column exceeds 10. If either of those is true, the data will be first scaled, then PCA'd, otherwise the order is reversed.
 The all CPOs listed in `.export` are passed to the `cpo.build`.
 
-### CBind CPO
+### cpoCbind
 `cbind` other CPOs as operation. The `cbinder` makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.
 
 ```{r}
@@ -101,15 +118,26 @@ head(iris %>>% cbinder)
 head(iris %>>% cpoWrap(cbinder, affect.type = "numeric"))
 ```
 
+### cpoTransformParams
 
-## Builtin CPOs
-
-### Listing CPOs
-Builtin CPOs can be listed with `listCPO()`.
+`cpoTransformParams` wraps another `CPO` and sets some of its hyperparameters to the value of expressions depending on other hyperparameter values. This can be used to make a transformation of parameters similar to the `trafo` parameter of a `Param` in `ParamHelpers`, but it can also be used to set multiple parameters at the same time, depending on a single new parameter.
 
 ```{r}
-listCPO()$name
+cpo = cpoTransformParams(cpoPca(), alist(pca.scale = pca.center))
+retr = pid.task %>|% setHyperPars(cpo, pca.center = FALSE)
+getCPOTrainedState(retr)$control  # both 'center' and 'scale' are FALSE
 ```
+
+```{r}
+mplx = cpoMultiplex(list(cpoIca(export = "n.comp"), cpoPca(export = "rank")))
+!mplx
+mtx = cpoTransformParams(mplx, alist(ica.n.comp = comp, pca.rank = comp),
+  pSS(comp: integer[1, ]), list(comp = 1))
+head(iris %>>% setHyperPars(mtx, selected.cpo = "ica", comp = 2))
+head(iris %>>% setHyperPars(mtx, selected.cpo = "pca", comp = 3))
+```
+
+## Data Manipulation
 
 ### cpoScale
 Implements the `base::scale` function.
@@ -239,7 +267,7 @@ Normalize values row-wise
 head(iris %>>% cpoSpatialSign())
 ```
 
-### Imputation
+## Imputation
 There are two *general* and many *specialised* imputation CPOs. The general imputation CPOs have parameters that let them use different imputation methods on different columns. They are a thin wrapper around `mlr`'s `impute()` and `reimpute()` functions. The specialised imputation CPOs each implement exactly one imputation method and are closer to the behaviour of typical CPOs.
 
 #### General Imputation Wrappers
@@ -275,7 +303,7 @@ listCPO()[listCPO()$category == "imputation" & listCPO()$subcategory == "special
           c("name", "description")]
 ```
 
-### Feature Filtering
+## Feature Filtering
 There is one *general* and many *specialised* feature filtering CPOs. The general filtering CPO, `cpoFilterFeatures`, is a thin wrapper around `filterFeatures` and takes the filtering method as its argument. The specialised CPOs each call a specific filtering method.
 
 Most arguments of `filterFeatures` are reflected in the CPOs. The exceptions being:
