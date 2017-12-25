@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-22" />
+<meta name="date" content="2017-12-25" />
 
 <title>CPOs Built Into mlrCPO</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">CPOs Built Into mlrCPO</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-22</em></h4>
+<h4 class="date"><em>2017-12-25</em></h4>
 
 
 
@@ -83,10 +83,993 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="a_4_custom_CPOs.html">Building Custom CPOs</a> (<a href="z_4_custom_CPOs_terse.html">compact version</a>)</li>
 </ol>
 </div>
-<div id="special-cpos" class="section level2">
-<h2>Special CPOs</h2>
-<div id="nullcpo" class="section level3">
-<h3>NULLCPO</h3>
+<div id="listing-cpos" class="section level2">
+<h2>Listing CPOs</h2>
+<p>Builtin CPOs can be listed with <code>listCPO()</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">listCPO</span>()[, <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;category&quot;</span>, <span class="st">&quot;subcategory&quot;</span>)]</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:left;">
+category
+</th>
+<th style="text-align:left;">
+subcategory
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+<a href="#cpodropconstants">cpoDropConstants</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+cleanup
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+36
+</td>
+<td style="text-align:left;">
+<a href="#cpofixfactors">cpoFixFactors</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+cleanup
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+<a href="#cpocollapsefact">cpoCollapseFact</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+factor data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+<a href="#cpoasnumeric">cpoAsNumeric</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+<a href="#cpodummyencode">cpoDummyEncode</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+13
+</td>
+<td style="text-align:left;">
+cpoImpactEncodeClassif
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:left;">
+cpoImpactEncodeRegr
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+cpoProbEncode
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+55
+</td>
+<td style="text-align:left;">
+cpoQuantileBinNumerics
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature conversion
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+61
+</td>
+<td style="text-align:left;">
+<a href="#cposelect">cpoSelect</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature selection
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+62
+</td>
+<td style="text-align:left;">
+cpoSelectFreeProperties
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+feature selection
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+51
+</td>
+<td style="text-align:left;">
+cpoAddCols
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+features
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:left;">
+cpoMakeCols
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+features
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+<a href="#cpoapplyfun">cpoApplyFun</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+general data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+53
+</td>
+<td style="text-align:left;">
+<a href="#cpomodelmatrix">cpoModelMatrix</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+general
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+37
+</td>
+<td style="text-align:left;">
+cpoIca
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+54
+</td>
+<td style="text-align:left;">
+<a href="#cpopca">cpoPca</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+58
+</td>
+<td style="text-align:left;">
+<a href="#cposcale">cpoScale</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+59
+</td>
+<td style="text-align:left;">
+<a href="#cposcalemaxabs">cpoScaleMaxAbs</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:left;">
+<a href="#cposcalerange">cpoScaleRange</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+64
+</td>
+<td style="text-align:left;">
+<a href="#cpospatialsign">cpoSpatialSign</a>
+</td>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+numeric data preprocessing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+16
+</td>
+<td style="text-align:left;">
+cpoFilterFeatures
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+general
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+32
+</td>
+<td style="text-align:left;">
+cpoFilterAnova
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+18
+</td>
+<td style="text-align:left;">
+cpoFilterCarscore
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+28
+</td>
+<td style="text-align:left;">
+cpoFilterChiSquared
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+cpoFilterGainRatio
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25
+</td>
+<td style="text-align:left;">
+cpoFilterInformationGain
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+33
+</td>
+<td style="text-align:left;">
+cpoFilterKruskal
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+23
+</td>
+<td style="text-align:left;">
+cpoFilterLinearCorrelation
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+17
+</td>
+<td style="text-align:left;">
+cpoFilterMrmr
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+30
+</td>
+<td style="text-align:left;">
+cpoFilterOneR
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+35
+</td>
+<td style="text-align:left;">
+cpoFilterPermutationImportance
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+24
+</td>
+<td style="text-align:left;">
+cpoFilterRankCorrelation
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+29
+</td>
+<td style="text-align:left;">
+cpoFilterRelief
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+cpoFilterRfCImportance
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+22
+</td>
+<td style="text-align:left;">
+cpoFilterRfImportance
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+19
+</td>
+<td style="text-align:left;">
+cpoFilterRfSRCImportance
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+20
+</td>
+<td style="text-align:left;">
+cpoFilterRfSRCMinDepth
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+27
+</td>
+<td style="text-align:left;">
+cpoFilterSymmetricalUncertainty
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+31
+</td>
+<td style="text-align:left;">
+cpoFilterUnivariate
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+34
+</td>
+<td style="text-align:left;">
+cpoFilterVariance
+</td>
+<td style="text-align:left;">
+featurefilter
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+38
+</td>
+<td style="text-align:left;">
+cpoImpute
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+general
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+39
+</td>
+<td style="text-align:left;">
+cpoImputeAll
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+general
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:left;">
+cpoImputeConstant
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+48
+</td>
+<td style="text-align:left;">
+cpoImputeHist
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+49
+</td>
+<td style="text-align:left;">
+cpoImputeLearner
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+45
+</td>
+<td style="text-align:left;">
+cpoImputeMax
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+42
+</td>
+<td style="text-align:left;">
+cpoImputeMean
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+41
+</td>
+<td style="text-align:left;">
+cpoImputeMedian
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+44
+</td>
+<td style="text-align:left;">
+cpoImputeMin
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+43
+</td>
+<td style="text-align:left;">
+cpoImputeMode
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+47
+</td>
+<td style="text-align:left;">
+cpoImputeNormal
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+46
+</td>
+<td style="text-align:left;">
+cpoImputeUniform
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+<td style="text-align:left;">
+specialised
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+cpoCache
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:left;">
+<a href="#cpocase">cpoCase</a>
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+<a href="#cpocbind">cpoCbind</a>
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+<a href="#cpomultiplex">cpoMultiplex</a>
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+<a href="#cpotransformparams">cpoTransformParams</a>
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+68
+</td>
+<td style="text-align:left;">
+<a href="#cpowrap">cpoWrap</a>
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+wrap
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+69
+</td>
+<td style="text-align:left;">
+cpoWrapRetrafoless
+</td>
+<td style="text-align:left;">
+meta
+</td>
+<td style="text-align:left;">
+wrap
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+65
+</td>
+<td style="text-align:left;">
+cpoOversample
+</td>
+<td style="text-align:left;">
+subsampling
+</td>
+<td style="text-align:left;">
+binary classif
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+63
+</td>
+<td style="text-align:left;">
+cpoSmote
+</td>
+<td style="text-align:left;">
+subsampling
+</td>
+<td style="text-align:left;">
+binary classif
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+66
+</td>
+<td style="text-align:left;">
+cpoUndersample
+</td>
+<td style="text-align:left;">
+subsampling
+</td>
+<td style="text-align:left;">
+binary classif
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+67
+</td>
+<td style="text-align:left;">
+cpoSample
+</td>
+<td style="text-align:left;">
+subsampling
+</td>
+<td style="text-align:left;">
+general
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+cpoApplyFunRegrTarget
+</td>
+<td style="text-align:left;">
+target
+</td>
+<td style="text-align:left;">
+general target transformation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+56
+</td>
+<td style="text-align:left;">
+cpoRegrResiduals
+</td>
+<td style="text-align:left;">
+target
+</td>
+<td style="text-align:left;">
+residual fitting
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+cpoLogTrafoRegr
+</td>
+<td style="text-align:left;">
+target
+</td>
+<td style="text-align:left;">
+target transformation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+52
+</td>
+<td style="text-align:left;">
+<a href="#cpomissingindicators">cpoMissingIndicators</a>
+</td>
+<td style="text-align:left;">
+tools
+</td>
+<td style="text-align:left;">
+imputation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+57
+</td>
+<td style="text-align:left;">
+cpoResponseFromSE
+</td>
+<td style="text-align:left;">
+tools
+</td>
+<td style="text-align:left;">
+predict.type
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="nullcpo" class="section level2">
+<h2>NULLCPO</h2>
 <p><code>NULLCPO</code> is the neutral element of <code>%&gt;&gt;%</code>. It is returned by some functions when no other CPO or Retrafo is present.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NULLCPO
 <span class="co">#&gt; NULLCPO</span>
@@ -101,8 +1084,10 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="kw">pipeCPO</span>(<span class="kw">list</span>())
 <span class="co">#&gt; NULLCPO</span></code></pre></div>
 </div>
-<div id="cpo-wrapper" class="section level3">
-<h3>CPO Wrapper</h3>
+<div id="meta-cpo" class="section level2">
+<h2>Meta-CPO</h2>
+<div id="cpowrap" class="section level3">
+<h3>cpoWrap</h3>
 <p>A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument’s parameters to the outside.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpa =<span class="st"> </span><span class="kw">cpoWrap</span>()
 <span class="kw">print</span>(cpa, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
@@ -135,8 +1120,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="co">#&gt; wrap.cpo untyped   -    -      -   -    TRUE     -</span>
 <span class="co">#&gt; model    logical   - TRUE      -   -   FALSE     -</span></code></pre></div>
 </div>
-<div id="cpo-multiplexer" class="section level3">
-<h3>CPO Multiplexer</h3>
+<div id="cpomultiplex" class="section level3">
+<h3>cpoMultiplex</h3>
 <p>Combine many CPOs into one, with an extra <code>selected.cpo</code> parameter that chooses between them.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpm =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(cpoScale, cpoPca))
 <span class="kw">print</span>(cpm, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
@@ -176,8 +1161,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="co">#&gt; 5  setosa -2.728717 -0.3267545 -0.09007924 -0.061258593</span>
 <span class="co">#&gt; 6  setosa -2.280860 -0.7413304 -0.16867766 -0.024200858</span></code></pre></div>
 </div>
-<div id="case-cpo" class="section level3">
-<h3>Case-CPO</h3>
+<div id="cpocase" class="section level3">
+<h3>cpoCase</h3>
 <p>A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO’s Hyperparameters are exported as well. This is a generalization of <code>cpoMultiplex</code>; however, <code>requires</code> of the involved parameters are not adjusted, since this is impossible in principle.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s.and.p =<span class="st"> </span><span class="kw">cpoCase</span>(<span class="kw">pSS</span>(logical.param:<span class="st"> </span>logical),
   <span class="dt">export.cpos =</span> <span class="kw">list</span>(<span class="kw">cpoScale</span>(), 
@@ -202,8 +1187,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="co">#&gt; pca.scale     logical   - FALSE      -   -    TRUE     -</span></code></pre></div>
 <p>The resulting CPO <code>s.and.p</code> performs scaling and PCA, with the order depending on the parameter <code>logical.param</code> and on whether the mean of the data’s first column exceeds 10. If either of those is true, the data will be first scaled, then PCA’d, otherwise the order is reversed. The all CPOs listed in <code>.export</code> are passed to the <code>cpo.build</code>.</p>
 </div>
-<div id="cbind-cpo" class="section level3">
-<h3>CBind CPO</h3>
+<div id="cpocbind" class="section level3">
+<h3>cpoCbind</h3>
 <p><code>cbind</code> other CPOs as operation. The <code>cbinder</code> makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">scale =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;scale&quot;</span>)
 scale.pca =<span class="st"> </span>scale %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
@@ -320,49 +1305,46 @@ cbinder.select
 <span class="co">#&gt; 5                  0.2</span>
 <span class="co">#&gt; 6                  0.4</span></code></pre></div>
 </div>
+<div id="cpotransformparams" class="section level3">
+<h3>cpoTransformParams</h3>
+<p><code>cpoTransformParams</code> wraps another <code>CPO</code> and sets some of its hyperparameters to the value of expressions depending on other hyperparameter values. This can be used to make a transformation of parameters similar to the <code>trafo</code> parameter of a <code>Param</code> in <code>ParamHelpers</code>, but it can also be used to set multiple parameters at the same time, depending on a single new parameter.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoTransformParams</span>(<span class="kw">cpoPca</span>(), <span class="kw">alist</span>(<span class="dt">pca.scale =</span> pca.center))
+retr =<span class="st"> </span>pid.task %&gt;|%<span class="st"> </span><span class="kw">setHyperPars</span>(cpo, <span class="dt">pca.center =</span> <span class="ot">FALSE</span>)
+<span class="kw">getCPOTrainedState</span>(retr)$control  <span class="co"># both 'center' and 'scale' are FALSE</span>
+<span class="co">#&gt; CPO Retrafo chain</span>
+<span class="co">#&gt; [RETRAFO pca(center = FALSE, scale = FALSE)]</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mplx =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(<span class="kw">cpoIca</span>(<span class="dt">export =</span> <span class="st">&quot;n.comp&quot;</span>), <span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="st">&quot;rank&quot;</span>)))
+!mplx
+<span class="co">#&gt; Trafo chain of 1 cpos:</span>
+<span class="co">#&gt; multiplex(selected.cpo = ica, ica.n.comp = &lt;NULL&gt;, pca.rank = &lt;NULL&gt;)</span>
+<span class="co">#&gt; Operating: feature</span>
+<span class="co">#&gt; ParamSet:</span>
+<span class="co">#&gt;                  Type len    Def   Constr Req Tunable Trafo</span>
+<span class="co">#&gt; selected.cpo discrete   -    ica  ica,pca   -    TRUE     -</span>
+<span class="co">#&gt; ica.n.comp    integer   - &lt;NULL&gt; 1 to Inf   Y    TRUE     -</span>
+<span class="co">#&gt; pca.rank      integer   - &lt;NULL&gt; 1 to Inf   Y    TRUE     -</span>
+mtx =<span class="st"> </span><span class="kw">cpoTransformParams</span>(mplx, <span class="kw">alist</span>(<span class="dt">ica.n.comp =</span> comp, <span class="dt">pca.rank =</span> comp),
+  <span class="kw">pSS</span>(comp:<span class="st"> </span>integer[<span class="dv">1</span>, ]), <span class="kw">list</span>(<span class="dt">comp =</span> <span class="dv">1</span>))
+<span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(mtx, <span class="dt">selected.cpo =</span> <span class="st">&quot;ica&quot;</span>, <span class="dt">comp =</span> <span class="dv">2</span>))
+<span class="co">#&gt;   Species         V1       V2</span>
+<span class="co">#&gt; 1  setosa  0.5040262 1.372772</span>
+<span class="co">#&gt; 2  setosa -0.5026081 1.277214</span>
+<span class="co">#&gt; 3  setosa -0.4470063 1.369134</span>
+<span class="co">#&gt; 4  setosa -0.7903465 1.261004</span>
+<span class="co">#&gt; 5  setosa  0.5165524 1.396033</span>
+<span class="co">#&gt; 6  setosa  1.3797295 1.270769</span>
+<span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(mtx, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>, <span class="dt">comp =</span> <span class="dv">3</span>))
+<span class="co">#&gt;   Species       PC1        PC2         PC3</span>
+<span class="co">#&gt; 1  setosa -2.684126 -0.3193972  0.02791483</span>
+<span class="co">#&gt; 2  setosa -2.714142  0.1770012  0.21046427</span>
+<span class="co">#&gt; 3  setosa -2.888991  0.1449494 -0.01790026</span>
+<span class="co">#&gt; 4  setosa -2.745343  0.3182990 -0.03155937</span>
+<span class="co">#&gt; 5  setosa -2.728717 -0.3267545 -0.09007924</span>
+<span class="co">#&gt; 6  setosa -2.280860 -0.7413304 -0.16867766</span></code></pre></div>
 </div>
-<div id="builtin-cpos" class="section level2">
-<h2>Builtin CPOs</h2>
-<div id="listing-cpos" class="section level3">
-<h3>Listing CPOs</h3>
-<p>Builtin CPOs can be listed with <code>listCPO()</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">listCPO</span>()$name
-<span class="co">#&gt;  [1] &quot;cpoDropConstants&quot;                &quot;cpoFixFactors&quot;                  </span>
-<span class="co">#&gt;  [3] &quot;cpoCollapseFact&quot;                 &quot;cpoAsNumeric&quot;                   </span>
-<span class="co">#&gt;  [5] &quot;cpoDummyEncode&quot;                  &quot;cpoImpactEncodeClassif&quot;         </span>
-<span class="co">#&gt;  [7] &quot;cpoImpactEncodeRegr&quot;             &quot;cpoProbEncode&quot;                  </span>
-<span class="co">#&gt;  [9] &quot;cpoQuantileBinNumerics&quot;          &quot;cpoSelect&quot;                      </span>
-<span class="co">#&gt; [11] &quot;cpoSelectFreeProperties&quot;         &quot;cpoAddCols&quot;                     </span>
-<span class="co">#&gt; [13] &quot;cpoMakeCols&quot;                     &quot;cpoApplyFun&quot;                    </span>
-<span class="co">#&gt; [15] &quot;cpoModelMatrix&quot;                  &quot;cpoIca&quot;                         </span>
-<span class="co">#&gt; [17] &quot;cpoPca&quot;                          &quot;cpoScale&quot;                       </span>
-<span class="co">#&gt; [19] &quot;cpoScaleMaxAbs&quot;                  &quot;cpoScaleRange&quot;                  </span>
-<span class="co">#&gt; [21] &quot;cpoSpatialSign&quot;                  &quot;cpoFilterFeatures&quot;              </span>
-<span class="co">#&gt; [23] &quot;cpoFilterAnova&quot;                  &quot;cpoFilterCarscore&quot;              </span>
-<span class="co">#&gt; [25] &quot;cpoFilterChiSquared&quot;             &quot;cpoFilterGainRatio&quot;             </span>
-<span class="co">#&gt; [27] &quot;cpoFilterInformationGain&quot;        &quot;cpoFilterKruskal&quot;               </span>
-<span class="co">#&gt; [29] &quot;cpoFilterLinearCorrelation&quot;      &quot;cpoFilterMrmr&quot;                  </span>
-<span class="co">#&gt; [31] &quot;cpoFilterOneR&quot;                   &quot;cpoFilterPermutationImportance&quot; </span>
-<span class="co">#&gt; [33] &quot;cpoFilterRankCorrelation&quot;        &quot;cpoFilterRelief&quot;                </span>
-<span class="co">#&gt; [35] &quot;cpoFilterRfCImportance&quot;          &quot;cpoFilterRfImportance&quot;          </span>
-<span class="co">#&gt; [37] &quot;cpoFilterRfSRCImportance&quot;        &quot;cpoFilterRfSRCMinDepth&quot;         </span>
-<span class="co">#&gt; [39] &quot;cpoFilterSymmetricalUncertainty&quot; &quot;cpoFilterUnivariate&quot;            </span>
-<span class="co">#&gt; [41] &quot;cpoFilterVariance&quot;               &quot;cpoImpute&quot;                      </span>
-<span class="co">#&gt; [43] &quot;cpoImputeAll&quot;                    &quot;cpoImputeConstant&quot;              </span>
-<span class="co">#&gt; [45] &quot;cpoImputeHist&quot;                   &quot;cpoImputeLearner&quot;               </span>
-<span class="co">#&gt; [47] &quot;cpoImputeMax&quot;                    &quot;cpoImputeMean&quot;                  </span>
-<span class="co">#&gt; [49] &quot;cpoImputeMedian&quot;                 &quot;cpoImputeMin&quot;                   </span>
-<span class="co">#&gt; [51] &quot;cpoImputeMode&quot;                   &quot;cpoImputeNormal&quot;                </span>
-<span class="co">#&gt; [53] &quot;cpoImputeUniform&quot;                &quot;cpoCache&quot;                       </span>
-<span class="co">#&gt; [55] &quot;cpoCase&quot;                         &quot;cpoCbind&quot;                       </span>
-<span class="co">#&gt; [57] &quot;cpoMultiplex&quot;                    &quot;cpoTransformParams&quot;             </span>
-<span class="co">#&gt; [59] &quot;cpoWrap&quot;                         &quot;cpoWrapRetrafoless&quot;             </span>
-<span class="co">#&gt; [61] &quot;cpoOversample&quot;                   &quot;cpoSmote&quot;                       </span>
-<span class="co">#&gt; [63] &quot;cpoUndersample&quot;                  &quot;cpoSample&quot;                      </span>
-<span class="co">#&gt; [65] &quot;cpoApplyFunRegrTarget&quot;           &quot;cpoRegrResiduals&quot;               </span>
-<span class="co">#&gt; [67] &quot;cpoLogTrafoRegr&quot;                 &quot;cpoMissingIndicators&quot;           </span>
-<span class="co">#&gt; [69] &quot;cpoResponseFromSE&quot;</span></code></pre></div>
 </div>
+<div id="data-manipulation" class="section level2">
+<h2>Data Manipulation</h2>
 <div id="cposcale" class="section level3">
 <h3>cpoScale</h3>
 <p>Implements the <code>base::scale</code> function.</p>
@@ -636,8 +1618,9 @@ iris2$Species =<span class="st"> </span><span class="kw">factor</span>(<span cla
 <span class="co">#&gt; 5    0.7909650   0.5694948    0.2214702  0.03163860  setosa</span>
 <span class="co">#&gt; 6    0.7841750   0.5663486    0.2468699  0.05808704  setosa</span></code></pre></div>
 </div>
-<div id="imputation" class="section level3">
-<h3>Imputation</h3>
+</div>
+<div id="imputation" class="section level2">
+<h2>Imputation</h2>
 <p>There are two <em>general</em> and many <em>specialised</em> imputation CPOs. The general imputation CPOs have parameters that let them use different imputation methods on different columns. They are a thin wrapper around <code>mlr</code>’s <code>impute()</code> and <code>reimpute()</code> functions. The specialised imputation CPOs each implement exactly one imputation method and are closer to the behaviour of typical CPOs.</p>
 <div id="general-imputation-wrappers" class="section level4">
 <h4>General Imputation Wrappers</h4>
@@ -692,8 +1675,8 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="co">#&gt; ... (#rows: 10, #cols: 1)</span></code></pre></div>
 </div>
 </div>
-<div id="feature-filtering" class="section level3">
-<h3>Feature Filtering</h3>
+<div id="feature-filtering" class="section level2">
+<h2>Feature Filtering</h2>
 <p>There is one <em>general</em> and many <em>specialised</em> feature filtering CPOs. The general filtering CPO, <code>cpoFilterFeatures</code>, is a thin wrapper around <code>filterFeatures</code> and takes the filtering method as its argument. The specialised CPOs each call a specific filtering method.</p>
 <p>Most arguments of <code>filterFeatures</code> are reflected in the CPOs. The exceptions being: 1. for <code>filterFeatures</code>, the filter method arguments are given in a list <code>filter.args</code>, instead of in <code>...</code> 2. The argument <code>fval</code> was dropped for the specialised filter CPOs. 3. The argument <code>mandatory.feat</code> was dropped. Use <code>affect.*</code> parameters to prevent features from being filtered.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">getTaskData</span>(iris.task %&gt;&gt;%<span class="st"> </span><span class="kw">cpoFilterFeatures</span>(<span class="dt">method =</span> <span class="st">&quot;variance&quot;</span>, <span class="dt">perc =</span> <span class="fl">0.5</span>)))
@@ -723,7 +1706,6 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="co">#&gt; 25 cpoFilterInformationGain</span>
 <span class="co">#&gt; 33         cpoFilterKruskal</span>
 <span class="co">#&gt; ... (#rows: 19, #cols: 1)</span></code></pre></div>
-</div>
 </div>
 
 

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-21" />
+<meta name="date" content="2017-12-25" />
 
 <title>CPOs Built Into mlrCPO (No Output)</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">CPOs Built Into mlrCPO (No Output)</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-21</em></h4>
+<h4 class="date"><em>2017-12-25</em></h4>
 
 
 
@@ -83,10 +83,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="a_4_custom_CPOs.html">Building Custom CPOs</a> (<a href="z_4_custom_CPOs_terse.html">compact version</a>)</li>
 </ol>
 </div>
-<div id="special-cpos" class="section level2">
-<h2>Special CPOs</h2>
-<div id="nullcpo" class="section level3">
-<h3>NULLCPO</h3>
+<div id="listing-cpos" class="section level2">
+<h2>Listing CPOs</h2>
+<p>Builtin CPOs can be listed with <code>listCPO()</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">listCPO</span>()[, <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;category&quot;</span>, <span class="st">&quot;subcategory&quot;</span>)]</code></pre></div>
+</div>
+<div id="nullcpo" class="section level2">
+<h2>NULLCPO</h2>
 <p><code>NULLCPO</code> is the neutral element of <code>%&gt;&gt;%</code>. It is returned by some functions when no other CPO or Retrafo is present.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NULLCPO
 <span class="kw">is.nullcpo</span>(NULLCPO)
@@ -95,8 +98,10 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="kw">print</span>(<span class="kw">as.list</span>(NULLCPO))
 <span class="kw">pipeCPO</span>(<span class="kw">list</span>())</code></pre></div>
 </div>
-<div id="cpo-wrapper" class="section level3">
-<h3>CPO Wrapper</h3>
+<div id="meta-cpo" class="section level2">
+<h2>Meta-CPO</h2>
+<div id="cpowrap" class="section level3">
+<h3>cpoWrap</h3>
 <p>A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument’s parameters to the outside.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpa =<span class="st"> </span><span class="kw">cpoWrap</span>()
 <span class="kw">print</span>(cpa, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
@@ -106,8 +111,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="co"># that can be set to any CPO.</span>
 <span class="kw">getParamSet</span>(<span class="kw">cpoWrap</span>() %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>))</code></pre></div>
 </div>
-<div id="cpo-multiplexer" class="section level3">
-<h3>CPO Multiplexer</h3>
+<div id="cpomultiplex" class="section level3">
+<h3>cpoMultiplex</h3>
 <p>Combine many CPOs into one, with an extra <code>selected.cpo</code> parameter that chooses between them.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpm =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(cpoScale, cpoPca))
 <span class="kw">print</span>(cpm, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
@@ -116,8 +121,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;scale&quot;</span>, <span class="dt">scale.center =</span> <span class="ot">FALSE</span>))
 <span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>))</code></pre></div>
 </div>
-<div id="case-cpo" class="section level3">
-<h3>Case-CPO</h3>
+<div id="cpocase" class="section level3">
+<h3>cpoCase</h3>
 <p>A CPO that builds data-dependent CPO networks. This is a generalized CPO-Multiplexer that takes a function which decides (from the data, and from user-specified hyperparameters) what CPO operation to perform. Besides optional arguments, the used CPO’s Hyperparameters are exported as well. This is a generalization of <code>cpoMultiplex</code>; however, <code>requires</code> of the involved parameters are not adjusted, since this is impossible in principle.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s.and.p =<span class="st"> </span><span class="kw">cpoCase</span>(<span class="kw">pSS</span>(logical.param:<span class="st"> </span>logical),
   <span class="dt">export.cpos =</span> <span class="kw">list</span>(<span class="kw">cpoScale</span>(), 
@@ -132,8 +137,8 @@ NULLCPO %&gt;&gt;%<span class="st"> </span>NULLCPO
 <span class="kw">print</span>(s.and.p, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p>The resulting CPO <code>s.and.p</code> performs scaling and PCA, with the order depending on the parameter <code>logical.param</code> and on whether the mean of the data’s first column exceeds 10. If either of those is true, the data will be first scaled, then PCA’d, otherwise the order is reversed. The all CPOs listed in <code>.export</code> are passed to the <code>cpo.build</code>.</p>
 </div>
-<div id="cbind-cpo" class="section level3">
-<h3>CBind CPO</h3>
+<div id="cpocbind" class="section level3">
+<h3>cpoCbind</h3>
 <p><code>cbind</code> other CPOs as operation. The <code>cbinder</code> makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">scale =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;scale&quot;</span>)
 scale.pca =<span class="st"> </span>scale %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
@@ -150,14 +155,22 @@ cbinder.select
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># alternatively, we apply the cbinder only to numerical data</span>
 <span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">cpoWrap</span>(cbinder, <span class="dt">affect.type =</span> <span class="st">&quot;numeric&quot;</span>))</code></pre></div>
 </div>
+<div id="cpotransformparams" class="section level3">
+<h3>cpoTransformParams</h3>
+<p><code>cpoTransformParams</code> wraps another <code>CPO</code> and sets some of its hyperparameters to the value of expressions depending on other hyperparameter values. This can be used to make a transformation of parameters similar to the <code>trafo</code> parameter of a <code>Param</code> in <code>ParamHelpers</code>, but it can also be used to set multiple parameters at the same time, depending on a single new parameter.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo =<span class="st"> </span><span class="kw">cpoTransformParams</span>(<span class="kw">cpoPca</span>(), <span class="kw">alist</span>(<span class="dt">pca.scale =</span> pca.center))
+retr =<span class="st"> </span>pid.task %&gt;|%<span class="st"> </span><span class="kw">setHyperPars</span>(cpo, <span class="dt">pca.center =</span> <span class="ot">FALSE</span>)
+<span class="kw">getCPOTrainedState</span>(retr)$control  <span class="co"># both 'center' and 'scale' are FALSE</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mplx =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(<span class="kw">cpoIca</span>(<span class="dt">export =</span> <span class="st">&quot;n.comp&quot;</span>), <span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="st">&quot;rank&quot;</span>)))
+!mplx
+mtx =<span class="st"> </span><span class="kw">cpoTransformParams</span>(mplx, <span class="kw">alist</span>(<span class="dt">ica.n.comp =</span> comp, <span class="dt">pca.rank =</span> comp),
+  <span class="kw">pSS</span>(comp:<span class="st"> </span>integer[<span class="dv">1</span>, ]), <span class="kw">list</span>(<span class="dt">comp =</span> <span class="dv">1</span>))
+<span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(mtx, <span class="dt">selected.cpo =</span> <span class="st">&quot;ica&quot;</span>, <span class="dt">comp =</span> <span class="dv">2</span>))
+<span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(mtx, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>, <span class="dt">comp =</span> <span class="dv">3</span>))</code></pre></div>
 </div>
-<div id="builtin-cpos" class="section level2">
-<h2>Builtin CPOs</h2>
-<div id="listing-cpos" class="section level3">
-<h3>Listing CPOs</h3>
-<p>Builtin CPOs can be listed with <code>listCPO()</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">listCPO</span>()$name</code></pre></div>
 </div>
+<div id="data-manipulation" class="section level2">
+<h2>Data Manipulation</h2>
 <div id="cposcale" class="section level3">
 <h3>cpoScale</h3>
 <p>Implements the <code>base::scale</code> function.</p>
@@ -249,8 +262,9 @@ iris2$Species =<span class="st"> </span><span class="kw">factor</span>(<span cla
 <p>Normalize values row-wise</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">cpoSpatialSign</span>())</code></pre></div>
 </div>
-<div id="imputation" class="section level3">
-<h3>Imputation</h3>
+</div>
+<div id="imputation" class="section level2">
+<h2>Imputation</h2>
 <p>There are two <em>general</em> and many <em>specialised</em> imputation CPOs. The general imputation CPOs have parameters that let them use different imputation methods on different columns. They are a thin wrapper around <code>mlr</code>’s <code>impute()</code> and <code>reimpute()</code> functions. The specialised imputation CPOs each implement exactly one imputation method and are closer to the behaviour of typical CPOs.</p>
 <div id="general-imputation-wrappers" class="section level4">
 <h4>General Imputation Wrappers</h4>
@@ -275,8 +289,8 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
           <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;description&quot;</span>)]</code></pre></div>
 </div>
 </div>
-<div id="feature-filtering" class="section level3">
-<h3>Feature Filtering</h3>
+<div id="feature-filtering" class="section level2">
+<h2>Feature Filtering</h2>
 <p>There is one <em>general</em> and many <em>specialised</em> feature filtering CPOs. The general filtering CPO, <code>cpoFilterFeatures</code>, is a thin wrapper around <code>filterFeatures</code> and takes the filtering method as its argument. The specialised CPOs each call a specific filtering method.</p>
 <p>Most arguments of <code>filterFeatures</code> are reflected in the CPOs. The exceptions being: 1. for <code>filterFeatures</code>, the filter method arguments are given in a list <code>filter.args</code>, instead of in <code>...</code> 2. The argument <code>fval</code> was dropped for the specialised filter CPOs. 3. The argument <code>mandatory.feat</code> was dropped. Use <code>affect.*</code> parameters to prevent features from being filtered.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">getTaskData</span>(iris.task %&gt;&gt;%<span class="st"> </span><span class="kw">cpoFilterFeatures</span>(<span class="dt">method =</span> <span class="st">&quot;variance&quot;</span>, <span class="dt">perc =</span> <span class="fl">0.5</span>)))
@@ -284,7 +298,6 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="co"># The specialised filter CPOs are:</span>
 <span class="kw">listCPO</span>()[<span class="kw">listCPO</span>()$category ==<span class="st"> &quot;featurefilter&quot;</span> &amp;<span class="st"> </span><span class="kw">listCPO</span>()$subcategory ==<span class="st"> &quot;specialised&quot;</span>,
           <span class="kw">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;description&quot;</span>)]</code></pre></div>
-</div>
 </div>
 
 
