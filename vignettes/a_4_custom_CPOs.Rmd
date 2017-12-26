@@ -325,4 +325,84 @@ getCPOTrainedState(retrafo(trafd))$pcr$x
 
 ## Target Operation CPOs
 
-TODO
+TOCPOs are more complicated than FOCPOs, since they potentially need to operate on data at three different points: During initial training, during the re-transformation for new prediction data, and during the inversion of predictions made by a model trained on transformed data. Similarly to `makeCPO()`, `makeCPOTargetOp()` splits these operations up into functions that create "`control`" objects, and functions that do the actual transformation. `makeCPOExtendedTargetOp()`, on the other hand, gives the user more flexibility at the price of the user having to make sure that transformation and retransformation perform the same operation--similarly to `makeCPOExtendedTrafo()` for FOCPOs.
+
+### Task Type and Conversion
+
+In contrast to FOCPOs, TOCPOs can only operate on one type of `Task`. Therefore, the `properties.target` parameter of `makeCPO*TargetOp()` must contain exactly one `Task` type (`"cluster"`, `"classif"`, `"regr"`, `"surv"`, `"multilabel"`) and possibly some more task properties (currently only `"oneclass"`, `"twoclass"`, `"multiclass"` if the `Task` type is `"classif"`).
+
+It is possible to write TOCPOs that perform *conversion* of `Task` types. For that, the `task.type.out` parameter must be set to the `Task` type that the `CPO` converts the data to. If conversion happens, the transformation functions need to return target data fit for the `task.type.out` `Task` type.
+
+`properties.adding` and `properties.needed` should *not* be any `Task` type, even when conversion happens. Only if one of the task types has *additional* properties--currently only the `"oneclass"`, `"twoclass"`, `"multiclass"` properties of classification `Task`s--should these additional properties be listed in `properties.adding` or `properties.needed`.
+
+### `predict.type`
+
+`mlr` makes it possible for `Learner`s to make different kinds of prediction. Usually they can predict a "response", making their best effort to predict the true value of a task target. Many `Learner` types can predict a probability when their `predict.type` is set to `"prob"`, returning a `data.frame` of their estimated probability distribution over possible responses. For regression `Learner`s, `predict.type` can be `"se"` for the `Learner` to predict its estimated standard error of their response prediction.
+
+When TOCPOs invert these predictions, they may
+
+- declare which kind of `predict.type` predictions they can perform
+- declare what `predict.type` they require from the underlying `Learner` to make this `predict.type` prediction.
+
+This is done using the `predict.type.map` parameter of `makeCPO*TargetOp()`. It is a named `list` or named `character` vector with the names indicating the supported `predict.type`s, and the values indicating the required underlying predictions. For example, if a TOCPO can perform `"response"` and `"se"` prediction, and to predict `"response"` the underlying `Learner` must also perform `"response"` prediction, but for `"se"` prediction it must perform `"prob"` prediction, the `predict.type.map` would have the value
+```{r, eval = FALSE}
+c(response = "response", se = "prob")
+```
+
+### `makeCPOTargetOp()`
+
+`makeCPOTargetOp()` has a `cpo.train` and `cpo.retrafo` function parameter that work similarly to `makeCPO()`. In contrast to `makeCPO()`, however, `cpo.retrafo` must return the target data instead of the feature data. The `data` and `target` parameters of `cpo.retrafo` get the same data as they get in a FOCPO created with `makeCPO()`, with the exception that if `dataformat` is `"task"` or `"df.all"`, the `target` parameter will receive the *whole* input data in form of a `Task` or `data.frame` (while the `data` argument, as in a FOCPO, will receive only the feature `data.frame`).
+
+Inversion of predictions is performed using the functions `cpo.train.invert` and `cpo.invert`. `cpo.train.invert` takes a `data` and a `control` argument, and any arguments declared in the `par.set`. It is called whenever new data is fed into the `CPO` or its retrafo `CPOTrained`, and creates a `CPOTrained` state that is used to invert the prediction done on this new data. The `control` argument takes the value returned by the `cpo.train` function upon initial training, and the `data` argument is the new data for which to prepare the `CPOTrained` inverter. It has the form dicated by `dataformat`, with the exception that `"task"` and `"df.all"` `dataformat` are handled as `"df.feature"`; this is necessary since the new data could be a `data.frame` of data with unknown target.
+
+```{r}
+xmpCascade = makeCPOTargetOp("xmp.cascade",  # nolint
+  pSS(lrn: untyped),
+  dataformat = "task",
+  properties.target = c("classif", "twoclass"),
+  predict.type.map = c(response = "response", prob = "prob"),
+  cpo.train = function(data, target, lrn) {
+    lrn = setPredictType(lrn, "prob")
+    train(lrn, data)
+  },
+  cpo.retrafo = function(data, target, control, lrn) {
+    prediction = predict(control, target)
+    tname = getTaskTargetNames(target)
+    tdata = getTaskData(target)
+    tdata[[tname]] = factor(prediction$data$response == prediction$data$truth)
+    makeClassifTask(getTaskId(target), tdata, tname, positive = "TRUE", fixup.data = "no", check.data = FALSE)
+  },
+  cpo.train.invert = function(data, control, lrn) {
+    predict(control, newdata = data)$data
+  },
+  cpo.invert = function(target, control.invert, predict.type, lrn) {
+    if (predict.type == "prob") {
+      outmat = as.matrix(control.invert[grep("^prob\\.", names(control.invert))])
+      revmat = outmat[, c(2, 1)]
+      outmat * target[, "prob.true", drop = TRUE] + revmat * target[, "prob.false", drop = TRUE]
+    } else {
+      stopifnot(levels(target) == c("FALSE", "TRUE"))
+      numeric.prediction = as.numeric(control.invert$response)
+      numeric.res = ifelse(target == "TRUE", numeric.prediction, 3 - numeric.prediction)
+      factor(levels(control.invert$response)[numeric.res], levels(control.invert$response))
+    }
+  })
+
+cpo = xmpCascade(makeLearner("classif.logreg"))
+```
+
+```{r}
+split = makeResampleInstance(hout, pid.task)
+train.task = subsetTask(pid.task, split$train.inds[[1]])
+test.task = subsetTask(pid.task, split$predict.inds[[1]])
+```
+
+```{r}
+trafo = train.task %>>% cpo
+head(getTaskData(trafo))
+```
+
+```{r}
+model = train(makeLearner("classif.logreg", predict.type = "prob"), train.task)
+head(predict(model, train.task)$data[c("truth", "response")])
+```
