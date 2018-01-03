@@ -23,7 +23,7 @@ Builtin CPOs can be listed with `listCPO()`.
 listCPO()[, c("name", "category", "subcategory")]
 ```
 
-```{r, echo = FALSE, asis = TRUE}
+```{r, echo = FALSE, results = 'asis'}
 tab = listCPO()[, c("name", "category", "subcategory")]
 owncontent = readLines(path)
 headlines = grep("^#+ +", owncontent, value = TRUE)

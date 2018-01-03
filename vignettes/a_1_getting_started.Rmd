@@ -12,8 +12,8 @@ vignette: >
 ```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```{r, eval = TRUE, echo = FALSE, results = 'asis'}
+printToc(4)
 ```
 
 ## About the Vignettes

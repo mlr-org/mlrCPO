@@ -12,6 +12,10 @@ vignette: >
 ```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
 ```
 
+```{r, eval = TRUE, echo = FALSE, results = 'asis'}
+printToc(4)
+```
+
 ## Introduction
 
 This vignette is supposed to be a short reference of the primitives and tools supplied by the `mlrCPO` package.
@@ -257,7 +261,7 @@ applyCPO(retrafo(transformed), head(iris))
 predict(retrafo(transformed), head(iris))
 ```
 
-#### Retrafos are automatically chained when applying CPOs (!!!)
+#### Retrafos are automatically chained when applying CPOs (!)
 When executing `data %>>% CPO`, the result has an associated `CPORetrafo` and `CPOInverter` object. When applying another `CPO`, the `CPORetrafo` and `CPOInverter` will be chained automatically. This is to make `(data %>>% CPO1) %>>% CPO2` work the same as `data %>>% (CPO1 %>>% CPO2)`.
 
 ```{r}

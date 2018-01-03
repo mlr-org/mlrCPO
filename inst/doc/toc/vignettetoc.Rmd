@@ -29,6 +29,7 @@ knitr::knit_hooks$set(document = function(x) {
 #############################
 base = dirname(path)
 file = basename(path)
+fullfile = file
 
 allfiles = list.files(path = base, pattern = ".*\\.Rmd$")
 stopifnot(file %in% allfiles)
@@ -81,7 +82,73 @@ for (idx in seq_along(fileinfolist)) {
     line = linkify(content$main, content$main$title)
   }
   cat(sprintf("%s. %s\n", idx, line))
+  if (content$main$iscurrent || content$compact$iscurrent) {
+    fullfile = content$main$url
+  }
 }
+
+fullpath = file.path(base, fullfile)
+
+#############################
+# Optional Document TOC     #
+#############################
+
+# print everything up to level `print.level`.
+# level is the number of '#' prefixes. The lowest level is usually 2.
+printToc = function(print.level = 3) {
+  owncontent = readLines(fullpath)
+  tripletic = grepl("^```", owncontent)
+  owncontent = owncontent[cumsum(tripletic) %% 2 == 0]  # exclude ```-delimited code
+  headlines = grep("^#+ +", owncontent, value = TRUE)
+  headlevels = nchar(gsub(" .*", "", headlines))
+  headlines = gsub("^[#]+ +", "", headlines)
+  
+  links = gsub("[^-a-z. ]", "", tolower(headlines))
+  links = gsub(" +", "-", links)
+  links = gsub("-$", "", links)
+
+  if (!sum(headlevels <= print.level)) {
+    return(invisible(NULL))
+  }
+  
+  cat("<h", headlevels[1], ">Table of Contents</h", headlevels[1], ">\n<div id=\"TOC\">\n", sep = "")
+
+  lastlevel = headlevels[1] - 1
+  for (idx in seq_along(headlines)) {
+    line = headlines[idx]
+    level = headlevels[idx]
+    link = links[idx]
+    if (level > print.level) {
+      next
+    }
+    if (level < headlevels[1]) {
+      stop("First headline level must be the lowest one used, but '", line, "' is lower.")
+    }
+    lvldiff = level - lastlevel
+    if (lvldiff > 1) {
+      stop("Cannot jump headline levels. Error on: ", line)
+    }
+    if (lvldiff > 0) {
+      # higher level -> open a <ul>
+      cat("<ul>")
+    } else {
+      cat("</li>\n")
+    }
+    if (lvldiff < 0) {
+      # lower level -> close a few <ul>
+      for (l in seq_len(-lvldiff)) {
+        cat("</ul></li>")
+      }
+    }
+    cat("<li><a href=\"#", link, "\">", line, "</a>", sep = "")
+    lastlevel = level
+  }
+  # if the last level is greater than the first level, close a few <ul>
+  lvldiff = lastlevel - headlevels[1]
+
+  cat("</li></ul>\n</div>\n")
+}
+
 
 
 #############################
