@@ -2,9 +2,7 @@
 title: "Building Custom CPOs"
 author: "Martin Binder"
 date: "`r Sys.Date()`"
-output:
-  rmarkdown::html_vignette:
-    toc: true
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{4. Custom CPOs}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,6 +10,10 @@ vignette: >
 ---
 
 ```{r, eval = TRUE, child = 'toc/vignettetoc.Rmd'}
+```
+
+```{r, eval = TRUE, echo = FALSE, results = 'asis'}
+printToc(4)
 ```
 
 ## Intro
@@ -183,7 +185,7 @@ It is also possible to inspect the `CPOTrained` object to see that the `control`
 getCPOTrainedState(retrafo(trafd))
 ```
 
-#### Functional CPO
+#### Functional FOCPO
 
 Instead of returning the `control` object, `cpo.train` may also return the `cpo.retrafo` *function*. This may be more succinct to write if there are many little pieces of information from the `cpo.train` run that the `cpo.retrafo` function should have access to.
 
@@ -225,7 +227,7 @@ The `CPOTrained` state for a functional `CPO` is the *environment* of the retraf
 getCPOTrainedState(retrafo(trafd))
 ```
 
-#### Stateless CPO
+#### Stateless FOCPO
 
 "Stateless" `CPO`s are `CPO`s that perform the same action during transformation of training and prediction data, independent from information during training. An example would be a `CPO` that converts all its columns to `numeric` columns. When a FOCPO does not need a state, the `cpo.train` parameter of `makeCPO()` can be set to `NULL`. The `cpo.retrafo` function then has no `control` paramter and instead only a `data` and any `par.set` parameter. The `as.numeric`-`CPO` could be written as the following:
 
@@ -289,7 +291,7 @@ The rotation matrix can be inspected using `getCPOTrainedState`.
 getCPOTrainedState(retrafo(trafd))
 ```
 
-#### Functional CPO
+#### Functional FOCPO
 
 As with `makeCPO()`, `makeCPOExtendedTrafo()` makes it possible to define functional `CPO`s. Instead of *returning* a `cpo.retrafo` function, the `cpo.retrafo` function needs to be *defined* as a variable, instead of a "`control`" variable. Like in `makeCPO()`, the `cpo.retrafo` parameter of `makeCPOExtendedTrafo()` must then be `NULL`. The PCA example above could thus also be written as
 ```{r}
