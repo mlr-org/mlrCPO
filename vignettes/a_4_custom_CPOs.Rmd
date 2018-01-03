@@ -2,7 +2,9 @@
 title: "Building Custom CPOs"
 author: "Martin Binder"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{4. Custom CPOs}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,7 +20,7 @@ The [`CPO`s built into `mlrCPO`](a_3_all_CPOs.html) can be used for many differe
 
 For this purpose, `mlrCPO` offers a very powerful interface for the creation of new `CPO`s. The functions and methods described here are also the methods used internally to create `mlrCPO`'s builtin `CPO`s. Therefore, to learn the art of defining `CPO`s, it is also possible to look at the [`mlrCPO` source tree](https://github.com/mlr-org/mlrCPO/tree/master/R) in files starting with "`CPO_`" for example `CPO` definitions.
 
-There are three types of `CPO`: "Feature Operation `CPO`s" ([**FOCPO**s](#feature-operation-cpos)) which are only allowed to change feature columns of incoming data, and which are the most common `CPO`s; "Target Operation `CPO`s" (**TOCPO**s) that change only target columns, and "Retrafoless `CPO`s" ([**ROCPO**s](#retrafoless-cpos)) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest `CPO`s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all `CPO` defining functions will be described first, followed by the different `CPO` types in order of growing complexity.
+There are three types of `CPO`: "Feature Operation `CPO`s" ([**FOCPO**s](#feature-operation-cpos)) which are only allowed to change feature columns of incoming data, and which are the most common `CPO`s; "Target Operation `CPO`s" ([**TOCPO**s](#target-operation-cpos)) that change only target columns, and "Retrafoless `CPO`s" ([**ROCPO**s](#retrafoless-cpos)) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest `CPO`s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all `CPO` defining functions will be described first, followed by the different `CPO` types in order of growing complexity.
 
 ## Making a CPO
 
@@ -370,7 +372,8 @@ xmpMetaLearn = makeCPOTargetOp("xmp.meta",  # nolint
     tname = getTaskTargetNames(target)
     tdata = getTaskData(target)
     tdata[[tname]] = factor(prediction$data$response == prediction$data$truth)
-    makeClassifTask(getTaskId(target), tdata, tname, positive = "TRUE", fixup.data = "no", check.data = FALSE)
+    makeClassifTask(getTaskId(target), tdata, tname, positive = "TRUE",
+      fixup.data = "no", check.data = FALSE)
   },
   cpo.train.invert = function(data, control, lrn) {
     cat("*** cpo.train.invert ***\n")
@@ -381,12 +384,16 @@ xmpMetaLearn = makeCPOTargetOp("xmp.meta",  # nolint
     if (predict.type == "prob") {
       outmat = as.matrix(control.invert[grep("^prob\\.", names(control.invert))])
       revmat = outmat[, c(2, 1)]
-      outmat * target[, "prob.TRUE", drop = TRUE] + revmat * target[, "prob.FALSE", drop = TRUE]
+      outmat * target[, "prob.TRUE", drop = TRUE] +
+        revmat * target[, "prob.FALSE", drop = TRUE]
     } else {
       stopifnot(levels(target) == c("FALSE", "TRUE"))
       numeric.prediction = as.numeric(control.invert$response)
-      numeric.res = ifelse(target == "TRUE", numeric.prediction, 3 - numeric.prediction)
-      factor(levels(control.invert$response)[numeric.res], levels(control.invert$response))
+      numeric.res = ifelse(target == "TRUE",
+        numeric.prediction,
+        3 - numeric.prediction)
+      factor(levels(control.invert$response)[numeric.res],
+        levels(control.invert$response))
     }
   })
 
@@ -405,13 +412,13 @@ test.task = subsetTask(pid.task, split$predict.inds[[1]])
 It can be instructive to watch the `cat()` output of this `CPO` to see which function gets called at what point in the lifecycle. The `cpo.train` function is called first to create the `control` object. The `Task` is transformed in `cpo.retrafo`. Also `cpo.train.invert` is called, since an `inverter` attribute is attached to the returned trafo.
 
 ```{r}
-trafo = train.task %>>% cpo
-attributes(trafo)
+trafd = train.task %>>% cpo
+attributes(trafd)
 ```
 
 The values of the target column ("diabetes") of the result can be compared with the prediction of a `"classif.logreg"` `Learner` on the same data:
 ```{r}
-head(getTaskData(trafo))
+head(getTaskData(trafd))
 ```
 ```{r}
 model = train(makeLearner("classif.logreg", predict.type = "prob"), train.task)
@@ -421,20 +428,20 @@ head(predict(model, train.task)$data[c("truth", "response")])
 When new data is transformed using the retrafo `CPOTrained`, another `inverter` attribute is created, and hence `cpo.train.invert` is called again. Since the target column of the `test.task` in the following example is also transformed, the `cpo.retrafo` function is called.
 
 ```{r}
-retr = test.task %>>% retrafo(trafo)
+retr = test.task %>>% retrafo(trafd)
 attributes(retr)
 ```
 
 In a real world application, it would be possible for the new incoming data to have unknown target values. In that case, no target column would need to be changed, and `cpo.retrafo` is *not* called. The resulting data, `retr.df`, equals the input data with a `retrafo` attribute added.
 ```{r}
-retr.df = getTaskData(test.task, target.extra = TRUE)$data %>>% retrafo(trafo)
+retr.df = getTaskData(test.task, target.extra = TRUE)$data %>>% retrafo(trafd)
 names(attributes(retr.df))
 ```
 
 The invert functionality can be demonstrated by making a prediction with an external model.
 
 ```{r}
-ext.model = train("classif.svm", trafo)
+ext.model = train("classif.svm", trafd)
 ext.pred = predict(ext.model, retr)
 newpred = invert(inverter(retr), ext.pred)
 performance(newpred)
@@ -451,12 +458,270 @@ lrnpred = predict(cpo.model, test.task)
 performance(lrnpred)
 ```
 
+See [Postscriptum](#postscriptum) for an evaluation of `xmpMeatLearn`'s performance.
 
-## Post Scriptum
+#### Functional TOCPO
 
-As an aside, the `Learner` enhanced by `xmpMetaLearn` seems to perform marginally better than `"classif.logreg"` on its own for large enough data sets (here resampled with output suppressed).
+Just like for FOCPOs, it is possible to create functional TOCPOs. In the case of `makeCPOTargetOp()`, it is possible to have `cpo.train` create `cpo.retrafo` and `cpo.train.invert`, instead of giving them to `makeCPOTargetOp()` directly. Just as in `makeCPO`, these functions can then access the state of their environment in the `cpo.train` call and hence have neither a `control` argument, nor any arguments for the `par.set` parameters. Since `cpo.train` must in this case create two functions, these functions only need to be defined within `cpo.train`, the return value is ignored.
+
+Note that `cpo.retrafo` and `cpo.train.invert` must either be both functional or both object based.
+
+It is furthermore possible to return a `cpo.invert` function by `cpo.train.invert`, instead of giving it to `makeCPOTargetOp()`. As above, the returned function should not have any parameters for the ones given in `par.set`, and should not have a `control.invert`. `cpo.invert` can be functional or not, *independently* of whether `cpo.retrafo` and `cpo.train.invert` are functional.
+
+As in `makeCPO()`, all functions that are given functionally must be explicitly set to `NULL` in the `makeCPOTargetOp()` call.
+
+The `xmpMetaLearn` example above with functional `cpo.retrafo`, `cpo.train.invert` and `cpo.invert` would look like the following:
+
+```{r}
+
+xmpMetaLearn = makeCPOTargetOp("xmp.meta.fnc",  # nolint
+  pSS(lrn: untyped),
+  dataformat = "task",
+  properties.target = c("classif", "twoclass"),
+  predict.type.map = c(response = "response", prob = "prob"),
+  # set the cpo.* parameters not needed to NULL:
+  cpo.retrafo = NULL, cpo.train.invert = NULL, cpo.invert = NULL,
+  cpo.train = function(data, target, lrn) {
+    cat("*** cpo.train ***\n")
+    lrn = setPredictType(lrn, "prob")
+    model = train(lrn, data)
+    cpo.retrafo = function(data, target) {
+      cat("*** cpo.retrafo ***\n")
+      prediction = predict(model, target)
+      tname = getTaskTargetNames(target)
+      tdata = getTaskData(target)
+      tdata[[tname]] = factor(prediction$data$response == prediction$data$truth)
+      makeClassifTask(getTaskId(target), tdata, tname, positive = "TRUE",
+        fixup.data = "no", check.data = FALSE)
+    }
+    cpo.train.invert = function(data) {
+      cat("*** cpo.train.invert ***\n")
+      prediction = predict(model, newdata = data)$data
+      function(target, predict.type) {  # this is returned as cpo.invert
+        cat("*** cpo.invert ***\n")
+        if (predict.type == "prob") {
+          outmat = as.matrix(prediction[grep("^prob\\.", names(prediction))])
+          revmat = outmat[, c(2, 1)]
+          outmat * target[, "prob.TRUE", drop = TRUE] +
+            revmat * target[, "prob.FALSE", drop = TRUE]
+        } else {
+          stopifnot(levels(target) == c("FALSE", "TRUE"))
+          numeric.prediction = as.numeric(prediction$response)
+          numeric.res = ifelse(target == "TRUE",
+            numeric.prediction,
+            3 - numeric.prediction)
+          factor(levels(prediction$response)[numeric.res],
+            levels(prediction$response))
+        }        
+      }
+    }
+  })
+```
+
+#### Constant Invert TOCPOs
+
+The example given above is a relatively elaborate TOCPO which needs information from the prediction data to perform inversion. Many simpler applications of target transformation do not need this information if their inversion step is independent of this data. It is possible to declare such a TOCPO using the `constant.invert` flag in `makeCPOTargetOp()`. If `constant.invert` is set to `TRUE`, the `cpo.train.invert` argument must be explicitly set to `NULL`. `cpo.train` still needs to have a `control.invert` argument; it is set to the value returned by `cpo.train`.
+
+The following example is a TOCPO for regression `Task`s that centers target values during training. After prediction, the data is inverted by adding the original mean of the training data to the predictions. This inversion operation does not need any information about the prediction data going in, so the TOCPO can be declared `constant.invert`.
+
+The `cpo.retrafo` function is also called when new prediction data *with* a target column is transformed (as during model validation). In that case, the mean of the *training data* column is subtracted. Therefore the mean generated by `cpo.train` needs to be used in `cpo.retrafo` (i.e. the `control` value), not the mean of the `target` data present.
+
+```{r}
+xmpRegCenter = makeCPOTargetOp("xmp.center",  # nolint
+  constant.invert = TRUE,
+  cpo.train.invert = NULL,  # necessary for constant.invert = TRUE
+  dataformat = "df.feature",
+  properties.target = "regr",
+  cpo.train = function(data, target) {
+    # control value is just the mean of the target column
+    mean(target[[1]])
+  },
+  cpo.retrafo = function(data, target, control) {
+    # subtract mean from target column in retrafo
+    target[[1]] = target[[1]] - control
+    target
+  },
+  cpo.invert = function(target, predict.type, control.invert) {
+    target + control.invert
+  })
+
+cpo = xmpRegCenter()
+```
+
+To illustrate this `CPO`, the following data is used:
+```{r}
+train.task = subsetTask(bh.task, 150:155)
+getTaskTargets(train.task)
+```
+```{r}
+predict.task = subsetTask(bh.task, 156:160)
+getTaskTargets(predict.task)
+```
+
+The target column of the task after transformation has a mean of 0.
+```{r}
+trafd = train.task %>>% cpo
+getTaskTargets(trafd)
+```
+
+When applying the retrafo `CPOTrained` to a new task, the mean of the training task target column is subtracted.
+```{r}
+getTaskTargets(predict.task)
+```
+```{r}
+retr = retrafo(trafd)
+predict.traf = predict.task %>>% retr
+getTaskTargets(predict.traf)
+```
+
+When inverting a regression prediction, the mean of the training data target column is added to the prediction.
+```{r, warnings = FALSE}
+model = train("regr.lm", trafd)
+pred = predict(model, predict.traf)
+pred
+```
+```{r}
+invert(inverter(predict.traf), pred)
+```
+
+Since `"regr.lm"` is translation invariant and deterministic, the prediction equals the prediction made without centering the target:
+```{r, warnings = FALSE}
+model = train("regr.lm", train.task)
+predict(model, predict.task)
+```
+
+A special property of `constant.invert` TOCPOs is that their retrafo `CPOTrained` can also be used for inversion. This is the case since the tight coupling of inversion operation to the data used to create the prediction is not necessary when the inversion is actually independent of this data. This is indicated by `getCPOTrainedCapability()` returning a vector with the `"invert"` capability set to `1`. However, when using the retrafo `CPOTrained` for inversion, the "truth" column is absent from the inverted prediction.
+
+```{r}
+getCPOTrainedCapability(retr)
+```
+```{r}
+invert(retr, pred)
+```
+
+#### Functional Constant Invert TOCPO
+
+Just as above, `constant.invert` TOCPOs can be *functional*. For this, the `cpo.train` function must declare both a `cpo.retrafo` *and* a `cpo.invert` variable which perform the requested operations. These functions have no `control` or `control.invert` parameter, and no parameters pertaining to `par.set`.
+
+#### Stateless TOCPO
+
+Very simple target column operations that operate on a row-by-row basis without needing information e.g. from training data, can be declared as "stateless". Similarly to `makeCPO()`, when `cpo.train` parameter is set to `NULL`, no control object is created for a `CPOTrained`. Furthermore, a stateless TOCPO must always have `constant.invert` set as well. Therefore, only `cpo.retrafo` and `cpo.invert` are given as functions, both without a `control` or `control.invert` argument. One example is a TOCPO that log-transforms the target column of a regression task, and exponentiates the predictions made from this during inversion. (A better inversion would take the `"se"` prediction into account, see `cpoLogTrafoRegr`.)
+
+```{r}
+xmpLogRegr = makeCPOTargetOp("log.regr",  # nolint
+  constant.invert = TRUE,
+  properties.target = "regr",
+  cpo.train = NULL, cpo.train.invert = NULL,
+  cpo.retrafo = function(data, target) {
+    target[[1]] = log(target[[1]])
+    target
+  },
+  cpo.invert = function(target, predict.type) {
+    exp(target)
+  })
+
+cpo = xmpLogRegr()
+```
+
+The `CPO` takes the logarithm of the task target column both during training and when using the retrafo `CPOTrained`.
+```{r}
+trafd = train.task %>>% cpo
+getTaskTargets(trafd)
+```
+
+```{r}
+retr = retrafo(trafd)
+predict.traf = predict.task %>>% retr
+getTaskTargets(predict.traf)
+```
+
+```{r, warnings = FALSE}
+model = train("regr.lm", trafd)
+pred = predict(model, predict.traf)
+pred
+```
+Note that both the inverter *and* the retrafo `CPOTrained` can be used for inversion, since a stateless TOCPO also has `constant.invert` set. As above, when using the retrafo `CPOTrained`, the truth column is absent from the result.
+```{r}
+invert(inverter(predict.traf), pred)
+```
+```{r}
+invert(retr, pred)
+```
+
+### `makeCPOExtendedTargetOp()`
+
+Just as for FOCPOs, it is possible to declare a TOCPO while having more direct control over what happens at which stage of training, re-transformation, or inversion. In a TOCPO defined with `makeCPOTargetOp()`, the `cpo.retrafo` and `cpo.train.invert` functions are called automatically when necessary during training and re-transformation. `makeCPOExtendedTargetOp()` instead has a `cpo.trafo` and a `cpo.retrafo` parameter, which get called during the respective operation.
+
+`cpo.trafo` must be a function taking the same parameters as `cpo.train` in `makeCPOTargetOp()`. Instead of returning a control object, it must define a variable named "`control`", and a variable named "`control.invert`". The former is used as the `control` argument of `cpo.retrafo`, the latter is used as `control.invert` for `cpo.invert` when using the inverter `CPOTrained` created during training. The return value of `cpo.trafo` must be similar to the value returned by `cpo.retrafo` in `makeCPOTargetOp()`: it must be the modified data set or target, depending on `dataformat`.
+
+`cpo.retrafo` must take the same parameters as in `makeCPOTargetOp()`. It must declare a `control.invert` variable that will be given to `cpo.retrafo` when using the inverter `CPOTrained` created during retransformation. Since `cpo.retrafo` is always called during retrafo `CPOTrained` application, a "target" column may or may not be present. If a target column is not present, the `target` parameter of `cpo.retrafo` is `NULL` and the return value of `cpo.retrafo` is ignored; otherwise it must be the transformed `target` value (which, as in `makeCPOTargetOp()`, can be a `Task` or `data.frame` of *all* data if `dataformat` is `"task"` or `"df.all"`).
+
+`cpo.invert` works just as in `makeCPOTargetOp()`.
+
+The following is a nonsensical, synthetic example that adds `1` to the target column of a regression `Task` during initial training, subtracts `1` during retrafo re-application and is a no-op during inversion.
+
+```{r}
+xmpSynCPO = makeCPOExtendedTargetOp("syn.cpo",  # nolint
+  properties.target = "regr",
+  cpo.trafo = function(data, target) {
+    cat("*** cpo.trafo ***\n")
+    target[[1]] = target[[1]] + 1
+    control = "control created in cpo.trafo"
+    control.invert = "control.invert created in cpo.trafo"
+    target
+  },
+  cpo.retrafo = function(data, target, control) {
+    cat("*** cpo.retrafo ***", "control is:", deparse(control), sep = "\n")
+    control.invert = "control.invert created in cpo.retrafo"
+    if (!is.null(target)) {
+      cat("target is non-NULL, performing transformation\n")
+      target[[1]] = target[[1]] - 1
+      return(target)
+    } else {
+      cat("target is NULL, no transformation (but control.invert was created)\n")
+      return(NULL)  # is ignored.
+    }
+  },
+  cpo.invert = function(target, control.invert, predict.type) {
+    cat("*** invert ***", "control.invert is:", deparse(control.invert),
+      sep = "\n")
+    target
+  })
+
+cpo = xmpSynCPO()
+```
+
+For an "extended" TOCPO, only one of the transformation functions is called in each invocation. Initial transformation calls `cpo.trafo` and adds `1` to the targets; using the `CPOTrained` for re-transformation calls `cpo.retrafo` and subtracts `1`.
+```{r}
+trafd = train.task %>>% cpo
+getTaskTargets(trafd)
+```
+
+```{r}
+retrafd = train.task %>>% retrafo(trafd)
+```
+```{r}
+getTaskTargets(retrafd)
+```
+
+It is also possible to perform re-transformation with a `data.frame` that does not include the target column. In that case the `target` value given to `cpo.retrafo` will be `NULL`, as reported by that function in this example:
+```{r}
+retrafd = getTaskData(train.task, target.extra = TRUE)$data %>>% retrafo(trafd)
+```
+
+The `trafd` object has an inverter `CPOTrained` attribute that was created by `cpo.trafo`, the `retrafd` object has an inverter `CPOTrained` attribute created by `cpo.retrafo` (necessarily). This is made visible by the given example inverter function:
+
+```{r}
+inv = invert(inverter(trafd), 1:6)
+```
+```{r}
+inv = invert(inverter(retrafd), 1:6)
+```
+
+## Postscriptum
+
+As an aside, the `Learner` enhanced by `xmpMetaLearn` seems to perform marginally better than either `"classif.svm"` or `"classif.logreg"` on their own for a large enough subset of `pid.task` (here resampled with output suppressed).
 ```{r, echo = FALSE}
-configureMlr(show.info = FALSE, show.learner.output = FALSE)
 oscipen = options("scipen")
 options(scipen = 10)
 ```
@@ -464,12 +729,19 @@ options(scipen = 10)
 learners = list(
     logreg = makeLearner("classif.logreg"),
     svm = makeLearner("classif.svm"),
-    cpo = xmpMetaLearn(makeLearner("classif.logreg")) %>>% makeLearner("classif.svm")
+    cpo = xmpMetaLearn(makeLearner("classif.logreg")) %>>%
+      makeLearner("classif.svm")
 )
+
+# suppress output of '*** cpo.train ***' etc.
+configureMlr(show.info = FALSE, show.learner.output = FALSE)
 
 perfs = sapply(learners, function(lrn) {
   unname(replicate(20, resample(lrn, pid.task, cv10)$aggr))
 })
+
+# reset mlr settings
+configureMlr()
 
 boxplot(perfs)
 ```
@@ -484,7 +756,6 @@ pvals = c(
 round(p.adjust(pvals), 3)
 ```
 ```{r, echo = FALSE}
-configureMlr()
 options(scipen = oscipen$scipen)
 ```
 
