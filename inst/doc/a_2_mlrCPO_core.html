@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-25" />
+<meta name="date" content="2018-01-04" />
 
 <title>mlrCPO Core</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">mlrCPO Core</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-25</em></h4>
+<h4 class="date"><em>2018-01-04</em></h4>
 
 
 
@@ -82,6 +82,70 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="a_3_all_CPOs.html">CPOs Built Into mlrCPO</a> (<a href="z_3_all_CPOs_terse.html">compact version</a>)</li>
 <li><a href="a_4_custom_CPOs.html">Building Custom CPOs</a> (<a href="z_4_custom_CPOs_terse.html">compact version</a>)</li>
 </ol>
+<h2>
+Table of Contents
+</h2>
+<div id="TOC">
+<ul>
+<li>
+<a href="#introduction">Introduction</a>
+</li>
+<li>
+<a href="#lifecycle-of-a-cpo">Lifecycle of a CPO</a>
+</li>
+<li>
+<a href="#cpoconstructor">CPOConstructor</a>
+<ul>
+<li>
+<a href="#cpo">CPO</a>
+</li>
+<li>
+<a href="#functions-that-work-on-cpos">Functions that work on CPOs</a>
+</li>
+<li>
+<a href="#exporting-parameters">Exporting Parameters</a>
+</li>
+<li>
+<a href="#cpo-application-using-or-applycpo">CPO Application using <code>%&gt;&gt;%</code> or <code>applyCPO</code></a>
+</li>
+<li>
+<a href="#cpo-composition-using-or-composecpo">CPO Composition using <code>%&gt;&gt;%</code> or <code>composeCPO</code></a>
+</li>
+<li>
+<a href="#compound-cpo-decomposition-cpo-chaining">Compound CPO decomposition, CPO chaining</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#cpolearner-cpo---learner-attachment-using-or-attachcpo">CPOLearner: CPO - Learner attachment using <code>%&gt;&gt;%</code> or <code>attachCPO</code></a>
+<ul>
+<li>
+<a href="#cpotrained">CPOTrained</a>
+<ul>
+<li>
+<a href="#functions-that-work-on-cpotrained">Functions that work on CPOTrained</a>
+</li>
+<li>
+<a href="#cpotrained-inspection">CPOTrained Inspection</a>
+</li>
+<li>
+<a href="#application-of-cporetrafo-using-applycpo-or-predict">Application of CPORetrafo using <code>%&gt;&gt;%</code>, <code>applyCPO</code>, or <code>predict</code></a>
+</li>
+<li>
+<a href="#retrafos-are-automatically-chained-when-applying-cpos">Retrafos are automatically chained when applying CPOs (!)</a>
+</li>
+<li>
+<a href="#cpotrained-composition-decomposition-chaining">CPOTrained Composition, Decomposition, Chaining</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a href="#cpo-properties">CPO Properties</a>
+</li>
+</ul>
+</div>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -535,7 +599,7 @@ new.retrafo =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</
 <span class="kw">predict</span>(<span class="kw">retrafo</span>(transformed), <span class="kw">head</span>(iris))</code></pre></div>
 </div>
 <div id="retrafos-are-automatically-chained-when-applying-cpos" class="section level4">
-<h4>Retrafos are automatically chained when applying CPOs (!!!)</h4>
+<h4>Retrafos are automatically chained when applying CPOs (!)</h4>
 <p>When executing <code>data %&gt;&gt;% CPO</code>, the result has an associated <code>CPORetrafo</code> and <code>CPOInverter</code> object. When applying another <code>CPO</code>, the <code>CPORetrafo</code> and <code>CPOInverter</code> will be chained automatically. This is to make <code>(data %&gt;&gt;% CPO1) %&gt;&gt;% CPO2</code> work the same as <code>data %&gt;&gt;% (CPO1 %&gt;&gt;% CPO2)</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data =<span class="st"> </span><span class="kw">head</span>(iris) %&gt;&gt;%<span class="st"> </span><span class="kw">cpoPca</span>()
 <span class="kw">retrafo</span>(data)

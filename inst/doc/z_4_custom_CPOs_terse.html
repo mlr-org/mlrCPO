@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-25" />
+<meta name="date" content="2018-01-04" />
 
 <title>Building Custom CPOs (No Output)</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building Custom CPOs (No Output)</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-25</em></h4>
+<h4 class="date"><em>2018-01-04</em></h4>
 
 
 
@@ -82,12 +82,116 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="a_3_all_CPOs.html">CPOs Built Into mlrCPO</a> (<a href="z_3_all_CPOs_terse.html">compact version</a>)</li>
 <li><a href="a_4_custom_CPOs.html">Building Custom CPOs</a> (compact version)</li>
 </ol>
+<h2>
+Table of Contents
+</h2>
+<div id="TOC">
+<ul>
+<li>
+<a href="#intro">Intro</a>
+</li>
+<li>
+<a href="#making-a-cpo">Making a CPO</a>
+<ul>
+<li>
+<a href="#cpo-name">CPO name</a>
+</li>
+<li>
+<a href="#cpo-parameters">CPO parameters</a>
+</li>
+<li>
+<a href="#data-format">Data Format</a>
+</li>
+<li>
+<a href="#properties">Properties</a>
+<ul>
+<li>
+<a href="#property-checking-and-.sometimes-properties">Property Checking and <code>.sometimes</code> Properties</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#packages">Packages</a>
+</li>
+<li>
+<a href="#transformation-functions">Transformation Functions</a>
+<ul>
+<li>
+<a href="#functional-transformation">Functional Transformation</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a href="#retrafoless-cpos">Retrafoless CPOs</a>
+</li>
+<li>
+<a href="#feature-operation-cpos">Feature Operation CPOs</a>
+<ul>
+<li>
+<a href="#makecpo"><code>makeCPO()</code></a>
+<ul>
+<li>
+<a href="#functional-focpo">Functional FOCPO</a>
+</li>
+<li>
+<a href="#stateless-focpo">Stateless FOCPO</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#makecpoextendedtrafo"><code>makeCPOExtendedTrafo()</code></a>
+<ul>
+<li>
+<a href="#functional-focpo">Functional FOCPO</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a href="#target-operation-cpos">Target Operation CPOs</a>
+<ul>
+<li>
+<a href="#task-type-and-conversion">Task Type and Conversion</a>
+</li>
+<li>
+<a href="#predict.type"><code>predict.type</code></a>
+</li>
+<li>
+<a href="#makecpotargetop"><code>makeCPOTargetOp()</code></a>
+<ul>
+<li>
+<a href="#functional-tocpo">Functional TOCPO</a>
+</li>
+<li>
+<a href="#constant-invert-tocpos">Constant Invert TOCPOs</a>
+</li>
+<li>
+<a href="#functional-constant-invert-tocpo">Functional Constant Invert TOCPO</a>
+</li>
+<li>
+<a href="#stateless-tocpo">Stateless TOCPO</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#makecpoextendedtargetop"><code>makeCPOExtendedTargetOp()</code></a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#postscriptum">Postscriptum</a>
+</li>
+</ul>
+</div>
 </div>
 <div id="intro" class="section level2">
 <h2>Intro</h2>
 <p>The <a href="a_3_all_CPOs.html"><code>CPO</code>s built into <code>mlrCPO</code></a> can be used for many different purposes, and can be combined to form even more powerful transformation operations. However, in some cases, it may be necessary to define new “custom” <code>CPO</code>s that perform a certain task; either because a preprocessing method is not (yet) defined as a builtin <code>CPO</code>, or because some operation very specific to the task at hand needs to be performed.</p>
 <p>For this purpose, <code>mlrCPO</code> offers a very powerful interface for the creation of new <code>CPO</code>s. The functions and methods described here are also the methods used internally to create <code>mlrCPO</code>’s builtin <code>CPO</code>s. Therefore, to learn the art of defining <code>CPO</code>s, it is also possible to look at the <a href="https://github.com/mlr-org/mlrCPO/tree/master/R"><code>mlrCPO</code> source tree</a> in files starting with “<code>CPO_</code>” for example <code>CPO</code> definitions.</p>
-<p>There are three types of <code>CPO</code>: “Feature Operation <code>CPO</code>s” (<a href="#feature-operation-cpos"><strong>FOCPO</strong>s</a>) which are only allowed to change feature columns of incoming data, and which are the most common <code>CPO</code>s; “Target Operation <code>CPO</code>s” (<strong>TOCPO</strong>s) that change only target columns, and “Retrafoless <code>CPO</code>s” (<a href="#retrafoless-cpos"><strong>ROCPO</strong>s</a>) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest <code>CPO</code>s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all <code>CPO</code> defining functions will be described first, followed by the different <code>CPO</code> types in order of growing complexity.</p>
+<p>There are three types of <code>CPO</code>: “Feature Operation <code>CPO</code>s” (<a href="#feature-operation-cpos"><strong>FOCPO</strong>s</a>) which are only allowed to change feature columns of incoming data, and which are the most common <code>CPO</code>s; “Target Operation <code>CPO</code>s” (<a href="#target-operation-cpos"><strong>TOCPO</strong>s</a>) that change only target columns, and “Retrafoless <code>CPO</code>s” (<a href="#retrafoless-cpos"><strong>ROCPO</strong>s</a>) that may add or delete rows to a data set, but only during training. Conceptually, ROCPOs are the simplest <code>CPO</code>s, followed by FOCPOs and the even more complicated TOCPOs. The commonalities of all <code>CPO</code> defining functions will be described first, followed by the different <code>CPO</code> types in order of growing complexity.</p>
 </div>
 <div id="making-a-cpo" class="section level2">
 <h2>Making a CPO</h2>
@@ -252,8 +356,8 @@ cpo =<span class="st"> </span><span class="kw">xmpFilterVar</span>(<span class="
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(iris %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd))</code></pre></div>
 <p>It is also possible to inspect the <code>CPOTrained</code> object to see that the <code>control</code> is there:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedState</span>(<span class="kw">retrafo</span>(trafd))</code></pre></div>
-<div id="functional-cpo" class="section level4">
-<h4>Functional CPO</h4>
+<div id="functional-focpo" class="section level4">
+<h4>Functional FOCPO</h4>
 <p>Instead of returning the <code>control</code> object, <code>cpo.train</code> may also return the <code>cpo.retrafo</code> <em>function</em>. This may be more succinct to write if there are many little pieces of information from the <code>cpo.train</code> run that the <code>cpo.retrafo</code> function should have access to.</p>
 <p>When <code>cpo.retrafo</code> is given functionally, it should be a function with only <em>one</em> parameter: the newly incoming data. It can access the values of the <code>par.set</code> parameters from its encapsulating environment in <code>cpo.train</code>.</p>
 <p>Note that the <code>data</code> and <code>target</code> values given to <code>cpo.train</code> are <strong>deleted</strong> after the <code>cpo.train</code> call, so <code>cpo.retrafo</code> does not have access to it. In fact, the <code>CPO</code> framework will give a warning about this.</p>
@@ -283,8 +387,8 @@ cpo =<span class="st"> </span><span class="kw">xmpFilterVarFunc</span>(<span cla
 <p>The <code>CPOTrained</code> state for a functional <code>CPO</code> is the <em>environment</em> of the retrafo function. It contains the “<code>ctrl</code>” variable defined during training, the parameters given to <code>cpo.train</code>, and the <code>cpo.retrafo</code> function itself. Note that <code>data</code> and <code>target</code> are deleted and replaced by different values.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedState</span>(<span class="kw">retrafo</span>(trafd))</code></pre></div>
 </div>
-<div id="stateless-cpo" class="section level4">
-<h4>Stateless CPO</h4>
+<div id="stateless-focpo" class="section level4">
+<h4>Stateless FOCPO</h4>
 <p>“Stateless” <code>CPO</code>s are <code>CPO</code>s that perform the same action during transformation of training and prediction data, independent from information during training. An example would be a <code>CPO</code> that converts all its columns to <code>numeric</code> columns. When a FOCPO does not need a state, the <code>cpo.train</code> parameter of <code>makeCPO()</code> can be set to <code>NULL</code>. The <code>cpo.retrafo</code> function then has no <code>control</code> paramter and instead only a <code>data</code> and any <code>par.set</code> parameter. The <code>as.numeric</code>-<code>CPO</code> could be written as the following:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpAsNum =<span class="st"> </span><span class="kw">makeCPO</span>(<span class="st">&quot;asnum&quot;</span>,  <span class="co"># nolint</span>
   <span class="dt">cpo.train =</span> <span class="ot">NULL</span>,
@@ -326,8 +430,8 @@ cpo =<span class="st"> </span><span class="kw">xmpPca</span>(<span class="dv">2<
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tail</span>(iris) %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd)</code></pre></div>
 <p>The rotation matrix can be inspected using <code>getCPOTrainedState</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedState</span>(<span class="kw">retrafo</span>(trafd))</code></pre></div>
-<div id="functional-cpo-1" class="section level4">
-<h4>Functional CPO</h4>
+<div id="functional-focpo-1" class="section level4">
+<h4>Functional FOCPO</h4>
 <p>As with <code>makeCPO()</code>, <code>makeCPOExtendedTrafo()</code> makes it possible to define functional <code>CPO</code>s. Instead of <em>returning</em> a <code>cpo.retrafo</code> function, the <code>cpo.retrafo</code> function needs to be <em>defined</em> as a variable, instead of a “<code>control</code>” variable. Like in <code>makeCPO()</code>, the <code>cpo.retrafo</code> parameter of <code>makeCPOExtendedTrafo()</code> must then be <code>NULL</code>. The PCA example above could thus also be written as</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpPcaFunc =<span class="st"> </span><span class="kw">makeCPOExtendedTrafo</span>(<span class="st">&quot;simple.pca.func&quot;</span>,  <span class="co"># nolint</span>
   <span class="kw">pSS</span>(n.col:<span class="st"> </span>integer[<span class="dv">0</span>, ]),
@@ -354,7 +458,309 @@ cpo =<span class="st"> </span><span class="kw">xmpPcaFunc</span>(<span class="dv
 </div>
 <div id="target-operation-cpos" class="section level2">
 <h2>Target Operation CPOs</h2>
-<p>TODO</p>
+<p>TOCPOs are more complicated than FOCPOs, since they potentially need to operate on data at three different points: During initial training, during the re-transformation for new prediction data, and during the inversion of predictions made by a model trained on transformed data. Similarly to <code>makeCPO()</code>, <code>makeCPOTargetOp()</code> splits these operations up into functions that create “<code>control</code>” objects, and functions that do the actual transformation. <code>makeCPOExtendedTargetOp()</code>, on the other hand, gives the user more flexibility at the price of the user having to make sure that transformation and retransformation perform the same operation–similarly to <code>makeCPOExtendedTrafo()</code> for FOCPOs.</p>
+<div id="task-type-and-conversion" class="section level3">
+<h3>Task Type and Conversion</h3>
+<p>In contrast to FOCPOs, TOCPOs can only operate on one type of <code>Task</code>. Therefore, the <code>properties.target</code> parameter of <code>makeCPO*TargetOp()</code> must contain exactly one <code>Task</code> type (<code>&quot;cluster&quot;</code>, <code>&quot;classif&quot;</code>, <code>&quot;regr&quot;</code>, <code>&quot;surv&quot;</code>, <code>&quot;multilabel&quot;</code>) and possibly some more task properties (currently only <code>&quot;oneclass&quot;</code>, <code>&quot;twoclass&quot;</code>, <code>&quot;multiclass&quot;</code> if the <code>Task</code> type is <code>&quot;classif&quot;</code>).</p>
+<p>It is possible to write TOCPOs that perform <em>conversion</em> of <code>Task</code> types. For that, the <code>task.type.out</code> parameter must be set to the <code>Task</code> type that the <code>CPO</code> converts the data to. If conversion happens, the transformation functions need to return target data fit for the <code>task.type.out</code> <code>Task</code> type.</p>
+<p><code>properties.adding</code> and <code>properties.needed</code> should <em>not</em> be any <code>Task</code> type, even when conversion happens. Only if one of the task types has <em>additional</em> properties–currently only the <code>&quot;oneclass&quot;</code>, <code>&quot;twoclass&quot;</code>, <code>&quot;multiclass&quot;</code> properties of classification <code>Task</code>s–should these additional properties be listed in <code>properties.adding</code> or <code>properties.needed</code>.</p>
+</div>
+<div id="predict.type" class="section level3">
+<h3><code>predict.type</code></h3>
+<p><code>mlr</code> makes it possible for <code>Learner</code>s to make different kinds of prediction. Usually they can predict a “response”, making their best effort to predict the true value of a task target. Many <code>Learner</code> types can predict a probability when their <code>predict.type</code> is set to <code>&quot;prob&quot;</code>, returning a <code>data.frame</code> of their estimated probability distribution over possible responses. For regression <code>Learner</code>s, <code>predict.type</code> can be <code>&quot;se&quot;</code> for the <code>Learner</code> to predict its estimated standard error of their response prediction.</p>
+<p>When TOCPOs invert these predictions, they may</p>
+<ul>
+<li>declare which kind of <code>predict.type</code> predictions they can perform</li>
+<li>declare what <code>predict.type</code> they require from the underlying <code>Learner</code> to make this <code>predict.type</code> prediction.</li>
+</ul>
+<p>This is done using the <code>predict.type.map</code> parameter of <code>makeCPO*TargetOp()</code>. It is a named <code>list</code> or named <code>character</code> vector with the names indicating the supported <code>predict.type</code>s, and the values indicating the required underlying predictions. For example, if a TOCPO can perform <code>&quot;response&quot;</code> and <code>&quot;se&quot;</code> prediction, and to predict <code>&quot;response&quot;</code> the underlying <code>Learner</code> must also perform <code>&quot;response&quot;</code> prediction, but for <code>&quot;se&quot;</code> prediction it must perform <code>&quot;prob&quot;</code> prediction, the <code>predict.type.map</code> would have the value</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="dt">response =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">se =</span> <span class="st">&quot;prob&quot;</span>)</code></pre></div>
+</div>
+<div id="makecpotargetop" class="section level3">
+<h3><code>makeCPOTargetOp()</code></h3>
+<p><code>makeCPOTargetOp()</code> has a <code>cpo.train</code> and <code>cpo.retrafo</code> function parameter that work similarly to the ones of <code>makeCPO()</code>. In contrast to <code>makeCPO()</code>, however, <code>cpo.retrafo</code> must return the <em>target</em> data instead of the feature data. The <code>data</code> and <code>target</code> parameters of <code>cpo.retrafo</code> get the same data as they get in a FOCPO created with <code>makeCPO()</code>, with the exception that if <code>dataformat</code> is <code>&quot;task&quot;</code> or <code>&quot;df.all&quot;</code>, the <code>target</code> parameter will receive the <em>whole</em> input data in form of a <code>Task</code> or <code>data.frame</code> (while the <code>data</code> argument, as in a FOCPO, will receive only the feature <code>data.frame</code>). The return value of <code>cpo.retrafo</code> for a TOCPO must always be in the same format as the input <code>target</code> value: a <code>data.frame</code> with the manipulated target values when <code>dataformat</code> is anything besides <code>&quot;task&quot;</code> or <code>&quot;df.all&quot;</code>, or a <code>Task</code> or <code>data.frame</code> of all data (with non-target columns unmodified) otherwise.</p>
+<p>Inversion of predictions is performed using the functions <code>cpo.train.invert</code> and <code>cpo.invert</code>. <code>cpo.train.invert</code> takes a <code>data</code> and a <code>control</code> argument, and any arguments declared in the <code>par.set</code>. It is called whenever new data is fed into the <code>CPO</code> or its retrafo <code>CPOTrained</code>, and creates a <code>CPOTrained</code> state that is used to invert the prediction done on this new data. The <code>control</code> argument takes the value returned by the <code>cpo.train</code> function upon initial training, and the <code>data</code> argument is the new data for which to prepare the <code>CPOTrained</code> inverter. It has the form dictated by <code>dataformat</code>, with the exception that <code>&quot;task&quot;</code> and <code>&quot;df.all&quot;</code> <code>dataformat</code> are handled as <code>&quot;df.feature&quot;</code>; this is necessary since the new data could be a <code>data.frame</code> of data with unknown target.</p>
+<p>The following is an example of a TOCPO that trains a classification <code>Learner</code> on a binary classification <code>Task</code> and changes it to a <code>Task</code> of whether or not the <code>Learner</code> predicted the truth for a given data line correctly. (Real-world applications would probably need to take some precautions against overfitting.) In its <code>cpo.train</code> step, the given <code>Learner</code> is trained on the incoming data and the resulting <code>WrappedModel</code> object is returned as the “<code>control</code>” object. This is given to the <code>cpo.retrafo</code> function, which performs prediction and creates a new classification <code>Task</code> with the match / mismatch between model prediction and ground truth as target. When an external <code>Learner</code> is trained on data that was preprocessed like this, its prediction will be whether the <code>CPO</code>-internal <code>Learner</code> can be trusted to predict a given data row. To “invert” this, i.e. to get the actual prediction, the <code>cpo.invert</code> function needs to have the internal <code>Learner</code>’s prediction as well as the prediction made by the external <code>Learner</code>. The former is provided by <code>cpo.train.invert</code>, which uses the <code>WrappedModel</code> to make a prediction on the new data, and given as <code>control.invert</code> to <code>cpo.invert</code>. The latter is the <code>target</code> data given to <code>cpo.invert</code>. This example <code>CPO</code> supports inverting both <code>&quot;response&quot;</code> and <code>&quot;prob&quot;</code> <code>predict.type</code> predictions, as declared in the <code>predict.type.map</code> argument. The actual <code>predict.type</code> to invert is given to <code>cpo.invert</code> as an argument.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpMetaLearn =<span class="st"> </span><span class="kw">makeCPOTargetOp</span>(<span class="st">&quot;xmp.meta&quot;</span>,  <span class="co"># nolint</span>
+  <span class="kw">pSS</span>(lrn:<span class="st"> </span>untyped),
+  <span class="dt">dataformat =</span> <span class="st">&quot;task&quot;</span>,
+  <span class="dt">properties.target =</span> <span class="kw">c</span>(<span class="st">&quot;classif&quot;</span>, <span class="st">&quot;twoclass&quot;</span>),
+  <span class="dt">predict.type.map =</span> <span class="kw">c</span>(<span class="dt">response =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">prob =</span> <span class="st">&quot;prob&quot;</span>),
+  <span class="dt">cpo.train =</span> function(data, target, lrn) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.train ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    lrn =<span class="st"> </span><span class="kw">setPredictType</span>(lrn, <span class="st">&quot;prob&quot;</span>)
+    <span class="kw">train</span>(lrn, data)
+  },
+  <span class="dt">cpo.retrafo =</span> function(data, target, control, lrn) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.retrafo ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    prediction =<span class="st"> </span><span class="kw">predict</span>(control, target)
+    tname =<span class="st"> </span><span class="kw">getTaskTargetNames</span>(target)
+    tdata =<span class="st"> </span><span class="kw">getTaskData</span>(target)
+    tdata[[tname]] =<span class="st"> </span><span class="kw">factor</span>(prediction$data$response ==<span class="st"> </span>prediction$data$truth)
+    <span class="kw">makeClassifTask</span>(<span class="kw">getTaskId</span>(target), tdata, tname, <span class="dt">positive =</span> <span class="st">&quot;TRUE&quot;</span>,
+      <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)
+  },
+  <span class="dt">cpo.train.invert =</span> function(data, control, lrn) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.train.invert ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    <span class="kw">predict</span>(control, <span class="dt">newdata =</span> data)$data
+  },
+  <span class="dt">cpo.invert =</span> function(target, control.invert, predict.type, lrn) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.invert ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    if (predict.type ==<span class="st"> &quot;prob&quot;</span>) {
+      outmat =<span class="st"> </span><span class="kw">as.matrix</span>(control.invert[<span class="kw">grep</span>(<span class="st">&quot;^prob</span><span class="ch">\\</span><span class="st">.&quot;</span>, <span class="kw">names</span>(control.invert))])
+      revmat =<span class="st"> </span>outmat[, <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>)]
+      outmat *<span class="st"> </span>target[, <span class="st">&quot;prob.TRUE&quot;</span>, drop =<span class="st"> </span><span class="ot">TRUE</span>] +
+<span class="st">        </span>revmat *<span class="st"> </span>target[, <span class="st">&quot;prob.FALSE&quot;</span>, drop =<span class="st"> </span><span class="ot">TRUE</span>]
+    } else {
+      <span class="kw">stopifnot</span>(<span class="kw">levels</span>(target) ==<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;FALSE&quot;</span>, <span class="st">&quot;TRUE&quot;</span>))
+      numeric.prediction =<span class="st"> </span><span class="kw">as.numeric</span>(control.invert$response)
+      numeric.res =<span class="st"> </span><span class="kw">ifelse</span>(target ==<span class="st"> &quot;TRUE&quot;</span>,
+        numeric.prediction,
+        <span class="dv">3</span> -<span class="st"> </span>numeric.prediction)
+      <span class="kw">factor</span>(<span class="kw">levels</span>(control.invert$response)[numeric.res],
+        <span class="kw">levels</span>(control.invert$response))
+    }
+  })
+
+cpo =<span class="st"> </span><span class="kw">xmpMetaLearn</span>(<span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>))</code></pre></div>
+<p>To show the inner workings of this <code>CPO</code>, the following example data is used.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">12</span>)
+split =<span class="st"> </span><span class="kw">makeResampleInstance</span>(hout, pid.task)
+train.task =<span class="st"> </span><span class="kw">subsetTask</span>(pid.task, split$train.inds[[<span class="dv">1</span>]])
+test.task =<span class="st"> </span><span class="kw">subsetTask</span>(pid.task, split$predict.inds[[<span class="dv">1</span>]])</code></pre></div>
+<p>It can be instructive to watch the <code>cat()</code> output of this <code>CPO</code> to see which function gets called at what point in the lifecycle. The <code>cpo.train</code> function is called first to create the <code>control</code> object. The <code>Task</code> is transformed in <code>cpo.retrafo</code>. Also <code>cpo.train.invert</code> is called, since an <code>inverter</code> attribute is attached to the returned trafo.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trafd =<span class="st"> </span>train.task %&gt;&gt;%<span class="st"> </span>cpo
+<span class="kw">attributes</span>(trafd)</code></pre></div>
+<p>The values of the target column (“diabetes”) of the result can be compared with the prediction of a <code>&quot;classif.logreg&quot;</code> <code>Learner</code> on the same data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">getTaskData</span>(trafd))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model =<span class="st"> </span><span class="kw">train</span>(<span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>, <span class="dt">predict.type =</span> <span class="st">&quot;prob&quot;</span>), train.task)
+<span class="kw">head</span>(<span class="kw">predict</span>(model, train.task)$data[<span class="kw">c</span>(<span class="st">&quot;truth&quot;</span>, <span class="st">&quot;response&quot;</span>)])</code></pre></div>
+<p>When new data is transformed using the retrafo <code>CPOTrained</code>, another <code>inverter</code> attribute is created, and hence <code>cpo.train.invert</code> is called again. Since the target column of the <code>test.task</code> in the following example is also transformed, the <code>cpo.retrafo</code> function is called.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retr =<span class="st"> </span>test.task %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd)
+<span class="kw">attributes</span>(retr)</code></pre></div>
+<p>In a real world application, it would be possible for the new incoming data to have unknown target values. In that case, no target column would need to be changed, and <code>cpo.retrafo</code> is <em>not</em> called. The resulting data, <code>retr.df</code>, equals the input data with a <code>retrafo</code> attribute added.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retr.df =<span class="st"> </span><span class="kw">getTaskData</span>(test.task, <span class="dt">target.extra =</span> <span class="ot">TRUE</span>)$data %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd)
+<span class="kw">names</span>(<span class="kw">attributes</span>(retr.df))</code></pre></div>
+<p>The invert functionality can be demonstrated by making a prediction with an external model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ext.model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;classif.svm&quot;</span>, trafd)
+ext.pred =<span class="st"> </span><span class="kw">predict</span>(ext.model, retr)
+newpred =<span class="st"> </span><span class="kw">invert</span>(<span class="kw">inverter</span>(retr), ext.pred)
+<span class="kw">performance</span>(newpred)</code></pre></div>
+<p>It may also be instructive to attach the <code>xmpMetaLearn</code> <code>CPO</code> to a <code>Learner</code> to see which functions get called during training and prediction of a TOCPO-<code>Learner</code>. Since the <code>Learner</code> does not do inversion of the training data, a <code>CPOTrained</code> for inversion is not created during training, and <code>cpo.train.invert</code> is hence not called. Only <code>cpo.train</code> (for control object creation) and <code>cpo.retrafo</code> (target value change) are called. During prediction, the input data is used to create an (internally used) inversion <code>CPOTrained</code> which promptly gets used by the prediction made by <code>&quot;classif.svm&quot;</code>. Hence both <code>cpo.train.invert</code> and <code>cpo.invert</code> are called in succession.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cpo.learner =<span class="st"> </span>cpo %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.svm&quot;</span>)
+cpo.model =<span class="st"> </span><span class="kw">train</span>(cpo.learner, train.task)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lrnpred =<span class="st"> </span><span class="kw">predict</span>(cpo.model, test.task)
+<span class="kw">performance</span>(lrnpred)</code></pre></div>
+<p>See <a href="#postscriptum">Postscriptum</a> for an evaluation of <code>xmpMeatLearn</code>’s performance.</p>
+<div id="functional-tocpo" class="section level4">
+<h4>Functional TOCPO</h4>
+<p>Just like for FOCPOs, it is possible to create functional TOCPOs. In the case of <code>makeCPOTargetOp()</code>, it is possible to have <code>cpo.train</code> create <code>cpo.retrafo</code> and <code>cpo.train.invert</code>, instead of giving them to <code>makeCPOTargetOp()</code> directly. Just as in <code>makeCPO</code>, these functions can then access the state of their environment in the <code>cpo.train</code> call and hence have neither a <code>control</code> argument, nor any arguments for the <code>par.set</code> parameters. Since <code>cpo.train</code> must in this case create two functions, these functions only need to be defined within <code>cpo.train</code>, the return value is ignored.</p>
+<p>Note that <code>cpo.retrafo</code> and <code>cpo.train.invert</code> must either be both functional or both object based.</p>
+<p>It is furthermore possible to return a <code>cpo.invert</code> function by <code>cpo.train.invert</code>, instead of giving it to <code>makeCPOTargetOp()</code>. As above, the returned function should not have any parameters for the ones given in <code>par.set</code>, and should not have a <code>control.invert</code>. <code>cpo.invert</code> can be functional or not, <em>independently</em> of whether <code>cpo.retrafo</code> and <code>cpo.train.invert</code> are functional.</p>
+<p>As in <code>makeCPO()</code>, all functions that are given functionally must be explicitly set to <code>NULL</code> in the <code>makeCPOTargetOp()</code> call.</p>
+<p>The <code>xmpMetaLearn</code> example above with functional <code>cpo.retrafo</code>, <code>cpo.train.invert</code> and <code>cpo.invert</code> would look like the following:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+xmpMetaLearn =<span class="st"> </span><span class="kw">makeCPOTargetOp</span>(<span class="st">&quot;xmp.meta.fnc&quot;</span>,  <span class="co"># nolint</span>
+  <span class="kw">pSS</span>(lrn:<span class="st"> </span>untyped),
+  <span class="dt">dataformat =</span> <span class="st">&quot;task&quot;</span>,
+  <span class="dt">properties.target =</span> <span class="kw">c</span>(<span class="st">&quot;classif&quot;</span>, <span class="st">&quot;twoclass&quot;</span>),
+  <span class="dt">predict.type.map =</span> <span class="kw">c</span>(<span class="dt">response =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">prob =</span> <span class="st">&quot;prob&quot;</span>),
+  <span class="co"># set the cpo.* parameters not needed to NULL:</span>
+  <span class="dt">cpo.retrafo =</span> <span class="ot">NULL</span>, <span class="dt">cpo.train.invert =</span> <span class="ot">NULL</span>, <span class="dt">cpo.invert =</span> <span class="ot">NULL</span>,
+  <span class="dt">cpo.train =</span> function(data, target, lrn) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.train ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    lrn =<span class="st"> </span><span class="kw">setPredictType</span>(lrn, <span class="st">&quot;prob&quot;</span>)
+    model =<span class="st"> </span><span class="kw">train</span>(lrn, data)
+    cpo.retrafo =<span class="st"> </span>function(data, target) {
+      <span class="kw">cat</span>(<span class="st">&quot;*** cpo.retrafo ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      prediction =<span class="st"> </span><span class="kw">predict</span>(model, target)
+      tname =<span class="st"> </span><span class="kw">getTaskTargetNames</span>(target)
+      tdata =<span class="st"> </span><span class="kw">getTaskData</span>(target)
+      tdata[[tname]] =<span class="st"> </span><span class="kw">factor</span>(prediction$data$response ==<span class="st"> </span>prediction$data$truth)
+      <span class="kw">makeClassifTask</span>(<span class="kw">getTaskId</span>(target), tdata, tname, <span class="dt">positive =</span> <span class="st">&quot;TRUE&quot;</span>,
+        <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)
+    }
+    cpo.train.invert =<span class="st"> </span>function(data) {
+      <span class="kw">cat</span>(<span class="st">&quot;*** cpo.train.invert ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      prediction =<span class="st"> </span><span class="kw">predict</span>(model, <span class="dt">newdata =</span> data)$data
+      function(target, predict.type) {  <span class="co"># this is returned as cpo.invert</span>
+        <span class="kw">cat</span>(<span class="st">&quot;*** cpo.invert ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+        if (predict.type ==<span class="st"> &quot;prob&quot;</span>) {
+          outmat =<span class="st"> </span><span class="kw">as.matrix</span>(prediction[<span class="kw">grep</span>(<span class="st">&quot;^prob</span><span class="ch">\\</span><span class="st">.&quot;</span>, <span class="kw">names</span>(prediction))])
+          revmat =<span class="st"> </span>outmat[, <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>)]
+          outmat *<span class="st"> </span>target[, <span class="st">&quot;prob.TRUE&quot;</span>, drop =<span class="st"> </span><span class="ot">TRUE</span>] +
+<span class="st">            </span>revmat *<span class="st"> </span>target[, <span class="st">&quot;prob.FALSE&quot;</span>, drop =<span class="st"> </span><span class="ot">TRUE</span>]
+        } else {
+          <span class="kw">stopifnot</span>(<span class="kw">levels</span>(target) ==<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;FALSE&quot;</span>, <span class="st">&quot;TRUE&quot;</span>))
+          numeric.prediction =<span class="st"> </span><span class="kw">as.numeric</span>(prediction$response)
+          numeric.res =<span class="st"> </span><span class="kw">ifelse</span>(target ==<span class="st"> &quot;TRUE&quot;</span>,
+            numeric.prediction,
+            <span class="dv">3</span> -<span class="st"> </span>numeric.prediction)
+          <span class="kw">factor</span>(<span class="kw">levels</span>(prediction$response)[numeric.res],
+            <span class="kw">levels</span>(prediction$response))
+        }        
+      }
+    }
+  })</code></pre></div>
+</div>
+<div id="constant-invert-tocpos" class="section level4">
+<h4>Constant Invert TOCPOs</h4>
+<p>The example given above is a relatively elaborate TOCPO which needs information from the prediction data to perform inversion. Many simpler applications of target transformation do not need this information if their inversion step is independent of this data. It is possible to declare such a TOCPO using the <code>constant.invert</code> flag in <code>makeCPOTargetOp()</code>. If <code>constant.invert</code> is set to <code>TRUE</code>, the <code>cpo.train.invert</code> argument must be explicitly set to <code>NULL</code>. <code>cpo.train</code> still needs to have a <code>control.invert</code> argument; it is set to the value returned by <code>cpo.train</code>.</p>
+<p>The following example is a TOCPO for regression <code>Task</code>s that centers target values during training. After prediction, the data is inverted by adding the original mean of the training data to the predictions. This inversion operation does not need any information about the prediction data going in, so the TOCPO can be declared <code>constant.invert</code>.</p>
+<p>The <code>cpo.retrafo</code> function is also called when new prediction data <em>with</em> a target column is transformed (as during model validation). In that case, the mean of the <em>training data</em> column is subtracted. Therefore the mean generated by <code>cpo.train</code> needs to be used in <code>cpo.retrafo</code> (i.e. the <code>control</code> value), not the mean of the <code>target</code> data present.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpRegCenter =<span class="st"> </span><span class="kw">makeCPOTargetOp</span>(<span class="st">&quot;xmp.center&quot;</span>,  <span class="co"># nolint</span>
+  <span class="dt">constant.invert =</span> <span class="ot">TRUE</span>,
+  <span class="dt">cpo.train.invert =</span> <span class="ot">NULL</span>,  <span class="co"># necessary for constant.invert = TRUE</span>
+  <span class="dt">dataformat =</span> <span class="st">&quot;df.feature&quot;</span>,
+  <span class="dt">properties.target =</span> <span class="st">&quot;regr&quot;</span>,
+  <span class="dt">cpo.train =</span> function(data, target) {
+    <span class="co"># control value is just the mean of the target column</span>
+    <span class="kw">mean</span>(target[[<span class="dv">1</span>]])
+  },
+  <span class="dt">cpo.retrafo =</span> function(data, target, control) {
+    <span class="co"># subtract mean from target column in retrafo</span>
+    target[[<span class="dv">1</span>]] =<span class="st"> </span>target[[<span class="dv">1</span>]] -<span class="st"> </span>control
+    target
+  },
+  <span class="dt">cpo.invert =</span> function(target, predict.type, control.invert) {
+    target +<span class="st"> </span>control.invert
+  })
+
+cpo =<span class="st"> </span><span class="kw">xmpRegCenter</span>()</code></pre></div>
+<p>To illustrate this <code>CPO</code>, the following data is used:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train.task =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">150</span>:<span class="dv">155</span>)
+<span class="kw">getTaskTargets</span>(train.task)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predict.task =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">156</span>:<span class="dv">160</span>)
+<span class="kw">getTaskTargets</span>(predict.task)</code></pre></div>
+<p>The target column of the task after transformation has a mean of 0.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trafd =<span class="st"> </span>train.task %&gt;&gt;%<span class="st"> </span>cpo
+<span class="kw">getTaskTargets</span>(trafd)</code></pre></div>
+<p>When applying the retrafo <code>CPOTrained</code> to a new task, the mean of the training task target column is subtracted.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getTaskTargets</span>(predict.task)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retr =<span class="st"> </span><span class="kw">retrafo</span>(trafd)
+predict.traf =<span class="st"> </span>predict.task %&gt;&gt;%<span class="st"> </span>retr
+<span class="kw">getTaskTargets</span>(predict.traf)</code></pre></div>
+<p>When inverting a regression prediction, the mean of the training data target column is added to the prediction.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, trafd)
+pred =<span class="st"> </span><span class="kw">predict</span>(model, predict.traf)
+pred</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(<span class="kw">inverter</span>(predict.traf), pred)</code></pre></div>
+<p>Since <code>&quot;regr.lm&quot;</code> is translation invariant and deterministic, the prediction equals the prediction made without centering the target:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, train.task)
+<span class="kw">predict</span>(model, predict.task)</code></pre></div>
+<p>A special property of <code>constant.invert</code> TOCPOs is that their retrafo <code>CPOTrained</code> can also be used for inversion. This is the case since the tight coupling of inversion operation to the data used to create the prediction is not necessary when the inversion is actually independent of this data. This is indicated by <code>getCPOTrainedCapability()</code> returning a vector with the <code>&quot;invert&quot;</code> capability set to <code>1</code>. However, when using the retrafo <code>CPOTrained</code> for inversion, the “truth” column is absent from the inverted prediction.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getCPOTrainedCapability</span>(retr)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(retr, pred)</code></pre></div>
+</div>
+<div id="functional-constant-invert-tocpo" class="section level4">
+<h4>Functional Constant Invert TOCPO</h4>
+<p>Just as above, <code>constant.invert</code> TOCPOs can be <em>functional</em>. For this, the <code>cpo.train</code> function must declare both a <code>cpo.retrafo</code> <em>and</em> a <code>cpo.invert</code> variable which perform the requested operations. These functions have no <code>control</code> or <code>control.invert</code> parameter, and no parameters pertaining to <code>par.set</code>.</p>
+</div>
+<div id="stateless-tocpo" class="section level4">
+<h4>Stateless TOCPO</h4>
+<p>Very simple target column operations that operate on a row-by-row basis without needing information e.g. from training data, can be declared as “stateless”. Similarly to <code>makeCPO()</code>, when <code>cpo.train</code> parameter is set to <code>NULL</code>, no control object is created for a <code>CPOTrained</code>. Furthermore, a stateless TOCPO must always have <code>constant.invert</code> set as well. Therefore, only <code>cpo.retrafo</code> and <code>cpo.invert</code> are given as functions, both without a <code>control</code> or <code>control.invert</code> argument. One example is a TOCPO that log-transforms the target column of a regression task, and exponentiates the predictions made from this during inversion. (A better inversion would take the <code>&quot;se&quot;</code> prediction into account, see <code>cpoLogTrafoRegr</code>.)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpLogRegr =<span class="st"> </span><span class="kw">makeCPOTargetOp</span>(<span class="st">&quot;log.regr&quot;</span>,  <span class="co"># nolint</span>
+  <span class="dt">constant.invert =</span> <span class="ot">TRUE</span>,
+  <span class="dt">properties.target =</span> <span class="st">&quot;regr&quot;</span>,
+  <span class="dt">cpo.train =</span> <span class="ot">NULL</span>, <span class="dt">cpo.train.invert =</span> <span class="ot">NULL</span>,
+  <span class="dt">cpo.retrafo =</span> function(data, target) {
+    target[[<span class="dv">1</span>]] =<span class="st"> </span><span class="kw">log</span>(target[[<span class="dv">1</span>]])
+    target
+  },
+  <span class="dt">cpo.invert =</span> function(target, predict.type) {
+    <span class="kw">exp</span>(target)
+  })
+
+cpo =<span class="st"> </span><span class="kw">xmpLogRegr</span>()</code></pre></div>
+<p>The <code>CPO</code> takes the logarithm of the task target column both during training and when using the retrafo <code>CPOTrained</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trafd =<span class="st"> </span>train.task %&gt;&gt;%<span class="st"> </span>cpo
+<span class="kw">getTaskTargets</span>(trafd)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retr =<span class="st"> </span><span class="kw">retrafo</span>(trafd)
+predict.traf =<span class="st"> </span>predict.task %&gt;&gt;%<span class="st"> </span>retr
+<span class="kw">getTaskTargets</span>(predict.traf)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, trafd)
+pred =<span class="st"> </span><span class="kw">predict</span>(model, predict.traf)
+pred</code></pre></div>
+<p>Note that both the inverter <em>and</em> the retrafo <code>CPOTrained</code> can be used for inversion, since a stateless TOCPO also has <code>constant.invert</code> set. As above, when using the retrafo <code>CPOTrained</code>, the truth column is absent from the result.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(<span class="kw">inverter</span>(predict.traf), pred)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">invert</span>(retr, pred)</code></pre></div>
+</div>
+</div>
+<div id="makecpoextendedtargetop" class="section level3">
+<h3><code>makeCPOExtendedTargetOp()</code></h3>
+<p>Just as for FOCPOs, it is possible to declare a TOCPO while having more direct control over what happens at which stage of training, re-transformation, or inversion. In a TOCPO defined with <code>makeCPOTargetOp()</code>, the <code>cpo.retrafo</code> and <code>cpo.train.invert</code> functions are called automatically when necessary during training and re-transformation. <code>makeCPOExtendedTargetOp()</code> instead has a <code>cpo.trafo</code> and a <code>cpo.retrafo</code> parameter, which get called during the respective operation.</p>
+<p><code>cpo.trafo</code> must be a function taking the same parameters as <code>cpo.train</code> in <code>makeCPOTargetOp()</code>. Instead of returning a control object, it must define a variable named “<code>control</code>”, and a variable named “<code>control.invert</code>”. The former is used as the <code>control</code> argument of <code>cpo.retrafo</code>, the latter is used as <code>control.invert</code> for <code>cpo.invert</code> when using the inverter <code>CPOTrained</code> created during training. The return value of <code>cpo.trafo</code> must be similar to the value returned by <code>cpo.retrafo</code> in <code>makeCPOTargetOp()</code>: it must be the modified data set or target, depending on <code>dataformat</code>.</p>
+<p><code>cpo.retrafo</code> must take the same parameters as in <code>makeCPOTargetOp()</code>. It must declare a <code>control.invert</code> variable that will be given to <code>cpo.retrafo</code> when using the inverter <code>CPOTrained</code> created during retransformation. Since <code>cpo.retrafo</code> is always called during retrafo <code>CPOTrained</code> application, a “target” column may or may not be present. If a target column is not present, the <code>target</code> parameter of <code>cpo.retrafo</code> is <code>NULL</code> and the return value of <code>cpo.retrafo</code> is ignored; otherwise it must be the transformed <code>target</code> value (which, as in <code>makeCPOTargetOp()</code>, can be a <code>Task</code> or <code>data.frame</code> of <em>all</em> data if <code>dataformat</code> is <code>&quot;task&quot;</code> or <code>&quot;df.all&quot;</code>).</p>
+<p><code>cpo.invert</code> works just as in <code>makeCPOTargetOp()</code>.</p>
+<p>The following is a nonsensical, synthetic example that adds <code>1</code> to the target column of a regression <code>Task</code> during initial training, subtracts <code>1</code> during retrafo re-application and is a no-op during inversion.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">xmpSynCPO =<span class="st"> </span><span class="kw">makeCPOExtendedTargetOp</span>(<span class="st">&quot;syn.cpo&quot;</span>,  <span class="co"># nolint</span>
+  <span class="dt">properties.target =</span> <span class="st">&quot;regr&quot;</span>,
+  <span class="dt">cpo.trafo =</span> function(data, target) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.trafo ***</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    target[[<span class="dv">1</span>]] =<span class="st"> </span>target[[<span class="dv">1</span>]] +<span class="st"> </span><span class="dv">1</span>
+    control =<span class="st"> &quot;control created in cpo.trafo&quot;</span>
+    control.invert =<span class="st"> &quot;control.invert created in cpo.trafo&quot;</span>
+    target
+  },
+  <span class="dt">cpo.retrafo =</span> function(data, target, control) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** cpo.retrafo ***&quot;</span>, <span class="st">&quot;control is:&quot;</span>, <span class="kw">deparse</span>(control), <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    control.invert =<span class="st"> &quot;control.invert created in cpo.retrafo&quot;</span>
+    if (!<span class="kw">is.null</span>(target)) {
+      <span class="kw">cat</span>(<span class="st">&quot;target is non-NULL, performing transformation</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      target[[<span class="dv">1</span>]] =<span class="st"> </span>target[[<span class="dv">1</span>]] -<span class="st"> </span><span class="dv">1</span>
+      <span class="kw">return</span>(target)
+    } else {
+      <span class="kw">cat</span>(<span class="st">&quot;target is NULL, no transformation (but control.invert was created)</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      <span class="kw">return</span>(<span class="ot">NULL</span>)  <span class="co"># is ignored.</span>
+    }
+  },
+  <span class="dt">cpo.invert =</span> function(target, control.invert, predict.type) {
+    <span class="kw">cat</span>(<span class="st">&quot;*** invert ***&quot;</span>, <span class="st">&quot;control.invert is:&quot;</span>, <span class="kw">deparse</span>(control.invert),
+      <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    target
+  })
+
+cpo =<span class="st"> </span><span class="kw">xmpSynCPO</span>()</code></pre></div>
+<p>For an “extended” TOCPO, only one of the transformation functions is called in each invocation. Initial transformation calls <code>cpo.trafo</code> and adds <code>1</code> to the targets; using the <code>CPOTrained</code> for re-transformation calls <code>cpo.retrafo</code> and subtracts <code>1</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trafd =<span class="st"> </span>train.task %&gt;&gt;%<span class="st"> </span>cpo
+<span class="kw">getTaskTargets</span>(trafd)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retrafd =<span class="st"> </span>train.task %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getTaskTargets</span>(retrafd)</code></pre></div>
+<p>It is also possible to perform re-transformation with a <code>data.frame</code> that does not include the target column. In that case the <code>target</code> value given to <code>cpo.retrafo</code> will be <code>NULL</code>, as reported by that function in this example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">retrafd =<span class="st"> </span><span class="kw">getTaskData</span>(train.task, <span class="dt">target.extra =</span> <span class="ot">TRUE</span>)$data %&gt;&gt;%<span class="st"> </span><span class="kw">retrafo</span>(trafd)</code></pre></div>
+<p>The <code>trafd</code> object has an inverter <code>CPOTrained</code> attribute that was created by <code>cpo.trafo</code>, the <code>retrafd</code> object has an inverter <code>CPOTrained</code> attribute created by <code>cpo.retrafo</code> (necessarily). This is made visible by the given example inverter function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">inv =<span class="st"> </span><span class="kw">invert</span>(<span class="kw">inverter</span>(trafd), <span class="dv">1</span>:<span class="dv">6</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">inv =<span class="st"> </span><span class="kw">invert</span>(<span class="kw">inverter</span>(retrafd), <span class="dv">1</span>:<span class="dv">6</span>)</code></pre></div>
+</div>
+</div>
+<div id="postscriptum" class="section level2">
+<h2>Postscriptum</h2>
+<p>As an aside, the <code>Learner</code> enhanced by <code>xmpMetaLearn</code> seems to perform marginally better than either <code>&quot;classif.svm&quot;</code> or <code>&quot;classif.logreg&quot;</code> on their own for a large enough subset of <code>pid.task</code> (here resampled with output suppressed).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">learners =<span class="st"> </span><span class="kw">list</span>(
+    <span class="dt">logreg =</span> <span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>),
+    <span class="dt">svm =</span> <span class="kw">makeLearner</span>(<span class="st">&quot;classif.svm&quot;</span>),
+    <span class="dt">cpo =</span> <span class="kw">xmpMetaLearn</span>(<span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)) %&gt;&gt;%
+<span class="st">      </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.svm&quot;</span>)
+)
+
+<span class="co"># suppress output of '*** cpo.train ***' etc.</span>
+<span class="kw">configureMlr</span>(<span class="dt">show.info =</span> <span class="ot">FALSE</span>, <span class="dt">show.learner.output =</span> <span class="ot">FALSE</span>)
+
+perfs =<span class="st"> </span><span class="kw">sapply</span>(learners, function(lrn) {
+  <span class="kw">unname</span>(<span class="kw">replicate</span>(<span class="dv">20</span>, <span class="kw">resample</span>(lrn, pid.task, cv10)$aggr))
+})
+
+<span class="co"># reset mlr settings</span>
+<span class="kw">configureMlr</span>()
+
+<span class="kw">boxplot</span>(perfs)</code></pre></div>
+<p>P-Values of comparing the <code>CPOLearner</code> to both <code>&quot;classif.logreg&quot;</code>, and <code>&quot;classif.svm&quot;</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvals =<span class="st"> </span><span class="kw">c</span>(
+    <span class="dt">logreg =</span> <span class="kw">t.test</span>(perfs[, <span class="st">&quot;logreg&quot;</span>], perfs[, <span class="st">&quot;cpo&quot;</span>], <span class="st">&quot;greater&quot;</span>)$p.value, 
+    <span class="dt">svm =</span> <span class="kw">t.test</span>(perfs[, <span class="st">&quot;svm&quot;</span>], perfs[, <span class="st">&quot;cpo&quot;</span>], <span class="st">&quot;greater&quot;</span>)$p.value
+)
+
+<span class="kw">round</span>(<span class="kw">p.adjust</span>(pvals), <span class="dv">3</span>)</code></pre></div>
 </div>
 
 
