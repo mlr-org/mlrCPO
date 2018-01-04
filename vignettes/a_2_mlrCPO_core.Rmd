@@ -99,20 +99,6 @@ identicalCPO(cpoScale(scale = TRUE), cpoScale(scale = FALSE))
 identicalCPO(cpoScale(), cpoPca())
 ```
 
-#### Exporting Parameters
-
-Sometimes when using many CPOs, their hyperparameters may get messy. `mlrCPO` enables the user to control which hyperparameter get exported. The parameter "export" can be one of `"export.default"`, `"export.set"`, `"export.unset"`, `"export.default.set"`, `"export.default.unset"`, `"export.all"`, `"export.none"`. "all" and "none" do what one expects; "default" exports the "recommended" parameters; "set" and "unset" export the values that have not been set, or only the values that were set (and are not left as default). "default.set" and "default.unset" work as "set" and "unset", but restricted to the default exported parameters.
-
-```{r}
-!cpoScale()
-```
-```{r}
-!cpoScale(export = "export.none")
-```
-```{r}
-!cpoScale(scale = FALSE, export = "export.unset")
-```
-
 #### CPO Application
 `CPO`s can be applied to `data.frame` and `Task` objects using `%>>%` or `applyCPO`.
 
@@ -410,6 +396,34 @@ nullToNullcpo(10) # not changed
 nullcpoToNull(10) # ditto
 ```
 
+## CPO Name and Id
+
+A `CPO` has a "name" which identifies the general operation done by this `CPO`. For example, it is `"pca"` for a `CPO` created using `cpoPca()`. Furthermore, a `CPO` has an "ID" which is associated with the particular `CPO` object at hand. For primitive `CPO`s, it can be queried and set using `getCPOId()` and `setCPOId()`, and it can be set during construction, but it *defaults* to the `CPO`'s name. The ID will also be prefixed to the `CPO`'s hyperparameters after construction, if they are exported. This can help prevent hyperparameter name clashes when composing `CPO`s with otherwise identical hyperparameter names. It is possible to set the ID to `NULL` to have no prefix for hyperparameter names.
+
+```{r}
+cpo = cpoPca()
+getCPOId(cpo)
+```
+```{r}
+getParamSet(cpo)
+```
+```{r}
+getParamSet(setCPOId(cpo, "my.id"))
+```
+```{r}
+getParamSet(setCPOId(cpo, NULL))
+```
+
+
+In the following (silly) example an error is thrown because of hyperparameter name clash. This can be avoided by setting the ID of one of the constituents to a different value.
+```{r, error = TRUE}
+
+cpo %>>% cpo
+```
+```{r}
+cpo %>>% setCPOId(cpo, "two")
+```
+
 ## CPO Properties
 CPOs contain information about the kind of data they can work with, and what kind of data they produce. `getCPOProperties` returns a list with the slots `handling`, `adding`, `needed`. `properties$handling` indicates the kind of data a CPO can handle, `properties$needed` indicates the kind of data it needs the data receiver (e.g. attached learner) to have, and `properties$adding` lists the properties it adds to a given learner. An example is `cpoDummyEncode()`, a CPO that converts factors to numerics: The receiving learner needs to handle numerics, so `properties$needed == "numerics"`, but it *adds* the ability to handle factors (since they are converted), so `properties$adding = c("factors", "ordered")`.
 
@@ -441,7 +455,43 @@ An example is the `cpoApplyFun` `CPO`: When it is constructed, it is not known w
 getCPOProperties(cpoApplyFun(export = "export.all"), get.internal = TRUE)
 ```
 
-### Syntactic Sugar
+## CPO Affect
+
+When constructing a `CPO`, it is possible to restrict the columns on which the `CPO` operates using the `affect.*` parameters of the `CPOConstructor`. These parameters are:
+
+* **`affect.index`**: Identify affected columns by a vector of column indices.
+* **`affect.names`**: Identify affected columns by a vector of column names.
+* **`affect.pattern`**: Match column names against a `grep()` style regex pattern.
+* **`affect.pattern.ignore.case`**: Ignore case when matching by pattern.
+* **`affect.pattern.perl`**: Use "perl" syntax in `affect.pattern`.
+* **`affect.pattern.fixed`**: Use fixed pattern instead of regex in `affect.pattern`.
+* **`affect.invert`**: Invert the columns to affect: Only columns not matched by any of the other `affect.*` parameters are affected.
+
+```{r}
+# onlhy PCA columns that have '.Length' in their name
+cpo = cpoPca(affect.pattern = ".Length")
+getCPOAffect(cpo)
+```
+```{r}
+triris = iris %>>% cpo
+head(triris)
+```
+
+## CPO Parameter Export
+
+Sometimes when using many CPOs, their hyperparameters may get messy. `mlrCPO` enables the user to control which hyperparameter get exported. The parameter "export" can be one of `"export.default"`, `"export.set"`, `"export.unset"`, `"export.default.set"`, `"export.default.unset"`, `"export.all"`, `"export.none"`. "all" and "none" do what one expects; "default" exports the "recommended" parameters; "set" and "unset" export the values that have not been set, or only the values that were set (and are not left as default). "default.set" and "default.unset" work as "set" and "unset", but restricted to the default exported parameters.
+
+```{r}
+!cpoScale()
+```
+```{r}
+!cpoScale(export = "export.none")
+```
+```{r}
+!cpoScale(scale = FALSE, export = "export.unset")
+```
+
+## Syntactic Sugar
 
 There are some `%>>%`-related operators that perform similar operations but may be more concise in certain applications. In general these operators are left-assiciative, i.e. they are evaluated after the expressions to their left were evaluated. Therefore, for example, `a %>>% b %<<% c` is equivalent to `(a %>>% b) %<<% c`. Exceptions are the assignment operators, `%<>>%` and `%<<<%`, as well as the `%>|%` operator, see below.
 
@@ -453,8 +503,3 @@ The operators are:
 * **`%<<<%`**: `%<<%`, followed with assignment to the left. Note this is *not* the `%<>>%` operator with its arguments flipped. This operator evaluates the arguments to its right before being evaluated itself. `a %<<<% b %>>% c` is equivalent to `a = (a %<<% (b %>>% c))`.
 * **`%>|%`**: `%>>%`, followed by application of `retrafo()`. This operator evaluates the arguments to its right before being evaluated itself. `a %>|% b %<<% c` is equivalent to `retrafo(a %>>% (b %<<% c))`.
 * **`%|<%`**: The above with exchanged arguments. Like most R operators, this one evaluates arguments to its *left* before being evaluated itself. `a %>>% b %|<% c` is equivalent to `retrafo((a %>>% b) %<<% c)`.
-
-## TODO
-
-* CPO Affect
-* operator syntactic sugar
