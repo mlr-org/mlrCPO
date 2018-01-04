@@ -42,7 +42,7 @@ Each `CPO` has a "name" that is used for representation when printing, and as th
 ```{r}
 !cpoPca()
 ```
-The name is set using the `cpo.name` parameter of the `make*()` functions.
+The name is set using the **`cpo.name`** parameter of the `make*()` functions.
 
 ### CPO parameters
 
@@ -57,7 +57,7 @@ Not all available parameters of a `CPO` need to be exported as hyperparameters. 
 Different `CPO` operations may want to operate on the data in different forms: as a `Task`, as a `data.frame` with or without the target column, etc. The `CPO` framework can perform some conversion of data to fit different needs, which is set up by the value of the `dataformat` parameter, together with `dataformat.factor.with.ordered`. While `dataformat` has slightly different effects on different `CPO` types, typically its values and effects are:
 
 | `dataformat` | Effect |
-|------------|--------------------------------------------------------------------|
+|------------|------------------------------------------------------------------|
 | `"task"` | Data is given as a `Task`; if the data to be transformed is a `data.frame`, it is converted to a `cluster` task before handing it to the transformation functions.
 | `"df.all"` | Data is given as a `data.frame`, with the target column included. |
 | `"df.features"` | Data is given as a `data.frame`, the target is given as a separate `data.frame`. |
