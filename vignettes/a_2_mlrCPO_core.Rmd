@@ -357,7 +357,7 @@ predict(retrafo(transformed), head(iris))
 
 #### Inversion using CPOTrained
 
-To use `CPOTrained` objects for inversion, the `invert()` function is used. Besides the `CPOTrained`, it takes the data to invert, and optionally the `predict.type`.
+To use `CPOTrained` objects for inversion, the `invert()` function is used. Besides the `CPOTrained`, it takes the data to invert, and optionally the `predict.type`. Typically `CPOTrained` objects that were retrieved using `inverter()` from a transformed dataset should be used for inversion. Retrafo `CPOTrained` objects retrieved from a transformed data set using `retrafo()` sometimes have both the `"retrafo"` as well as the `"invert"` capability (precisely when all TOCPOs used had the `constant.invert` flag set, see [Building Custom CPOs](a_4_custom_CPOs.html)) and can then also be used for inversion. In that case, however, the `"truth"` column of an inverted prediction is dropped.
 
 ```{r}
 transformed = bh.task %>>% cpoLogTrafoRegr()
@@ -365,6 +365,14 @@ prediction = predict(train("regr.lm", transformed), transformed)
 inv = inverter(transformed)
 invert(inv, prediction)
 ```
+```{r}
+ret = retrafo(transformed)
+invert(ret, prediction)
+```
+
+Inversion can be done on both predictions given by `mlr` `Learner`s, as well as plain vectors, `data.frame`s, and `matrix` objects.
+
+Note that the prediction being inverted must have the form of a prediction done with the `predict.type` that an inverter expects as input for the `predict.type` given to `invert()` as an argument. This can be queried using the `getCPOPredictType()` function. If `invert()` is called with `predict.type = p`, then the prediction must be one made with a `Learner` that has `predict.type` set to `getCPOPredictType(cpo)[p]`.
 
 ## NULLCPO
 
@@ -399,7 +407,7 @@ Some helper functions convert `NULLCPO` to `NULL` and back, while leaving other 
 nullToNullcpo(NULL)
 nullcpoToNull(NULLCPO)
 nullToNullcpo(10) # not changed
-nullcpoToNull(10) # dito
+nullcpoToNull(10) # ditto
 ```
 
 ## CPO Properties
@@ -423,9 +431,30 @@ getLearnerProperties("classif.geoDA")
 getLearnerProperties(cpoDummyEncode(TRUE) %>>% makeLearner("classif.geoDA"))
 ```
 
+### `.sometimes`-Properties
+
+As described in more detail in the [Building Custom CPOs](a_4_custom_CPOs.html) vignette, `CPO`s can have properties that are considered only when composing `CPO`s, or only when checking data returned by `CPO`s. In short, consider a `CPO` that does imputation, but only for factorial features. This `CPO` would need to have `"missings"` in its `$adding` properties slot, since it enables `Learner` to handle (some) `Tasks` that have missing values. However, this `CPO` may under certain circumstances still return data that has missing values. This discrepancy is recorded internally by having two "hidden" sets of properties that can be retrieved with `getCPOProperties()` with `get.internal` set to `TRUE`. These properties are `adding.min`, the minimal set of properties added, and `needed.max`, the maximal set of properties needed by consecutive operators. These can be understood as a description of the "worst case" behaviour of the `CPO`, since behaviour that is out of bounds of these sets causes an error by the `mlrCPO`-framework.
+
+An example is the `cpoApplyFun` `CPO`: When it is constructed, it is not known what kind of properties will be added or needed, so `adding.min` is empty while `needed.max` is the set of all data properties. When composing `CPO`s, this `CPO` is handled as if it magically does exactly the data conversion necessary to make the `CPO`s or `Learner` coming after it work with the data. If this ends up not being the case, an error is thrown during application or training by the following `CPO` or `Learner`.
+
+```{r}
+getCPOProperties(cpoApplyFun(export = "export.all"), get.internal = TRUE)
+```
+
+### Syntactic Sugar
+
+There are some `%>>%`-related operators that perform similar operations but may be more concise in certain applications. In general these operators are left-assiciative, i.e. they are evaluated after the expressions to their left were evaluated. Therefore, for example, `a %>>% b %<<% c` is equivalent to `(a %>>% b) %<<% c`. Exceptions are the assignment operators, `%<>>%` and `%<<<%`, as well as the `%>|%` operator, see below.
+
+The operators are:
+
+* **`%>>%`**: The application, composition or attachment operator.
+* **`%<<%`**: The above with exchanged arguments. `a %<<% b` is equivalent to `b %>>% a`
+* **`%<>>%`**: `%>>%`, followed with assignment to the left. This operator evaluates the arguments to its right before being evaluated itself. `a %<>>% b %>>% c` is equivalent to `a = (a %>>% b %>>% c)`.
+* **`%<<<%`**: `%<<%`, followed with assignment to the left. Note this is *not* the `%<>>%` operator with its arguments flipped. This operator evaluates the arguments to its right before being evaluated itself. `a %<<<% b %>>% c` is equivalent to `a = (a %<<% (b %>>% c))`.
+* **`%>|%`**: `%>>%`, followed by application of `retrafo()`. This operator evaluates the arguments to its right before being evaluated itself. `a %>|% b %<<% c` is equivalent to `retrafo(a %>>% (b %<<% c))`.
+* **`%|<%`**: The above with exchanged arguments. Like most R operators, this one evaluates arguments to its *left* before being evaluated itself. `a %>>% b %|<% c` is equivalent to `retrafo((a %>>% b) %<<% c)`.
+
 ## TODO
 
-* `.sometimes` properties
 * CPO Affect
-* invert, predict.type
 * operator syntactic sugar
