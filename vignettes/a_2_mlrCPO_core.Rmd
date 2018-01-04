@@ -115,20 +115,17 @@ head(getTaskData(task))
 * Affect of compound CPOs cannot be retrieved
 
 ```{r}
-scale1 = cpoScale()
-scale2 = cpoScale()
-```
-```{r, error = TRUE}
-scale1 %>>% scale2  # error! parameters 'center' and 'scale' occur in both
+scale = cpoScale()
+pca = cpoPca()
 ```
 ```{r}
-compound = setCPOId(scale1, "scale1") %>>% setCPOId(scale2, "scale2")
-composeCPO(setCPOId(scale1, "scale1"), setCPOId(scale2, "scale2"))  # same
+compound = scale %>>% pca
+composeCPO(scale, pca)  # same
 class(compound)
 !compound
 getCPOName(compound)
 getHyperPars(compound)
-setHyperPars(compound, scale1.center = TRUE, scale2.center = FALSE)
+setHyperPars(compound, scale.center = TRUE, pca.center = FALSE)
 ```
 ```{r, error = TRUE}
 getCPOId(compound)  # error: no ID for compound CPOs
@@ -396,7 +393,7 @@ nullToNullcpo(10) # not changed
 nullcpoToNull(10) # ditto
 ```
 
-## CPO Name and Id
+## CPO Name and ID
 
 A `CPO` has a "name" which identifies the general operation done by this `CPO`. For example, it is `"pca"` for a `CPO` created using `cpoPca()`. Furthermore, a `CPO` has an "ID" which is associated with the particular `CPO` object at hand. For primitive `CPO`s, it can be queried and set using `getCPOId()` and `setCPOId()`, and it can be set during construction, but it *defaults* to the `CPO`'s name. The ID will also be prefixed to the `CPO`'s hyperparameters after construction, if they are exported. This can help prevent hyperparameter name clashes when composing `CPO`s with otherwise identical hyperparameter names. It is possible to set the ID to `NULL` to have no prefix for hyperparameter names.
 
