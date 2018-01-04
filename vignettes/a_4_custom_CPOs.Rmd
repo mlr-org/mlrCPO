@@ -46,15 +46,15 @@ The name is set using the **`cpo.name`** parameter of the `make*()` functions.
 
 ### CPO parameters
 
-The `ParSet` used by the `CPO` are given as the second `par.set` parameter. These parameters must be either constructed using `makeParamSet()` from the `ParamHelpers` package, or using the `pSS()` function for a more concise `ParSet` definition. The given parameters will then be the function parameters of the `CPOConstructor`, and will by default be exported as hyperparameters (prefixed with the `cpo.name`).
+The `ParSet` used by the `CPO` are given as the second **`par.set`** parameter. These parameters must be either constructed using `makeParamSet()` from the `ParamHelpers` package, or using the `pSS()` function for a more concise `ParSet` definition. The given parameters will then be the function parameters of the `CPOConstructor`, and will by default be exported as hyperparameters (prefixed with the `cpo.name`).
 
-It is possible to use the default parameter values of the `par.set` as defaults, or to give a `par.vals` list of default values. If `par.vals` is given, the defaults within `par.set` are completely ignored. Parameters that have a default value are set to this value upon construction if no value is given by the user.
+It is possible to use the default parameter values of the `par.set` as defaults, or to give a **`par.vals`** list of default values. If `par.vals` is given, the defaults within `par.set` are completely ignored. Parameters that have a default value are set to this value upon construction if no value is given by the user.
 
-Not all available parameters of a `CPO` need to be exported as hyperparameters. *Which* parameters are exported can be set during `CPO` construction, but the default exported parameters can be set using `export.params`. This can either be a `character` vector of the names of parameters to export, or `TRUE` (default, export all) or `FALSE` (no export).
+Not all available parameters of a `CPO` need to be exported as hyperparameters. *Which* parameters are exported can be set during `CPO` construction, but the default exported parameters can be set using **`export.params`**. This can either be a `character` vector of the names of parameters to export, or `TRUE` (default, export all) or `FALSE` (no export).
 
 ### Data Format
 
-Different `CPO` operations may want to operate on the data in different forms: as a `Task`, as a `data.frame` with or without the target column, etc. The `CPO` framework can perform some conversion of data to fit different needs, which is set up by the value of the `dataformat` parameter, together with `dataformat.factor.with.ordered`. While `dataformat` has slightly different effects on different `CPO` types, typically its values and effects are:
+Different `CPO` operations may want to operate on the data in different forms: as a `Task`, as a `data.frame` with or without the target column, etc. The `CPO` framework can perform some conversion of data to fit different needs, which is set up by the value of fthe **`dataformat`** parameter, together with **`dataformat.factor.with.ordered`**. While `dataformat` has slightly different effects on different `CPO` types, typically its values and effects are:
 
 | `dataformat` | Effect |
 |------------|------------------------------------------------------------------|
@@ -64,17 +64,17 @@ Different `CPO` operations may want to operate on the data in different forms: a
 | `"split"` | Data is given as a named list with slots `$numeric`, `$factor`, `$ordered`, `$other`, each of which contains a `data.frame` with the columns of the respective type. If `dataformat.factor.with.ordered` is `TRUE`, the `$ordered` slot is not present, and ordered features are instead given to `$factor` as well. Features that are not any of these types are given to `"other"`. The target is given as a separate `data.frame`. |
 | `"factor"`, `"ordered"`, `"numeric"` | Only the data from columns of the named type are given to the transformatin functions as a `data.frame`. The target columns are given as a separate `data.frame`. |
 
-Another parameter influencing the data format is the `fix.factors` flag which controls whether factor levels of prediction data need to be set to be the same as during training. If it is `TRUE`, previously unseen factor levels are set to `NA` during prediction.
+Another parameter influencing the data format is the **`fix.factors`** flag which controls whether factor levels of prediction data need to be set to be the same as during training. If it is `TRUE`, previously unseen factor levels are set to `NA` during prediction.
 
 ### Properties
 
 `mlr` and `mlrCPO` make it possible to specify what kind of data a `CPO` or a `Learner` can handle. However, since `CPO`s may change data to be more or less fitting for a certain `Learner`, a `CPO` must announce not only what data it can handle, but also how it changes the capabilities of the machine learning pipeline in which it is envolved. During construction, four parameters related to properties can be given.
 
-The `properties.data` parameter defines what properties of feature data the `CPO` can handle; it must be a subset of `"numerics"`, `"factors"`, `"ordered"`, and `"missings"`. Typically, only the `"missings"` part is interesting since `CPO`s that only handle a subset of types will usually just ignore columns of other types.
+The **`properties.data`** parameter defines what properties of feature data the `CPO` can handle; it must be a subset of `"numerics"`, `"factors"`, `"ordered"`, and `"missings"`. Typically, only the `"missings"` part is interesting since `CPO`s that only handle a subset of types will usually just ignore columns of other types.
 
-The `properties.target` parameter defines what `Task` properties related to the task type and the target column a `CPO` can handle. It is a subset of `"cluster"`, `"classif"`, `"multilabel"`, `"regr"`, `"surv"` (so far defining the task type a `CPO` can handle), `"oneclass"`, `"twoclass"`, `"multiclass"` (properties specific to `classif` `Task`s). Most FOCPOs do not care about the task type, while TOCPOs may only support a single task type.
+The **`properties.target`** parameter defines what `Task` properties related to the task type and the target column a `CPO` can handle. It is a subset of `"cluster"`, `"classif"`, `"multilabel"`, `"regr"`, `"surv"` (so far defining the task type a `CPO` can handle), `"oneclass"`, `"twoclass"`, `"multiclass"` (properties specific to `classif` `Task`s). Most FOCPOs do not care about the task type, while TOCPOs may only support a single task type.
 
-`properties.adding` lists the properties that a CPO *adds* to the capabilities of a machine learning pipeline when it is executed before it, while `properties.needed` lists the properties *needed* from the following pipeline. `cpoDummyEncode`, for example, a `CPO` that converts factors and ordereds to numerics, has `properties.adding == c("factors", "ordered")` and `properties.needed == "numerics"`. The many imputation `CPO`s have `properties.adding == "missings"`. Usually these are only a subset of the possible `properties.data` states, but for TOCPOs this may also be any of `"oneclass"`, `"twoclass"`, `"multiclass"`. Note that neither `properties.adding` nor `properties.needed` may be any task type, even for TOCPOs that perform task conversion.
+**`properties.adding`** lists the properties that a CPO *adds* to the capabilities of a machine learning pipeline when it is executed before it, while **`properties.needed`** lists the properties *needed* from the following pipeline. `cpoDummyEncode`, for example, a `CPO` that converts factors and ordereds to numerics, has `properties.adding == c("factors", "ordered")` and `properties.needed == "numerics"`. The many imputation `CPO`s have `properties.adding == "missings"`. Usually these are only a subset of the possible `properties.data` states, but for TOCPOs this may also be any of `"oneclass"`, `"twoclass"`, `"multiclass"`. Note that neither `properties.adding` nor `properties.needed` may be any task type, even for TOCPOs that perform task conversion.
 
 #### Property Checking and `.sometimes` Properties
 
@@ -82,13 +82,13 @@ The `CPO` framework will check that a `CPO` only adds and removes the kind of da
 
 ### Packages
 
-The single `packages` parameter can be set to a `character` vector listing packages necessary for a `CPO` to work. This is mostly useful when a `CPO` should be defined as part of a package or script to be distributed. The listed package will *not* automatically be *attached*, it will only be *loaded*. This means that a function exported by a package still needs to be called using `::`. The benefit of declaring it in `packages` is that it will be loaded upon *construction* of a `CPO`, which means that a user will get immediate feedback about whether the `CPO` can be used or needs more packages to be installed.
+The single **`packages`** parameter can be set to a `character` vector listing packages necessary for a `CPO` to work. This is mostly useful when a `CPO` should be defined as part of a package or script to be distributed. The listed package will *not* automatically be *attached*, it will only be *loaded*. This means that a function exported by a package still needs to be called using `::`. The benefit of declaring it in `packages` is that it will be loaded upon *construction* of a `CPO`, which means that a user will get immediate feedback about whether the `CPO` can be used or needs more packages to be installed.
 
 ### Transformation Functions
 
 The different types of `CPO`, and the different `make*()` functions, need different transformation functions to be defined. The principle behind these functions is alwasy the same, however: The `CPO` framework takes input data, transforms it according to `dataformat`, checks it according to `properties.data` and `properties.target`, and then gives it to one or more user-given transformation function. The transformation function must then usually create a control object containing information about the data to be used later, or transform the incoming data and return the transformation result (or both). The `CPO` framework then checks the transformed data according to `properties.adding` and `properties.needed` and gives it back to the `CPO` user.
 
-Transformation functions are given to parameters starting with `cpo.`. They can either be given as functions, or as "**headless**" functions missing the `function(...)` part. In the latter case, the headless function must be a succession of expressions enclosed in curly braces (`{`, `}`) and the necessary function head is added by the `CPO` framework. The functions often take a subset of `data`, `target`, `control`, or `control.invert` parameters, in addition to all parameters as given in `par.set`.
+Transformation functions are given to parameters starting with **`cpo.`**. They can either be given as functions, or as "**headless**" functions missing the `function(...)` part. In the latter case, the headless function must be a succession of expressions enclosed in curly braces (`{`, `}`) and the necessary function head is added by the `CPO` framework. The functions often take a subset of `data`, `target`, `control`, or `control.invert` parameters, in addition to all parameters as given in `par.set`.
 
 #### Functional Transformation
 
