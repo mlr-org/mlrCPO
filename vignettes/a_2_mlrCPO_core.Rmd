@@ -32,7 +32,7 @@ getCPOClass(inverter(bh.task %>>% cpoLogTrafoRegr()))
 getCPOClass(NULLCPO)
 ```
 
-## CPOConstructor
+### CPOConstructor
 
 `CPO`s are created using **`CPOConstructor`**s. These are R functions with a print function and many parameters in common.
 
@@ -64,7 +64,7 @@ class(cpo)  # CPOs that are not compound are "CPOPrimitive"
 getCPOClass(cpo)
 ```
 
-### Functions that work on CPOs
+#### Functions that work on CPOs
 
 The inner "state" of a `CPO` can be inspected and manipulated using various getters and setters.
 
@@ -80,6 +80,7 @@ getCPOAffect(cpoPca(affect.pattern = "Width$"))
 getCPOConstructor(cpo)  # the constructor used to create the CPO
 getCPOProperties(cpo)  # see properties explanation below
 getCPOPredictType(cpo)
+getCPOClass(cpo)
 getCPOOperatingType(cpo)  # Operating on feature, target, retrafoless?
 ```
 
@@ -91,22 +92,15 @@ getCPOOperatingType(cpoResponseFromSE())
 getCPOOperatingType(cpoSample())
 ```
 
-### Exporting Parameters
-
-Sometimes when using many CPOs, their hyperparameters may get messy. `mlrCPO` enables the user to control which hyperparameter get exported. The parameter "export" can be one of `"export.default"`, `"export.set"`, `"export.unset"`, `"export.default.set"`, `"export.default.unset"`, `"export.all"`, `"export.none"`. "all" and "none" do what one expects; "default" exports the "recommended" parameters; "set" and "unset" export the values that have not been set, or only the values that were set (and are not left as default). "default.set" and "default.unset" work as "set" and "unset", but restricted to the default exported parameters.
+The `identicalCPO()` function is used to check whether the *underlying operation* of two `CPO`s is identical. For this understanding, `CPO`s with different hyperparameters can still be "identical".
 
 ```{r}
-!cpoScale()
-```
-```{r}
-!cpoScale(export = "export.none")
-```
-```{r}
-!cpoScale(scale = FALSE, export = "export.unset")
+identicalCPO(cpoScale(scale = TRUE), cpoScale(scale = FALSE))
+identicalCPO(cpoScale(), cpoPca())
 ```
 
-### CPO Application using `%>>%` or `applyCPO`
-`CPO`s can be applied to `data.frame` and `Task` objects.
+#### CPO Application
+`CPO`s can be applied to `data.frame` and `Task` objects using `%>>%` or `applyCPO`.
 
 ```{r}
 head(iris) %>>% cpoPca()
@@ -114,27 +108,24 @@ task = applyCPO(cpoPca(), iris.task)
 head(getTaskData(task))
 ```
 
-### CPO Composition using `%>>%` or `composeCPO`
-`CPO` composition results in a new CPO which mostly behaves like a primitive CPO. Exceptions are:
+#### CPO Composition
+`CPO` composition can be done using `%>>%` or `composeCPO`. It results in a new CPO which mostly behaves like a primitive CPO. Exceptions are:
 
 * Compound CPOs have no `id`
 * Affect of compound CPOs cannot be retrieved
 
 ```{r}
-scale1 = cpoScale()
-scale2 = cpoScale()
-```
-```{r, error = TRUE}
-scale1 %>>% scale2  # error! parameters 'center' and 'scale' occur in both
+scale = cpoScale()
+pca = cpoPca()
 ```
 ```{r}
-compound = setCPOId(scale1, "scale1") %>>% setCPOId(scale2, "scale2")
-composeCPO(setCPOId(scale1, "scale1"), setCPOId(scale2, "scale2"))  # same
+compound = scale %>>% pca
+composeCPO(scale, pca)  # same
 class(compound)
 !compound
 getCPOName(compound)
 getHyperPars(compound)
-setHyperPars(compound, scale1.center = TRUE, scale2.center = FALSE)
+setHyperPars(compound, scale.center = TRUE, pca.center = FALSE)
 ```
 ```{r, error = TRUE}
 getCPOId(compound)  # error: no ID for compound CPOs
@@ -148,7 +139,9 @@ getCPOOperatingType(cpoScale())
 getCPOOperatingType(cpoScale() %>>% cpoLogTrafoRegr() %>>% cpoSample())
 ```
 
-### Compound CPO decomposition, CPO chaining
+#### Compound CPO Chaining and Decomposition
+
+Composite `CPO` objects can be broken into their constituent primitive `CPO`s using `as.list()`. The inverse of this operation is `pipeCPO()`, which composes a list of `CPO`s in the given order.
 
 ```{r}
 as.list(compound)
@@ -156,7 +149,9 @@ pipeCPO(as.list(compound))  # chainCPO: (list of CPO) -> CPO
 pipeCPO(list())
 ```
 
-## CPOLearner: CPO - Learner attachment using `%>>%` or `attachCPO`
+### CPOLearner
+
+CPO-Learner attachment works using `%>>%` or `attachCPO`.
 
 ```{r}
 lrn = makeLearner("classif.logreg")
@@ -184,7 +179,10 @@ pred = predict(model, newdata)
 invert(inverter(newdata), pred)
 ```
 
-CPO learner decomposition
+#### CPOLearner Decomposition
+
+It is possible to obtain both the underlying `Learner` and the attached `CPO` from a `CPOLearner`. Note that if a `CPOLearner` is wrapped by some method (e.g. a `TuneWrapper`), this does not work, since `CPO` can not probe below the first wrapping layer.
+
 ```{r}
 getLearnerCPO(cpolrn)  # the CPO
 getLearnerBare(cpolrn)  # the Learner
@@ -193,6 +191,8 @@ getLearnerBare(cpolrn)  # the Learner
 ### CPOTrained
 
 CPOs perform data-dependent operation. However, when this operation becomes part of a machine-learning process, the operation on predict-data must depend only on the training data. A `CPORetrafo` object represents the re-application of a trained CPO. A `CPOInverter` object represents the transformation of a prediction made on a transformed task back to the form of the original data.
+
+The `CPOTrained` objects generated by application of a `CPO` (or application of another `CPOTrained`) can be retrieved using the `retrafo()` or the `inverter()` function.
 
 ```{r}
 transformed = iris %>>% cpoScale()
@@ -208,18 +208,43 @@ head(getTaskTargets(transformed))
 head(invert(inv, getTaskTargets(transformed)))
 ```
 
-#### Functions that work on CPOTrained
+Retrafos and inverters are stored as attributes:
+```{r}
+attributes(transformed)
+```
+
+It is possible to *set* the `"retrafo"` and `"inverter"` attributes of an object using `retrafo()` and `inverter()`. This can be useful for writing elegant scripts, especially since [CPOTrained are automatically chained](#cpotrained-are-automatically-chained). To delete the `CPOTrained` attribute of an object, set it to `NULL` or `NULLCPO`, or use `clearRI()`.
 
 ```{r}
-# General methods that work on retrafo
+bh2 = bh.task
+retrafo(bh2) = ret
+attributes(bh2)
+```
+```{r}
+retrafo(bh2) = NULLCPO
+# equivalent:
+# retrafo(bh2) = NULL
+attributes(bh2)
+```
+
+```{r}
+# clearRI returns the object without retrafo or inverter attributes
+bh3 = clearRI(transformed)
+attributes(bh3)
+```
+
+#### Functions that work on CPOTrained
+
+General methods that work on `CPOTrained` object to inspect its object properties. Many methods that work on a `CPO` also work on a `CPOTrained` and give the same result.
+
+```{r}
 getCPOName(ret)
+getParamSet(ret)
 getHyperPars(ret)
-getCPOClass(ret)
-getCPOClass(inv)
+getCPOProperties(ret)
+getCPOPredictType(ret)
 getCPOOperatingType(ret)  # Operating on feature, target, both?
 getCPOOperatingType(inv)
-getCPOPredictType(ret)
-getCPOPredictType(inv)
 ```
 
 A `CPOTrained` has information about whether it can be used as a `CPORetrafo` object (and be applied to new data using `%>>%`), or as a `CPOInverter` object (and used by `invert()`), or possibly both. This is given by `getCPOTrainedCapability()`, which returns a `1` if the object has an effect in the given role, `0` if the object has no effect (but can be used), or `-1` if the object can not be used in the role.
@@ -228,9 +253,17 @@ getCPOTrainedCapability(ret)
 getCPOTrainedCapability(inv)
 getCPOTrainedCapability(NULLCPO)
 ```
-Retrafos and inverters are stored as attributes:
+The "`CPO` class" of a `CPOTrained` is determined by this as well. A pure inverter is `CPOInverter`, an object that can be used for retrafo is a `CPORetrafo`.
 ```{r}
-attributes(transformed)
+getCPOClass(ret)
+getCPOClass(inv)
+```
+
+The `CPO` and the `CPOConstructor` used to create the `CPOTrained can be queried.
+
+```{r}
+getCPOTrainedCPO(ret)
+getCPOConstructor(ret)
 ```
 
 #### CPOTrained Inspection
@@ -245,23 +278,8 @@ new.retrafo = makeCPOTrainedFromState(cpoScale, state)
 head(iris %>>% new.retrafo)
 ```
 
-#### Application of CPORetrafo using `%>>%`, `applyCPO`, or `predict`
+#### CPOTrained are Automatically Chained
 
-```{r}
-transformed = iris %>>% cpoScale()
-head(iris) %>>% retrafo(transformed)
-```
-Should in general give the same as `head(transformed)`, since the same data was used:
-```{r}
-head(transformed)
-```
-**`applyCPO()`** and **`predict()`** are synonyms of `%>>%` when used for `CPORetrafo` objects:
-```{r, eval = FALSE}
-applyCPO(retrafo(transformed), head(iris))
-predict(retrafo(transformed), head(iris))
-```
-
-#### Retrafos are automatically chained when applying CPOs (!)
 When executing `data %>>% CPO`, the result has an associated `CPORetrafo` and `CPOInverter` object. When applying another `CPO`, the `CPORetrafo` and `CPOInverter` will be chained automatically. This is to make `(data %>>% CPO1) %>>% CPO2` work the same as `data %>>% (CPO1 %>>% CPO2)`.
 
 ```{r}
@@ -287,8 +305,9 @@ data3 = data %>>% cpoScale()
 retrafo(data3)
 ```
 
-#### CPOTrained Composition, Decomposition, Chaining
-Using `as.list` and `pipeCPO`, just like for `CPO`s.
+#### CPOTrained Composition, Decomposition, and Chaining
+`CPOTrained` can be composed using `%>>%` and `pipeCPO()`, just like `CPO`s. They can also be split apart into primitive parts using `as.list`. It is recommended to only chain `CPOTrained` objects if they were created in the given order by preprocessing operations, since `CPOTrained`s are very dependent on their position within a preprocessing pipeline.
+
 ```{r}
 compound.retrafo = retrafo(head(iris) %>>% compound)
 compound.retrafo
@@ -299,6 +318,107 @@ compound.retrafo
 ```{r}
 retrafolist[[1]] %>>% retrafolist[[2]]
 pipeCPO(retrafolist)
+```
+
+#### Application of CPOTrained
+
+Similarly to `CPO`s, `CPOTrained` objects can be applied to data using `%>>%`, `applyCPO`, or `predict`. This only works with objects that have the `"retrafo"` capability and hence the `CPORetrafo` class.
+
+```{r}
+transformed = iris %>>% cpoScale()
+head(iris) %>>% retrafo(transformed)
+```
+Should in general give the same as `head(transformed)`, since the same data was used:
+```{r}
+head(transformed)
+```
+**`applyCPO()`** and **`predict()`** are synonyms of `%>>%` when used for `CPORetrafo` objects:
+```{r, eval = FALSE}
+applyCPO(retrafo(transformed), head(iris))
+predict(retrafo(transformed), head(iris))
+```
+
+#### Inversion using CPOTrained
+
+To use `CPOTrained` objects for inversion, the `invert()` function is used. Besides the `CPOTrained`, it takes the data to invert, and optionally the `predict.type`. Typically `CPOTrained` objects that were retrieved using `inverter()` from a transformed dataset should be used for inversion. Retrafo `CPOTrained` objects retrieved from a transformed data set using `retrafo()` sometimes have both the `"retrafo"` as well as the `"invert"` capability (precisely when all TOCPOs used had the `constant.invert` flag set, see [Building Custom CPOs](a_4_custom_CPOs.html)) and can then also be used for inversion. In that case, however, the `"truth"` column of an inverted prediction is dropped.
+
+```{r}
+transformed = bh.task %>>% cpoLogTrafoRegr()
+prediction = predict(train("regr.lm", transformed), transformed)
+inv = inverter(transformed)
+invert(inv, prediction)
+```
+```{r}
+ret = retrafo(transformed)
+invert(ret, prediction)
+```
+
+Inversion can be done on both predictions given by `mlr` `Learner`s, as well as plain vectors, `data.frame`s, and `matrix` objects.
+
+Note that the prediction being inverted must have the form of a prediction done with the `predict.type` that an inverter expects as input for the `predict.type` given to `invert()` as an argument. This can be queried using the `getCPOPredictType()` function. If `invert()` is called with `predict.type = p`, then the prediction must be one made with a `Learner` that has `predict.type` set to `getCPOPredictType(cpo)[p]`.
+
+## NULLCPO
+
+`NULLCPO` is the neutral element of `%>>%` and the operations it represents (`composeCPO()`, `applyCPO()`, and `attachCPO()`), i.e. when it is used as an argument of these functions, the data, `Learner` or `CPO` is not changed. `NULLCPO` is also the result `pipeCPO()` called with the empty list, and of `retrafo()` and `inverter()` when they are called for objects with no `CPOTrained` objects attached.
+
+```{r}
+pipeCPO(list())
+as.list(NULLCPO)  # the inverse of pipeCPO
+retrafo(bh.task)
+inverter(bh.task %>>% cpoPca())  # cpoPca is a TOCPO, so no inverter is created
+```
+
+Many getters give characteristic results for `NULLCPO`.
+```{r}
+getCPOClass(NULLCPO)
+getCPOName(NULLCPO)
+getCPOId(NULLCPO)
+getHyperPars(NULLCPO)
+getParamSet(NULLCPO)
+getCPOAffect(NULLCPO)
+getCPOOperatingType(NULLCPO)  # operates neither on features nor on targets.
+getCPOProperties(NULLCPO)
+# applying NULLCPO leads to a retrafo() of NULLCPO, so it is its own CPOTrainedCPO
+getCPOTrainedCPO(NULLCPO)
+# NULLCPO has no effect on applyCPO and invert, so NULLCPO's capabilities are 0.
+getCPOTrainedCapability(NULLCPO)
+getCPOTrainedState(NULLCPO)
+```
+
+Some helper functions convert `NULLCPO` to `NULL` and back, while leaving other values as they are.
+```{r}
+nullToNullcpo(NULL)
+nullcpoToNull(NULLCPO)
+nullToNullcpo(10) # not changed
+nullcpoToNull(10) # ditto
+```
+
+## CPO Name and ID
+
+A `CPO` has a "name" which identifies the general operation done by this `CPO`. For example, it is `"pca"` for a `CPO` created using `cpoPca()`. Furthermore, a `CPO` has an "ID" which is associated with the particular `CPO` object at hand. For primitive `CPO`s, it can be queried and set using `getCPOId()` and `setCPOId()`, and it can be set during construction, but it *defaults* to the `CPO`'s name. The ID will also be prefixed to the `CPO`'s hyperparameters after construction, if they are exported. This can help prevent hyperparameter name clashes when composing `CPO`s with otherwise identical hyperparameter names. It is possible to set the ID to `NULL` to have no prefix for hyperparameter names.
+
+```{r}
+cpo = cpoPca()
+getCPOId(cpo)
+```
+```{r}
+getParamSet(cpo)
+```
+```{r}
+getParamSet(setCPOId(cpo, "my.id"))
+```
+```{r}
+getParamSet(setCPOId(cpo, NULL))
+```
+
+
+In the following (silly) example an error is thrown because of hyperparameter name clash. This can be avoided by setting the ID of one of the constituents to a different value.
+```{r, error = TRUE}
+
+cpo %>>% cpo
+```
+```{r}
+cpo %>>% setCPOId(cpo, "two")
 ```
 
 ## CPO Properties
@@ -322,3 +442,61 @@ getLearnerProperties("classif.geoDA")
 getLearnerProperties(cpoDummyEncode(TRUE) %>>% makeLearner("classif.geoDA"))
 ```
 
+### `.sometimes`-Properties
+
+As described in more detail in the [Building Custom CPOs](a_4_custom_CPOs.html) vignette, `CPO`s can have properties that are considered only when composing `CPO`s, or only when checking data returned by `CPO`s. In short, consider a `CPO` that does imputation, but only for factorial features. This `CPO` would need to have `"missings"` in its `$adding` properties slot, since it enables `Learner` to handle (some) `Tasks` that have missing values. However, this `CPO` may under certain circumstances still return data that has missing values. This discrepancy is recorded internally by having two "hidden" sets of properties that can be retrieved with `getCPOProperties()` with `get.internal` set to `TRUE`. These properties are `adding.min`, the minimal set of properties added, and `needed.max`, the maximal set of properties needed by consecutive operators. These can be understood as a description of the "worst case" behaviour of the `CPO`, since behaviour that is out of bounds of these sets causes an error by the `mlrCPO`-framework.
+
+An example is the `cpoApplyFun` `CPO`: When it is constructed, it is not known what kind of properties will be added or needed, so `adding.min` is empty while `needed.max` is the set of all data properties. When composing `CPO`s, this `CPO` is handled as if it magically does exactly the data conversion necessary to make the `CPO`s or `Learner` coming after it work with the data. If this ends up not being the case, an error is thrown during application or training by the following `CPO` or `Learner`.
+
+```{r}
+getCPOProperties(cpoApplyFun(export = "export.all"), get.internal = TRUE)
+```
+
+## CPO Affect
+
+When constructing a `CPO`, it is possible to restrict the columns on which the `CPO` operates using the `affect.*` parameters of the `CPOConstructor`. These parameters are:
+
+* **`affect.index`**: Identify affected columns by a vector of column indices.
+* **`affect.names`**: Identify affected columns by a vector of column names.
+* **`affect.pattern`**: Match column names against a `grep()` style regex pattern.
+* **`affect.pattern.ignore.case`**: Ignore case when matching by pattern.
+* **`affect.pattern.perl`**: Use "perl" syntax in `affect.pattern`.
+* **`affect.pattern.fixed`**: Use fixed pattern instead of regex in `affect.pattern`.
+* **`affect.invert`**: Invert the columns to affect: Only columns not matched by any of the other `affect.*` parameters are affected.
+
+```{r}
+# onlhy PCA columns that have '.Length' in their name
+cpo = cpoPca(affect.pattern = ".Length")
+getCPOAffect(cpo)
+```
+```{r}
+triris = iris %>>% cpo
+head(triris)
+```
+
+## CPO Parameter Export
+
+Sometimes when using many CPOs, their hyperparameters may get messy. `mlrCPO` enables the user to control which hyperparameter get exported. The parameter "export" can be one of `"export.default"`, `"export.set"`, `"export.unset"`, `"export.default.set"`, `"export.default.unset"`, `"export.all"`, `"export.none"`. "all" and "none" do what one expects; "default" exports the "recommended" parameters; "set" and "unset" export the values that have not been set, or only the values that were set (and are not left as default). "default.set" and "default.unset" work as "set" and "unset", but restricted to the default exported parameters.
+
+```{r}
+!cpoScale()
+```
+```{r}
+!cpoScale(export = "export.none")
+```
+```{r}
+!cpoScale(scale = FALSE, export = "export.unset")
+```
+
+## Syntactic Sugar
+
+There are some `%>>%`-related operators that perform similar operations but may be more concise in certain applications. In general these operators are left-assiciative, i.e. they are evaluated after the expressions to their left were evaluated. Therefore, for example, `a %>>% b %<<% c` is equivalent to `(a %>>% b) %<<% c`. Exceptions are the assignment operators, `%<>>%` and `%<<<%`, as well as the `%>|%` operator, see below.
+
+The operators are:
+
+* **`%>>%`**: The application, composition or attachment operator.
+* **`%<<%`**: The above with exchanged arguments. `a %<<% b` is equivalent to `b %>>% a`
+* **`%<>>%`**: `%>>%`, followed with assignment to the left. This operator evaluates the arguments to its right before being evaluated itself. `a %<>>% b %>>% c` is equivalent to `a = (a %>>% b %>>% c)`.
+* **`%<<<%`**: `%<<%`, followed with assignment to the left. Note this is *not* the `%<>>%` operator with its arguments flipped. This operator evaluates the arguments to its right before being evaluated itself. `a %<<<% b %>>% c` is equivalent to `a = (a %<<% (b %>>% c))`.
+* **`%>|%`**: `%>>%`, followed by application of `retrafo()`. This operator evaluates the arguments to its right before being evaluated itself. `a %>|% b %<<% c` is equivalent to `retrafo(a %>>% (b %<<% c))`.
+* **`%|<%`**: The above with exchanged arguments. Like most R operators, this one evaluates arguments to its *left* before being evaluated itself. `a %>>% b %|<% c` is equivalent to `retrafo((a %>>% b) %<<% c)`.
