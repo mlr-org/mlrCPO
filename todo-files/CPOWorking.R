@@ -112,3 +112,80 @@ str(xx)
 dropNamed(xx$data, c("id", "response"))
 
 debugger()
+
+rbind(matrix(c(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0), nrow=5), 0)
+
+
+
+
+hermiteRoots = (function() {
+  ev = environment()
+  function(n) {
+    nname = as.character(n)
+    ret = get0(nname, ev, inherits = FALSE, ifnotfound = NULL)
+    if (!is.null(ret)) {
+      return(ret)
+    }
+    ltrig = cbind(rbind(0, diag(sqrt(seq_len(n - 1) / 2))), 0)
+    ret = eigen(ltrig, symmetric = TRUE, only.values = TRUE)$values * sqrt(2)
+    assign(nname, ret, ev)
+    ret
+  }
+})()
+
+hermitePoly = function(n) {
+  p0 = 1
+  p1 = 1
+  l = 2
+  index = n + 1
+  while (l < index) {
+    p2 = c(0, p1) - c((l - 1) * p0, 0)
+    p3 = p2 - c(l * p1, 0)
+    l = l + 2
+    p0 = p2
+    p1 = p3
+  }
+  if (l == index) p3 else p2
+}
+
+evalHermitePoly = function(n, x) {
+  hp = hermitePoly(n)
+  offset = 2 - n %% 2
+  sapply(x, function(x) sum(hp * x^(seq_along(hp) * 2 - offset)))
+}
+
+hermiteWeights = (function() {
+  ev = environment()
+  function(n) {
+    nname = as.character(n)
+    ret = get0(nname, ev, inherits = FALSE, ifnotfound = NULL)
+    if (!is.null(ret)) {
+      return(ret)
+    }
+    roots = hermiteRoots(n)
+    hvals = evalHermitePoly(n - 1, roots)
+    ret = factorial(n - 1) / (n * hvals^2)
+    assign(nname, ret, ev)
+    ret
+  }
+})()
+
+normExpVal = function(fun, n, mu = 0, sigma = 1) {
+  roots = hermiteRoots(n)
+  fvals = vnapply(roots, function(x) fun(x * sigma + mu))
+
+  sum(fvals * hermiteWeights(n))
+}
+
+invertNormalMuSigma = function(fun, mu, sigma, n = 23, as.df = FALSE) {
+  if (as.df) {
+    muinv = mapply(normExpVal, mu = mu, sigma = sigma, MoreArgs = list(fun = fun, n = n))
+    seinv = sqrt(mapply(function(muinv, mu, sigma) normExpVal(function(x) (fun(x) - muinv)^2, n, mu, sigma),
+      muinv = muinv, mu = mu, sigma = sigma))
+    cbind(response = muinv, se = seinv)
+  } else {
+    muinv = normExpVal(fun, n, mu, sigma)
+    seinv = sqrt(normExpVal(function(x) (fun(x) - muinv)^2, n, mu, sigma))
+    c(response = muinv, se = seinv)
+  }
+}
