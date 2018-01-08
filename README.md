@@ -95,7 +95,7 @@ Get a list of all `CPO`s by calling `listCPO()`.
 `mlrCPO` relies on a small extensions of [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers/pull/194) and the current GitHub version of [`mlr`](https://github.com/mlr-org/mlr/pull/1827). Until these changes propagate to CRAN, you need to install these using [`devtools`](https://cran.r-project.org/web/packages/devtools/README.html):
 
 ```R
-devtools::install_github("mlr-org/ParamHelpers", ref = "paramSetSugar")
+devtools::install_github("berndbischl/ParamHelpers", ref = "paramSetSugar")
 devtools::install_github("mlr-org/mlr")
 ```
 
