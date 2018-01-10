@@ -158,7 +158,7 @@ renameNonfunctionNames = function(expr, translate) {
 # The function is wrapped in an environment for memoization
 # @param n [numeric(1)] degree of Hermite polynomial, must be greater or equal 3.
 # @return [numeric] positions of hermite polynomial roots
-hermiteRoots = (function() {
+hermiteRoots = (function() {  # nolint
   ev = environment()
   function(n) {
     nname = as.character(n)
@@ -205,7 +205,7 @@ hermitePoly = function(n) {
 evalHermitePoly = function(n, x) {
   hp = hermitePoly(n)
   offset = 2 - n %% 2
-  sapply(x, function(x) sum(hp * x^(seq_along(hp) * 2 - offset)))
+  sapply(x, function(x) sum(hp * x^(seq_along(hp) * 2 - offset)))  # nolint
 }
 
 # Get the Gauss-Hermite quadrature weights for order n
@@ -219,7 +219,7 @@ evalHermitePoly = function(n, x) {
 #
 # @param n [numeric(1)] degree of Hermite polynomial, must be greater or equal 3.
 # @return [numeric] vector of length n of summation weights.
-hermiteWeights = (function() {
+hermiteWeights = (function() {  # nolint
   ev = environment()
   function(n) {
     nname = as.character(n)
