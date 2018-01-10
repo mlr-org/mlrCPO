@@ -82,7 +82,7 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #' @section Details:
 #'   When both \code{mean} and \code{se} prediction is available, it may be possible to
 #'   make more accurate mean inversion than for the \code{response} \code{predict.type},
-#'   using the \emph{delta method} or similar approximations. In such cases it may be
+#'   using integrals or approximations like the \emph{delta method}. In such cases it may be
 #'   advisable to prepend this \code{\link{CPO}} with the \code{\link{cpoResponseFromSE}}
 #'   \code{\link{CPO}}.
 #'
@@ -122,8 +122,8 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #'   two numeric columns if \code{vectorize} is \code{TRUE}. The function may also take a third
 #'   argument, which will be set to \code{param}.
 #'
-#'   \code{invert.se} may also be \code{NULL}, in which case using this \code{\link{CPO}} for
-#'   \code{\link{invert}} with \code{predict.type = "se"} is not possible.
+#'   \code{invert.se} may also be \code{NULL}, in which case \dQuote{se} inversion is done
+#'   by numeric integration using Gauss-Hermite quadrature.
 #'
 #'   Default is \code{NULL}.
 #' @param param [any]\cr
@@ -134,13 +134,17 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #'   with the whole data column (or response \emph{and} se column if \code{predict.type == "se"}),
 #'   or once for each element. If the functions vectorize, it is recommended to have this
 #'   set to \code{TRUE} for better performance. Default is \code{TRUE}.
+#' @param gauss.points [\code{numeric(1)}]\cr
+#'   Number of points at which to evaluate \code{invert.response} for Gauss-Hermite quadrature integration.
+#'   Only used if \code{invert.se} is \code{NULL}. Default is \code{23}.
 #' @template cpo_doc_outro
 #' @export
 cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
   pSS(trafo: funct,
     invert.response = NULL: funct [[special.vals = list(NULL)]],
     invert.se = NULL: funct [[special.vals = list(NULL)]],
-    param = NULL: untyped, vectorize = TRUE: logical),
+    param = NULL: untyped, vectorize = TRUE: logical,
+    gauss.points = 23: integer[3, ]),
   properties.target = "regr", predict.type.map = c(response = "response", se = "se"),
   export = "param",
   constant.invert = TRUE,
@@ -164,12 +168,18 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
   },
   cpo.invert = {
     if (predict.type == "se") {
-      if (is.null(invert.se)) {
-        stop("cpoApplyFunRegrTarget cannot predict 'se', since invert.se was NULL")
-      }
       inlength = nrow(target)
-
-      invert.se = augmentFun(invert.se, 2, param)
+      if (is.null(invert.se)) {
+        if (is.null(invert.response)) {
+          stop("cpoApplyFunRegrTarget: cannot predict 'se', since invert.response or invert.se must be non-NULL")
+        }
+        invert.response = augmentFun(invert.response, 1, param)
+        invert.se = function(mu, sigma, param) {
+          invertNormalMuSigma(invert.response, mu, sigma, gauss.points, vectorize)
+        }
+      } else {
+        invert.se = augmentFun(invert.se, 2, param)
+      }
       meancol = target[, 1, drop = TRUE]
       secol = target[, 2, drop = TRUE]
       if (!vectorize) {

@@ -5,11 +5,12 @@
 \title{Transform a Regression Target Variable}
 \usage{
 cpoApplyFunRegrTarget(trafo, invert.response = NULL, invert.se = NULL,
-  param = NULL, vectorize = TRUE, id, export = "export.default",
-  affect.type = NULL, affect.index = integer(0),
-  affect.names = character(0), affect.pattern = NULL,
-  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
-  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+  param = NULL, vectorize = TRUE, gauss.points = 23, id,
+  export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.names = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{trafo}{[\code{function}]\cr
@@ -44,8 +45,8 @@ cpoApplyFunRegrTarget(trafo, invert.response = NULL, invert.se = NULL,
   two numeric columns if \code{vectorize} is \code{TRUE}. The function may also take a third
   argument, which will be set to \code{param}.
 
-  \code{invert.se} may also be \code{NULL}, in which case using this \code{\link{CPO}} for
-  \code{\link{invert}} with \code{predict.type = "se"} is not possible.
+  \code{invert.se} may also be \code{NULL}, in which case \dQuote{se} inversion is done
+  by numeric integration using Gauss-Hermite quadrature.
 
   Default is \code{NULL}.}
 
@@ -58,6 +59,10 @@ Whether to call \code{trafo}, \code{invert.response} and \code{invert.se} once
 with the whole data column (or response \emph{and} se column if \code{predict.type == "se"}),
 or once for each element. If the functions vectorize, it is recommended to have this
 set to \code{TRUE} for better performance. Default is \code{TRUE}.}
+
+\item{gauss.points}{[\code{numeric(1)}]\cr
+Number of points at which to evaluate \code{invert.response} for Gauss-Hermite quadrature integration.
+Only used if \code{invert.se} is \code{NULL}. Default is \code{23}.}
 
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
@@ -116,7 +121,7 @@ Apply a given function to the target column of a regression \code{\link{Task}}.
 
   When both \code{mean} and \code{se} prediction is available, it may be possible to
   make more accurate mean inversion than for the \code{response} \code{predict.type},
-  using the \emph{delta method} or similar approximations. In such cases it may be
+  using integrals or approximations like the \emph{delta method}. In such cases it may be
   advisable to prepend this \code{\link{CPO}} with the \code{\link{cpoResponseFromSE}}
   \code{\link{CPO}}.
 

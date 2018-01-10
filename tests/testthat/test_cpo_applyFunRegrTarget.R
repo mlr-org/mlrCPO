@@ -10,7 +10,7 @@ test_that("cpoApplyFunRegrTarget trafo / retrafo works as expected", {
   expect_equal(getTaskData(trans, target.extra = TRUE)$target, bhtarget ^ 2)
   expect_equal(clearRI(getTaskData(bh.task) %>>% retrafo(trans)), getTaskData(trans))
   expect_error(invert(inverter(trans), 1:10, predict.type = "response"), "cannot predict 'response', since invert.response was NULL")
-  expect_error(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se"), "cannot predict 'se', since invert.se was NULL")
+  expect_error(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se"), "cannot predict 'se', since invert.response .* invert.se must be non-NULL")
 
   trans = bh.task %>>% cpoApplyFunRegrTarget(function(x) x^2, vectorize = FALSE)
   expect_equal(getTaskData(trans, target.extra = TRUE)$target, bhtarget ^ 2)
@@ -47,10 +47,9 @@ test_that("cpoApplyFunRegrTarget invert works as expected", {
 
   trans = bh.task %>>% cpoApplyFunRegrTarget(function(x) x^2, vectorize = TRUE)
   expect_error(invert(inverter(trans), 1:10, predict.type = "response"), "cannot predict 'response', since invert.response was NULL")
-  expect_error(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se"), "cannot predict 'se', since invert.se was NULL")
+  expect_error(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se"), "cannot predict 'se', since invert.response .* invert.se .*NULL")
 
   trans = bh.task %>>% cpoApplyFunRegrTarget(identity, identity)
-  expect_error(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se"), "cannot predict 'se', since invert.se was NULL")
   expect_identical(invert(inverter(trans), 1:10, predict.type = "response"), 1:10)
 
   trans = bh.task %>>% cpoApplyFunRegrTarget(identity, invert.se = function(x, y) cbind(x, y), vectorize = TRUE)
@@ -127,4 +126,30 @@ test_that("cpoLogTrafoRegr works", {
 
 })
 
+test_that("cpoApplyFunRegrTarget invert se with gauss quadrature works", {
 
+  trans = bh.task %>>% cpoApplyFunRegrTarget(function(x) log(x), function(x) exp(x), vectorize = FALSE)
+  ltrans = bh.task %>>% cpoLogTrafoRegr()
+
+  expect_equal(unname(invert(inverter(trans), matrix(1:10 / 10, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(1:10 / 10, ncol = 2), predict.type = "se")))
+
+  expect_equal(unname(invert(inverter(trans), matrix(1:10 / 5, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(1:10 / 5, ncol = 2), predict.type = "se")))
+
+  expect_equal(unname(invert(inverter(trans), matrix(10:1 / 3, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(10:1 / 3, ncol = 2), predict.type = "se")))
+
+
+  trans = bh.task %>>% cpoApplyFunRegrTarget(function(x) log(x), function(x) exp(x), vectorize = TRUE)
+
+  expect_equal(unname(invert(inverter(trans), matrix(1:10 / 10, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(1:10 / 10, ncol = 2), predict.type = "se")))
+
+  expect_equal(unname(invert(inverter(trans), matrix(1:10 / 5, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(1:10 / 5, ncol = 2), predict.type = "se")))
+
+  expect_equal(unname(invert(inverter(trans), matrix(10:1 / 3, ncol = 2), predict.type = "se")),
+    unname(invert(inverter(ltrans), matrix(10:1 / 3, ncol = 2), predict.type = "se")))
+
+})
