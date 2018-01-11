@@ -1,0 +1,6 @@
+man/* linguist-documentation
+man-roxygen/* linguist-documentation
+info/* linguist-documentation
+inst/doc/* linguist-documentation
+vignettes/* linguist-documentation
+

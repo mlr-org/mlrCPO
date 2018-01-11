@@ -12,3 +12,4 @@
 ^.editorconfig$
 ^travis_wait_*.log
 ^makeR$
+^.gitattributes$
