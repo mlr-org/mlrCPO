@@ -121,7 +121,7 @@ test_that("cpoLogTrafoRegr works", {
   expect_equal(invert(inverter(trans), 1:10), exp(1:10))
 
   expect_equal(unname(invert(inverter(trans), matrix(1:10, ncol = 2), predict.type = "se")),
-    t(apply(matrix(1:10, ncol = 2), 1, function(x) c(exp(x[1] + x[2] / 2), sqrt((exp(x[2]) - 1) * exp(2 * x[1] + x[2]))))))
+    t(apply(matrix(1:10, ncol = 2), 1, function(x) c(exp(x[1] + x[2]^2 / 2), sqrt((exp(x[2]^2) - 1) * exp(2 * x[1] + x[2]^2))))))
 
 
 })
