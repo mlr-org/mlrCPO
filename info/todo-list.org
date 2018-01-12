@@ -6,8 +6,8 @@
   - [ ] potentially export 'affect.*'
   - [ ] affect.type & dataformat = <type> unification ( #15 )
     - [ ] autoskip some CPOs on empty data ( #10 )
-- [ ] small fixes & bonuses
-  - [ ] SE inversion using gauss quadrature ( #18 )
+- [-] small fixes & bonuses
+  - [X] SE inversion using gauss quadrature ( #18 )
   - [ ] error message when cpo.* has bad function header ( #24 )
   - [ ] getCPOOperatingType TOCPO CPOTrained may still be "target" ( #28 )
   - [ ] somehow emulate missings.predict ( #7 )
