@@ -641,7 +641,7 @@ test_that("retrafoless cannot flip binary classif task", {
 
 
 
-  localenv$pos = "neg"
+  localenv$pos = pid.task$task.desc$positive
   expect_error(ortho %>>% flipcpotaskflip(), "changed task target feature order")
   expect_error(ortho %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(ortho %>>% flipcpodfrev(), "must not change target class levels")
@@ -650,7 +650,7 @@ test_that("retrafoless cannot flip binary classif task", {
   expect_error(ortho.rev %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(ortho.rev %>>% flipcpodfrev(), "must not change target class levels")
 
-  localenv$pos = "pos"
+  localenv$pos = setdiff(c("pos", "neg"), pid.task$task.desc$positive)
   expect_error(trans %>>% flipcpotaskflip(), "changed task target feature order")
   expect_error(trans %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(trans %>>% flipcpodfrev(), "must not change target class levels")
