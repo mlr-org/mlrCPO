@@ -20,8 +20,8 @@
 makeCPOInverter = function(cpo, state, prev.inverter, data) {
 
   if (is.data.frame(data)) {
-    td = getTaskDesc(makeClusterTask("[CPO CONSTRUCTED]", data, check.data = FALSE, fixup.data = "no"))
-    truth = data[integer(0)]
+    td = NULL
+    truth = NULL
   } else {
     td = getTaskDesc(data)
     truth = getTaskData(data, target.extra = TRUE)$target

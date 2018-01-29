@@ -334,11 +334,13 @@ test_that("composing CPO with conversion etc. behaves as expected", {
     tmptst.df = getTaskData(test.set, target.extra = TRUE)$data %>>% retrafo(tmptrain)
     prd2.df = predict(mod2, newdata = tmptst.df)
 
-    expect_identical(invert(retrafo(tmptrain), prd2.df)$data, prd.df$data)
+    alleq = all.equal(invert(retrafo(tmptrain), prd2.df)$data, prd.df$data)
+    expect_true(isTRUE(alleq) || isTRUE(grepl("Component ...response...: Attributes: . Component ...levels...: [0-9]+ string mismatch", alleq)))
 
     expect_identical(invert(inverter(tmptst), prd2)$data, prd$data)
 
-    expect_identical(invert(retrafo(tmptrain), prd2)$data$response, prd$data$response)
+    alleq = all.equal(invert(retrafo(tmptrain), prd2)$data$response, prd$data$response)
+    expect_true(isTRUE(alleq) || isTRUE(grepl("Attributes: . Component ...levels...: [0-9]+ string mismatch", alleq)))
 
     expect_true(!is.na(holdout(cpo %>>% lrn, data, show.info = FALSE)$aggr))
   }
@@ -530,11 +532,13 @@ test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", 
     tmptst.df = getTaskData(test.set, target.extra = TRUE)$data %>>% retrafo(tmptrain)
     prd2.df = predict(mod2, newdata = tmptst.df)
 
-    expect_identical(invert(retrafo(tmptrain), prd2.df, predict.type.outer)$data, prd.df$data)
+    alleq = all.equal(invert(retrafo(tmptrain), prd2.df, predict.type.outer)$data, prd.df$data)
+    expect_true(isTRUE(alleq) || isTRUE(grepl("Component ...response...: Attributes: . Component ...levels...: [0-9]+ string mismatch", alleq)))
 
     expect_identical(invert(inverter(tmptst), prd2, predict.type.outer)$data, prd$data)
 
-    expect_identical(invert(retrafo(tmptrain), prd2, predict.type.outer)$data$response, prd$data$response)
+    alleq = all.equal(invert(retrafo(tmptrain), prd2, predict.type.outer)$data$response, prd$data$response)
+    expect_true(isTRUE(alleq) || isTRUE(grepl("Attributes: . Component ...levels...: [0-9]+ string mismatch", alleq)))
 
     expect_true(!is.na(holdout(setPredictType(cpo %>>% lrn, predict.type.outer), data, show.info = FALSE, measures = list(measure))$aggr))
   }

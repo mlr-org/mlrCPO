@@ -38,10 +38,12 @@ devtools::load_all("..")
 
 
 devtools::test(pkg = "..", filter = "^_meta_")
-
+devtools::test(pkg = "..", filter = "^_cpo_")
+devtools::test(pkg = "..", filter = "^_core_")
 
 
 # all tests:
+devtools::test(pkg = "..", filter = "core_targetop")       # [ 00 ]
 devtools::test(pkg = "..", filter = "affect")       # [ 00 ]
 devtools::test(pkg = "..", filter = "basic")        # [ 00 ]
 devtools::test(pkg = "..", filter = "cbind")        # [ 00 ]
@@ -112,3 +114,6 @@ str(xx)
 dropNamed(xx$data, c("id", "response"))
 
 debugger()
+
+
+
