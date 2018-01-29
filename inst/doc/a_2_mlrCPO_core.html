@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2018-01-05" />
+<meta name="date" content="2018-01-29" />
 
 <title>mlrCPO Core</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">mlrCPO Core</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2018-01-05</em></h4>
+<h4 class="date"><em>2018-01-29</em></h4>
 
 
 
@@ -492,7 +492,8 @@ transformed =<span class="st"> </span>bh.task %&gt;&gt;%<span class="st"> </span
 <p>Retrafos and inverters are stored as attributes:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">attributes</span>(transformed)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;RegrTask&quot;       &quot;SupervisedTask&quot; &quot;Task&quot;          </span>
@@ -509,7 +510,8 @@ transformed =<span class="st"> </span>bh.task %&gt;&gt;%<span class="st"> </span
 <span class="kw">retrafo</span>(bh2) =<span class="st"> </span>ret
 <span class="kw">attributes</span>(bh2)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;RegrTask&quot;       &quot;SupervisedTask&quot; &quot;Task&quot;          </span>
@@ -522,7 +524,8 @@ transformed =<span class="st"> </span>bh.task %&gt;&gt;%<span class="st"> </span
 <span class="co"># retrafo(bh2) = NULL</span>
 <span class="kw">attributes</span>(bh2)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;RegrTask&quot;       &quot;SupervisedTask&quot; &quot;Task&quot;</span></code></pre></div>
@@ -530,7 +533,8 @@ transformed =<span class="st"> </span>bh.task %&gt;&gt;%<span class="st"> </span
 bh3 =<span class="st"> </span><span class="kw">clearRI</span>(transformed)
 <span class="kw">attributes</span>(bh3)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;RegrTask&quot;       &quot;SupervisedTask&quot; &quot;Task&quot;</span></code></pre></div>
@@ -843,10 +847,10 @@ cpo %&gt;&gt;%<span class="st"> </span>cpo
 <span class="co">#&gt; [1] &quot;numerics&quot;</span></code></pre></div>
 <p>As a result, <code>cpoDummyEncode</code> endows a <code>Learner</code> with the ability to train on data with factor variables:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">train</span>(<span class="st">&quot;classif.geoDA&quot;</span>, bc.task)  <span class="co"># gives an error</span>
-<span class="co">#&gt; Error in checkLearnerBeforeTrain(task, learner, weights): Task 'BreastCancer_example' has factor inputs in 'Cl.thickness, Cell.size, Cell.shape, Marg.adhes...', but learner 'classif.geoDA' does not support that!</span></code></pre></div>
+<span class="co">#&gt; Error in checkLearnerBeforeTrain(task, learner, weights): Task 'BreastCancer-example' has factor inputs in 'Cl.thickness, Cell.size, Cell.shape, Marg.adhes...', but learner 'classif.geoDA' does not support that!</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">train</span>(<span class="kw">cpoDummyEncode</span>(<span class="dt">reference.cat =</span> <span class="ot">TRUE</span>) %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.geoDA&quot;</span>), bc.task)
 <span class="co">#&gt; Model for learner.id=classif.geoDA.dummyencode; learner.class=CPOLearner</span>
-<span class="co">#&gt; Trained on: task.id = BreastCancer_example; obs = 683; features = 9</span>
+<span class="co">#&gt; Trained on: task.id = BreastCancer-example; obs = 683; features = 9</span>
 <span class="co">#&gt; Hyperparameters: validation=NULL</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getLearnerProperties</span>(<span class="st">&quot;classif.geoDA&quot;</span>)
 <span class="co">#&gt; [1] &quot;twoclass&quot;   &quot;multiclass&quot; &quot;numerics&quot;</span></code></pre></div>

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2018-01-05" />
+<meta name="date" content="2018-01-29" />
 
 <title>Building Custom CPOs</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building Custom CPOs</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2018-01-05</em></h4>
+<h4 class="date"><em>2018-01-29</em></h4>
 
 
 
@@ -510,7 +510,7 @@ cpo =<span class="st"> </span><span class="kw">xmpFilterVarFunc</span>(<span cla
 <span class="co">#&gt;     greatest = order(-ctrl)</span>
 <span class="co">#&gt;     x[greatest[seq_len(n.col)]]</span>
 <span class="co">#&gt; }</span>
-<span class="co">#&gt; &lt;environment: 0x8ebf148&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0xc639ae0&gt;</span></code></pre></div>
 </div>
 <div id="stateless-focpo" class="section level4">
 <h4>Stateless FOCPO</h4>
@@ -726,7 +726,8 @@ test.task =<span class="st"> </span><span class="kw">subsetTask</span>(pid.task,
 <span class="co">#&gt; *** cpo.retrafo ***</span>
 <span class="kw">attributes</span>(trafd)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;ClassifTask&quot;    &quot;SupervisedTask&quot; &quot;Task&quot;          </span>
@@ -762,7 +763,8 @@ test.task =<span class="st"> </span><span class="kw">subsetTask</span>(pid.task,
 <span class="co">#&gt; *** cpo.train.invert ***</span>
 <span class="kw">attributes</span>(retr)
 <span class="co">#&gt; $names</span>
-<span class="co">#&gt; [1] &quot;type&quot;      &quot;env&quot;       &quot;weights&quot;   &quot;blocking&quot;  &quot;task.desc&quot;</span>
+<span class="co">#&gt; [1] &quot;type&quot;        &quot;env&quot;         &quot;weights&quot;     &quot;blocking&quot;    &quot;coordinates&quot;</span>
+<span class="co">#&gt; [6] &quot;task.desc&quot;  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $class</span>
 <span class="co">#&gt; [1] &quot;ClassifTask&quot;    &quot;SupervisedTask&quot; &quot;Task&quot;          </span>
