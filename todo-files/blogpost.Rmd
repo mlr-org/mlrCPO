@@ -184,7 +184,9 @@ preproc.pipeline = titleadder %>>% coladder %>>%
   cpoSelect(names = "missing.Roomno", invert = TRUE)
 ```
 
-We use the "Chi Squared" filter (`cpoFilterChiSquared()`) to filter out the columns containing the most information with respect to the target value. However, we are unsure how many columns to include, so we are going to tune the "`perc`" parameter. This and other parameters are exported by default; however, for the sake of clarity, we choose to only export this one parameter. The parameter set of "`tune.learner`" then contains the `chi.squared.perc` parameter that can be set to a value between 0 and 1.
+In the following example, we use `cpoModelMatrix`, `cpoPca` and `cpoCbind` to create principal component columns of the data and attach these columns to the task. The resulting data has many columns that contain redundant information. The use of `NULLCPO`, the `CPO` that has no effect on data, is to add columns of unchanged data to the reuslt of `cpoCbind`. Note the task description indicating a large number of "`numerics`" columns in the result.
+
+(The `cpoApplyFun(round, param = 5)` is done here because PCA appears to create numbers very close to 0 sometimes, which some Learners have problems with.)
 
 ```{r}
 
@@ -200,21 +202,21 @@ tune.learner = preproc.pipeline %>>% add.pca %>>%
 getParamSet(tune.learner)
 ```
 
-Because we only do tuning in low dimensions, it is sensible to use grid tuning. For better visualisation, we choose a relatively large resolution.
-
+Because we only do tuning in low dimensions, it is sensible to use grid tuning.
 ```{r, echo = FALSE}
 library("parallelMap")
 parallelStartSocket(parallel::detectCores())
 parallelLibrary("stringr")
-parallelStop()
 ```
-
 ```{r}
 ctrl = makeTuneControlGrid(resolution = 10)
-ps = makeParamSet(makeNumericParam("pca.rank", lower = 0, upper = 9))
+ps = makeParamSet(makeNumericParam("pca.rank", lower = 1, upper = 10))
 rcv10 = makeResampleDesc("RepCV", folds = 10, reps = 10)
 tuneres = tuneParams(tune.learner, titanic.task, rcv10, par.set = ps, control = ctrl, show.info = TRUE)
 tuneres
+```
+```{r, echo = FALSE}
+parallelStop()
 ```
 
 While a bit noisy, the result indicates that there seems to be a "sweet spot" near 50% of features.
@@ -224,38 +226,25 @@ effects = generateHyperParsEffectData(tuneres)
 qplot(pca.rank, mmce.test.mean, data = effects$data)
 ```
 
-Unfortunately, the performance does not seem to be better than the performance on the original data.
-
-```{r}
-repcv(preproc.learner, titanic.task, show.info = FALSE)
-repcv(setHyperPars(tune.learner, kruskal.test.perc = 0.2), titanic.task, show.info = FALSE)
-repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"), titanic.task, show.info = FALSE)
-
-```
-
 ### CPO Multiplexing and Tuning over Different  Methods
 
-Instead of just tuning over the number of columns to include, we may also wonder whether the filter criterion a good fit for the task. It would be useful to have a hyperparameter that controls which `CPO` gets applied, which is exactly what `cpoMultiplex` does: It is created with several candidate `CPO`s and exports a `selected.cpo` parameter. All hyperparameters of the included `CPO`s are exported as well, which makes it possible to not only tune over which `CPO` is used, but also over their parameters.
+Instead of just tuning over the number of PCA columns to include, we may also wonder whether using the similar ICA method is a better choice in this case. It would be useful to have a hyperparameter that controls which `CPO` gets applied: `cpoPca` or `cpoIca`. This is exactly what `cpoMultiplex` does: It is created with several candidate `CPO`s and exports a `selected.cpo` parameter. All hyperparameters of the included `CPO`s are exported as well, which makes it possible to not only tune over which `CPO` is used, but also over their parameters.
 
-The following is a combination of the `CPO`s for filtering by Chi-squared value, information gain, random forest permutation importance, and univariate predictive power (using decision trees). Looking at the resulting `CPO`'s parameter set shows that all the parameters of the included `CPO`s are exported.
+The following is a combination of the `cpoPca` and `cpoIca` `CPO`s. Looking at the resulting `CPO`'s parameter set shows that all the parameters of the included `CPO`s are exported.
 
 ```{r}
-mplx = cpoMultiplex(list(cpoFilterChiSquared(export = "perc"),
-  cpoFilterInformationGain(export = "perc"),
-  cpoFilterRfCImportance(export = "perc"),
-  cpoFilterUnivariate(perf.resampling = cv10, export = "perc")))
+mplx = cpoMultiplex(list(cpoPca(scale = TRUE, export = "rank"),
+  cpoIca(export = "n.comp"))
 
 getParamIds(getParamSet(mplx))
 ```
 
-We could tune this `CPO` as the one above, but it would be nicer if the different `*.perc` parameters could be pulled together into a single parameter. This is done using `cpoTransformParams`, which wraps a `CPO`, creates new hyperparameters, and makes it possible to express the wrapped `CPO`'s hyperparameters in terms of the new hyperparameters.
+We could tune this `CPO` as the one above, but it would be nicer if the different parameters controling number of components could be pulled together into a single parameter. This is done using `cpoTransformParams`, which wraps a `CPO`, creates new hyperparameters, and makes it possible to express the wrapped `CPO`'s hyperparameters in terms of the new hyperparameters.
 
 ```{r}
 mplx.transformed = cpoTransformParams(mplx,
-  transformations = alist(
-      chi.squared.perc = perc, information.gain.perc = perc,
-      cforest.importance.perc = perc, univariate.model.score.perc = perc),
-  additional.parameters = makeParamSet(makeNumericParam("perc", 0, 1)))
+  transformations = alist(pca.rank = rank, ica.n.comp = rank),
+  additional.parameters = makeParamSet(makeIntegerParam("rank", 1)))
 
 getParamSet(mplx.transformed)
 ```
@@ -303,5 +292,12 @@ qplot(exp(perc), mmce.test.mean, color = selected.cpo, data = effects$data)
 repcv(setHyperPars(tune.learner, selected.cpo = "cforest.importance", perc = 0.158), titanic.task, show.info = FALSE)
 
 repcv(preproc.learner, titanic.task, show.info = FALSE)
+
+```
+
+```{r}
+repcv(preproc.learner, titanic.task, show.info = FALSE)
+repcv(setHyperPars(tune.learner, kruskal.test.perc = 0.2), titanic.task, show.info = FALSE)
+repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"), titanic.task, show.info = FALSE)
 
 ```
