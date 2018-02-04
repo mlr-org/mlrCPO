@@ -1,6 +1,7 @@
 
 ```{r, echo = FALSE}
-cv10 = mlr::hout
+library("ggplot2")
+# cv10 = mlr::hout
 ```
 
 # Composable Preprocessing Operators: `mlrCPO`
@@ -157,17 +158,15 @@ predict(model, newdata = test.table)
 
 ### CPO Parameter Tuning
 
-A nice aspect of attaching `CPO`s to `Learner`s is that the hyperparameters of the `CPO`s can be tuned using `mlr`'s useful `tuneParams()` method.
+A nice aspect of attaching `CPO`s to `Learner`s is that the hyperparameters of the `CPO`s can be tuned using `mlr`'s useful `tuneParams()` method. For the following example, we are going to add a few more columns to the data that might be useful. Then we can use principal component analysis on a model matrix created from all the present columns. For the PCA, we need to choose the number of principal components to include, which we are going decide by tuning.
 
-
+We are going to use the `Name` column in the original data to create a feature `NameLength` that indicates how many words the last name of a person is made out of. The deck and room number are extracted from the `Cabin` feature. The numerical part of the `Ticket` feature is also used; we take the logarithm because it has a large range.
 ```{r}
-
 coladder = cpoAddCols(
-    LogAge = log(Age),
     NameLength = {
       lastname = str_replace(Name, ".*\\.", "")
       lastname = str_replace(lastname, '[("].*', "")
-      sapply(str_split(str_trim(lastname), " "), length)
+      sapply(str_split(str_trim(lastname), "[ -]"), length)
     },
     Deck = as.ordered(str_sub(Cabin, 1, 1)),
     Roomno = suppressWarnings(as.numeric(str_sub(Cabin, 2, 3))),
@@ -175,58 +174,63 @@ coladder = cpoAddCols(
       ticketno = suppressWarnings(as.numeric(str_replace(Ticket, ".* ", "")))
       log(ticketno)
     })
-
+```
+We are also going to collapse the least common factors of the `Title` feature using `cpoCollapseFact`. Because the missing indicators of `Roomno` and `Deck` are the same (since both features are extracted from the `Cabin` feature), one of them is removed.
+```{r}
 preproc.pipeline = titleadder %>>% coladder %>>%
+  cpoCollapseFact(0.05, affect.names = "Title") %>>%
   cpoFixFactors(export = character(0)) %>>%
   remove.superfluous %>>% impute.and.dummy %>>%
   cpoSelect(names = "missing.Roomno", invert = TRUE)
-
-head(getTaskData(titanic.task %>>% preproc.pipeline))
-
 ```
 
-In the following example, we use `cpoModelMatrix`, `cpoPca` and `cpoCbind` to create principal component columns of the data and attach these columns to the task. The resulting data has many columns that contain redundant information. The use of `NULLCPO`, the `CPO` that has no effect on data, is to add columns of unchanged data to the reuslt of `cpoCbind`. Note the task description indicating a large number of "`numerics`" columns in the result.
-
-(The `cpoApplyFun(round, param = 5)` is necessary because PCA tends to create numbers very close to 0 which cause `RWeka` to crash sometimes.)
+We use the "Chi Squared" filter (`cpoFilterChiSquared()`) to filter out the columns containing the most information with respect to the target value. However, we are unsure how many columns to include, so we are going to tune the "`perc`" parameter. This and other parameters are exported by default; however, for the sake of clarity, we choose to only export this one parameter. The parameter set of "`tune.learner`" then contains the `chi.squared.perc` parameter that can be set to a value between 0 and 1.
 
 ```{r}
+
 add.pca = cpoCbind(NULLCPO, cpoModelMatrix(~0 + ., export = character(0)) %>>%
                             cpoDropConstants(export = character(0)) %>>%
-                            cpoPca(scale = TRUE, tol = 1e-5, export = character(0)) %>>%
+                            cpoPca(scale = TRUE, export = "rank") %>>%
                             cpoApplyFun(round, param = 5, export = character(0)))
-working.data %>>% add.pca
-```
+ 
 
-We use the "Chi Squared" filter (`cpoFilterChiSquared()`) to filter out the columns containing the most information with respect to the target value. However, we are unsure how many columns to include, so we are going to tune the "`perc`" parameter. This parameter is exported by default; however, for the sake of clarity, we choose to only export this parameter. The parameter set of "`tune.learner`" then contains the `chi.squared.perc` parameter that can be set to a value between 0 and 1.
-
-```{r}
 tune.learner = preproc.pipeline %>>% add.pca %>>%
-  cpoFilterChiSquared(export = "perc") %>>%
   makeLearner("classif.randomForest")
 
 getParamSet(tune.learner)
 ```
 
-Because we only do tuning in low dimensions, it is sensible to use grid tuning. The difference between including 90% of the data and all of the data is probably much smaller than the difference between including 10% of the data and 20% of the data; therefore, we choose to do tuning on a logarithmic scale.
+Because we only do tuning in low dimensions, it is sensible to use grid tuning. For better visualisation, we choose a relatively large resolution.
+
+```{r, echo = FALSE}
+library("parallelMap")
+parallelStartSocket(parallel::detectCores())
+parallelLibrary("stringr")
+parallelStop()
+```
 
 ```{r}
-ctrl = makeTuneControlGrid(resolution = 20)
-ps = makeParamSet(makeNumericParam("chi.squared.perc", lower = log(0.03), upper = 0, trafo = exp))
-tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl, show.info = FALSE)
+ctrl = makeTuneControlGrid(resolution = 10)
+ps = makeParamSet(makeNumericParam("pca.rank", lower = 0, upper = 9))
+rcv10 = makeResampleDesc("RepCV", folds = 10, reps = 10)
+tuneres = tuneParams(tune.learner, titanic.task, rcv10, par.set = ps, control = ctrl, show.info = TRUE)
 tuneres
 ```
 
-The result indicates that there seems to be a "sweet spot" near 5% to 15% of features (5 to 8 in absolute terms) to include.
+While a bit noisy, the result indicates that there seems to be a "sweet spot" near 50% of features.
 
 ```{r}
 effects = generateHyperParsEffectData(tuneres)
-qplot(exp(chi.squared.perc), mmce.test.mean, data = effects$data)
+qplot(pca.rank, mmce.test.mean, data = effects$data)
 ```
 
-Looking at what features would typically get included, we see that both original and PCA columns are considered. However, unfortunately, the performance does not seem to be better than the performance on the original data.
+Unfortunately, the performance does not seem to be better than the performance on the original data.
 
 ```{r}
-head(getTaskData(working.data %>>% add.pca %>>% cpoFilterChiSquared(perc = .1)))
+repcv(preproc.learner, titanic.task, show.info = FALSE)
+repcv(setHyperPars(tune.learner, kruskal.test.perc = 0.2), titanic.task, show.info = FALSE)
+repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"), titanic.task, show.info = FALSE)
+
 ```
 
 ### CPO Multiplexing and Tuning over Different  Methods
