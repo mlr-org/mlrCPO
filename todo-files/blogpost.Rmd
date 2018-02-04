@@ -1,0 +1,303 @@
+
+```{r, echo = FALSE}
+cv10 = mlr::hout
+```
+
+# Composable Preprocessing Operators: `mlrCPO`
+
+When applying a machine learning algorithm (i.e. a `Learner` in `mlr`) to a dataset, it is often beneficial to do certain operations to the data (e.g. removal of constant columns, principal component analysis) in a step called "*preprocessing*". `mlr` already provides some basic preprocessing functionality, but it is limited in scope and quite inflexible. A much better toolset is now provided by [**mlrCPO**](https://github.com/mlr-org/mlrCPO#project-status).
+
+The central objects provided by mlrCPO are "composable preprocessing operators", called **CPO**s. They make it possible to handle a preprocessing operation as an R object, to combine multiple operations (sequentially, or in parallel) to form new ones, and to attach preprocessing objects to `Learner` objects to form complete machine learning pipelines. Just like a `Learner`, a `CPO` can have hyperparameters, which can also be tuned using `mlr`'s tuning functionality.
+
+## Example Application: The Kaggle "Titanic" Dataset
+
+Using `mlrCPO` can best be demonstrated along an example. Load `mlrCPO` using
+
+```{r}
+library("mlrCPO")
+```
+
+A dataset that can make good use of preprocessing operations is [the "Titanic" dataset on Kaggle](https://www.kaggle.com/c/titanic/data). We can use feature engineering on some of the more awkward character string features, and for some features we need to do missing value imputation. If the `train.csv` file from Kaggle is in the working directory, it should be loaded into an `mlr`-compatible `Task` using
+```{r}
+titanic.table = read.csv("train.csv", na.str = "")
+titanic.task = makeClassifTask("titanic", titanic.table, target = "Survived", positive = 1)
+
+test.table = read.csv("test.csv", na.str = "")
+```
+
+### CPO Creation and Feature Engineering
+
+To use a `CPO`, it first needs to be *created*. `mlrCPO` offers a wide range of "**CPO Constructors**" for this: They are called like R functions, with parameters that determine the behaviour of a `CPO`. Once a `CPO` is created, it can be used to manipulate data using the "**`%>>%`**" operator. In our example, this can be used for feature engineering. It is a common operation to add a "Title" feature to the Titanic dataset, which consists of the title part of a passenger's name. To add a new column to a dataset from existing columns, use the **`cpoAddCols`** `CPO`. (In its default setting, `cpoAddCols` automatically converts strings to factor features.)
+
+```{r}
+library("stringr")
+titleadder =  cpoAddCols(Title = str_match(Name, "\\w+\\."))
+working.data = titanic.task %>>% titleadder
+```
+```{r}
+head(getTaskData(working.data))
+```
+
+### CPO Hyperparameters and Manual Feature Selection
+
+After extracting the title from the name, we may decide that the "Name" column is not useful any more. The **`cpoSelect`** `CPO` can take care of it. It is used to include or exclude features from a dataset by different criteria. We build a `CPO` that excludes the "Name" column like so:
+
+```{r}
+remove.superfluous = cpoSelect(names = "Name", invert = TRUE, export = "names")
+```
+```{r}
+head(getTaskData(working.data %>>% remove.superfluous))
+```
+
+Note the `export` parameter. It is a special parameter of every `CPO` constructor that controls which hyperparameters, i.e. parameters that control the operation of a `CPO`, to be exported. An exported hyperparameter can be changed later using the `setHyperPars` function; inspect the set of exported hyperparameters using the `getParamSet` function, or using the verbose printing operator `!`:
+```{r}
+!remove.superfluous
+```
+
+We may, for example, decide that we also want to remove the "`PassengerId`", "`Ticket`", and "`Cabin`" parameters. This can be done as the following:
+
+```{r}
+remove.superfluous = setHyperPars(remove.superfluous, select.names = c("Name", "PassengerId", "Ticket", "Cabin"))
+head(getTaskData(working.data %>>% remove.superfluous))
+```
+
+An alternative to the `data = data %>>% CPO` construct is the `%<>>%` operator. It applies one or several `CPO`s and assigns the result to the operand on the left. The following removes the `Name` column from `working.data`:
+
+```{r}
+working.data %<>>% remove.superfluous
+```
+
+### CPO Composition and Feature Imputation
+
+The `%>>%` operator can not only be used to apply a `CPO` to data, but also to concat multiple `CPO`s in a row to form one combined `CPO`. Suppose, for example, we want to build a `CPO` that uses different imputation techniques on different column types. We may want to use this `CPO` on multiple datasets without always having to write out the operations separately. The following constructs a composite `CPO` which first operates on the ordered and factorial columns (always adding a new missings level), and then on the numeric columns (using the `regr.cforest` `Learner`). Which columns are seen by a `CPO` is controlled by the "`affect.type`" parameter on construction.
+
+```{r}
+impute.fact = cpoImputeConstant("MISSING", affect.type = c("ordered", "factor"), export = character(0))
+impute.num = cpoImputeLearner(makeLearner("regr.cforest", ntree = 50, mtry = 3), affect.type = "numeric", export = character(0))
+impute.all = impute.fact %>>% impute.num
+```
+```{r}
+impute.all
+```
+After applying this `CPO` to new data, we see that the `Missings` property is `FALSE`.
+```{r}
+working.data %>>% impute.all
+```
+
+### Parallel CPO Application and Missing Value Indicators
+
+Sometimes we want to apply different operations on a dataset, but then go on working with a combination of the results of all these operatiosn. Consider, for example, `cpoMissingIndicators`, which replaces the input data with columns indicating whether data is missing. It can not be used after imputation (because no missing values remain), but using it before imputation would cause the imputation `CPO`s to also create imputation models for the missing value indicating columns.
+
+To perform several different actions in parallel and combine the result, use the `cpoCbind` `CPO`. It is named after the R `cbind()` operation, which works in a similar way. `cpoCbind` is constructed with different `CPO`s as its arguments, named by a prefix to add to the resulting columns. To add missing value dummy columns, we do
+
+```{r}
+impute.and.dummy = cpoCbind(impute.all, missing = cpoMissingIndicators(export = character(0)))
+```
+
+Detailed printing of `impute.and.dummy` using `!` gives a graphical representation of the operations being performed: One data stream does two imputation operations, the other adds the missing indicators:
+```{r}
+!impute.and.dummy
+```
+
+The missing indicators are the names of the original columns prefixed with "`missing.`", since that was the name given to the argument to `cpoCbind`.
+
+```{r}
+working.data %<>>% impute.and.dummy
+head(getTaskData(working.data))
+```
+
+### Retrafo and New Data
+
+After we train a model on the data we manipulated, we want to be able to make predictions on new data. This new data needs to be modified in the same way as the training data with one caveat: Some preprocessing operations, in our example the imputation of numeric columns, depend on the training data. We must not naively use `cpoImputeLearner` on new prediction data, since a missing value should be imputed depending on training data, not depending on other prediction data.
+
+To solve this problem, `mlrCPO` always attaches a "**`CPOTrained`**" object to preprocessed data, which can be retrieved using the `retrafo()` function. It behaves similarly to a `CPO`; in particular, it can be applied to new data. Printing it gives information about the operations that it has cached.
+
+```{r}
+cpo.trained = retrafo(working.data)
+cpo.trained
+```
+
+If we wanted to perform prediction with new data ("`test.table`"), we could do the following:
+
+```{r}
+working.test = test.table %>>% cpo.trained
+head(working.test)
+```
+
+### How Not to Resample
+
+A common way to evaluate different machine learning algorithms is to (often repeatedly) train a model on a subset of available data, make a prediction on the remaining data, and compare that prediction with the known target values of that data. This process is called *resampling*, and `mlr` offers the function `resample()` which does exactly this. However, it is important that the entire machine learning process should happen inside the resampling, i.e. that not only the machine learning model, but also the preprocessing operations, get trained only on the training subset of the resampling step. For example, at this point it would be tempting to do `resample(learner, working.test, cv10)` to do five fold crossvalidation using any "`learner`" we might think of. The resampling would evaluate models trained on subsets of `working.test`, but this dataset was already preprocessed using information from the *whole available data*, so information from the resampling test subset would sneak in. It might not give a good estimate of real world performance, since a model trained on (the whole of) `working.test` does *not* contain any information about data still in the wild (e.g. `test.table`). Luckily `mlrCPO` makes it very easy to perform "proper" resampling by performing another simplification: attaching a `CPO` to a `Learner`.
+
+### Attaching `CPO`s to `Learner`s
+
+It is possible (and encouraged) to build entire machine learning pipelines encompassing preprocessing and model fitting by *attaching* `CPO`s to `Learner`s. This is also done using the `%>>%` operator and results in a `CPOLearner`. This object behaves just like a normal `mlr` `Learner` and is very similar to the process of "wrapping" `Learner`s in `mlr`. Hyperparameters that were exported by the `CPO` become part of the resulting `Learner` and can be changed using `setHyperPars()` and tuned using `tuneParams()`.
+
+The following combines all operations done so far with a `randomForest` `Learner`. The data that the `randomForest` is trained on will look like the `working.test` task we constructed above, but will only contain information of the resampling subset that it is trained on.
+
+(When just adding the `CPO`s from above, we get frequent errors during resampling because `titleadder` sometimes creates new factor levels (from rare titles) during prediction that were not seen during training. To fix this, we add a `cpoFixFactors()` after it, which turns unseen titles into `NA`s.)
+
+```{r}
+preproc.pipeline = titleadder %>>% cpoFixFactors(export = character(0)) %>>%
+  remove.superfluous %>>% impute.and.dummy
+
+preproc.learner = preproc.pipeline %>>% makeLearner("classif.randomForest")
+preproc.learner
+```
+
+This `Learner` can be used for resampling on the (original!) data without bad conscience, and can be used on the test data without needing to worry about `retrafo()`s.
+
+```{r}
+resample(preproc.learner, titanic.task, cv10)
+```
+
+```{r}
+model = train(preproc.learner, titanic.task)
+predict(model, newdata = test.table)
+```
+
+### CPO Parameter Tuning
+
+A nice aspect of attaching `CPO`s to `Learner`s is that the hyperparameters of the `CPO`s can be tuned using `mlr`'s useful `tuneParams()` method.
+
+
+```{r}
+
+coladder = cpoAddCols(
+    LogAge = log(Age),
+    NameLength = {
+      lastname = str_replace(Name, ".*\\.", "")
+      lastname = str_replace(lastname, '[("].*', "")
+      sapply(str_split(str_trim(lastname), " "), length)
+    },
+    Deck = as.ordered(str_sub(Cabin, 1, 1)),
+    Roomno = suppressWarnings(as.numeric(str_sub(Cabin, 2, 3))),
+    ticket.cluster = {
+      ticketno = suppressWarnings(as.numeric(str_replace(Ticket, ".* ", "")))
+      log(ticketno)
+    })
+
+preproc.pipeline = titleadder %>>% coladder %>>%
+  cpoFixFactors(export = character(0)) %>>%
+  remove.superfluous %>>% impute.and.dummy %>>%
+  cpoSelect(names = "missing.Roomno", invert = TRUE)
+
+head(getTaskData(titanic.task %>>% preproc.pipeline))
+
+```
+
+In the following example, we use `cpoModelMatrix`, `cpoPca` and `cpoCbind` to create principal component columns of the data and attach these columns to the task. The resulting data has many columns that contain redundant information. The use of `NULLCPO`, the `CPO` that has no effect on data, is to add columns of unchanged data to the reuslt of `cpoCbind`. Note the task description indicating a large number of "`numerics`" columns in the result.
+
+(The `cpoApplyFun(round, param = 5)` is necessary because PCA tends to create numbers very close to 0 which cause `RWeka` to crash sometimes.)
+
+```{r}
+add.pca = cpoCbind(NULLCPO, cpoModelMatrix(~0 + ., export = character(0)) %>>%
+                            cpoDropConstants(export = character(0)) %>>%
+                            cpoPca(scale = TRUE, tol = 1e-5, export = character(0)) %>>%
+                            cpoApplyFun(round, param = 5, export = character(0)))
+working.data %>>% add.pca
+```
+
+We use the "Chi Squared" filter (`cpoFilterChiSquared()`) to filter out the columns containing the most information with respect to the target value. However, we are unsure how many columns to include, so we are going to tune the "`perc`" parameter. This parameter is exported by default; however, for the sake of clarity, we choose to only export this parameter. The parameter set of "`tune.learner`" then contains the `chi.squared.perc` parameter that can be set to a value between 0 and 1.
+
+```{r}
+tune.learner = preproc.pipeline %>>% add.pca %>>%
+  cpoFilterChiSquared(export = "perc") %>>%
+  makeLearner("classif.randomForest")
+
+getParamSet(tune.learner)
+```
+
+Because we only do tuning in low dimensions, it is sensible to use grid tuning. The difference between including 90% of the data and all of the data is probably much smaller than the difference between including 10% of the data and 20% of the data; therefore, we choose to do tuning on a logarithmic scale.
+
+```{r}
+ctrl = makeTuneControlGrid(resolution = 20)
+ps = makeParamSet(makeNumericParam("chi.squared.perc", lower = log(0.03), upper = 0, trafo = exp))
+tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl, show.info = FALSE)
+tuneres
+```
+
+The result indicates that there seems to be a "sweet spot" near 5% to 15% of features (5 to 8 in absolute terms) to include.
+
+```{r}
+effects = generateHyperParsEffectData(tuneres)
+qplot(exp(chi.squared.perc), mmce.test.mean, data = effects$data)
+```
+
+Looking at what features would typically get included, we see that both original and PCA columns are considered. However, unfortunately, the performance does not seem to be better than the performance on the original data.
+
+```{r}
+head(getTaskData(working.data %>>% add.pca %>>% cpoFilterChiSquared(perc = .1)))
+```
+
+### CPO Multiplexing and Tuning over Different  Methods
+
+Instead of just tuning over the number of columns to include, we may also wonder whether the filter criterion a good fit for the task. It would be useful to have a hyperparameter that controls which `CPO` gets applied, which is exactly what `cpoMultiplex` does: It is created with several candidate `CPO`s and exports a `selected.cpo` parameter. All hyperparameters of the included `CPO`s are exported as well, which makes it possible to not only tune over which `CPO` is used, but also over their parameters.
+
+The following is a combination of the `CPO`s for filtering by Chi-squared value, information gain, random forest permutation importance, and univariate predictive power (using decision trees). Looking at the resulting `CPO`'s parameter set shows that all the parameters of the included `CPO`s are exported.
+
+```{r}
+mplx = cpoMultiplex(list(cpoFilterChiSquared(export = "perc"),
+  cpoFilterInformationGain(export = "perc"),
+  cpoFilterRfCImportance(export = "perc"),
+  cpoFilterUnivariate(perf.resampling = cv10, export = "perc")))
+
+getParamIds(getParamSet(mplx))
+```
+
+We could tune this `CPO` as the one above, but it would be nicer if the different `*.perc` parameters could be pulled together into a single parameter. This is done using `cpoTransformParams`, which wraps a `CPO`, creates new hyperparameters, and makes it possible to express the wrapped `CPO`'s hyperparameters in terms of the new hyperparameters.
+
+```{r}
+mplx.transformed = cpoTransformParams(mplx,
+  transformations = alist(
+      chi.squared.perc = perc, information.gain.perc = perc,
+      cforest.importance.perc = perc, univariate.model.score.perc = perc),
+  additional.parameters = makeParamSet(makeNumericParam("perc", 0, 1)))
+
+getParamSet(mplx.transformed)
+```
+
+Using different settings for `perc` and `selected.cpo` will now select the filtering `CPO` to use, while independently setting the fraction of columns to return. To get the results of selecting 10% of the columns by Chi-squared as above, we would use:
+
+```{r}
+head(getTaskData(working.data %>>% add.pca %>>%
+    setHyperPars(mplx.transformed, selected.cpo = "chi.squared", perc = .1)))
+```
+
+Using univariate predictive performance gives a different result, but the same number of columns:
+
+```{r}
+head(getTaskData(working.data %>>% add.pca %>>%
+    setHyperPars(mplx.transformed, selected.cpo = "univariate.model.score", perc = .1)))
+```
+
+We are now ready to tune this `CPO` instead of the previously used `cpoFiltreChiSquared`. We re-define `tune.learner` and create a new tuning parameter set and are good to go.
+
+(Like all good things, this takes a while.)
+```{r}
+tune.learner = preproc.pipeline %>>% add.pca %>>%
+  mplx.transformed %>>%
+  makeLearner("classif.randomForest")
+
+ps = makeParamSet(
+    makeDiscreteParam("selected.cpo", values = c("chi.squared", "information.gain",
+      "cforest.importance", "univariate.model.score")),
+    makeNumericParam("perc", lower = log(0.03), upper = 0, trafo = exp))
+
+tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl, show.info = FALSE)
+tuneres
+```
+
+
+```{r}
+effects = generateHyperParsEffectData(tuneres)
+qplot(exp(perc), mmce.test.mean, color = selected.cpo, data = effects$data)
+
+```
+
+
+```{r}
+repcv(setHyperPars(tune.learner, selected.cpo = "cforest.importance", perc = 0.158), titanic.task, show.info = FALSE)
+
+repcv(preproc.learner, titanic.task, show.info = FALSE)
+
+```
