@@ -1,7 +1,15 @@
 
 ```{r, echo = FALSE}
 library("ggplot2")
-# cv10 = mlr::hout
+knitr::opts_knit$set(root.dir = "~/lmu/master/testcars")
+configureMlr(show.info = FALSE)
+options(width=120)
+cv10 = mlr::hout
+repcv = function(...) {
+  args = list(...)
+  args$reps = 2
+  do.call(mlr::repcv, args)
+}
 ```
 
 # Composable Preprocessing Operators: `mlrCPO`
@@ -12,7 +20,7 @@ The central objects provided by mlrCPO are "composable preprocessing operators",
 
 ## Example Application: The Kaggle "Titanic" Dataset
 
-Using `mlrCPO` can best be demonstrated along an example. Load `mlrCPO` using
+The possibilities offered by `mlrCPO` can best be demonstrated using example. The following is just giving an overview and not an in-depth tutorial; to go deeper into `mlrCPO`, consult the package's vignettes.
 
 ```{r}
 library("mlrCPO")
@@ -21,7 +29,8 @@ library("mlrCPO")
 A dataset that can make good use of preprocessing operations is [the "Titanic" dataset on Kaggle](https://www.kaggle.com/c/titanic/data). We can use feature engineering on some of the more awkward character string features, and for some features we need to do missing value imputation. If the `train.csv` file from Kaggle is in the working directory, it should be loaded into an `mlr`-compatible `Task` using
 ```{r}
 titanic.table = read.csv("train.csv", na.str = "")
-titanic.task = makeClassifTask("titanic", titanic.table, target = "Survived", positive = 1)
+titanic.task = makeClassifTask("titanic", titanic.table,
+  target = "Survived", positive = 1)
 
 test.table = read.csv("test.csv", na.str = "")
 ```
@@ -58,7 +67,8 @@ Note the `export` parameter. It is a special parameter of every `CPO` constructo
 We may, for example, decide that we also want to remove the "`PassengerId`", "`Ticket`", and "`Cabin`" parameters. This can be done as the following:
 
 ```{r}
-remove.superfluous = setHyperPars(remove.superfluous, select.names = c("Name", "PassengerId", "Ticket", "Cabin"))
+remove.superfluous = setHyperPars(remove.superfluous,
+  select.names = c("Name", "PassengerId", "Ticket", "Cabin"))
 head(getTaskData(working.data %>>% remove.superfluous))
 ```
 
@@ -73,8 +83,10 @@ working.data %<>>% remove.superfluous
 The `%>>%` operator can not only be used to apply a `CPO` to data, but also to concat multiple `CPO`s in a row to form one combined `CPO`. Suppose, for example, we want to build a `CPO` that uses different imputation techniques on different column types. We may want to use this `CPO` on multiple datasets without always having to write out the operations separately. The following constructs a composite `CPO` which first operates on the ordered and factorial columns (always adding a new missings level), and then on the numeric columns (using the `regr.cforest` `Learner`). Which columns are seen by a `CPO` is controlled by the "`affect.type`" parameter on construction.
 
 ```{r}
-impute.fact = cpoImputeConstant("MISSING", affect.type = c("ordered", "factor"), export = character(0))
-impute.num = cpoImputeLearner(makeLearner("regr.cforest", ntree = 50, mtry = 3), affect.type = "numeric", export = character(0))
+impute.fact = cpoImputeConstant("MISSING", affect.type = c("ordered", "factor"),
+  export = character(0))
+impute.num = cpoImputeLearner(makeLearner("regr.cforest", ntree = 50, mtry = 3),
+  affect.type = "numeric", export = character(0))
 impute.all = impute.fact %>>% impute.num
 ```
 ```{r}
@@ -158,72 +170,79 @@ predict(model, newdata = test.table)
 
 ### CPO Parameter Tuning
 
-A nice aspect of attaching `CPO`s to `Learner`s is that the hyperparameters of the `CPO`s can be tuned using `mlr`'s useful `tuneParams()` method. For the following example, we are going to add a few more columns to the data that might be useful. Then we can use principal component analysis on a model matrix created from all the present columns. For the PCA, we need to choose the number of principal components to include, which we are going decide by tuning.
+A nice aspect of attaching `CPO`s to `Learner`s is that the hyperparameters of the `CPO`s can be tuned using `mlr`'s useful `tuneParams()` method. For the following example, we are going to consider a few more columns of the data that might be useful. Then we use principal component analysis on a model matrix of these columns. For the PCA, we need to choose the number of principal components to include, which we are going decide by tuning.
 
-We are going to use the `Name` column in the original data to create a feature `NameLength` that indicates how many words the last name of a person is made out of. The deck and room number are extracted from the `Cabin` feature. The numerical part of the `Ticket` feature is also used; we take the logarithm because it has a large range.
+We are going to use the `Name` column in the original data to create a feature `NameLength` that indicates how many words the last name of a person is made out of. The deck and room number are extracted from the `Cabin` feature. The numerical part of the `Ticket` feature is also used; we take the logarithm because it has a large range. Note how we suffix every new column with `.topca`, which makes it easy later to only apply PCA to these new columns.
 ```{r}
 coladder = cpoAddCols(
-    NameLength = {
+    NameLength.topca = {
       lastname = str_replace(Name, ".*\\.", "")
       lastname = str_replace(lastname, '[("].*', "")
       sapply(str_split(str_trim(lastname), "[ -]"), length)
     },
-    Deck = as.ordered(str_sub(Cabin, 1, 1)),
-    Roomno = suppressWarnings(as.numeric(str_sub(Cabin, 2, 3))),
-    ticket.cluster = {
-      ticketno = suppressWarnings(as.numeric(str_replace(Ticket, ".* ", "")))
-      log(ticketno)
+    Deck.topca = as.ordered(str_sub(Cabin, 1, 1)),
+    Roomno.topca = suppressWarnings(as.numeric(str_sub(Cabin, 2, 3))),
+    ticketno.topca = {
+      tno = suppressWarnings(as.numeric(str_replace(Ticket, ".* ", "")))
+      log(tno)
     })
 ```
 We are also going to collapse the least common factors of the `Title` feature using `cpoCollapseFact`. Because the missing indicators of `Roomno` and `Deck` are the same (since both features are extracted from the `Cabin` feature), one of them is removed.
 ```{r}
 preproc.pipeline = titleadder %>>% coladder %>>%
-  cpoCollapseFact(0.05, affect.names = "Title") %>>%
+  cpoCollapseFact(0.05, affect.names = "Title", export = character(0)) %>>%
   cpoFixFactors(export = character(0)) %>>%
   remove.superfluous %>>% impute.and.dummy %>>%
-  cpoSelect(names = "missing.Roomno", invert = TRUE)
+  cpoSelect(names = "missing.Roomno.topca", invert = TRUE)
+
+head(getTaskData(titanic.task %>>% preproc.pipeline))
 ```
-
-In the following example, we use `cpoModelMatrix`, `cpoPca` and `cpoCbind` to create principal component columns of the data and attach these columns to the task. The resulting data has many columns that contain redundant information. The use of `NULLCPO`, the `CPO` that has no effect on data, is to add columns of unchanged data to the reuslt of `cpoCbind`. Note the task description indicating a large number of "`numerics`" columns in the result.
-
-(The `cpoApplyFun(round, param = 5)` is done here because PCA appears to create numbers very close to 0 sometimes, which some Learners have problems with.)
-
+In the following we first create the `CPO` that first turns all columns into numerics (using `cpoModelMatrix`) and then applies the PCA. To apply this `CPO` only to columns with `.topca` in their name, we use `cpoCbind` in combination with `cpoSelect`.
 ```{r}
+pca.cpo = cpoModelMatrix(~0 + ., export = character(0)) %>>%
+  cpoDropConstants(export = character(0)) %>>%
+  cpoScale(export = character(0)) %>>% cpoPca(export = "rank")
 
-add.pca = cpoCbind(NULLCPO, cpoModelMatrix(~0 + ., export = character(0)) %>>%
-                            cpoDropConstants(export = character(0)) %>>%
-                            cpoPca(scale = TRUE, export = "rank") %>>%
-                            cpoApplyFun(round, param = 5, export = character(0)))
- 
+pca.restricted = cpoCbind(
+    cpoSelect(pattern = "\\.topca$", invert = TRUE, id = "restrict"),
+    cpoSelect(pattern = "\\.topca$") %>>% pca.cpo)
 
-tune.learner = preproc.pipeline %>>% add.pca %>>%
+tune.learner = preproc.pipeline %>>% pca.restricted %>>%
   makeLearner("classif.randomForest")
 
 getParamSet(tune.learner)
 ```
 
 Because we only do tuning in low dimensions, it is sensible to use grid tuning.
+
 ```{r, echo = FALSE}
 library("parallelMap")
 parallelStartSocket(parallel::detectCores())
 parallelLibrary("stringr")
 ```
 ```{r}
-ctrl = makeTuneControlGrid(resolution = 10)
+ctrl = makeTuneControlGrid()
 ps = makeParamSet(makeNumericParam("pca.rank", lower = 1, upper = 10))
-rcv10 = makeResampleDesc("RepCV", folds = 10, reps = 10)
-tuneres = tuneParams(tune.learner, titanic.task, rcv10, par.set = ps, control = ctrl, show.info = TRUE)
+tuneres = tuneParams(tune.learner, titanic.task,
+  cv10, par.set = ps, control = ctrl)
 tuneres
 ```
-```{r, echo = FALSE}
-parallelStop()
-```
-
-While a bit noisy, the result indicates that there seems to be a "sweet spot" near 50% of features.
+While a bit noisy, the result seems to indicate that the performance is similar for the first four columns, after which it degrades.
 
 ```{r}
 effects = generateHyperParsEffectData(tuneres)
 qplot(pca.rank, mmce.test.mean, data = effects$data)
+```
+
+Making a comparison of `CPO` using three `PCA` components, using no `PCA`, or not using the added columns altogether, shows that the performance is similar.
+```{r}
+repcv(setHyperPars(tune.learner, pca.rank = 3),
+  titanic.task, reps = 20)
+repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"),
+  titanic.task, reps = 20)
+repcv(preproc.pipeline %>>% cpoSelect(pattern = "\\.topca$", invert = TRUE) %>>%
+      makeLearner("classif.randomForest"),
+  titanic.task, reps = 20)
 ```
 
 ### CPO Multiplexing and Tuning over Different  Methods
@@ -234,12 +253,12 @@ The following is a combination of the `cpoPca` and `cpoIca` `CPO`s. Looking at t
 
 ```{r}
 mplx = cpoMultiplex(list(cpoPca(scale = TRUE, export = "rank"),
-  cpoIca(export = "n.comp"))
+  cpoIca(export = "n.comp")))
 
 getParamIds(getParamSet(mplx))
 ```
 
-We could tune this `CPO` as the one above, but it would be nicer if the different parameters controling number of components could be pulled together into a single parameter. This is done using `cpoTransformParams`, which wraps a `CPO`, creates new hyperparameters, and makes it possible to express the wrapped `CPO`'s hyperparameters in terms of the new hyperparameters.
+We could tune this `CPO` as we do the one above, but it would be nicer if the different parameters controling number of components could be pulled together into a single parameter. This is done using `cpoTransformParams`, which wraps a `CPO`, creates new hyperparameters, and makes it possible to express the wrapped `CPO`'s hyperparameters in terms of the new hyperparameters.
 
 ```{r}
 mplx.transformed = cpoTransformParams(mplx,
@@ -249,55 +268,134 @@ mplx.transformed = cpoTransformParams(mplx,
 getParamSet(mplx.transformed)
 ```
 
-Using different settings for `perc` and `selected.cpo` will now select the filtering `CPO` to use, while independently setting the fraction of columns to return. To get the results of selecting 10% of the columns by Chi-squared as above, we would use:
-
+This newly created `CPO` can now be included in the preprocessing pipeline.
 ```{r}
-head(getTaskData(working.data %>>% add.pca %>>%
-    setHyperPars(mplx.transformed, selected.cpo = "chi.squared", perc = .1)))
+general.ca = cpoModelMatrix(~0 + ., export = character(0)) %>>%
+  cpoDropConstants(export = character(0)) %>>%
+  cpoScale() %>>%
+  mplx.transformed
+
+ca.restricted = cpoCbind(
+    cpoSelect(pattern = "\\.topca$", invert = TRUE, id = "restrict"),
+    cpoSelect(pattern = "\\.topca$") %>>% general.ca)
+
 ```
 
-Using univariate predictive performance gives a different result, but the same number of columns:
+Using different settings for `rank` and `selected.cpo` will now select the `CPO` to use, while independently setting the fraction of columns to return. To get the results of selecting one column of PCA as above, we use:
 
 ```{r}
-head(getTaskData(working.data %>>% add.pca %>>%
-    setHyperPars(mplx.transformed, selected.cpo = "univariate.model.score", perc = .1)))
+head(getTaskData(titanic.task %>>% preproc.pipeline %>>%
+                 setHyperPars(selected.cpo = "pca", ca.restricted, rank = 1)))
 ```
 
-We are now ready to tune this `CPO` instead of the previously used `cpoFiltreChiSquared`. We re-define `tune.learner` and create a new tuning parameter set and are good to go.
+Using ICA gives a different result, but the same number of columns:
 
-(Like all good things, this takes a while.)
 ```{r}
-tune.learner = preproc.pipeline %>>% add.pca %>>%
-  mplx.transformed %>>%
+head(getTaskData(titanic.task %>>% preproc.pipeline %>>%
+                 setHyperPars(ca.restricted, selected.cpo = "ica", rank = 1)))
+```
+
+We are now ready to tune this `CPO` instead of the one previously used. We re-define `tune.learner` and create a new tuning parameter set and are good to go.
+```{r}
+tune.learner = preproc.pipeline %>>%
+  ca.restricted %>>%
   makeLearner("classif.randomForest")
 
 ps = makeParamSet(
-    makeDiscreteParam("selected.cpo", values = c("chi.squared", "information.gain",
-      "cforest.importance", "univariate.model.score")),
-    makeNumericParam("perc", lower = log(0.03), upper = 0, trafo = exp))
+    makeDiscreteParam("selected.cpo", values = c("pca", "ica")),
+    makeIntegerParam("rank", lower = 1, upper = 5))
 
-tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl, show.info = FALSE)
+tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl)
 tuneres
 ```
 
-
 ```{r}
 effects = generateHyperParsEffectData(tuneres)
-qplot(exp(perc), mmce.test.mean, color = selected.cpo, data = effects$data)
+qplot(rank, mmce.test.mean, color = selected.cpo, data = effects$data)
+```
 
+The difference seems to be minute, with ICA having a slight edge for low rank.
+
+```{r}
+repcv(setHyperPars(tune.learner, rank = 2, selected.cpo = "ica"),
+  titanic.task, reps = 20)
+```
+
+```{r, echo = FALSE}
+parallelStop()
+```
+
+### Custom CPOs and Feature Clusters
+
+Even though `mlrCPO` offers many versatile `CPO`s, it may happen that a method that is not present should be implemented. For this case, it is possible to create new `CPOConstructor`s using `makeCPO()`. To go deeper into the topic of creating custom CPOs, you can query the respective vignette using `vignette("a_4_custom_CPOs", package="mlrCPO")`, but the following gives a useful and relatively general example.
+
+When looking at the distribution of the ticket numbers, we notice a few accumulation of points and might wonder whether having a ticket from one of these "clusters" gives any information about a passenger.
+```{r}
+ggplot(getTaskData(titanic.task %>>% preproc.pipeline),
+  aes(ticketno.topca, 0)) + geom_jitter(height = 1) + coord_fixed()
+```
+
+We choose to use the `dbscan` library for clustering, even though there is no `CPO` available that implements it. The wrong approach would be to use `cpoAddCols` to add a column from the result of running `dbscan` on the input, because this would give different clusters during training and prediction. Instead, we need to implement a new `CPO` that assigns the correct clusters to new data values.
+
+`makeCPO()` splits the preprocessing operation up into two functions: a `cpo.train` function that is applied only to the training data and returns a "control" object which contains all the trained information--in our case, the result from the `dbscan()` call--, and a `cpo.retrafo` function that is applied to both training and prediction data and does the actual data transformation--assigning the cluster index to every data point.
+
+Our `CPO` will take only numeric values, and will return a single factorial column indicating cluster membership. We use the `properties.*` parameters of `makeCPO()` to indicate:
+
+* that only numeric values are accepted (with missing values also accepted): `properties.data = c("numerics", "missings")`
+* that if we attach the `CPO` to a `Learner`, it must be able to handle "factors": `properties.needed = "factors"`
+* that the `Learner` does not need to handle numeric values (since we are converting numerics to factors). Therefore, the "numerics" property is "added" to the `Learner` when the `CPO` gets attached: `properties.adding= "numerics"`
+
+Our newly created `CPO` exports the "eps" parameter of `dbscan`, indicating the necessary proximity for cluster membership. This is declared by the `par.set` parameter of `makeCPO`.
+
+```{r}
+
+cpoDbscan = makeCPO(cpo.name = "dbscan",
+  par.set = makeParamSet(makeNumericParam("eps", 0)),
+  properties.data = c("numerics", "missings"),
+  properties.needed = "factors",
+  properties.adding = "numerics",
+  packages = "dbscan",
+  cpo.train = function(data, target, eps) {
+    data = as.matrix(data)
+    list(cluster = dbscan::dbscan(data, eps), data = data)
+  },
+  cpo.retrafo = function(data, control, eps) {
+    prediction = predict(control$cluster, as.matrix(data), control$data)
+    unique.clusters = sort(unique(control$cluster$cluster))
+    result = data.frame(factor(prediction, levels = unique.clusters))
+    names(result) = str_c(c("dbscan", colnames(data)), collapse = ".")
+    result
+  })
+```
+Inspecting the clustering done on both `titanic.table` and `test.table` shows that clustering work well:
+
+```{r}
+clustered.train = titanic.task %>>% preproc.pipeline %>>%
+  cpoSelectFreeProperties(names = "ticketno.topca") %>>%
+  cpoCbind(NULLCPO, cpoDbscan(0.1))
+
+ggplot(getTaskData(clustered.train, target.extra = TRUE)$data,
+  aes(ticketno.topca, 0, color = dbscan.ticketno.topca)) +
+  geom_jitter(height = 1) + coord_fixed()
+```
+
+```{r}
+clustered.predict = test.table %>>% retrafo(clustered.train)
+ggplot(clustered.predict,
+  aes(ticketno.topca, 0, color = dbscan.ticketno.topca)) +
+  geom_jitter(height = 1) + coord_fixed()
+```
+
+We can use this to cluster ticket numbers (and drop the other `.topca` columns) and evaluate the resulting Learner.
+
+```{r}
+cluster.learner = preproc.pipeline %>>%
+  cpoCbind(cpoSelect(pattern = "\\.topca$", invert = TRUE),
+    cpoSelectFreeProperties(names = "ticketno.topca") %>>% cpoDbscan(0.1)) %>>%
+  makeLearner("classif.randomForest")
 ```
 
 
 ```{r}
-repcv(setHyperPars(tune.learner, selected.cpo = "cforest.importance", perc = 0.158), titanic.task, show.info = FALSE)
-
-repcv(preproc.learner, titanic.task, show.info = FALSE)
-
-```
-
-```{r}
-repcv(preproc.learner, titanic.task, show.info = FALSE)
-repcv(setHyperPars(tune.learner, kruskal.test.perc = 0.2), titanic.task, show.info = FALSE)
-repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"), titanic.task, show.info = FALSE)
-
+repcv(cluster.learner, titanic.task, reps = 20)
 ```
