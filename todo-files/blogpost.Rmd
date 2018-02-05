@@ -1,5 +1,6 @@
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
 GOFAST = FALSE
 library("ggplot2")
 knitr::opts_knit$set(root.dir = "~/lmu/master/testcars")
@@ -56,13 +57,19 @@ The possibilities offered by `mlrCPO` can best be demonstrated using example. Th
 library("mlrCPO")
 ```
 
-A dataset that can make good use of preprocessing operations is [the "Titanic" dataset on Kaggle](https://www.kaggle.com/c/titanic/data). We can use feature engineering on some of the more awkward character string features, and for some features we need to do missing value imputation. If the `train.csv` file from Kaggle is in the working directory, it should be loaded into an `mlr`-compatible `Task` using
+A dataset that can make good use of preprocessing operations is [the "Titanic" dataset on Kaggle](https://www.kaggle.com/c/titanic/data). We can use feature engineering on some of the more awkward character string features, and for some features we need to do missing value imputation. One issue with the dataset is that the baseline performance using just the "Sex" and "Pclass" columns is already quite high, which makes improvements of algorithm performance that result from preprocessing hard to measure. For demonstration purposes we are therefore going to simulate a "harder" dataset by removing the "Sex" and "Pclass" columns. If the `train.csv` file from Kaggle is in the working directory, it should be loaded into an `mlr`-compatible `Task` using
 ```{r}
 titanic.table = read.csv("train.csv", na.str = "")
+titanic.table$Pclass = NULL
+titanic.table$Sex = NULL
+
 titanic.task = makeClassifTask("titanic", titanic.table,
   target = "Survived", positive = 1)
 
 test.table = read.csv("test.csv", na.str = "")
+test.table$Pclass = NULL
+test.table$Sex = NULL
+
 ```
 
 ### CPO Creation and Feature Engineering
@@ -89,7 +96,7 @@ remove.superfluous = cpoSelect(names = "Name", invert = TRUE, export = "names")
 head(getTaskData(working.data %>>% remove.superfluous))
 ```
 
-Note the `export` parameter. It is a special parameter of every `CPO` constructor that controls which hyperparameters, i.e. parameters that control the operation of a `CPO`, to be exported. An exported hyperparameter can be changed later using the `setHyperPars` function; inspect the set of exported hyperparameters using the `getParamSet` function, or using the verbose printing operator `!`:
+Note the `export` parameter. It is a special parameter of every `CPO` constructor that controls which hyperparameters, i.e. parameters that control the operation of a `CPO`, to be exported. An exported hyperparameter can be changed later using the `setHyperPars` function; inspect the set of exported hyperparameters using the `getParamSet()` function, or using the verbose printing operator `!`:
 ```{r}
 !remove.superfluous
 ```
@@ -102,7 +109,7 @@ remove.superfluous = setHyperPars(remove.superfluous,
 head(getTaskData(working.data %>>% remove.superfluous))
 ```
 
-An alternative to the `data = data %>>% CPO` construct is the `%<>>%` operator. It applies one or several `CPO`s and assigns the result to the operand on the left. The following removes the `Name` column from `working.data`:
+An alternative to the `data = data %>>% CPO` construct is the `%<>>%` operator. It applies one or several `CPO`s and assigns the result to the operand on the left. The following removes the `Name` and superfluous columns from `working.data`:
 
 ```{r}
 working.data %<>>% remove.superfluous
@@ -110,7 +117,7 @@ working.data %<>>% remove.superfluous
 
 ### CPO Composition and Feature Imputation
 
-The `%>>%` operator can not only be used to apply a `CPO` to data, but also to concat multiple `CPO`s in a row to form one combined `CPO`. Suppose, for example, we want to build a `CPO` that uses different imputation techniques on different column types. We may want to use this `CPO` on multiple datasets without always having to write out the operations separately. The following constructs a composite `CPO` which first operates on the ordered and factorial columns (always adding a new missings level), and then on the numeric columns (using the `regr.cforest` `Learner`). Which columns are seen by a `CPO` is controlled by the "`affect.type`" parameter on construction.
+The `%>>%` operator can not only be used to apply a `CPO` to data, but also to concat multiple `CPO`s in a row to form one combined `CPO`. Suppose, for example, we want to build a `CPO` that uses different imputation techniques on different column types. We may want to use this `CPO` on multiple datasets without always having to write out the operations separately. The following constructs a composite `CPO` which first operates on the ordered and factorial columns (always creating a new factor level specifically for missing values), and then on the numeric columns (using predictions made by the `regr.cforest` `Learner`). Which columns are seen by a `CPO` is controlled by the "`affect.type`" parameter on construction.
 
 ```{r}
 impute.fact = cpoImputeConstant("MISSING", affect.type = c("ordered", "factor"),
@@ -129,7 +136,7 @@ working.data %>>% impute.all
 
 ### Parallel CPO Application and Missing Value Indicators
 
-Sometimes we want to apply different operations on a dataset, but then go on working with a combination of the results of all these operatiosn. Consider, for example, `cpoMissingIndicators`, which replaces the input data with columns indicating whether data is missing. It can not be used after imputation (because no missing values remain), but using it before imputation would cause the imputation `CPO`s to also create imputation models for the missing value indicating columns.
+Sometimes we want to apply different operations on a dataset, but then go on working with a combination of the results of all these operations. Consider, for example, `cpoMissingIndicators`, which replaces the input data with columns indicating whether data is missing. It can not be used after imputation (because no missing values remain), but using it before imputation would cause the imputation `CPO`s to also create imputation models for the missing value indicating columns.
 
 To perform several different actions in parallel and combine the result, use the `cpoCbind` `CPO`. It is named after the R `cbind()` operation, which works in a similar way. `cpoCbind` is constructed with different `CPO`s as its arguments, named by a prefix to add to the resulting columns. To add missing value dummy columns, we do
 
@@ -253,23 +260,28 @@ tuneres = tuneParams(tune.learner, titanic.task,
   cv10, par.set = ps, control = ctrl)
 tuneres
 ```
-The result seems to indicate that the performance is similar for the first five added columns, after which it degrades. Note that all tuning result graphs shown were created using 10-fold repeated crossvalidation with 10 iterations, which reduces noise but takes a lot longer to run than the simple 10-fold crossvalidation indicated above.
+The result seems to indicate that the performance is similar for the first five added columns, after which it degrades.
 
 ```{r}
 effects = generateHyperParsEffectData(tuneres)
 qplot(pca.rank, mmce.test.mean, data = effects$data)
 ```
 
-Making a comparison of `CPO` using three `PCA` components, using no `PCA`, or not using the added columns altogether, shows that the performance is similar.
+(Note that all tuning result graphs shown were created using 10-fold repeated crossvalidation with 10 iterations, which reduces noise but takes a lot longer to run than the simple 10-fold crossvalidation used in the code.)
+
+Making a comparison of `CPO` using three `PCA` components, using no `PCA`, or not using the added columns altogether, shows that the performance is similar, although not doing PCA has a slight edge.
 ```{r}
+# using PCA
 repcv(setHyperPars(tune.learner, pca.rank = 3),
   titanic.task)
 ```
 ```{r}
+# the columns with no PCA
 repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"),
   titanic.task)
 ```
 ```{r}
+# not using any columns used by the PCA
 repcv(preproc.pipeline %>>% cpoSelect(pattern = "\\.topca$", invert = TRUE) %>>%
       makeLearner("classif.randomForest"),
   titanic.task)
@@ -333,7 +345,7 @@ tune.learner = preproc.pipeline %>>%
 
 ps = makeParamSet(
     makeDiscreteParam("selected.cpo", values = c("pca", "ica")),
-    makeIntegerParam("rank", lower = 1, upper = 5))
+    makeIntegerParam("rank", lower = 1, upper = 10))
 
 tuneres = tuneParams(tune.learner, titanic.task, cv10, par.set = ps, control = ctrl)
 tuneres
@@ -344,7 +356,7 @@ effects = generateHyperParsEffectData(tuneres)
 qplot(rank, mmce.test.mean, color = selected.cpo, data = effects$data)
 ```
 
-The difference seems to be minute, the difference between ICA and PCA is smaller than the resampling error.
+The difference seems to be minute, but for most values PCA seems to outperform ICA.
 
 ```{r}
 repcv(setHyperPars(tune.learner, rank = 3, selected.cpo = "ica"),
