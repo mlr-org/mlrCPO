@@ -1,14 +1,29 @@
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
+GOFAST = TRUE
 library("ggplot2")
 knitr::opts_knit$set(root.dir = "~/lmu/master/testcars")
+knitr::opts_chunk$set(message = FALSE, fig.align = "center")
 configureMlr(show.info = FALSE)
-options(width=120)
-cv10 = mlr::hout
-repcv = function(...) {
-  args = list(...)
-  args$reps = 2
-  do.call(mlr::repcv, args)
+options(width=80)
+if (GOFAST) {
+  cv10 = mlr::hout
+  repcv = function(...) {
+    args = list(...)
+    args$reps = 2
+    args$folds = 2
+    do.call(mlr::repcv, args)
+  }
+} else {
+  cv10 = mlr::cv10
+  repcv = mlr::repcv
+}
+library("parallelMap")
+parallelStartSocket(parallel::detectCores())
+parallelLibrary("stringr")
+
+head = function(x, ...) {
+  kableExtra::kable_styling(knitr::kable(utils::head(x), "html"))
 }
 ```
 
@@ -187,7 +202,7 @@ coladder = cpoAddCols(
       log(tno)
     })
 ```
-We are also going to collapse the least common factors of the `Title` feature using `cpoCollapseFact`. Because the missing indicators of `Roomno` and `Deck` are the same (since both features are extracted from the `Cabin` feature), one of them is removed.
+We are also going to collapse the least common factors of the `Title` feature using `cpoCollapseFact`. Because the missing indicators of `Roomno` and `Deck` are the same (since both features are extracted from the `Cabin` feature), one of them is removed. The output shown is only of the new columns added.
 ```{r}
 preproc.pipeline = titleadder %>>% coladder %>>%
   cpoCollapseFact(0.05, affect.names = "Title", export = character(0)) %>>%
@@ -195,7 +210,8 @@ preproc.pipeline = titleadder %>>% coladder %>>%
   remove.superfluous %>>% impute.and.dummy %>>%
   cpoSelect(names = "missing.Roomno.topca", invert = TRUE)
 
-head(getTaskData(titanic.task %>>% preproc.pipeline))
+head(getTaskData(titanic.task %>>% preproc.pipeline %>>%
+    cpoSelect(pattern = "\\.topca")))
 ```
 In the following we first create the `CPO` that first turns all columns into numerics (using `cpoModelMatrix`) and then applies the PCA. To apply this `CPO` only to columns with `.topca` in their name, we use `cpoCbind` in combination with `cpoSelect`.
 ```{r}
@@ -215,11 +231,6 @@ getParamSet(tune.learner)
 
 Because we only do tuning in low dimensions, it is sensible to use grid tuning.
 
-```{r, echo = FALSE}
-library("parallelMap")
-parallelStartSocket(parallel::detectCores())
-parallelLibrary("stringr")
-```
 ```{r}
 ctrl = makeTuneControlGrid()
 ps = makeParamSet(makeNumericParam("pca.rank", lower = 1, upper = 10))
@@ -237,12 +248,16 @@ qplot(pca.rank, mmce.test.mean, data = effects$data)
 Making a comparison of `CPO` using three `PCA` components, using no `PCA`, or not using the added columns altogether, shows that the performance is similar.
 ```{r}
 repcv(setHyperPars(tune.learner, pca.rank = 3),
-  titanic.task, reps = 20)
+  titanic.task, reps = 20)$aggr
+```
+```{r}
 repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"),
-  titanic.task, reps = 20)
+  titanic.task, reps = 20)$aggr
+```
+```{r}
 repcv(preproc.pipeline %>>% cpoSelect(pattern = "\\.topca$", invert = TRUE) %>>%
       makeLearner("classif.randomForest"),
-  titanic.task, reps = 20)
+  titanic.task, reps = 20)$aggr
 ```
 
 ### CPO Multiplexing and Tuning over Different  Methods
@@ -318,7 +333,7 @@ The difference seems to be minute, with ICA having a slight edge for low rank.
 
 ```{r}
 repcv(setHyperPars(tune.learner, rank = 2, selected.cpo = "ica"),
-  titanic.task, reps = 20)
+  titanic.task, reps = 20)$aggr
 ```
 
 ```{r, echo = FALSE}
@@ -330,7 +345,7 @@ parallelStop()
 Even though `mlrCPO` offers many versatile `CPO`s, it may happen that a method that is not present should be implemented. For this case, it is possible to create new `CPOConstructor`s using `makeCPO()`. To go deeper into the topic of creating custom CPOs, you can query the respective vignette using `vignette("a_4_custom_CPOs", package="mlrCPO")`, but the following gives a useful and relatively general example.
 
 When looking at the distribution of the ticket numbers, we notice a few accumulation of points and might wonder whether having a ticket from one of these "clusters" gives any information about a passenger.
-```{r}
+```{r, fig.height = 2}
 ggplot(getTaskData(titanic.task %>>% preproc.pipeline),
   aes(ticketno.topca, 0)) + geom_jitter(height = 1) + coord_fixed()
 ```
@@ -369,21 +384,21 @@ cpoDbscan = makeCPO(cpo.name = "dbscan",
 ```
 Inspecting the clustering done on both `titanic.table` and `test.table` shows that clustering work well:
 
-```{r}
+```{r, fig.height = 2}
 clustered.train = titanic.task %>>% preproc.pipeline %>>%
   cpoSelectFreeProperties(names = "ticketno.topca") %>>%
   cpoCbind(NULLCPO, cpoDbscan(0.1))
 
 ggplot(getTaskData(clustered.train, target.extra = TRUE)$data,
   aes(ticketno.topca, 0, color = dbscan.ticketno.topca)) +
-  geom_jitter(height = 1) + coord_fixed()
+  geom_jitter(height = 1, show.legend = FALSE) + coord_fixed()
 ```
 
-```{r}
+```{r, fig.height = 2}
 clustered.predict = test.table %>>% retrafo(clustered.train)
 ggplot(clustered.predict,
   aes(ticketno.topca, 0, color = dbscan.ticketno.topca)) +
-  geom_jitter(height = 1) + coord_fixed()
+  geom_jitter(height = 1, show.legend = FALSE) + coord_fixed()
 ```
 
 We can use this to cluster ticket numbers (and drop the other `.topca` columns) and evaluate the resulting Learner.
@@ -397,5 +412,5 @@ cluster.learner = preproc.pipeline %>>%
 
 
 ```{r}
-repcv(cluster.learner, titanic.task, reps = 20)
+repcv(cluster.learner, titanic.task, reps = 20)$aggr
 ```
