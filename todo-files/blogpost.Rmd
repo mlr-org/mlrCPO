@@ -1,22 +1,36 @@
 
-```{r, echo = FALSE, message = FALSE}
-GOFAST = TRUE
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+GOFAST = FALSE
 library("ggplot2")
 knitr::opts_knit$set(root.dir = "~/lmu/master/testcars")
 knitr::opts_chunk$set(message = FALSE, fig.align = "center")
 configureMlr(show.info = FALSE)
 options(width=80)
+myrepcv = function(..., folds, reps) {
+  rdesc = makeResampleDesc("CV", iters = folds)
+  args = list(...)
+  args$resampling = rdesc
+  vals = replicate(reps, do.call(resample, args)$aggr)
+  aggr = mean(vals)
+  se = sd(vals) / sqrt(reps)
+  cat(sprintf("MMCE Mean %.4f, SE %.4f\n", aggr, se))
+}
 if (GOFAST) {
   cv10 = mlr::hout
   repcv = function(...) {
     args = list(...)
-    args$reps = 2
+    args$reps = 3
     args$folds = 2
-    do.call(mlr::repcv, args)
+    do.call(myrepcv, args)
   }
 } else {
   cv10 = mlr::cv10
-  repcv = mlr::repcv
+  repcv = function(...) {
+    args = list(...)
+    args$reps = 50
+    args$folds = 10
+    do.call(myrepcv, args)
+  }
 }
 library("parallelMap")
 parallelStartSocket(parallel::detectCores())
@@ -175,7 +189,7 @@ preproc.learner
 This `Learner` can be used for resampling on the (original!) data without bad conscience, and can be used on the test data without needing to worry about `retrafo()`s.
 
 ```{r}
-resample(preproc.learner, titanic.task, cv10)
+repcv(preproc.learner, titanic.task)
 ```
 
 ```{r}
@@ -248,16 +262,16 @@ qplot(pca.rank, mmce.test.mean, data = effects$data)
 Making a comparison of `CPO` using three `PCA` components, using no `PCA`, or not using the added columns altogether, shows that the performance is similar.
 ```{r}
 repcv(setHyperPars(tune.learner, pca.rank = 3),
-  titanic.task, reps = 20)$aggr
+  titanic.task)
 ```
 ```{r}
 repcv(preproc.pipeline %>>% makeLearner("classif.randomForest"),
-  titanic.task, reps = 20)$aggr
+  titanic.task)
 ```
 ```{r}
 repcv(preproc.pipeline %>>% cpoSelect(pattern = "\\.topca$", invert = TRUE) %>>%
       makeLearner("classif.randomForest"),
-  titanic.task, reps = 20)$aggr
+  titanic.task)
 ```
 
 ### CPO Multiplexing and Tuning over Different  Methods
@@ -333,11 +347,7 @@ The difference seems to be minute, with ICA having a slight edge for low rank.
 
 ```{r}
 repcv(setHyperPars(tune.learner, rank = 2, selected.cpo = "ica"),
-  titanic.task, reps = 20)$aggr
-```
-
-```{r, echo = FALSE}
-parallelStop()
+  titanic.task)
 ```
 
 ### Custom CPOs and Feature Clusters
@@ -412,5 +422,10 @@ cluster.learner = preproc.pipeline %>>%
 
 
 ```{r}
-repcv(cluster.learner, titanic.task, reps = 20)$aggr
+repcv(cluster.learner, titanic.task)
+```
+
+
+```{r, echo = FALSE}
+parallelStop()
 ```
