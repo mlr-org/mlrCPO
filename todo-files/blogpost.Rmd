@@ -10,7 +10,7 @@ myrepcv = function(..., folds, reps) {
   rdesc = makeResampleDesc("CV", iters = folds)
   args = list(...)
   args$resampling = rdesc
-  vals = replicate(reps, do.call(resample, args)$aggr)
+  vals = parallelMap(function(dummy) do.call(resample, args)$aggr, seq_len(reps), show.info = FALSE, simplify = TRUE)
   aggr = mean(vals)
   se = sd(vals) / sqrt(reps)
   cat(sprintf("MMCE Mean %.4f, SE %.4f\n", aggr, se))
@@ -24,7 +24,7 @@ if (GOFAST) {
     do.call(myrepcv, args)
   }
 } else {
-  cv10 = mlr::cv10
+  cv10 = makeResampleDesc("RepCV", folds = 10, reps = 10)
   repcv = function(...) {
     args = list(...)
     args$reps = 50
@@ -35,6 +35,7 @@ if (GOFAST) {
 library("parallelMap")
 parallelStartSocket(parallel::detectCores())
 parallelLibrary("stringr")
+parallelLibrary("mlr")
 
 head = function(x, ...) {
   kableExtra::kable_styling(knitr::kable(utils::head(x), "html"))
@@ -168,7 +169,7 @@ head(working.test)
 
 ### How Not to Resample
 
-A common way to evaluate different machine learning algorithms is to (often repeatedly) train a model on a subset of available data, make a prediction on the remaining data, and compare that prediction with the known target values of that data. This process is called *resampling*, and `mlr` offers the function `resample()` which does exactly this. However, it is important that the entire machine learning process should happen inside the resampling, i.e. that not only the machine learning model, but also the preprocessing operations, get trained only on the training subset of the resampling step. For example, at this point it would be tempting to do `resample(learner, working.task, cv10)` to do five fold crossvalidation using any "`learner`" we might think of. The resampling would evaluate models trained on subsets of `working.test`, but this dataset was already preprocessed using information from the *whole available data*, so information from the resampling test subset would sneak in. It might not give a good estimate of real world performance, since a model trained on (the whole of) `working.test` does *not* contain any information about data still in the wild (e.g. `test.table`). Luckily `mlrCPO` makes it very easy to perform "proper" resampling by performing another simplification: attaching a `CPO` to a `Learner`.
+A common way to evaluate different machine learning algorithms is to (often repeatedly) train a model on a subset of available data, make a prediction on the remaining data, and compare that prediction with the known target values of that data. This process is called *resampling*, and `mlr` offers the function `resample()` which does exactly this. However, it is important that the entire machine learning process should happen inside the resampling, i.e. that not only the machine learning model, but also the preprocessing operations, get trained only on the training subset of the resampling step. For example, at this point it would be tempting to do `resample(learner, working.data, cv10)` to do five fold crossvalidation using any "`learner`" we might think of. The resampling would evaluate models trained on subsets of `working.data`, but this dataset was already preprocessed using information from the *whole available data*, so information from the resampling test subset would sneak in. It might not give a good estimate of real world performance, since a model trained on (the whole of) `working.data` does *not* contain any information about data still in the wild (e.g. `test.table`). Luckily `mlrCPO` makes it very easy to perform "proper" resampling by performing another simplification: attaching a `CPO` to a `Learner`.
 
 ### Attaching `CPO`s to `Learner`s
 
@@ -252,7 +253,7 @@ tuneres = tuneParams(tune.learner, titanic.task,
   cv10, par.set = ps, control = ctrl)
 tuneres
 ```
-While a bit noisy, the result seems to indicate that the performance is similar for the first four columns, after which it degrades.
+The result seems to indicate that the performance is similar for the first five added columns, after which it degrades. Note that all tuning result graphs shown were created using 10-fold repeated crossvalidation with 10 iterations, which reduces noise but takes a lot longer to run than the simple 10-fold crossvalidation indicated above.
 
 ```{r}
 effects = generateHyperParsEffectData(tuneres)
@@ -343,10 +344,10 @@ effects = generateHyperParsEffectData(tuneres)
 qplot(rank, mmce.test.mean, color = selected.cpo, data = effects$data)
 ```
 
-The difference seems to be minute, with ICA having a slight edge for low rank.
+The difference seems to be minute, the difference between ICA and PCA is smaller than the resampling error.
 
 ```{r}
-repcv(setHyperPars(tune.learner, rank = 2, selected.cpo = "ica"),
+repcv(setHyperPars(tune.learner, rank = 3, selected.cpo = "ica"),
   titanic.task)
 ```
 
