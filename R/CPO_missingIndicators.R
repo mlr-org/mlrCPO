@@ -26,7 +26,7 @@ cpoMissingIndicators = makeCPO("missingindicators",  # nolint
   cpo.retrafo = {
     data = data[force.dummies | control]
     for (d in names(data)) {
-      data[[d]] = as.factor(is.na(data[[d]]))
+      data[[d]] = factor(is.na(data[[d]]), levels = c("FALSE", "TRUE"))
     }
     data
   })

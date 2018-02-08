@@ -20,7 +20,6 @@
 cpoFixFactors = makeCPOExtendedTrafo("fixfactors",  # nolint
   pSS(drop.unused.levels = TRUE: logical, fix.factors.prediction = TRUE: logical),
   dataformat = "df.features",
-  properties.needed = "missings",
   cpo.trafo = {
     if (drop.unused.levels) {
       data = droplevels(data)
