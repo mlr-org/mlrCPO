@@ -1130,7 +1130,9 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
       if (anyDuplicated(colnames(newdata))) {
         stopf("CPO %s introduced duplicate column names", name)
       }
-      newdata = unflipTarget(newdata, task)
+      if (newtasktype == "classif") {
+        newdata = unflipTarget(newdata, task)
+      }
       return(constructTask(newdata, newtnames, newtasktype, getTaskId(task), isLevelFlipped(task)))
     } else {
       return(changeData(task, recombinedf(getTaskData(task), newdata, dataformat, strict.factors, subset.index, getTaskTargetNames(task), name)))
@@ -1139,10 +1141,13 @@ recombinetask = function(task, newdata, dataformat = c("df.all", "task", "df.fea
 
   if (dataformat == "df.all") {
     checkDFBasics(task, newdata, targetbound, name)
-    newdata = unflipTarget(newdata, task)
     if (!targetbound) {
+      newdata = unflipTarget(newdata, task)
       newdata = changeData(task, newdata)
     } else {
+      if (newtasktype == "classif") {
+        newdata = unflipTarget(newdata, task)
+      }
       newdata = constructTask(newdata, getTaskTargetNames(task), newtasktype, getTaskId(task), isLevelFlipped(task))
     }
   }

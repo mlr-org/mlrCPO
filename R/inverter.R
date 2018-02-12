@@ -185,7 +185,7 @@ invertCPO = function(inverter, prediction, predict.type) {
   args = list(target = prediction, predict.type = output.predict.type, state = state)
 
   prediction = do.call(cpo$trafo.funs$cpo.invert, insert(getBareHyperPars(cpo), args))
-  prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type)
+  prediction = sanitizePrediction(prediction, cpo$convertfrom, output.predict.type, inverter$task.desc)
 
   if (is.null(inverter$prev.retrafo.elt)) {
     return(list(new.prediction = prediction, new.td = inverter$task.desc, new.truth = inverter$truth))
@@ -214,7 +214,8 @@ invertCPO = function(inverter, prediction, predict.type) {
 # @param data [data.frame | matrix | atomic] the input data
 # @param type [character(1)] one of 'regr', 'cluster', 'classif', 'surv', 'multilabel'
 # @param predict.type [character(1)] one of 'response', 'prob', 'se'.
-sanitizePrediction = function(data, type, predict.type) {
+# @param new.td [TaskDesc | NULL] TaskDesc of input task, if available; used for class levels only.
+sanitizePrediction = function(data, type, predict.type, new.td = NULL) {
   assertChoice(type, cpo.tasktypes)
   assertChoice(predict.type, cpo.predict.types)
   if (is.data.frame(data)) {
@@ -279,6 +280,12 @@ sanitizePrediction = function(data, type, predict.type) {
   } else if (type == "classif") {
     if (!is.factor(data)) {
       stop("'classif' response prediction must be a factor")
+    }
+    if (!is.null(new.td)) {
+      if (!testSubset(levels(data), new.td$class.levels)) {
+        stop("'classif' response prediction must have factor levels as determined by input Task TaskDesc.")
+      }
+      data = factor(data, levels = new.td$class.levels)
     }
   } else {
     # regr, surv

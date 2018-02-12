@@ -641,7 +641,7 @@ test_that("retrafoless cannot flip binary classif task", {
 
 
 
-  localenv$pos = "neg"
+  localenv$pos = pid.task$task.desc$positive
   expect_error(ortho %>>% flipcpotaskflip(), "changed task target feature order")
   expect_error(ortho %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(ortho %>>% flipcpodfrev(), "must not change target class levels")
@@ -650,7 +650,7 @@ test_that("retrafoless cannot flip binary classif task", {
   expect_error(ortho.rev %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(ortho.rev %>>% flipcpodfrev(), "must not change target class levels")
 
-  localenv$pos = "pos"
+  localenv$pos = setdiff(c("pos", "neg"), pid.task$task.desc$positive)
   expect_error(trans %>>% flipcpotaskflip(), "changed task target feature order")
   expect_error(trans %>>% flipcpotaskrev(), "changed task target feature order")
   expect_error(trans %>>% flipcpodfrev(), "must not change target class levels")
@@ -661,3 +661,54 @@ test_that("retrafoless cannot flip binary classif task", {
 
 })
 
+test_that("task flipping during conversion works as expected", {
+
+  ortho = pid.task
+  trans = subsetTask(pid.task)
+  tmp = trans$task.desc$negative
+  trans$task.desc$negative = trans$task.desc$positive
+  trans$task.desc$positive = tmp
+
+  ortho.rev = subsetTask(ortho)
+  ortho.rev$env$data = flipTaskTarget(ortho$env$data, getTaskTargetNames(ortho))
+
+  trans.rev = subsetTask(trans)
+  trans.rev$env$data = flipTaskTarget(trans$env$data, getTaskTargetNames(trans))
+
+  expect_equal(isLevelFlipped(ortho), !isLevelFlipped(trans))
+  expect_equal(isLevelFlipped(ortho.rev), !isLevelFlipped(trans.rev))
+  expect_equal(isLevelFlipped(ortho.rev), isLevelFlipped(trans))
+  expect_equal(isLevelFlipped(ortho), isLevelFlipped(trans.rev))
+
+  applyGMC("clas.to.reg", FALSE, ci = TRUE,
+    type = c("target", "target.extended"),
+    dataformat = c("df.features", "split", "df.all"),
+    train = function(data, target, param) {
+      levels(data[[target]])
+    },
+    retrafo = function(data, control, param, target) {
+      tcol = grep("^target\\.", colnames(data))
+      data[[tcol]] = as.numeric(data[[tcol]])
+      data
+    },
+    invert = function(target, predict.type, control, param) {
+      beforefac = round(target[[1]])
+      beforefac = pmax(beforefac, 1)
+      beforefac = pmin(beforefac, length(control))
+      target = factor(beforefac, levels = seq_along(control))
+      levels(target) = control
+      data.frame(target.target = target)
+    }, convertfrom = "classif", convertto = "regr",
+    applyfun = function(regrconv, type, line, dfx) {
+
+      res.ortho = getTaskTargets(ortho %>>% regrconv())
+      expect_subset(res.ortho, c(1, 2))
+
+      res.trans = getTaskTargets(trans %>>% regrconv())
+      expect_subset(res.trans, c(1, 2))
+
+      expect_equal(getTaskTargets(ortho.rev %>>% regrconv()), res.ortho)
+      expect_equal(getTaskTargets(trans.rev %>>% regrconv()), res.trans)
+    })
+
+})

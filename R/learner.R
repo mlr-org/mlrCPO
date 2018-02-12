@@ -17,8 +17,13 @@
 attachCPO.CPO = function(cpo, learner) {
   learner = checkLearner(learner)
   if (!learner$type %in% union(cpo$properties$needed, setdiff(cpo$properties$handling, cpo$properties$adding))) {
-    stopf("Cannot combine CPO that outputs type %s with learner of type %s.",
-      cpo$convertto, learner$type)
+    if (is.null(cpo$convertto)) {
+      stopf("Cannot attach a CPO to learner of type %s if the CPO can neither handle nor convert to that type.",
+        learner$type)
+    } else {
+      stopf("Cannot combine CPO that outputs type %s with learner of type %s.",
+        cpo$convertto, learner$type)
+    }
   }
 
   parameterClashAssert(cpo, learner, cpo$debug.name, getLearnerName(learner))
