@@ -2,6 +2,7 @@
 #'
 #' @template cpo_doc_intro
 #'
+#' @description
 #' Converts factor columns into columns giving the probability
 #' for each target class to have this target, given the column value.
 #'
