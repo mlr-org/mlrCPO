@@ -19,7 +19,7 @@
 #'   no limit.
 #'
 #' @section CPOTrained State:
-#' The state's \code{$control} slot a list with the \code{$rotation} matrix,
+#' The state's \code{$control} slot is a list with the \code{$rotation} matrix,
 #' the \code{$scale} vector and the \code{$center} vector
 #' as returned by \code{\link[stats]{prcomp}}.
 #'

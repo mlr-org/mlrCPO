@@ -2,11 +2,15 @@
 #'
 #' @template cpo_doc_intro
 #'
-#' @description
-#' TODO: what is this actually called?
-#'
 #' Converts factor columns into columns giving the probability
 #' for each target class to have this target, given the column value.
+#'
+#' @section CPOTrained State:
+#' The state's \code{$control} slot is a list of matrices for each
+#' factorial data column. Each of these matrices has rows for each of
+#' the data column's levels, and columns for each
+#' of the target factor levels, and gives the empirical marginal conditional
+#' probabilities for each target value given the column value.
 #'
 #' @template cpo_doc_outro
 #' @export
@@ -20,15 +24,20 @@ cpoProbEncode = makeCPO("prob.encode",  # nolint
     lapply(data, function(col)
       sapply(levels(target[[1]]), function(tl)
         vnapply(c(levels(col), NA), function(cl)
-          mean(target[[1]][is.na(cl) | col == cl] == tl))))
+          mean(target[[1]][is.na(cl) | col == cl] == tl, na.rm = TRUE))))
   },
   cpo.retrafo = {
+    if (!ncol(data)) {
+      return(data)
+    }
     ret = do.call(cbind, lapply(seq_along(data), function(idx) {
       curdat = data[[idx]]
       levels(curdat) = c(levels(curdat), ".TEMP.MISSING")
       curdat[is.na(curdat)] = ".TEMP.MISSING"
       dummyenc = sapply(levels(curdat), function(lvl) as.integer(curdat == lvl))
-      dummyenc %*% control[[idx]]
+      ret = dummyenc %*% control[[idx]]
+      colnames(ret) = paste(colnames(data)[idx], colnames(ret), sep = ".")
+      ret
     }))
     as.data.frame(ret)
   })
@@ -42,7 +51,8 @@ registerCPO(cpoProbEncode, "data", "feature conversion", "Convert factorial colu
 #' Impact encoding as done by vtreat
 #'
 #' @param smoothing [\code{numeric(1)}]\cr
-#'   A finite positive value used for smoothing.
+#'   A finite positive value used for smoothing. Mostly relevant
+#'
 #'   Default is \code{1e-4}.
 #'
 #' @template cpo_doc_outro

@@ -29,7 +29,7 @@ r_github_packages:
 before_install:
   # we want to see libpaths and installed packages from cache
   - Rscript -e 'message("LIBPATHS:"); .libPaths()'
-  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
+  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
 
 before_script:
   - rm inst/doc/*.*
@@ -49,35 +49,45 @@ stages:
 jobs:
   include:
     - stage: install
-      script:
-        - echo 'Filled the cache with installed R packages.'
-        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
-    - stage: test
       env: github-mlr
       script:
           # github mlr & tools
         - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
         - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
         - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - echo 'Filled the cache with installed R packages.'
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
+    - stage: install
+      env: cran-mlr
+      script:
+          # cran mlr & tools
+        - Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
+        - echo 'Filled the cache with installed R packages.'
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
+    - stage: test
+      env: github-mlr
+      script:
+        - Rscript -e 'installed.packages()[c("BBmisc", "ParamHelpers", "mlr"), 2:3]'
         - R CMD build .
         - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
         - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: test
       env: cran-mlr
       script:
-          # cran mlr & tools
-        - Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
+        - Rscript -e 'installed.packages()[c("BBmisc", "ParamHelpers", "mlr"), 2:3]'
         - R CMD build .
         - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
         - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: covr
       script:
+      env: github-mlr
         - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
         - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
         - Rscript -e 'devtools::install_github("mlr-org/mlr")'
         - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
     - stage: document
       script:
+      env: cran-mlr
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
         # at this point, "document" was already run
         - Rscript -e 'devtools::build_vignettes();'
