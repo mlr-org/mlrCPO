@@ -79,17 +79,17 @@ jobs:
         - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
         - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: covr
-      script:
       env: github-mlr
+      script:
         - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
         - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
         - Rscript -e 'devtools::install_github("mlr-org/mlr")'
         - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
     - stage: document
-      script:
       env: cran-mlr
+      script:
+          # at this point, document() was already run.
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-        # at this point, "document" was already run
         - Rscript -e 'devtools::build_vignettes();'
         - git config user.name Travis
         - git config user.email '<>'
