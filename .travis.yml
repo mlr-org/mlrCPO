@@ -43,18 +43,27 @@ stages:
 jobs:
   include:
     - stage: test
+      env: github
       before_script:
 	- rm inst/doc/*.*
 	- Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
 	- R --no-save <<< 'library("devtools"); document()'
-      script: # github mlr & tools
+      script:
+          # github mlr & tools
 	- Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
 	- Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
 	- Rscript -e 'devtools::install_github("mlr-org/mlr")'
 	- R CMD build .
 	- travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
 	- grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
-      script: # cran mlr & tools
+    - stage: test
+      env: cran
+      before_script:
+	- rm inst/doc/*.*
+	- Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+	- R --no-save <<< 'library("devtools"); document()'
+      script:
+          # cran mlr & tools
 	- Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
 	- R CMD build .
 	- travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
