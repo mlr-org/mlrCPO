@@ -49,7 +49,7 @@ stages:
 jobs:
   include:
     - stage: install
-      script
+      script:
         - echo 'Filled the cache with installed R packages.'
         - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
     - stage: test
