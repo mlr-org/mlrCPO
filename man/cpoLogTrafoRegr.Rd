@@ -28,7 +28,7 @@ exponentiated.
 
 If \code{predict.type} = \dQuote{se} prediction is performed, the model's prediction
 is taken as the parameters of a lognormal random variable; the inverted prediction is then
-\code{mean = exp(mean + se / 2)}, \code{se = sqrt((exp(se) - 1) * exp(2 * mean + se))}.
+\code{mean = exp(mean + se^2 / 2)}, \code{se = sqrt((exp(se^2) - 1) * exp(2 * mean + se^2))}.
 
 It is therefore recommended to use \dQuote{se} prediction, possibly with the help of
 \code{\link{cpoResponseFromSE}}.

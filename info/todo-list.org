@@ -1,61 +1,145 @@
 * TO-DO:
-** test todo
-- [ ] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
-- [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
-- [ ] properties adding.min etc. for multiplexer etc
-- [ ] multiplexer: check for affect.*, be less restrictive
-- [ ] properties: retrafo adds 'missings' to needed.max if not part of adding.min.
-- [ ] caching CPO
-- [ ] hyperparameter transforming cpo wrapper
-- [ ] convertNamesToItems, ItemsToNames
-- [ ] on.par.out.of.bounds setting
-- [ ] test individual CPOs
-** cosmetic changes
-- [X] call map
-- [ ] !..%in%.. -> %nin%
-- [ ] limit line length
-- [ ] use if ({ = }) more often
-- [ ] text output lines may be longer.
-- [ ] plural s unification
-- [ ] centralize output strings
+** Road to 0.4
+- [ ] affect, parameters and properties
+  - [ ] parameter dependent properties ( #9 )
+  - [ ] missing.<type> ( #22 )
+  - [ ] potentially export 'affect.*'
+  - [ ] affect.type & dataformat = <type> unification ( #15 )
+    - [ ] autoskip some CPOs on empty data ( #10 )
+- [-] small fixes & bonuses
+  - [X] SE inversion using gauss quadrature ( #18 )
+  - [ ] error message when cpo.* has bad function header ( #24 )
+  - [ ] getCPOOperatingType TOCPO CPOTrained may still be "target" ( #28 )
+  - [ ] somehow emulate missings.predict ( #7 )
+  - [ ] CBIND should forgive duplicate CPOs if no exported params ( #20 )
+  - [ ] differentiate & warn about objects with NULLCPO retrafo vs. objects w/o any retrafo ( #14 )
+  - [ ] make.names in some CPOs for proper data.frame colnames ( #11 )
+- [ ] invert should check prediction ( #23 )
+  - [ ] length
+  - [ ] column names for 'prob', some response inversion
+    - [ ] document the prob colname requirement ( #26 )
+  - [ ] remove 'prob' prefix when invert 'prob' called by user ( #27 )
+- [ ] Tests
+  - [ ] don't use expect_set_equals in tests ( #8 )
+  - [ ] test empty affect.* on every CPO ( #16 )
+  - [ ] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
+  - [ ] make sure predict() and invertCPO do the same thing, and are documented as such everywhere
+  - [ ] properties: retrafo adds 'missings' to needed.max if not part of adding.min.
+  - [ ] convertNamesToItems, ItemsToNames
+  - [ ] on.par.out.of.bounds setting
+  - [ ] missings are tolerated in retrafo even when not in properties
+  - [ ] parameter export
+  - [ ] .sometimes properties
+  - [ ] getCPOTrainedState
+    - [ ] TOCPOs
+      - [ ] basic
+	- [ ] object based
+	- [ ] functional
+	- [ ] hybrid
+      - [ ] extended
+	- [ ] object based
+	- [ ] functional
+	- [ ] hybrid
+    - [ ] FOCPOs
+      - [ ] basic
+	- [ ] object based
+	- [ ] functional
+      - [ ] extended
+	- [ ] object based
+	- [ ] functional
+** Roat to 0.5
+- [ ] Tests
+  - [ ] test individual CPOs
+    - [ ] meta CPO
+      - [ ] caching CPO
+      - [ ] finish multiplexer tests
+      - [ ] finish cbind tests
+      - [ ] cpoTransformParams
+      - [ ] mixing of TOCPO, FOCPO, ROCPO not allowed
+      - [ ] properties as expected (adding.min, needed.max)
+      - [ ] multiplexer: check for affect.*, be less restrictive
+      - [ ] NULLCPO always handled as expected
+      - [ ] argument checks
+      - [ ] other...
+    - [ ] asNumeric
+    - [ ] collapseFact
+    - [ ] dropConstants
+    - [ ] encode
+    - [ ] fixFactors
+    - [ ] missingIndicators
+    - [ ] modelMatrix
+    - [ ] quantileBin
+    - [ ] scaleMaxAbs
+    - [ ] scale
+    - [ ] scaleRange
+    - [ ] select
+    - [ ] spatialSign
+    - [ ] subsample
+    - [ ] wrap
+- [ ] CPO improvements
+  - [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
+    - [ ] coding schemes: https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+  - [ ] quantileBin:
+    - [ ] character of labels (if length 1, use as prefix)
+    - [ ] keep.na
+  - [ ] collapseFact:
+    - [ ] new category name
+    - [ ] collapse threshold
+    - [ ] possibly to NA
+- [ ] cosmetic changes
+  - [ ] !..%in%.. -> %nin%
+  - [ ] use if ({ = }) more often
+  - [ ] output message unification
+    - [ ] text output lines may be longer.
+  - [ ] plural s unification
+  - [ ] centralize output strings
+** Road to 1.0
+- [ ] CPOs
+  - [ ] histBinNumerics: equal size bins
+  - [ ] whichMax / whichMin: numeric cols -> factor (which column was max / min)
+  - [ ] box-cox
+  - [ ] yeo-johnson
+  - [ ] nonlinear basis functions
+    - [ ] splines
+      - [ ] splines::bs
+      - [ ] splines::ns
+    - [ ] stats::poly
+  - [ ] addCluster: runs cluster learner, adds factor column indicating cluster index
+  - [ ] classdist: distance to data centroid (needs column that defines class
+    - various possible distances (euler, mahalanobis, percentile, etc..)
+  - [ ] add intercept column
+  - [ ] task conversion
+    - [ ] binary classif -> regr conversion
+    - [ ] regr -> bin classif
+  - [ ] ROCPO: row select
+  - [ ] ROCPO: shuffle
+  - [ ] ROCPO: sort (?)
+  - [ ] shuffle features
+  - [ ] dimRed::Isomap
+  - [ ] lincomb filter, a la recipes
+  - [ ] 'cat_P' class prevalence
+  - [ ] 'interaction'
+    - [ ] numeric
+    - [ ] factor
+  - [ ] QR
+  - [ ] kernelPCA (kernlab) kpca
+  - [ ] converting features to nums:
+    - [ ] ordered -> factor
+    - [ ] ordered -> as.numeric
+    - [ ] numeric -> as.ordered
+    - [ ] numeric -> as.factor
+    - [ ] ordered -> numeric polynomials
+  - [ ] knn impute
+  - [ ] cpoRecodeNums (constant, mit max, ...)
+* Possible Future Ideas
+- [ ] limit code line length
 - [ ] roxygen-document internal functions
-** Features
-- [ ] cpoDummyEncode: referenzlevel waehlen ; 'ref.cat'
-- [X] listCPO() nicer print
-- [ ] exporting / fixing / hiding hyperparameters needs to handle requirements.
 - [ ] cpoCbind: prevent copies
 - [ ] check shapeinfo when reattaching retrafos
 - [ ] option to drop 'truth' columns
-- [X] meta-CPOs: difficulties with 'properties.needed', 'properties.adding:
-  - [X] properties.needed is the union of all properties.needed, properties and properties.adding are intersections
-  - [X] optionally set to less strict properties: needed is intersection, properties and adding are unions; properties.needed must be ignored internally then.
-  - [X] cpoApply must have all properties, all properties.adding, must ignore properties.needed
-** CPOs
-- [ ] 'cat_P' class prevalence
-- [ ] 'interaction'
-- [ ] QR
-- [X] spatialSign
-- [ ] kernelPCA (kernlab) kpca
-- [X] ICA
-- [-] converting features to nums:
-  - [X] 'as.numeric'
-  - [ ] ordered -> factor
-  - [ ] ordered -> as.numeric
-  - [ ] contr.poly, etc.
-  - [ ] knn impute
-  - [ ] binning -> to ordereds, to numbers
-- [ ] cpoRecodeNums (mit konstante, mit maximum, ...)
-- [ ] cpoNAIndicators
-- [ ] cpoMergeSmallLevels
+- [ ] learner wrapping cpo:
+  input -[X]-> cluster. training by MODEL = data %>|% X. prediction by [dummy] -> inverter(preddata %>>% MODEL)
 - [ ] cpo crossval
-  - [ ] learner wrapping cpo:
-    input -[X]-> cluster. training by MODEL = data %>|% X. prediction by [dummy] -> inverter(preddata %>>% MODEL)
-** news
-- [ ] colApplyCPO
-- [ ] cpoRangeScale
-- [ ] impact encoding: level -> probability fuer jede klasse
-- [ ] 'cat_B' ('bayesian' logit) x_catB = logit(P[y==target|x]) - logit(P[y==target]
-- [ ] cpoDropConst
 ** sources:
 - [ ]  https://topepo.github.io/recipes/reference/index.html
-- [ ]  https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+

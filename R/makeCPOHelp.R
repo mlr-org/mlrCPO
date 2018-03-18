@@ -226,7 +226,7 @@
 #' @param par.set [\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
 #'   Optional parameter set, for configuration of CPOs during construction or by hyperparameters.
 #'   Default is an empty \code{\link[ParamHelpers:makeParamSet]{ParamSet}}.
-#'   It is recommended to use ParamHelpers::\code{\link[ParamHelpers]{pSS}} to construct this, as it greatly reduces the verbosity of
+#'   It is recommended to use \code{\link{pSS}} to construct this, as it greatly reduces the verbosity of
 #'   creating a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and makes it more readable.
 #' @param par.vals [\code{list} | \code{NULL}]\cr
 #'   Named list of default parameter values for the CPO. These are used \emph{instead of} the

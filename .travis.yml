@@ -20,48 +20,90 @@ warnings_are_errors: true
 r_check_args: "--as-cran --run-donttest"
 
 r_github_packages:
-  - berndbischl/BBmisc
-## The following will return when my PRs are merged
+#  - berndbischl/BBmisc
 #  - berndbischl/ParamHelpers
-  - mlr-org/mlr
+#  - mlr-org/mlr
   - jimhester/lintr
-  - mb706/covr
+  - r-lib/covr
 
 before_install:
   # we want to see libpaths and installed packages from cache
   - Rscript -e 'message("LIBPATHS:"); .libPaths()'
-  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
+  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
 
 before_script:
   - rm inst/doc/*.*
-  - Rscript -e 'install.packages("roxygen2")'
-  - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers", ref = "paramSetSugar")'
-  - R --no-save <<< 'library("devtools"); document()'
-
-script:
-  - R CMD build .
-  - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-  - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
-
-after_success:
-  - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
-  - git checkout master
-  - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-  - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
-  - git config user.name $GN
-  - git config user.email $GM
-  - git config credential.helper "store --file=.git/credentials"
-  - echo "https://${GITHUB_TOKEN}:@github.com" >> .git/credentials
-  - git config push.default matching
-  - git difftool -yx "diff -qI '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\|environment. 0x'" | grep 'and inst/doc' | sed -e 's|.*and inst/doc|inst/doc|' -e 's/ differ$//' | xargs git add
-  - git add --force man/*
-  - git add DESCRIPTION NAMESPACE
-  - git commit -m "update auto-generated documentation [ci skip]" || true
-  - git push
+  - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+  - Rscript -e 'devtools::document()'
 
 after_failure:
   - ./travis-tool.sh dump_logs
 
+stages:
+  - install
+  - test
+  - covr
+  - name: document
+    if: branch = master AND type IN (push, api, cron)
+
+jobs:
+  include:
+    - stage: install
+      env: github-mlr
+      script:
+          # github mlr & tools
+        - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
+        - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
+        - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - echo 'Filled the cache with installed R packages.'
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
+    - stage: install
+      env: cran-mlr
+      script:
+          # cran mlr & tools
+        - Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
+        - echo 'Filled the cache with installed R packages.'
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
+    - stage: test
+      env: github-mlr
+      script:
+        - Rscript -e 'installed.packages()[c("BBmisc", "ParamHelpers", "mlr"), 2:3]'
+        - R CMD build .
+        - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+        - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+    - stage: test
+      env: cran-mlr
+      script:
+        - Rscript -e 'installed.packages()[c("BBmisc", "ParamHelpers", "mlr"), 2:3]'
+        - R CMD build .
+        - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+        - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+    - stage: covr
+      env: github-mlr
+      script:
+        - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
+        - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
+        - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
+    - stage: document
+      env: cran-mlr
+      script:
+        - true
+      after_success:
+          # at this point, document() was already run.
+        - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
+        - Rscript -e 'devtools::build_vignettes();'
+        - git config user.name Travis
+        - git config user.email '<>'
+        - git config credential.helper "store --file=.git/credentials"
+        - echo "https://${GITHUB_TOKEN}:@github.com" >> .git/credentials
+        - git config push.default matching
+        - git difftool -yx "diff -qI '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\|environment. 0x'" | grep 'and inst/doc' | sed -e 's|.*and inst/doc|inst/doc|' -e 's/ differ$//' | xargs git add
+        - git add --force man/*
+        - git add DESCRIPTION NAMESPACE
+        - git commit -m "update auto-generated documentation [ci skip]" || true
+        - git push
+      
 on_success: change
 on_failure: always
 
