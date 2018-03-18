@@ -50,11 +50,19 @@ registerCPO(cpoProbEncode, "data", "feature conversion", "Convert factorial colu
 #'
 #' @description
 #' Impact coding converts factor levels of each (factorial) column
-#' to their coefficients in an univariate logit regression model of
-#' the target against this column (without intercept).
+#' to the difference between each target level's conditional log-likelihood
+#' given this level, and the target level's global log-likelihood.
+#'
+#' @section CPOTrained State:
+#' The state's \code{$control} slot is a list of matrices for each
+#' factorial data column. Each of these matrices has rows for each of
+#' the data column's levels, and columns for each
+#' of the target factor levels, and gives the respective impact values.
 #'
 #' @param smoothing [\code{numeric(1)}]\cr
-#'   A finite positive value used for smoothing. Mostly relevant
+#'   A finite positive value used for smoothing. Mostly relevant if
+#'   a factor does not coincide with a target factor level (and
+#'   would otherwise give an infinite logit value).
 #'
 #'   Default is \code{1e-4}.
 #'
@@ -73,7 +81,8 @@ cpoImpactEncodeClassif = makeCPO("impact.encode.classif",  # nolint
         tprop = mean(target[[1]] == tl)
         tplogit = log(tprop / (1 - tprop))
         vnapply(c(levels(col), NA), function(cl) {
-          condprob = (sum(target[[1]][is.na(cl) | col == cl] == tl) + smoothing) / (sum(is.na(cl) | col == cl) + 2 * smoothing)
+          condprob = (sum(target[[1]][is.na(cl) | col == cl] == tl, na.rm = TRUE) + smoothing) /
+            (sum(is.na(cl) | col == cl, na.rm = TRUE) + 2 * smoothing)
           cplogit = log(condprob / (1 - condprob))
           cplogit - tplogit
         })
@@ -102,7 +111,14 @@ registerCPO(cpoImpactEncodeClassif, "data", "feature conversion", "Convert facto
 #' @template cpo_doc_intro
 #'
 #' @description
-#' Impact encoding as done by vtreat
+#' Impact coding converts factor levels of each (factorial) column
+#' to the difference between the target's conditional mean given
+#' this level, and the target's global mean.
+#'
+#' @section CPOTrained State:
+#' The state's \code{$control} slot is a list of vectors for each
+#' factorial data column. Each of these vectors has an entry for each of the
+#' the data column's levels, and gives the respective impact value.
 #'
 #' @param smoothing [\code{numeric(1)}]\cr
 #'   A finite positive value used for smoothing.
@@ -120,9 +136,12 @@ cpoImpactEncodeRegr = makeCPO("impact.encode.regr",  # nolint
     meanimp = mean(target[[1]])
     lapply(data, function(col)
       c(vnapply(levels(col), function(lvl) {
-        (sum(target[[1]][col == lvl]) + smoothing * meanimp) / (sum(col == lvl) + smoothing) - meanimp
-      }), .TEMP.MISSING = meanimp))
+        (sum(target[[1]][col == lvl], na.rm = TRUE) + smoothing * meanimp) / (sum(col == lvl, na.rm = TRUE) + smoothing) - meanimp
+      }), .TEMP.MISSING = 0))
   }, cpo.retrafo = {
+    if (!ncol(data)) {
+      return(data)
+    }
     ret = do.call(cbind, lapply(seq_along(data), function(idx) {
       curdat = data[[idx]]
       levels(curdat) = c(levels(curdat), ".TEMP.MISSING")
