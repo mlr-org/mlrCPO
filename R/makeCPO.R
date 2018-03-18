@@ -1,7 +1,7 @@
 # makeCPO.R contains all CPO constructor functions, that are used both
 # internally and are exported for user use.
 
-#' @include listCPO.R parameters.R properties.R callInterface.R
+#' @include listCPO.R parameters.R properties.R callInterface.R ParamSetSugar.R
 
 cpo.dataproperties = c("numerics", "factors", "ordered", "missings")
 cpo.tasktypes = c("cluster", "classif", "multilabel", "regr", "surv")  # these are the SUPPORTED tasks

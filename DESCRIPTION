@@ -53,6 +53,7 @@ Collate:
     'CPOHelp.R'
     'fauxCPOConstructor.R'
     'auxiliary.R'
+    'ParamSetSugar.R'
     'callInterface.R'
     'FormatCheck.R'
     'callCPO.R'
@@ -98,5 +99,5 @@ Collate:
     'makeCPOHelp.R'
     'print.R'
     'zzz.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 VignetteBuilder: knitr
