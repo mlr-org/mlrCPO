@@ -49,7 +49,9 @@ registerCPO(cpoProbEncode, "data", "feature conversion", "Convert factorial colu
 #' @template cpo_doc_intro
 #'
 #' @description
-#' Impact encoding as done by vtreat
+#' Impact coding converts factor levels of each (factorial) column
+#' to their coefficients in an univariate logit regression model of
+#' the target against this column (without intercept).
 #'
 #' @param smoothing [\code{numeric(1)}]\cr
 #'   A finite positive value used for smoothing. Mostly relevant
@@ -78,12 +80,17 @@ cpoImpactEncodeClassif = makeCPO("impact.encode.classif",  # nolint
       }))
   },
   cpo.retrafo = {
+    if (!ncol(data)) {
+      return(data)
+    }
     ret = do.call(cbind, lapply(seq_along(data), function(idx) {
       curdat = data[[idx]]
       levels(curdat) = c(levels(curdat), ".TEMP.MISSING")
       curdat[is.na(curdat)] = ".TEMP.MISSING"
       dummyenc = sapply(levels(curdat), function(lvl) as.integer(curdat == lvl))
-      dummyenc %*% control[[idx]]
+      ret = dummyenc %*% control[[idx]]
+      colnames(ret) = paste(colnames(data)[idx], colnames(ret), sep = ".")
+      ret
     }))
     as.data.frame(ret)
   })
