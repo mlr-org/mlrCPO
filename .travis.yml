@@ -26,15 +26,21 @@ r_github_packages:
   - jimhester/lintr
   - r-lib/covr
 
-#before_install:
+before_install:
   # we want to see libpaths and installed packages from cache
-#  - Rscript -e 'message("LIBPATHS:"); .libPaths()'
-#  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
+  - Rscript -e 'message("LIBPATHS:"); .libPaths()'
+  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
 
-#after_failure:
-#  - ./travis-tool.sh dump_logs
+before_script:
+  - rm inst/doc/*.*
+  - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+  - Rscript -e 'devtools::ocument()'
+
+after_failure:
+  - ./travis-tool.sh dump_logs
 
 stages:
+  - install
   - test
   - covr
   - name: document
@@ -42,12 +48,12 @@ stages:
 
 jobs:
   include:
+    - stage: install
+      script
+        - echo Filled the cache with installed R packages.
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
     - stage: test
-      env: github
-      before_script:
-        - rm inst/doc/*.*
-        - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
-        - R --no-save <<< 'library("devtools"); document()'
+      env: github-mlr
       script:
           # github mlr & tools
         - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
@@ -57,11 +63,7 @@ jobs:
         - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
         - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: test
-      env: cran
-      before_script:
-        - rm inst/doc/*.*
-        - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
-        - R --no-save <<< 'library("devtools"); document()'
+      env: cran-mlr
       script:
           # cran mlr & tools
         - Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
@@ -77,7 +79,8 @@ jobs:
     - stage: document
       script:
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-        - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
+	# at this point, "document" was already run
+        - Rscript -e 'devtools::build_vignettes();'
         - git config user.name Travis
         - git config user.email '<>'
         - git config credential.helper "store --file=.git/credentials"
