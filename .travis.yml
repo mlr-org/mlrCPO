@@ -26,13 +26,13 @@ r_github_packages:
   - jimhester/lintr
   - r-lib/covr
 
-before_install:
+#before_install:
   # we want to see libpaths and installed packages from cache
-  - Rscript -e 'message("LIBPATHS:"); .libPaths()'
-  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
+#  - Rscript -e 'message("LIBPATHS:"); .libPaths()'
+#  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
 
-after_failure:
-  - ./travis-tool.sh dump_logs
+#after_failure:
+#  - ./travis-tool.sh dump_logs
 
 stages:
   - test
