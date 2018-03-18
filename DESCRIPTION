@@ -38,6 +38,7 @@ Suggests:
     care,
     randomForestSRC,
     randomForest,
+    ranger (>= 0.8.0),
     Rfast,
     FSelector,
     e1071,
