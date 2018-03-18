@@ -50,7 +50,7 @@ jobs:
   include:
     - stage: install
       script
-        - echo Filled the cache with installed R packages.
+        - echo 'Filled the cache with installed R packages.'
         - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,1:3]'
     - stage: test
       env: github-mlr
@@ -79,7 +79,7 @@ jobs:
     - stage: document
       script:
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-	# at this point, "document" was already run
+        # at this point, "document" was already run
         - Rscript -e 'devtools::build_vignettes();'
         - git config user.name Travis
         - git config user.email '<>'
