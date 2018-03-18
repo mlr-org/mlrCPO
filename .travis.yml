@@ -45,49 +45,49 @@ jobs:
     - stage: test
       env: github
       before_script:
-	- rm inst/doc/*.*
-	- Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
-	- R --no-save <<< 'library("devtools"); document()'
+        - rm inst/doc/*.*
+        - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+        - R --no-save <<< 'library("devtools"); document()'
       script:
           # github mlr & tools
-	- Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
-	- Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
-	- Rscript -e 'devtools::install_github("mlr-org/mlr")'
-	- R CMD build .
-	- travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-	- grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+        - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
+        - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
+        - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - R CMD build .
+        - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+        - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: test
       env: cran
       before_script:
-	- rm inst/doc/*.*
-	- Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
-	- R --no-save <<< 'library("devtools"); document()'
+        - rm inst/doc/*.*
+        - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+        - R --no-save <<< 'library("devtools"); document()'
       script:
           # cran mlr & tools
-	- Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
-	- R CMD build .
-	- travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
-	- grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
+        - Rscript -e 'install.packages(c("BBmisc", "ParamHelpers", "mlr"))'
+        - R CMD build .
+        - travis_wait 100 R CMD check mlrCPO*.tar.gz --as-cran --run-donttest
+        - grep -q -R "WARNING" "mlrCPO.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: covr
       script:
-	- Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
-	- Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
-	- Rscript -e 'devtools::install_github("mlr-org/mlr")'
-	- travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
+        - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
+        - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
+        - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - travis_wait 100 Rscript -e 'library(BBmisc);covr::codecov(quiet=FALSE)'
     - stage: document
       script:
-	- "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-	- R --no-save <<< 'library("devtools"); document(); build_vignettes();'
-	- git config user.name Travis
-	- git config user.email '<>'
-	- git config credential.helper "store --file=.git/credentials"
-	- echo "https://${GITHUB_TOKEN}:@github.com" >> .git/credentials
-	- git config push.default matching
-	- git difftool -yx "diff -qI '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\|environment. 0x'" | grep 'and inst/doc' | sed -e 's|.*and inst/doc|inst/doc|' -e 's/ differ$//' | xargs git add
-	- git add --force man/*
-	- git add DESCRIPTION NAMESPACE
-	- git commit -m "update auto-generated documentation [ci skip]" || true
-	- git push
+        - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
+        - R --no-save <<< 'library("devtools"); document(); build_vignettes();'
+        - git config user.name Travis
+        - git config user.email '<>'
+        - git config credential.helper "store --file=.git/credentials"
+        - echo "https://${GITHUB_TOKEN}:@github.com" >> .git/credentials
+        - git config push.default matching
+        - git difftool -yx "diff -qI '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\|environment. 0x'" | grep 'and inst/doc' | sed -e 's|.*and inst/doc|inst/doc|' -e 's/ differ$//' | xargs git add
+        - git add --force man/*
+        - git add DESCRIPTION NAMESPACE
+        - git commit -m "update auto-generated documentation [ci skip]" || true
+        - git push
       
 on_success: change
 on_failure: always
