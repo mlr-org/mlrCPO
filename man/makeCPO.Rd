@@ -66,7 +66,7 @@ and as the default \code{\link[=getCPOId]{id}}.}
 \item{par.set}{[\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
 Optional parameter set, for configuration of CPOs during construction or by hyperparameters.
 Default is an empty \code{\link[ParamHelpers:makeParamSet]{ParamSet}}.
-It is recommended to use ParamHelpers::\code{\link[ParamHelpers]{pSS}} to construct this, as it greatly reduces the verbosity of
+It is recommended to use \code{\link{pSS}} to construct this, as it greatly reduces the verbosity of
 creating a \code{\link[ParamHelpers:makeParamSet]{ParamSet}} and makes it more readable.}
 
 \item{par.vals}{[\code{list} | \code{NULL}]\cr

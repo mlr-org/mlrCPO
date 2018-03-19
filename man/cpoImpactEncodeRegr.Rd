@@ -66,8 +66,17 @@ This is a \code{\link{CPOConstructor}} to be used to create a
 \code{\link{CPO}}. It is called like any R function and returns
 the created \code{\link{CPO}}.
 
-Impact encoding as done by vtreat
+Impact coding converts factor levels of each (factorial) column
+to the difference between the target's conditional mean given
+this level, and the target's global mean.
 }
+\section{CPOTrained State}{
+
+The state's \code{$control} slot is a list of vectors for each
+factorial data column. Each of these vectors has an entry for each of the
+the data column's levels, and gives the respective impact value.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

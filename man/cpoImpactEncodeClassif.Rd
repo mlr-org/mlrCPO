@@ -12,8 +12,11 @@ cpoImpactEncodeClassif(smoothing = 1e-04, id, export = "export.default",
 }
 \arguments{
 \item{smoothing}{[\code{numeric(1)}]\cr
-A finite positive value used for smoothing.
-Default is \code{1e-4}.}
+  A finite positive value used for smoothing. Mostly relevant if
+  a factor does not coincide with a target factor level (and
+  would otherwise give an infinite logit value).
+
+  Default is \code{1e-4}.}
 
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
@@ -66,8 +69,18 @@ This is a \code{\link{CPOConstructor}} to be used to create a
 \code{\link{CPO}}. It is called like any R function and returns
 the created \code{\link{CPO}}.
 
-Impact encoding as done by vtreat
+Impact coding converts factor levels of each (factorial) column
+to the difference between each target level's conditional log-likelihood
+given this level, and the target level's global log-likelihood.
 }
+\section{CPOTrained State}{
+
+The state's \code{$control} slot is a list of matrices for each
+factorial data column. Each of these matrices has rows for each of
+the data column's levels, and columns for each
+of the target factor levels, and gives the respective impact values.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

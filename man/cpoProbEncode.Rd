@@ -62,11 +62,18 @@ This is a \code{\link{CPOConstructor}} to be used to create a
 \code{\link{CPO}}. It is called like any R function and returns
 the created \code{\link{CPO}}.
 
-TODO: what is this actually called?
-
 Converts factor columns into columns giving the probability
 for each target class to have this target, given the column value.
 }
+\section{CPOTrained State}{
+
+The state's \code{$control} slot is a list of matrices for each
+factorial data column. Each of these matrices has rows for each of
+the data column's levels, and columns for each
+of the target factor levels, and gives the empirical marginal conditional
+probabilities for each target value given the column value.
+}
+
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2017-12-25" />
+<meta name="date" content="2018-03-19" />
 
 <title>CPOs Built Into mlrCPO</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">CPOs Built Into mlrCPO</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2017-12-25</em></h4>
+<h4 class="date"><em>2018-03-19</em></h4>
 
 
 
@@ -1647,7 +1647,7 @@ impdata %&gt;&gt;%<span class="st"> </span><span class="kw">cpoImputeAll</span>(
 <span class="kw">train</span>(<span class="kw">cpoImputeAll</span>(<span class="dt">cols =</span> <span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">imputeMedian</span>())) %&gt;&gt;%<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.lm&quot;</span>), missing.task)
 <span class="co">#&gt; Model for learner.id=regr.lm.impute; learner.class=CPOLearner</span>
 <span class="co">#&gt; Trained on: task.id = missing.task; obs = 3; features = 1</span>
-<span class="co">#&gt; Hyperparameters: impute.target.cols=character(0),impute.classes=list(),impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></code></pre></div>
+<span class="co">#&gt; Hyperparameters: impute.target.cols=,impute.classes=&lt;list&gt;,impute.cols=&lt;list&gt;,impute.dummy.classes=,impute.dummy.cols=,impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></code></pre></div>
 </div>
 <div id="specialised-imputation-wrappers" class="section level4">
 <h4>Specialised Imputation Wrappers</h4>
