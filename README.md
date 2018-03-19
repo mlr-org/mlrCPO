@@ -92,7 +92,7 @@ Get a list of all `CPO`s by calling `listCPO()`.
 
 ## Installation
 
-As long as `mlrCPO` is not on CRAN yet, installation is from the GitHub repo:
+Install `mlrCPO` from CRAN, or use the more recent GitHub version:
 
 ```R
 devtools::install_github("mlr-org/mlrCPO")
