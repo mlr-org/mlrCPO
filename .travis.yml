@@ -90,9 +90,9 @@ jobs:
       script:
         - true
       after_success:
-          # at this point, document() was already run.
+        - git checkout master  # otherwise we're in detached head
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-        - Rscript -e 'devtools::build_vignettes();'
+        - Rscript -e 'devtools::document(); devtools::build_vignettes();'
         - git config user.name Travis
         - git config user.email '<>'
         - git config credential.helper "store --file=.git/credentials"
