@@ -1,9 +1,9 @@
 Package: mlrCPO
-Title: Composable Preprocessing Operators and Pipelines with mlr
-Description: Toolset that enriches mlr with a diverse set of preprocessing
+Title: Composable Preprocessing Operators and Pipelines for Machine Learning
+Description: Toolset that enriches 'mlr' with a diverse set of preprocessing
     operators. Composable Preprocessing Operators ("CPO"s) are first-class
-    R objects that can be applied to data.frames and mlr "Task"s to modify
-    data, can be attached to mlr "Learner"s to add preprocessing to machine
+    R objects that can be applied to data.frames and 'mlr' "Task"s to modify
+    data, can be attached to 'mlr' "Learner"s to add preprocessing to machine
     learning algorithms, and can be composed to form preprocessing pipelines.
 Authors@R: c(
     person("Martin", "Binder", email = "ma.binder@campus.lmu.de", role = c("aut", "cre")),

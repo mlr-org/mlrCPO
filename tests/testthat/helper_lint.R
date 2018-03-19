@@ -3,7 +3,7 @@
 # if `error.if.not` is TRUE an error is thrown with a meaningful message.
 isLintrVersionOk = function(error.if.not = FALSE) {
   lintr.ver = try(packageVersion("lintr"), silent = TRUE)
-  lintr.required = "1.0.0.9001"
+  lintr.required = "1.0.2.9000"
   if (inherits(lintr.ver, "try-error")) {
     msg = sprintf("lintr is not installed: %s", BBmisc::printToChar(lintr.ver))
   } else {
@@ -253,7 +253,7 @@ if (isLintrVersionOk() && require("lintr", quietly = TRUE) && require("rex", qui
 
 
   # note that this must be a *named* list (bug in lintr)
-  linters = list(
+  linters = tryCatch(list(
     commas = lintr::commas_linter,
   #  open.curly = open_curly_linter(),
   #  closed.curly = closed_curly_linter(),
@@ -271,7 +271,10 @@ if (isLintrVersionOk() && require("lintr", quietly = TRUE) && require("rex", qui
     #todo.comment = lintr::todo_comment_linter(todo = "todo"), # is case-insensitive
     spaces.inside = lintr::spaces_inside_linter,
     infix.spaces = infix.spaces.linter,
-    object.naming = object.naming.linter)
+    object.naming = object.naming.linter),
+    error = function(e) {
+      list(error = "linter creation failed even though lintr announced the right version")
+    })
 } else {
   # everything that uses `linters` should check `isLintrVersionOk` first, so the
   # following should never be used. Make sure that it is an error if it IS used.
