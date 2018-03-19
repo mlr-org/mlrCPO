@@ -1,5 +1,7 @@
 
 # helper objects for cpo tests in test_base_cpo
+library("BBmisc")
+library("checkmate")
 
 # sorted list, needed for comparison when order doesn't matter.
 slist = function(...) {
