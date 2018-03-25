@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2018-03-19" />
+<meta name="date" content="2018-03-25" />
 
 <title>First Steps</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">First Steps</h1>
 <h4 class="author"><em>Martin Binder</em></h4>
-<h4 class="date"><em>2018-03-19</em></h4>
+<h4 class="date"><em>2018-03-25</em></h4>
 
 
 
@@ -478,9 +478,9 @@ pred
 <span class="co">#&gt; predict.type: response</span>
 <span class="co">#&gt; threshold: </span>
 <span class="co">#&gt;   id      truth      response</span>
-<span class="co">#&gt; 7  1 -0.0883876 -0.0013674894</span>
-<span class="co">#&gt; 8  2 -0.1045896  0.0028774161</span>
-<span class="co">#&gt; 9  3 -0.1845641 -0.0005377533</span></code></pre></div>
+<span class="co">#&gt; 7  1 -0.0883876 -0.0013163703</span>
+<span class="co">#&gt; 8  2 -0.1045896  0.0029175514</span>
+<span class="co">#&gt; 9  3 -0.1845641 -0.0009788587</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># transforming this prediction back to compare</span>
 <span class="co"># it to the original 'Petal.Width'</span>
 inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.resid)
@@ -489,9 +489,9 @@ inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.r
 <span class="co">#&gt; predict.type: response</span>
 <span class="co">#&gt; threshold: </span>
 <span class="co">#&gt;   id truth  response</span>
-<span class="co">#&gt; 7  1   0.3 0.3870201</span>
-<span class="co">#&gt; 8  2   0.2 0.3074670</span>
-<span class="co">#&gt; 9  3   0.2 0.3840263</span></code></pre></div>
+<span class="co">#&gt; 7  1   0.3 0.3870712</span>
+<span class="co">#&gt; 8  2   0.2 0.3075072</span>
+<span class="co">#&gt; 9  3   0.2 0.3835852</span></code></pre></div>
 </div>
 </div>
 <div id="retrafoless-cpos" class="section level2">
@@ -499,10 +499,10 @@ inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.r
 <p>Besides <em>FOCPO</em>s and <em>TOCPO</em>s, there are also “<em>Retrafoless</em>” <code>CPO</code>s (<em>ROCPO</em>s). These only perform operation in the training part of a machine learning pipeline, but in turn are the only <code>CPO</code>s that may change the number of rows in a dataset. The goal of ROCPOs is to change the number of data samples, but not to transform the data or target values themselves. Examples of ROCPOs are <code>cpoUndersample</code>, <code>cpoSmote</code>, and <code>cpoSample</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sampled =<span class="st"> </span>iris %&gt;&gt;%<span class="st"> </span><span class="kw">cpoSample</span>(<span class="dt">size =</span> <span class="dv">3</span>)
 sampled
-<span class="co">#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span>
-<span class="co">#&gt; 21          5.4         3.4          1.7         0.2  setosa</span>
-<span class="co">#&gt; 32          5.4         3.4          1.5         0.4  setosa</span>
-<span class="co">#&gt; 25          4.8         3.4          1.9         0.2  setosa</span></code></pre></div>
+<span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species</span>
+<span class="co">#&gt; 9            4.4         2.9          1.4         0.2    setosa</span>
+<span class="co">#&gt; 147          6.3         2.5          5.0         1.9 virginica</span>
+<span class="co">#&gt; 4            4.6         3.1          1.5         0.2    setosa</span></code></pre></div>
 <p>There is no retrafo or inverter associated with the result. Instead, both of them are <a href="#nullcpo">NULLCPO</a></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">retrafo</span>(sampled)
 <span class="co">#&gt; NULLCPO</span>
@@ -531,9 +531,9 @@ pred
 <span class="co">#&gt; predict.type: response</span>
 <span class="co">#&gt; threshold: </span>
 <span class="co">#&gt;   id truth  response</span>
-<span class="co">#&gt; 7  1   0.3 0.3870201</span>
-<span class="co">#&gt; 8  2   0.2 0.3074670</span>
-<span class="co">#&gt; 9  3   0.2 0.3840263</span></code></pre></div>
+<span class="co">#&gt; 7  1   0.3 0.3870712</span>
+<span class="co">#&gt; 8  2   0.2 0.3075072</span>
+<span class="co">#&gt; 9  3   0.2 0.3835852</span></code></pre></div>
 <p>It is possible to get the retrafo object from a model trained with a <code>CPOLearner</code> using the <code>retrafo()</code> function. In this example, it is identical with the <code>retrafo(iris.resid)</code> gotten in the example in <a href="#general-inverters">General Inverters</a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">retrafo</span>(model)
 <span class="co">#&gt; CPO Retrafo chain {type:regr}</span>
@@ -560,8 +560,8 @@ pred
   <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),
   <span class="dt">show.info =</span> <span class="ot">FALSE</span>)
 <span class="co">#&gt; Tune result:</span>
-<span class="co">#&gt; Op. pars: ica.n.comp=6; ica.alg.typ=deflation</span>
-<span class="co">#&gt; mmce.test.mean=0.2343604</span></code></pre></div>
+<span class="co">#&gt; Op. pars: ica.n.comp=8; ica.alg.typ=deflation</span>
+<span class="co">#&gt; mmce.test.mean=0.2292675</span></code></pre></div>
 </div>
 <div id="syntactic-sugar" class="section level2">
 <h2>Syntactic Sugar</h2>
@@ -714,14 +714,14 @@ nosc.repca =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</s
 <span class="co">#&gt; pca.tol       numeric   -   &lt;NULL&gt;           0 to Inf   Y    TRUE     -</span>
 <span class="co">#&gt; pca.rank      integer   -   &lt;NULL&gt;           1 to Inf   Y    TRUE     -</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;ica&quot;</span>, <span class="dt">ica.n.comp =</span> <span class="dv">3</span>)
-<span class="co">#&gt;        Species         V1         V2         V3</span>
-<span class="co">#&gt; 1       setosa  1.1751011  1.1805060 -0.9941395</span>
-<span class="co">#&gt; 2       setosa  1.0549077 -1.2707649  1.3322454</span>
-<span class="co">#&gt; 3       setosa  1.0084900  0.5714796  0.5061117</span>
-<span class="co">#&gt; 51  versicolor -0.2284480 -1.5125871 -0.9866664</span>
-<span class="co">#&gt; 52  versicolor -0.4846994  0.5736595 -0.8149439</span>
-<span class="co">#&gt; 102  virginica -1.3446320  0.9155923  1.4494474</span>
-<span class="co">#&gt; 103  virginica -1.1807192 -0.4578853 -0.4920547</span></code></pre></div>
+<span class="co">#&gt;        Species         V1         V2          V3</span>
+<span class="co">#&gt; 1       setosa  1.3338380 -1.3349042  0.44908496</span>
+<span class="co">#&gt; 2       setosa -0.1380753  1.5387091  1.45460007</span>
+<span class="co">#&gt; 3       setosa  0.1873067 -0.4344488  1.17301339</span>
+<span class="co">#&gt; 51  versicolor  0.8117048  1.2727772 -1.01724739</span>
+<span class="co">#&gt; 52  versicolor  0.2172529 -0.7386264 -0.79711005</span>
+<span class="co">#&gt; 102  virginica -2.0868447 -0.6261321  0.01673841</span>
+<span class="co">#&gt; 103  virginica -0.3251824  0.3226253 -1.27907938</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris.demo %&gt;&gt;%<span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>, <span class="dt">pca.rank =</span> <span class="dv">3</span>)
 <span class="co">#&gt;        Species       PC1         PC2         PC3</span>
 <span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span>
