@@ -1,3 +1,5 @@
 library(testthat)
-test_check("mlrCPO", filter = "^_core_")
+if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+  test_check("mlrCPO", filter = "^_core_")
+}
 
