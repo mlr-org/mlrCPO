@@ -612,6 +612,8 @@ test_that("change target names in targetbound target", {
       }
     })
 
+  testthat::skip_on_cran()
+
 
   cpo.df4renamed = cpo.df4
   colnames(cpo.df4renamed) = gsub("T", "xT", colnames(cpo.df4renamed))
@@ -993,6 +995,8 @@ test_that("convert data.frame as if it were 'cluster'", {
   }
 
   testClusterTarget(cpo.df5, data.frame(xx = 1:3), "regr", TRUE)
+
+  testthat::skip_on_cran()
 
   testClusterTarget(cpo.df5, data.frame(xx = c("a", "a", "b")), "classif")
   testClusterTarget(cpo.df5, data.frame(xx = c("a", "b", "c")), "classif")

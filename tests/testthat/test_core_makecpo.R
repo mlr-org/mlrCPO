@@ -3,6 +3,8 @@ context("CPO constructors")
 
 test_that("generalMakeCPO works", {
 
+  testthat::skip_on_cran()
+
   expect_class(regr.num.task %>>% generalMakeCPO("test",
       train = function(data, target, param) {
         NULL
@@ -290,6 +292,11 @@ test_that("cpo.trafo has expected effects", {
 
   checkTrafo(subsetTask(multiclass.task, c(1, 51, 101)), FALSE)
   checkTrafo(subsetTask(multiclass.task, c(1, 51, 101)), TRUE)
+  checkTrafoColChangeErrors(subsetTask(multiclass.task, c(1, 51, 101)), FALSE)
+  checkTrafoColChangeErrors(subsetTask(multiclass.task, c(1, 51, 101)), TRUE)
+
+  testthat::skip_on_cran()
+
   checkTrafo(cpo.df1c)
   checkTrafo(cpo.df1cc, FALSE)
   checkTrafo(cpo.df1cc, TRUE)
@@ -299,8 +306,6 @@ test_that("cpo.trafo has expected effects", {
   checkTrafo(cpo.df5r, FALSE)
   checkTrafo(cpo.df5r, TRUE)
 
-  checkTrafoColChangeErrors(subsetTask(multiclass.task, c(1, 51, 101)), FALSE)
-  checkTrafoColChangeErrors(subsetTask(multiclass.task, c(1, 51, 101)), TRUE)
   checkTrafoColChangeErrors(cpo.df1c)
   checkTrafoColChangeErrors(cpo.df1cc, FALSE)
   checkTrafoColChangeErrors(cpo.df1cc, TRUE)
