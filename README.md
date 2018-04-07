@@ -33,6 +33,7 @@ GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 * [Installation](#installation)
 * [Documentation](#documentation)
 * [Project Status](#project-status)
+* [Contributing](#contributing)
 * [Similar Projects](#similar-projects)
 * [License](#license)
 
@@ -115,6 +116,30 @@ For more documentation of individual `mlrCPO` functions, use R's built-in `help(
 ## Project Status
 
 The foundation of `mlrCPO` is built and is reasonably stable, only small improvements and stability fixes are expected here. There are still many concrete implementations of preprocessing operators to be written.
+
+## Contributing
+
+### Bugs, Questions, Feedback
+
+`mlrCPO` is a free and open source software project that encourages participation and feedback. If you have any issues, questions, suggestions or feedback, please do not hesitate to open an "issue" about it on the GitHub page!
+
+In case of problems / bugs, it is often helpful if you provide a "minimum working example" that showcases the behaviour (but don't worry about this if the bug is obvious). 
+
+Please understand that the ressources of the project are limited: response may sometimes be delayed by a few days, and some suggestions may not not make it to become features for a while.
+
+### Contributing Code, Pull Requests
+
+Pull Requests that fix small issues are very welcome, *especially* if they contain tests that check for the given issue. For larger contributions, or Pull Requests that add features, please note:
+
+1. Adding new `CPO`s is always welcome. Please have a look at a few examples in the current codebase (the [PCA CPO](https://github.com/mlr-org/mlrCPO/blob/master/R/CPO_pca.R) and the [corresponding tests file](https://github.com/mlr-org/mlrCPO/blob/master/tests/testthat/test_cpo_pca.R) are good for this, and show that adding a CPO does not require a lot of code) to familiarise yourself with the conventions. A `CPO` that comes with documentation, in particular also documenting the `CPOTrained` state, and with tests, is most likely to get merged quickly.
+
+2. Adding or changing features of the backend, or changing the functioning of the backend, is a more complicated story. If a Pull Request is incongruent with the "vision" behind `mlrCPO`, or if it appears to put a large burden on the `mlrCPO` developers in the long term relative to the problems it solves, it may have a slim chance of getting merged. Therefore, if you plan to make a contribution changing `CPO` core behaviour, it is best if you first open an "issue" about it for discussion.
+
+When creating Pull Requests, please follow the [Style Guide](https://github.com/rdatsci/PackagesInfo/wiki/R-Style-Guide). Adherence to this is checked by the CI system (Travis). On Linux (and possibly Mac) you can check this locally on your computer using the **`quicklint`** tool in the `tools` directory. This is **recommended** to avoid frustrating failed builds caused by style violations.
+
+Before merging a Pull Request, it is possible that an `mlrCPO` developer makes further changes to it, e.g. to harmonise it with conventions, or to incorporate other ideas. 
+
+When you make a Pull Request, it is assumed that you permit us (and are able to permit us) to incorporate the given code into the `mlrCPO` codebase as given, or with modifications, and distribute the result under the BSD 2-Clause License.
 
 ## Similar Projects
 
