@@ -1,4 +1,4 @@
 library(testthat)
-ISTESTING = TRUE
+ISTESTING = TRUE  # nolint
 test_check("mlrCPO", filter = "^_cpo_")
 
