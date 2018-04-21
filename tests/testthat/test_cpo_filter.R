@@ -10,6 +10,13 @@ test_that("filterFeatures default test", {
   filter.list.classif = setdiff(filter.list.classif, c(
     "univariate.model.score", "permutation.importance",
     "univariate", "rf.importance", "rf.min.depth"))
+  # drop packages that can not be loaded, but only on CRAN.
+  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    filter.list.classif = Filter(function(fname) {
+      pkg = get(fname, mlr:::.FilterRegister)$pkg
+      length(pkg) == 0 || requireNamespace(pkg)
+    }, filter.list.classif)
+  }
   for (filter in filter.list.classif) {
     if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select", "auc")) {  # crash on my machine for some reason.
       next

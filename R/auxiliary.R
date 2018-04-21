@@ -279,7 +279,15 @@ invertNormalMuSigma = function(fun, mu, sigma, n = 23, as.mat = FALSE) {
 # @param cpo [CPOPrimitive] the CPO of which the package to load
 # @return NULL
 requireCPOPackages = function(cpo) {
-  requirePackages(cpo$packages, why = stri_paste("CPO", cpo$name, sep = " "), default.method = "load")
+  tryCatch({
+    requirePackages(cpo$packages, why = stri_paste("CPO", cpo$name, sep = " "), default.method = "load")
+  }, error = function(e) {
+    if (dynGet("ISTESTING", ifnotfound = FALSE, minframe = 0)) {
+      # if this happens in a test on CRAN, we forgive the absence of the package and just skip the test
+      testthat::skip_on_cran()
+    }
+    stop(e)
+  })
 }
 
 # BBmisc::coalesce is dangerous, instead this sensible alternative is used
