@@ -3,7 +3,7 @@
 - [ ] affect, parameters and properties
   - [ ] parameter dependent properties ( #9 )
   - [ ] missing.<type> ( #22 )
-  - [ ] potentially export 'affect.*'
+  - [ ] potentially export 'affect.*' ( #36 )
   - [ ] affect.type & dataformat = <type> unification ( #15 )
     - [ ] autoskip some CPOs on empty data ( #10 )
 - [-] small fixes & bonuses
@@ -19,7 +19,7 @@
   - [ ] column names for 'prob', some response inversion
     - [ ] document the prob colname requirement ( #26 )
   - [ ] remove 'prob' prefix when invert 'prob' called by user ( #27 )
-- [ ] Tests
+- [ ] Tests ( #37 )
   - [ ] don't use expect_set_equals in tests ( #8 )
   - [ ] test empty affect.* on every CPO ( #16 )
   - [ ] dataformat.factor.with.ordered should always influence how strictly data form is checked in retrafo
@@ -33,21 +33,21 @@
   - [ ] getCPOTrainedState
     - [ ] TOCPOs
       - [ ] basic
-	- [ ] object based
-	- [ ] functional
-	- [ ] hybrid
+        - [ ] object based
+        - [ ] functional
+        - [ ] hybrid
       - [ ] extended
-	- [ ] object based
-	- [ ] functional
-	- [ ] hybrid
+        - [ ] object based
+        - [ ] functional
+        - [ ] hybrid
     - [ ] FOCPOs
       - [ ] basic
-	- [ ] object based
-	- [ ] functional
+        - [ ] object base
+        - [ ] functional
       - [ ] extended
-	- [ ] object based
-	- [ ] functional
-** Roat to 0.5
+        - [ ] object based
+        - [ ] functional
+** Road to 0.5
 - [ ] Tests
   - [ ] test individual CPOs
     - [ ] meta CPO
