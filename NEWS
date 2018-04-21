@@ -1,3 +1,9 @@
+mlrCPO 0.3.3
+* minor fix for tests, required by CRAN
+
+mlrCPO 0.3.2
+* minor bugfixes
+
 mlrCPO 0.3.1
 * new cpo cpoMakeCols, cpoAddCols, cpoIca, cpoApplyFunRegrTarget, cpoLogTrafoRegr, cpoRegrResiduals, cpoSmote
 * refactoring of cpoPca, cpoApplyFun
