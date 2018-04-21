@@ -49,7 +49,7 @@ Suggests:
     fastICA
 LazyData: yes
 ByteCompile: yes
-Version: 0.3.2
+Version: 0.3.3
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'
