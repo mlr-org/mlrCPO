@@ -46,7 +46,8 @@ Suggests:
     digest,
     lintr,
     Hmisc,
-    fastICA
+    fastICA,
+    rex
 LazyData: yes
 ByteCompile: yes
 Version: 0.3.3
