@@ -1,3 +1,6 @@
+mlrCPO 0.3.4
+* minor fix for DESCRIPTION file, required by CRAN. Functionally equivalent to 0.3.3
+
 mlrCPO 0.3.3
 * minor fix for tests, required by CRAN
 
