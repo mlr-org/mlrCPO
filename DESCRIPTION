@@ -6,7 +6,7 @@ Description: Toolset that enriches 'mlr' with a diverse set of preprocessing
     data, can be attached to 'mlr' "Learner"s to add preprocessing to machine
     learning algorithms, and can be composed to form preprocessing pipelines.
 Authors@R: c(
-    person("Martin", "Binder", email = "ma.binder@campus.lmu.de", role = c("aut", "cre")),
+    person("Martin", "Binder", email = "developer.mb706@doublecaret.com", role = c("aut", "cre")),
     person("Bernd", "Bischl", email = "bernd_bischl@gmx.net", role = "ctb"),
     person("Michel", "Lang", email = "michellang@gmail.com", role = "ctb"),
     person("Lars", "Kotthoff", email = "larsko@cs.ubc.ca", role = "ctb"))
@@ -50,7 +50,7 @@ Suggests:
     rex
 LazyData: yes
 ByteCompile: yes
-Version: 0.3.4
+Version: 0.3.4-1
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'
