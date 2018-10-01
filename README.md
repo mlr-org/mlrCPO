@@ -101,7 +101,7 @@ devtools::install_github("mlr-org/mlrCPO")
 
 ## Documentation
 
-To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr-tutorial/devel/html/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
+To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr/) online; for more ressources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
 
 To get familiar with `mlrCPO`, it is recommended that you read the **vignettes**. For each vignette, there is also a *compact version* that has all the R output removed.
 
