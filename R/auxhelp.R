@@ -76,7 +76,7 @@ NULL
 #'     \dQuote{export.default.set}    \tab  intersection of \dQuote{default} and \dQuote{set} \cr
 #'     \dQuote{export.unset}          \tab  params \emph{not} set in construct call           \cr
 #'     \dQuote{export.default.unset}  \tab  isct. of \dQuote{default} and \dQuote{unset}      \cr
-#'     \dQuote{export.all.plus}       \tab  not yet supported                                 \cr
+#'     \dQuote{export.all.plus}       \tab  not yet supported
 #'   }
 #'   Default is \dQuote{export.default}.
 #' @param affect.type [\code{character} | \code{NULL}]\cr
