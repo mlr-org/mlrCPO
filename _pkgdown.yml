@@ -1,0 +1,47 @@
+url: https://mlrCPO.mlr-org.com
+
+template:
+  params:
+    bootswatch: cosmo
+
+development:
+  mode: unreleased
+  destination: devel
+  version_label: default
+  version_tooltip: "Github version"
+
+# toc:
+#   depth: 3
+
+navbar:
+  title:
+  type: default
+  left:
+  #- icon: fa-home
+  #  href: index.html
+  - text: Articles
+    menu:
+    - text: First Steps
+      href: articles/a_1_getting_started.html
+    - text: mlrCPO Core
+      href: articles/a_2_mlrCPO_core.html
+    - text: CPOs Built Into mlrCPO
+      href: articles/a_3_all_CPOs.html
+    - text: Building Custom CPOs
+      href: articles/a_4_custom_CPOs.html
+
+  - text: Appendix
+    menu:
+    - text: Function Reference
+      href: reference/index.html
+    - text: News
+      href: news/index.html
+
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/mlr-org/mlrCPO
+  - icon: fa-slack
+    href: https://mlr-org.slack.com
+  - icon: fa-rss
+    href: https://mlr-web.com/
+
