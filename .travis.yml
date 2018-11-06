@@ -34,6 +34,7 @@ before_install:
 before_script:
   - rm inst/doc/*.*
   - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
+  - Rscript -e 'if (!require("pkgdown")) install.packages("pkgdown")'
   - Rscript -e 'devtools::document()'
 
 after_failure:
@@ -89,10 +90,17 @@ jobs:
       env: cran-mlr
       script:
         - true
-      after_success:
+      before_deploy:
+        - Rscript -e 'pkgdown::build_site(); devtools::document(); devtools::build_vignettes();'
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        on:
+          branch: master
+      after_deploy:
         - git checkout master  # otherwise we're in detached head
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
-        - Rscript -e 'devtools::document(); devtools::build_vignettes();'
         - git config user.name Travis
         - git config user.email '<>'
         - git config credential.helper "store --file=.git/credentials"
