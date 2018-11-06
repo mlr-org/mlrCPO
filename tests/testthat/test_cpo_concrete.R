@@ -126,3 +126,20 @@ test_that("cpo dummyencoder", {
 
 })
 
+test_that("cpo dropconstants", {
+  expect_equal(iris, clearRI(iris %>>% cpoDropConstants()))
+  expect_equal(iris[c(1, 3, 5)], clearRI(iris %>>% cpoDropConstants(abs.tol = 1.5)))
+  expect_equal(iris[3:5], clearRI(iris %>>% cpoDropConstants(rel.tol = 0.5)))
+  expect_equal(iris[1:10, 1:4], clearRI(iris[1:10, ] %>>% cpoDropConstants()))
+  iris.na = iris
+  iris.na[[1]] = 1
+  iris.na[1, 1] = NA
+  iris.na[[2]] = NA_integer_
+  expect_equal(iris.na[c(1, 3:5)], clearRI(iris.na %>>% cpoDropConstants()))
+  expect_equal(iris.na[3:5], clearRI(iris.na %>>% cpoDropConstants(ignore.na = TRUE)))
+  expect_equal(iris.na[3:5], clearRI(iris.na %>>% cpoDropConstants(ignore.na = TRUE, abs.tol = 0, rel.tol = 0)))
+  expect_equal(iris[3:5], iris %>>% (iris.na %>|% cpoDropConstants(ignore.na = TRUE)))
+  expect_equal(subsetTask(iris.task, features = c(1, 3)), clearRI(iris.task %>>% cpoDropConstants(abs.tol = 1.5)))
+  minus.iris = clearRI(iris.task %>>% cpoApplyFun(function(x) x * -1))
+  expect_equal(minus.iris, clearRI(minus.iris %>>% cpoDropConstants()))
+})

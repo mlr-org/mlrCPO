@@ -8,11 +8,11 @@
 #'
 #' @param rel.tol [\code{numeric(1)}]\cr
 #'   Relative tolerance within which to consider a feature constant.
-#'   Set to \code{Inf} to disregard relative tolerance.
+#'   Set to 0 to disregard relative tolerance.
 #'   Default is \code{1e-8}.
 #' @param abs.tol [\code{numeric(1)}]\cr
 #'   Absolute tolerance within which to consider a feature constant.
-#'   Set to \code{Inf} to disregard absolute tolerance.
+#'   Set to 0 to disregard absolute tolerance.
 #'   Default is \code{1e-8}.
 #' @param ignore.na [\code{logical(1)}]\cr
 #'   Whether to ignore \code{NA} and \code{NaN} values. If this is
@@ -25,7 +25,7 @@
 #' @template cpo_doc_outro
 #' @export
 cpoDropConstants = makeCPO("dropconst",  # nolint
-  pSS(rel.tol = 1e-8: numeric[~0, ], abs.tol = 1e-8: numeric[~0, ],
+  pSS(rel.tol = 1e-8: numeric[0, ~.], abs.tol = 1e-8: numeric[0, ~.],
     ignore.na = FALSE: logical),
   dataformat = "df.features",
   cpo.train = {
@@ -41,7 +41,7 @@ cpoDropConstants = makeCPO("dropconst",  # nolint
           return(TRUE)
         }
         cmean = mean(col)
-        return(!(all(abs(col - cmean) < abs.tol) || all(abs(col - cmean) / cmean < rel.tol)))
+        return(!(all(abs(col - cmean) <= abs.tol) || all(abs((col - cmean) / cmean) <= rel.tol)))
       }
       if (all(is.na(col))) {
         return(FALSE)
