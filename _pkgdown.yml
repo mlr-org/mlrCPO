@@ -1,4 +1,4 @@
-url: https://mlrCPO.mlr-org.com
+url: https://mlrCPO.mlr-org.com/
 
 template:
   params:
@@ -6,20 +6,14 @@ template:
 
 development:
   mode: unreleased
-  destination: devel
   version_label: default
-  version_tooltip: "Github version"
-
-# toc:
-#   depth: 3
+  version_tooltip: "Github Version"
 
 navbar:
   title:
   type: default
   left:
-  #- icon: fa-home
-  #  href: index.html
-  - text: Articles
+  - text: Vignettes
     menu:
     - text: First Steps
       href: articles/a_1_getting_started.html
@@ -30,18 +24,11 @@ navbar:
     - text: Building Custom CPOs
       href: articles/a_4_custom_CPOs.html
 
-  - text: Appendix
-    menu:
-    - text: Function Reference
-      href: reference/index.html
-    - text: News
-      href: news/index.html
+  - text: Function Reference
+    href: reference/index.html
 
   right:
   - icon: fa-github fa-lg
     href: https://github.com/mlr-org/mlrCPO
   - icon: fa-slack
-    href: https://mlr-org.slack.com
-  - icon: fa-rss
-    href: https://mlr-web.com/
-
+    href: https://mlr-org.slack.com/
