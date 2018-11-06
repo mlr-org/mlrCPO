@@ -13,7 +13,7 @@ addons:
 env:
   global:
     - _R_CHECK_TIMINGS_=0
-    - _R_CHECK_FORCE_SUGGESTS_=0  # no error if suggested packs are not avail
+    - _R_CHECK_FORCE_SUGGESTS_=false  # no error if suggested packs are not avail
     - _R_CHECK_TESTS_NLINES_=999
 
 warnings_are_errors: true
