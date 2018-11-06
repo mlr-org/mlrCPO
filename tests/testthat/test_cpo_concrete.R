@@ -140,6 +140,6 @@ test_that("cpo dropconstants", {
   expect_equal(iris.na[3:5], clearRI(iris.na %>>% cpoDropConstants(ignore.na = TRUE, abs.tol = 0, rel.tol = 0)))
   expect_equal(iris[3:5], iris %>>% (iris.na %>|% cpoDropConstants(ignore.na = TRUE)))
   expect_equal(subsetTask(iris.task, features = c(1, 3)), clearRI(iris.task %>>% cpoDropConstants(abs.tol = 1.5)))
-  minus.iris = iris.task %>>% cpoApplyFun(function(x) x * -1)
+  minus.iris = clearRI(iris.task %>>% cpoApplyFun(function(x) x * -1))
   expect_equal(minus.iris, clearRI(minus.iris %>>% cpoDropConstants()))
 })
