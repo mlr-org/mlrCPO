@@ -41,7 +41,7 @@ cpoDropConstants = makeCPO("dropconst",  # nolint
           return(TRUE)
         }
         cmean = mean(col)
-        return(!(all(abs(col - cmean) <= abs.tol) || all(abs(col - cmean) / cmean <= rel.tol)))
+        return(!(all(abs(col - cmean) <= abs.tol) || all(abs((col - cmean) / cmean) <= rel.tol)))
       }
       if (all(is.na(col))) {
         return(FALSE)
