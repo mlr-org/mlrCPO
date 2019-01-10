@@ -170,3 +170,6 @@ Other inverter related: \code{\link{NULLCPO}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }
+\concept{CPO lifecycle related}
+\concept{inverter related}
+\concept{retrafo related}

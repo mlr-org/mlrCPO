@@ -101,3 +101,7 @@ Other CPO classifications: \code{\link{CPO}},
   \code{\link{getCPOClass}},
   \code{\link{getCPOTrainedCapability}}
 }
+\concept{CPO classifications}
+\concept{getters and setters}
+\concept{inverter related}
+\concept{retrafo related}

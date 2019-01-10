@@ -20,3 +20,4 @@ Check whether the given object is a \code{\link{NULLCPO}}.
 Other NULLCPO related: \code{\link{NULLCPO}},
   \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}
 }
+\concept{NULLCPO related}

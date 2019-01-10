@@ -31,3 +31,4 @@ Other retrafo related: \code{\link{CPOTrained}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }
+\concept{retrafo related}

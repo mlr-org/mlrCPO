@@ -35,3 +35,4 @@ Other getters and setters: \code{\link{CPO}},
   \code{\link{getCPOTrainedCapability}},
   \code{\link{setCPOId}}
 }
+\concept{getters and setters}

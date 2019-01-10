@@ -5,8 +5,8 @@
 \title{Filter Features: \dQuote{univariate.model.score}}
 \usage{
 cpoFilterUnivariate(perc = NULL, abs = NULL, threshold = NULL,
-  perf.learner = NULL, perf.measure = NULL, perf.resampling = NULL, id,
-  export = "export.default", affect.type = NULL,
+  perf.learner = NULL, perf.measure = NULL, perf.resampling = NULL,
+  id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -188,3 +188,5 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{filter}

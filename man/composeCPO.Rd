@@ -52,3 +52,5 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{getCPOTrainedCPO}},
   \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 }
+\concept{CPO lifecycle related}
+\concept{operators}

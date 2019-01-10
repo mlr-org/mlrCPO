@@ -88,3 +88,7 @@ Other CPO classifications: \code{\link{getCPOClass}},
   \code{\link{getCPOOperatingType}},
   \code{\link{getCPOTrainedCapability}}
 }
+\concept{CPO classifications}
+\concept{CPO lifecycle related}
+\concept{getters and setters}
+\concept{operators}

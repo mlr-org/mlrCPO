@@ -163,3 +163,5 @@ Other special CPOs: \code{\link{cpoCbind}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}
 }
+\concept{CPOs}
+\concept{special CPOs}

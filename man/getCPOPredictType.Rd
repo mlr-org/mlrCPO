@@ -96,3 +96,6 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
 }
+\concept{getters and setters}
+\concept{inverter related}
+\concept{retrafo related}

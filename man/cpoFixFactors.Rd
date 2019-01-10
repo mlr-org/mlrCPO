@@ -4,8 +4,8 @@
 \alias{cpoFixFactors}
 \title{Clean Up Factorial Features}
 \usage{
-cpoFixFactors(drop.unused.levels = TRUE, fix.factors.prediction = TRUE, id,
-  export = "export.default", affect.type = NULL,
+cpoFixFactors(drop.unused.levels = TRUE, fix.factors.prediction = TRUE,
+  id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -149,3 +149,4 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}

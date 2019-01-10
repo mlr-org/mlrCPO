@@ -4,8 +4,9 @@
 \alias{cpoRegrResiduals}
 \title{Train a Model on a Task and Return the Residual Task}
 \usage{
-cpoRegrResiduals(learner, predict.se = FALSE, crr.train.residuals = "plain",
-  crr.resampling = cv5, id, export = "export.default", affect.type = NULL,
+cpoRegrResiduals(learner, predict.se = FALSE,
+  crr.train.residuals = "plain", crr.resampling = cv5, id,
+  export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -184,3 +185,4 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}

@@ -136,3 +136,5 @@ Other special CPOs: \code{\link{cpoTransformParams}},
   \code{\link{cpoWrap}}, \code{\link{makeCPOCase}},
   \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{special CPOs}

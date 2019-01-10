@@ -48,7 +48,9 @@ registerCPO(cpoFilterFeatures, "featurefilter", "general", "Filter features usin
 #
 # This saves us from having to write "makeCPOExtendedTrafo..." for every filter, since the
 # structure of the filter CPOs is always the same.
-# @param method [character(1)] the method name, as found in mlr:::.FilterRegister
+# @param method [character] the method name, as found in mlr:::.FilterRegister. This can have
+#   a length greater than 1; the given elements are looked up in order and the first one present
+#   is used. This is to make compatibility with multiple R versions possible.
 # @param ... parameters to use for the CPO, as used by ParamSet::pSSLrn
 # @param .par.set [ParamSet | NULL] additional parameter set to use
 # @return [CPOConstructor] A CPOConstructor that creates the CPO performing the `method`.
@@ -63,6 +65,15 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
 
   # get the filter object from mlr. The .FilterRegister was previously gotten
   # from mlr at the top of this file.
+  for (mtry in method) {
+    if (mtry %in% names(.FilterRegister)) {
+      method = mtry
+      break
+    }
+  }
+  if (length(method) > 1) {
+    stopf("None of the methods %s could be found", collapse(method))
+  }
   methodobj = get(method, envir = .FilterRegister)
 
   makeCPO(method, par.set = par.set, dataformat = "task",
@@ -222,7 +233,7 @@ registerCPO(cpoFilterRankCorrelation, "featurefilter", "specialised", "Filter fe
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterInformationGain = declareFilterCPO("information.gain")  # nolint
+cpoFilterInformationGain = declareFilterCPO(c("FSelector_information.gain", "information.gain"))  # nolint
 registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter features using entropy-based information gain.")
 
 #' @title Filter Features: \dQuote{gain.ratio}
@@ -235,7 +246,7 @@ registerCPO(cpoFilterInformationGain, "featurefilter", "specialised", "Filter fe
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterGainRatio = declareFilterCPO("gain.ratio")  # nolint
+cpoFilterGainRatio = declareFilterCPO(c("FSelector_gain.ratio", "gain.ratio"))  # nolint
 registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features using entropy-based information gain ratio")
 
 #' @title Filter Features: \dQuote{symmetrical.uncertainty}
@@ -248,7 +259,7 @@ registerCPO(cpoFilterGainRatio, "featurefilter", "specialised", "Filter features
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterSymmetricalUncertainty = declareFilterCPO("symmetrical.uncertainty")  # nolint
+cpoFilterSymmetricalUncertainty = declareFilterCPO(c("FSelector_symmetrical.uncertainty", "symmetrical.uncertainty"))  # nolint
 registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Filter features using entropy-based symmetrical uncertainty")
 
 #' @title Filter Features: \dQuote{chi.squared}
@@ -265,7 +276,7 @@ registerCPO(cpoFilterSymmetricalUncertainty, "featurefilter", "specialised", "Fi
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterChiSquared = declareFilterCPO("chi.squared")  # nolint
+cpoFilterChiSquared = declareFilterCPO(c("FSelector_chi.squared", "chi.squared"))  # nolint
 registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter features using chi-squared test.")
 
 #' @title Filter Features: \dQuote{relief}
@@ -289,7 +300,7 @@ registerCPO(cpoFilterChiSquared, "featurefilter", "specialised", "Filter feature
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRelief = declareFilterCPO("relief")  # nolint # missing parameters
+cpoFilterRelief = declareFilterCPO(c("FSelector_relief", "relief"))  # nolint # missing parameters
 registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features using the ReliefF algorithm.")
 
 #' @title Filter Features: \dQuote{oneR}
@@ -305,7 +316,7 @@ registerCPO(cpoFilterRelief, "featurefilter", "specialised", "Filter features us
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterOneR = declareFilterCPO("oneR")  # nolint
+cpoFilterOneR = declareFilterCPO(c("FSelector_oneR", "oneR"))  # nolint
 registerCPO(cpoFilterOneR, "featurefilter", "specialised", "Filter features using the OneR learner.")
 
 #' @title Filter Features: \dQuote{univariate.model.score}

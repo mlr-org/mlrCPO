@@ -6,7 +6,6 @@
 \alias{makeCPORetrafoless}
 \alias{makeCPOTargetOp}
 \alias{makeCPOExtendedTargetOp}
-\alias{makeCPO}
 \title{Create a Custom CPO Constructor}
 \usage{
 makeCPO(cpo.name, par.set = makeParamSet(), par.vals = NULL,
@@ -15,27 +14,28 @@ makeCPO(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   export.params = TRUE, fix.factors = FALSE,
   properties.data = c("numerics", "factors", "ordered", "missings"),
   properties.adding = character(0), properties.needed = character(0),
-  properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-  "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.train,
-  cpo.retrafo)
+  properties.target = c("cluster", "classif", "multilabel", "regr",
+  "surv", "oneclass", "twoclass", "multiclass"), packages = character(0),
+  cpo.train, cpo.retrafo)
 
-makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(), par.vals = NULL,
-  dataformat = c("df.features", "split", "df.all", "task", "factor",
-  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
-  export.params = TRUE, fix.factors = FALSE,
-  properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = character(0), properties.needed = character(0),
-  properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-  "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.trafo,
-  cpo.retrafo)
+makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(),
+  par.vals = NULL, dataformat = c("df.features", "split", "df.all",
+  "task", "factor", "ordered", "numeric"),
+  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
+  fix.factors = FALSE, properties.data = c("numerics", "factors",
+  "ordered", "missings"), properties.adding = character(0),
+  properties.needed = character(0), properties.target = c("cluster",
+  "classif", "multilabel", "regr", "surv", "oneclass", "twoclass",
+  "multiclass"), packages = character(0), cpo.trafo, cpo.retrafo)
 
 makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = NULL,
-  dataformat = c("df.all", "task"), dataformat.factor.with.ordered = TRUE,
-  export.params = TRUE, fix.factors = FALSE,
-  properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = character(0), properties.needed = character(0),
-  properties.target = c("cluster", "classif", "multilabel", "regr", "surv",
-  "oneclass", "twoclass", "multiclass"), packages = character(0), cpo.trafo)
+  dataformat = c("df.all", "task"),
+  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
+  fix.factors = FALSE, properties.data = c("numerics", "factors",
+  "ordered", "missings"), properties.adding = character(0),
+  properties.needed = character(0), properties.target = c("cluster",
+  "classif", "multilabel", "regr", "surv", "oneclass", "twoclass",
+  "multiclass"), packages = character(0), cpo.trafo)
 
 makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   dataformat = c("df.features", "split", "df.all", "task", "factor",
@@ -48,15 +48,16 @@ makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
   constant.invert = FALSE, cpo.train, cpo.retrafo, cpo.train.invert,
   cpo.invert)
 
-makeCPOExtendedTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
-  dataformat = c("df.features", "split", "df.all", "task", "factor",
-  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
-  export.params = TRUE, fix.factors = FALSE,
-  properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = character(0), properties.needed = character(0),
-  properties.target = "cluster", task.type.out = NULL,
-  predict.type.map = c(response = "response"), packages = character(0),
-  constant.invert = FALSE, cpo.trafo, cpo.retrafo, cpo.invert)
+makeCPOExtendedTargetOp(cpo.name, par.set = makeParamSet(),
+  par.vals = NULL, dataformat = c("df.features", "split", "df.all",
+  "task", "factor", "ordered", "numeric"),
+  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
+  fix.factors = FALSE, properties.data = c("numerics", "factors",
+  "ordered", "missings"), properties.adding = character(0),
+  properties.needed = character(0), properties.target = "cluster",
+  task.type.out = NULL, predict.type.map = c(response = "response"),
+  packages = character(0), constant.invert = FALSE, cpo.trafo,
+  cpo.retrafo, cpo.invert)
 }
 \arguments{
 \item{cpo.name}{[\code{character(1)}]\cr
@@ -85,7 +86,7 @@ and not \code{par.vals}. Default is \code{NULL}.}
     \dQuote{df.features}  \tab \code{data.frame} without target       \tab \code{data.frame} of target  \cr
     \dQuote{task}         \tab full \code{\link[mlr]{Task}}           \tab target colnames              \cr
     \dQuote{split}        \tab list of \code{data.frames} by type     \tab \code{data.frame} of target  \cr
-    [type]                \tab \code{data.frame} of [type] feats only \tab \code{data.frame} of target  \cr
+    [type]                \tab \code{data.frame} of [type] feats only \tab \code{data.frame} of target
   }
   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}; if these are given, only a subset of the total
   data present is seen by the \code{\link{CPO}}.
@@ -551,7 +552,7 @@ the process can be influenced by the user during CPO definition or application. 
       \dQuote{cluster}    \tab \code{data.frame} with zero columns.          \cr
       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical}}\cr
       \dQuote{regr}       \tab one column of \code{\link[base]{numeric}}     \cr
-      \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}    \cr
+      \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}
     }
 
     When inverting, the format of the \code{target} argument, as well as the return value of, the \code{cpo.invert} function depends on the
@@ -569,7 +570,7 @@ the process can be influenced by the user during CPO definition or application. 
       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-      \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]                           \cr
+      \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]
     }
     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
 }
@@ -629,3 +630,6 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{getCPOTrainedCPO}},
   \code{\link{identicalCPO}}
 }
+\concept{CPO lifecycle related}
+\concept{CPOConstructor related}
+\concept{advanced topics}

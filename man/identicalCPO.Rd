@@ -45,3 +45,5 @@ Other CPOConstructor related: \code{\link{CPOConstructor}},
   \code{\link{getCPOName}}, \code{\link{makeCPO}},
   \code{\link{print.CPOConstructor}}
 }
+\concept{CPO lifecycle related}
+\concept{CPOConstructor related}
