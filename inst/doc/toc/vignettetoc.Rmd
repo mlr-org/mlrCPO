@@ -13,22 +13,25 @@ library("mlrCPO")
 set.seed(123)
 
 # get the path of the parent document
-path = names(knitr::opts_knit$get("encoding"))[1]
+# path = names(knitr::opts_knit$get("encoding"))[1]
+base = knitr::opts_knit$get("output.dir")
+file = sys.frame(min(grep("knit", sapply(sys.calls(), function(x) as.character(x)[1]))))$input
+path = file.path(base, file)
 rpath = gsub("\\.[^.]*$", ".R", path)
 
 # strip whitespace from lines in tangle (R file) output for lintr
 knitr::knit_hooks$set(document = function(x) {
-  lines = readLines(rpath)
-  lines = gsub(" *(\n|$)", "\\1", lines)
-  cat(lines, file = rpath, sep = "\n", append = FALSE)
+  if (file_test("-f", rpath)) {
+    lines = readLines(rpath)
+    lines = gsub(" *(\n|$)", "\\1", lines)
+    cat(lines, file = rpath, sep = "\n", append = FALSE)
+  }
   x
 })
 
 #############################
 # do the trans-vignette ToC #
 #############################
-base = dirname(path)
-file = basename(path)
 fullfile = file
 
 allfiles = list.files(path = base, pattern = ".*\\.Rmd$")

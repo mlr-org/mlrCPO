@@ -87,3 +87,9 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
   \code{\link{getCPOTrainedCPO}},
   \code{\link{identicalCPO}}, \code{\link{makeCPO}}
 }
+\concept{CPO classifications}
+\concept{CPO lifecycle related}
+\concept{CPOConstructor related}
+\concept{getters and setters}
+\concept{inverter related}
+\concept{retrafo related}

@@ -4,8 +4,8 @@
 \alias{cpoDropConstants}
 \title{Drop Constant or Near-Constant Features}
 \usage{
-cpoDropConstants(rel.tol = 1e-08, abs.tol = 1e-08, ignore.na = FALSE, id,
-  export = "export.default", affect.type = NULL,
+cpoDropConstants(rel.tol = 1e-08, abs.tol = 1e-08, ignore.na = FALSE,
+  id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -14,12 +14,12 @@ cpoDropConstants(rel.tol = 1e-08, abs.tol = 1e-08, ignore.na = FALSE, id,
 \arguments{
 \item{rel.tol}{[\code{numeric(1)}]\cr
 Relative tolerance within which to consider a feature constant.
-Set to \code{Inf} to disregard relative tolerance.
+Set to 0 to disregard relative tolerance.
 Default is \code{1e-8}.}
 
 \item{abs.tol}{[\code{numeric(1)}]\cr
 Absolute tolerance within which to consider a feature constant.
-Set to \code{Inf} to disregard absolute tolerance.
+Set to 0 to disregard absolute tolerance.
 Default is \code{1e-8}.}
 
 \item{ignore.na}{[\code{logical(1)}]\cr
@@ -160,3 +160,4 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}

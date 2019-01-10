@@ -5,18 +5,20 @@
 \alias{cpoImputeAll}
 \title{Impute and Re-Impute Data}
 \usage{
-cpoImpute(target.cols = character(0), classes = list(), cols = list(),
-  dummy.classes = character(0), dummy.cols = character(0),
-  dummy.type = "factor", force.dummies = FALSE, impute.new.levels = TRUE,
+cpoImpute(target.cols = character(0), classes = list(),
+  cols = list(), dummy.classes = character(0),
+  dummy.cols = character(0), dummy.type = "factor",
+  force.dummies = FALSE, impute.new.levels = TRUE,
   recode.factor.levels = TRUE, id, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
   affect.names = character(0), affect.pattern = NULL,
   affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
   affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 
-cpoImputeAll(target.cols = character(0), classes = list(), cols = list(),
-  dummy.classes = character(0), dummy.cols = character(0),
-  dummy.type = "factor", force.dummies = FALSE, impute.new.levels = TRUE,
+cpoImputeAll(target.cols = character(0), classes = list(),
+  cols = list(), dummy.classes = character(0),
+  dummy.cols = character(0), dummy.type = "factor",
+  force.dummies = FALSE, impute.new.levels = TRUE,
   recode.factor.levels = TRUE, id, export = "export.default",
   affect.type = NULL, affect.index = integer(0),
   affect.names = character(0), affect.pattern = NULL,
@@ -239,3 +241,5 @@ Other imputation CPOs: \code{\link{cpoImputeConstant}},
   \code{\link{cpoImputeNormal}},
   \code{\link{cpoImputeUniform}}
 }
+\concept{CPOs}
+\concept{imputation CPOs}

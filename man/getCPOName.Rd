@@ -71,3 +71,7 @@ Other CPOConstructor related: \code{\link{CPOConstructor}},
   \code{\link{identicalCPO}}, \code{\link{makeCPO}},
   \code{\link{print.CPOConstructor}}
 }
+\concept{CPOConstructor related}
+\concept{getters and setters}
+\concept{inverter related}
+\concept{retrafo related}

@@ -4,9 +4,9 @@
 \alias{cpoIca}
 \title{Construct a CPO for ICA Preprocessing}
 \usage{
-cpoIca(n.comp = NULL, alg.typ = "parallel", fun = "logcosh", alpha = 1,
-  method = "C", maxit = 200, tol = 1e-04, verbose = FALSE, id,
-  export = "export.default", affect.type = NULL,
+cpoIca(n.comp = NULL, alg.typ = "parallel", fun = "logcosh",
+  alpha = 1, method = "C", maxit = 200, tol = 1e-04,
+  verbose = FALSE, id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -177,3 +177,4 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}

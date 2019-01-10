@@ -62,4 +62,8 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
 Other NULLCPO related: \code{\link{is.nullcpo}},
   \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}
 }
+\concept{CPO lifecycle related}
+\concept{NULLCPO related}
+\concept{inverter related}
+\concept{retrafo related}
 \keyword{datasets}

@@ -4,8 +4,8 @@
 \alias{cpoSmote}
 \title{Perform SMOTE Oversampling for Binary Classification}
 \usage{
-cpoSmote(rate = NULL, nn = 5, standardize = TRUE, alt.logic = FALSE, id,
-  export = "export.default")
+cpoSmote(rate = NULL, nn = 5, standardize = TRUE,
+  alt.logic = FALSE, id, export = "export.default")
 }
 \arguments{
 \item{rate}{[\code{numeric(1)} | \code{NULL}]\cr
@@ -128,3 +128,4 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}

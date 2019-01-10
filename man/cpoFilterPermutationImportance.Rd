@@ -4,14 +4,14 @@
 \alias{cpoFilterPermutationImportance}
 \title{Filter Features: \dQuote{permutation.importance}}
 \usage{
-cpoFilterPermutationImportance(perc = NULL, abs = NULL, threshold = NULL,
-  imp.learner, contrast = function(x, y) {     x - y }, measure = NULL,
-  aggregation = function(x, ...) UseMethod("mean"), nmc = 50,
-  replace = FALSE, id, export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoFilterPermutationImportance(perc = NULL, abs = NULL,
+  threshold = NULL, imp.learner, contrast = function(x, y) {     x - y
+  }, measure = NULL, aggregation = function(x, ...) UseMethod("mean"),
+  nmc = 50, replace = FALSE, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{perc}{[\code{numeric(1)}]\cr
@@ -192,3 +192,5 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{filter}

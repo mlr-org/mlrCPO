@@ -26,6 +26,6 @@ Categories and subcategories are:
                   \tab specialised          \tab specific feat filter CPO    \cr
   imputation      \tab general              \tab imp CPO with operation arg  \cr
                   \tab specialised          \tab specific imputation CPO     \cr
-  tools           \tab imputation           \tab                             \cr
+  tools           \tab imputation           \tab
 }
 }

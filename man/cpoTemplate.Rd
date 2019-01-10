@@ -4,9 +4,9 @@
 \alias{cpoTemplate}
 \title{Dummy Function for Documentation Purposes}
 \usage{
-cpoTemplate(id, export, affect.type, affect.index, affect.name, affect.pattern,
-  affect.invert, affect.pattern.ignore.case, affect.pattern.perl,
-  affect.pattern.fixed)
+cpoTemplate(id, export, affect.type, affect.index, affect.name,
+  affect.pattern, affect.invert, affect.pattern.ignore.case,
+  affect.pattern.perl, affect.pattern.fixed)
 }
 \arguments{
 \item{id}{[\code{character(1)}]\cr

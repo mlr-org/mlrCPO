@@ -50,3 +50,5 @@ Other CPO lifecycle related: \code{\link{CPOConstructor}},
 Other CPOLearner related: \code{\link{attachCPO}},
   \code{\link{getLearnerBare}}, \code{\link{getLearnerCPO}}
 }
+\concept{CPO lifecycle related}
+\concept{CPOLearner related}

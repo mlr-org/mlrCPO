@@ -127,3 +127,5 @@ Other special CPOs: \code{\link{cpoCbind}},
   \code{\link{cpoWrap}}, \code{\link{makeCPOCase}},
   \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{special CPOs}

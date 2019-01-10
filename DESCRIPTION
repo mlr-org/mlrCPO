@@ -28,6 +28,7 @@ Imports:
     utils,
     backports (>= 1.1.0)
 Suggests:
+    care,
     party,
     rpart,
     mlbench,
@@ -35,12 +36,13 @@ Suggests:
     rmarkdown,
     testthat,
     mRMRe,
-    care,
+    praznik,
     randomForestSRC,
     randomForest,
     ranger (>= 0.8.0),
     Rfast,
     FSelector,
+    FSelectorRcpp,
     e1071,
     DiscriMiner,
     digest,
@@ -101,5 +103,5 @@ Collate:
     'makeCPOHelp.R'
     'print.R'
     'zzz.R'
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr

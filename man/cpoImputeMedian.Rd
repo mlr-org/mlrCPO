@@ -4,8 +4,8 @@
 \alias{cpoImputeMedian}
 \title{Perform Imputation with Median Value}
 \usage{
-cpoImputeMedian(impute.new.levels = TRUE, recode.factor.levels = TRUE, id,
-  export = "export.default", affect.type = NULL,
+cpoImputeMedian(impute.new.levels = TRUE, recode.factor.levels = TRUE,
+  id, export = "export.default", affect.type = NULL,
   affect.index = integer(0), affect.names = character(0),
   affect.pattern = NULL, affect.invert = FALSE,
   affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
@@ -173,3 +173,5 @@ Other CPOs: \code{\link{cpoApplyFunRegrTarget}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOCase}}, \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{imputation CPOs}

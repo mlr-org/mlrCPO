@@ -6,22 +6,22 @@
 \title{Build Data-Dependent CPOs}
 \usage{
 makeCPOCase(par.set = makeParamSet(), par.vals = list(),
-  export.cpos = list(), dataformat = c("df.features", "split", "df.all",
-  "task", "factor", "ordered", "numeric"),
+  export.cpos = list(), dataformat = c("df.features", "split",
+  "df.all", "task", "factor", "ordered", "numeric"),
   dataformat.factor.with.ordered = TRUE, properties.data = NULL,
   properties.adding = NULL, properties.needed = NULL,
   properties.target = NULL, cpo.build)
 
-cpoCase(par.set = makeParamSet(), par.vals = list(), export.cpos = list(),
-  dataformat = c("df.features", "split", "df.all", "task", "factor",
-  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
-  properties.data = NULL, properties.adding = NULL,
-  properties.needed = NULL, properties.target = NULL, cpo.build, id,
-  export = "export.default", affect.type = NULL,
-  affect.index = integer(0), affect.names = character(0),
-  affect.pattern = NULL, affect.invert = FALSE,
-  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
-  affect.pattern.fixed = FALSE)
+cpoCase(par.set = makeParamSet(), par.vals = list(),
+  export.cpos = list(), dataformat = c("df.features", "split",
+  "df.all", "task", "factor", "ordered", "numeric"),
+  dataformat.factor.with.ordered = TRUE, properties.data = NULL,
+  properties.adding = NULL, properties.needed = NULL,
+  properties.target = NULL, cpo.build, id, export = "export.default",
+  affect.type = NULL, affect.index = integer(0),
+  affect.names = character(0), affect.pattern = NULL,
+  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{par.set}{[\code{\link[ParamHelpers:makeParamSet]{ParamSet}}]\cr
@@ -238,3 +238,5 @@ Other special CPOs: \code{\link{cpoCbind}},
   \code{\link{cpoTransformParams}}, \code{\link{cpoWrap}},
   \code{\link{makeCPOMultiplex}}
 }
+\concept{CPOs}
+\concept{special CPOs}

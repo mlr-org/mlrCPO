@@ -36,3 +36,5 @@ Other getters and setters: \code{\link{CPO}},
 
 Other CPO ID related: \code{\link{setCPOId}}
 }
+\concept{CPO ID related}
+\concept{getters and setters}

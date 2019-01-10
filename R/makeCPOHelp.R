@@ -185,7 +185,7 @@
 #'       \dQuote{cluster}    \tab \code{data.frame} with zero columns.          \cr
 #'       \dQuote{multilabel} \tab several columns of \code{\link[base]{logical}}\cr
 #'       \dQuote{regr}       \tab one column of \code{\link[base]{numeric}}     \cr
-#'       \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}    \cr
+#'       \dQuote{surv}       \tab two columns of \code{\link[base]{numeric}}
 #'     }
 #'
 #'     When inverting, the format of the \code{target} argument, as well as the return value of, the \code{cpo.invert} function depends on the
@@ -203,7 +203,7 @@
 #'       \dQuote{regr}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
 #'       \dQuote{regr}       \tab \dQuote{se}                \tab 2-col \code{\link[base]{matrix}}              \cr
 #'       \dQuote{surv}       \tab \dQuote{response}          \tab \code{\link[base]{numeric}}                   \cr
-#'       \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]                           \cr
+#'       \dQuote{surv}       \tab \dQuote{prob}              \tab [NOT YET SUPPORTED]
 #'     }
 #'     All \code{\link[base]{matrix}} formats are \code{\link[base]{numeric}}, unless otherwise stated.}
 #' }
@@ -243,7 +243,7 @@
 #'     \dQuote{df.features}  \tab \code{data.frame} without target       \tab \code{data.frame} of target  \cr
 #'     \dQuote{task}         \tab full \code{\link[mlr]{Task}}           \tab target colnames              \cr
 #'     \dQuote{split}        \tab list of \code{data.frames} by type     \tab \code{data.frame} of target  \cr
-#'     [type]                \tab \code{data.frame} of [type] feats only \tab \code{data.frame} of target  \cr
+#'     [type]                \tab \code{data.frame} of [type] feats only \tab \code{data.frame} of target
 #'   }
 #'   [type] can be any one of \dQuote{factor}, \dQuote{numeric}, \dQuote{ordered}; if these are given, only a subset of the total
 #'   data present is seen by the \code{\link{CPO}}.

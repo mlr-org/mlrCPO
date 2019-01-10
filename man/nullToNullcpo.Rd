@@ -20,3 +20,4 @@ Convert \code{NULL} to \code{\link{NULLCPO}}, leave other values intact.
 Other NULLCPO related: \code{\link{NULLCPO}},
   \code{\link{is.nullcpo}}, \code{\link{nullcpoToNull}}
 }
+\concept{NULLCPO related}

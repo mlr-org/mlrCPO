@@ -35,3 +35,4 @@ category.
 This function comes at no runtime penalty: If the \code{R_COVR} environment variable is not
 set to \dQuote{true}, then it only has an effect if \code{force} is \code{TRUE}.
 }
+\concept{helper functions}

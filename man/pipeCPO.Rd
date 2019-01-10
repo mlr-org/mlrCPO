@@ -55,3 +55,6 @@ Other inverter related: \code{\link{CPOTrained}},
   \code{\link{makeCPOTrainedFromState}},
   \code{\link{print.CPOConstructor}}
 }
+\concept{inverter related}
+\concept{operators}
+\concept{retrafo related}

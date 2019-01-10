@@ -41,3 +41,6 @@ Other CPOConstructor related: \code{\link{CPOConstructor}},
   \code{\link{identicalCPO}}, \code{\link{makeCPO}},
   \code{\link{print.CPOConstructor}}
 }
+\concept{CPO lifecycle related}
+\concept{CPOConstructor related}
+\concept{getters and setters}
