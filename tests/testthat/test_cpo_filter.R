@@ -42,6 +42,13 @@ test_that("filterFeatures default test", {
     expect_equal(getTaskData(result1), getTaskData(filtered))
   }
   filter.list.regr = as.character(filter.list$id)[!filter.list$task.classif & filter.list$task.regr]
+  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    filter.list.regr = Filter(function(fname) {
+      pkg = get(fname, mlr:::.FilterRegister)$pkg
+      length(pkg) == 0 || requireNamespace(pkg)
+    }, filter.list.regr)
+  }
+
   for (filter in filter.list.regr) {
     if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select")) {
       next
