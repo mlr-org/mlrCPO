@@ -96,6 +96,7 @@ jobs:
         provider: pages
         skip-cleanup: true
         github-token: $GITHUB_TOKEN
+        local-dir: docs
         on:
           branch: master
       after_deploy:
