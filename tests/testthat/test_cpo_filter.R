@@ -18,7 +18,7 @@ test_that("filterFeatures default test", {
     }, filter.list.classif)
   }
   for (filter in filter.list.classif) {
-    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select", "auc")) {  # crash on my machine for some reason.
+    if (filter %in% c("randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select", "auc")) {  # crash on my machine for some reason.
       next
     }
     set.seed(123)
@@ -30,7 +30,7 @@ test_that("filterFeatures default test", {
     expect_equal(getTaskData(result1), getTaskData(filtered))
   }
   for (filter in filter.list.classif) {
-    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select")) {  # crash on my machine for some reason.
+    if (filter %in% c("randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select")) {  # crash on my machine for some reason.
       next
     }
     set.seed(123)
@@ -50,7 +50,7 @@ test_that("filterFeatures default test", {
   }
 
   for (filter in filter.list.regr) {
-    if (filter %in% c("randomForestSRC.rfsrc", "randomForestSRC.var.select")) {
+    if (filter %in% c("randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select")) {
       next
     }
     set.seed(123)
@@ -71,7 +71,7 @@ test_that("specialised CPOs work", {
     cpoconst = get(filter)
     cpo = cpoconst(perc = 0.5)
     if (!"classif" %in% getCPOProperties(cpo)$properties ||
-      getCPOName(cpo) %in% c("permutation.importance", "randomForestSRC.rfsrc", "randomForestSRC.var.select")) {
+      getCPOName(cpo) %in% c("permutation.importance", "randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select")) {
       # permutation.importance is missing an argument; the other two randomly crash on my machine.
       next
     }
@@ -88,7 +88,7 @@ test_that("specialised CPOs work", {
     cpoconst = get(filter)
     cpo = cpoconst(perc = 0.5)
     if (!"regr" %in% getCPOProperties(cpo)$properties ||
-      getCPOName(cpo) %in% c("permutation.importance", "randomForestSRC.rfsrc", "randomForestSRC.var.select")) {
+      getCPOName(cpo) %in% c("permutation.importance", "randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select")) {
       next
     }
     set.seed(123)
