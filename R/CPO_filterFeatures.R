@@ -24,7 +24,7 @@
 #' @family filter
 cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
   par.set = c(
-      makeParamSet(makeDiscreteLearnerParam("method", values = ls(.FilterRegister), default = "randomForestSRC.rfsrc"),
+      makeParamSet(makeDiscreteLearnerParam("method", values = c(ls(.FilterRegister), "randomForestSRC.rfsrc"), default = "randomForestSRC.rfsrc"),
         makeUntypedLearnerParam("fval", default = NULL)),
       pSSLrn(
           perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
@@ -34,6 +34,7 @@ cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
   dataformat = "task",
   cpo.trafo = function(data, target, method, fval, perc, abs, threshold, filter.args) {
     assertList(filter.args)
+    if (method == "randomForestSRC.rfsrc" && method %nin% ls(.FilterRegister)) method = "rfsrc_importance"
     fullargs = c(list(task = data, method = method, fval = fval, perc = perc, abs = abs, threshold = threshold), filter.args)
     assertSubset(unique(names(fullargs)[duplicated(names(fullargs))]), "")
     data = do.call(filterFeatures, fullargs)
@@ -143,7 +144,7 @@ registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features 
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRfSRCImportance = declareFilterCPO("randomForestSRC.rfsrc") #,  # nolint
+cpoFilterRfSRCImportance = declareFilterCPO(c("rfsrc_importance", "randomForestSRC.rfsrc")) #,  # nolint
 #  method = "permute": discrete[permute, random, anti, permute.ensemble, random.ensemble, anti.ensemble])  # missing parameters
 registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter features using randomForestSRC.rfsrc.")
 
@@ -159,7 +160,7 @@ registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter fe
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRfSRCMinDepth = declareFilterCPO("randomForestSRC.var.select")  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
+cpoFilterRfSRCMinDepth = declareFilterCPO(c("rfsrc_var.select", "randomForestSRC.var.select"))  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
 registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter features using randomForestSRC minimal depth.")
 
 #' @title Filter Features: \dQuote{cforest.importance}
@@ -194,7 +195,7 @@ registerCPO(cpoFilterRfCImportance, "featurefilter", "specialised", "Filter feat
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRfImportance = declareFilterCPO("randomForest.importance")  #, method = "oob.accuracy": discrete[oob.accuracy, node.impurity])  # nolint  # missing parameters
+cpoFilterRfImportance = declareFilterCPO(c("randomForest_importance", "randomForest.importance"))  #, method = "oob.accuracy": discrete[oob.accuracy, node.impurity])  # nolint  # missing parameters
 registerCPO(cpoFilterRfImportance, "featurefilter", "specialised", "Filter features using randomForest variable importance.")
 
 #' @title Filter Features: \dQuote{linear.correlation}
