@@ -34,7 +34,7 @@ cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
   dataformat = "task",
   cpo.trafo = function(data, target, method, fval, perc, abs, threshold, filter.args) {
     assertList(filter.args)
-    if (method == "randomForestSRC.rfsrc" && method %nin% ls(.FilterRegister)) method = "rfsrc_importance"
+    if (method == "randomForestSRC.rfsrc" && method %nin% ls(.FilterRegister)) method = "randomForestSRC_importance"
     fullargs = c(list(task = data, method = method, fval = fval, perc = perc, abs = abs, threshold = threshold), filter.args)
     assertSubset(unique(names(fullargs)[duplicated(names(fullargs))]), "")
     data = do.call(filterFeatures, fullargs)
@@ -145,7 +145,7 @@ registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features 
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRfSRCImportance = declareFilterCPO(c("rfsrc_importance", "randomForestSRC.rfsrc")) #,  # nolint
+cpoFilterRfSRCImportance = declareFilterCPO(c("randomForestSRC_importance", "randomForestSRC.rfsrc")) #,  # nolint
 #  method = "permute": discrete[permute, random, anti, permute.ensemble, random.ensemble, anti.ensemble])  # missing parameters
 registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter features using randomForestSRC.rfsrc.")
 
@@ -161,7 +161,7 @@ registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter fe
 #' @template arg_filter
 #' @template cpo_doc_outro
 #' @export
-cpoFilterRfSRCMinDepth = declareFilterCPO(c("rfsrc_var.select", "randomForestSRC.var.select"))  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
+cpoFilterRfSRCMinDepth = declareFilterCPO(c("randomForestSRC_var.select", "randomForestSRC.var.select"))  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
 registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter features using randomForestSRC minimal depth.")
 
 #' @title Filter Features: \dQuote{cforest.importance}
