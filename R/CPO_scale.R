@@ -16,6 +16,10 @@ cpoScale = makeCPOExtendedTrafo("scale",  # nolint
   cpo.trafo = {
     result = scale(as.matrix(data), center = center, scale = scale)
     control = list(center = firstNonNull(attr(result, "scaled:center"), FALSE), scale = firstNonNull(attr(result, "scaled:scale"), FALSE))
+    if (!isFALSE(control$scale) && any(control$scale == 0)) {
+      result[, control$scale == 0] = 0
+      control$scale[control$scale == 0] = 1
+    }
     result
   }, cpo.retrafo = {
     scale(as.matrix(data), center = control$center, scale = control$scale)

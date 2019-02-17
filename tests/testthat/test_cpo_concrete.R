@@ -27,6 +27,24 @@ test_that("cpoScale test", {
 
   expect_equal(getTaskData(iris.task %>>% cpoScale(center = FALSE), target.extra = TRUE)$data,
                as.data.frame(scale(iris[1:4], center = FALSE)))
+
+  # scale of constant features works
+  cfdf = data.frame(a = rep(1, 10), b = rep(0, 10))
+  cfdf_centered = data.frame(a = rep(0, 10), b = rep(0, 10))
+  cfdf_scaled = data.frame(a = rep(sqrt(0.9), 10), b = rep(0, 10))
+  expect_equal({cdx = cfdf %>>% cpoScale()}, cfdf_centered, check.attributes = FALSE)
+  expect_equal(cfdf %>>% retrafo(cdx), cfdf_centered, check.attributes = FALSE)
+
+  expect_equal({cdx = cfdf %>>% cpoScale(scale = FALSE)}, cfdf_centered, check.attributes = FALSE)
+  expect_equal(cfdf %>>% retrafo(cdx), cfdf_centered, check.attributes = FALSE)
+
+  expect_equal({cdx = cfdf %>>% cpoScale(center = FALSE)}, cfdf_scaled, check.attributes = FALSE)
+  expect_equal(cfdf %>>% retrafo(cdx), cfdf_scaled, check.attributes = FALSE)
+
+  expect_equal({cdx = cfdf %>>% cpoScale(scale = FALSE, center = FALSE)}, cfdf, check.attributes = FALSE)
+  expect_equal(cfdf %>>% retrafo(cdx), cfdf, check.attributes = FALSE)
+
+
 })
 
 test_that("cpo applicator", {
