@@ -26,8 +26,8 @@ test_that("filterFeatures default test", {
     result2 = multiclass.task %>>% retrafo(result1)
     set.seed(123)
     filtered = filterFeatures(task = multiclass.task, method = filter, perc = 0.5)
-    expect_equal(getTaskData(result1), getTaskData(result2))
-    expect_equal(getTaskData(result1), getTaskData(filtered))
+    expect_equal(getTaskData(result1), getTaskData(result2), info = filter)
+    expect_equal(getTaskData(result1), getTaskData(filtered), info = filter)
   }
   for (filter in filter.list.classif) {
     if (filter %in% c("randomForestSRC.rfsrc", "rfsrc_importance", "randomForestSRC.var.select", "rfsrc_var.select")) {  # crash on my machine for some reason.
@@ -38,8 +38,8 @@ test_that("filterFeatures default test", {
     result2 = binaryclass.task %>>% retrafo(result1)
     set.seed(123)
     filtered = filterFeatures(task = binaryclass.task, method = filter, perc = 0.5)
-    expect_equal(getTaskData(result1), getTaskData(result2))
-    expect_equal(getTaskData(result1), getTaskData(filtered))
+    expect_equal(getTaskData(result1), getTaskData(result2), info = filter)
+    expect_equal(getTaskData(result1), getTaskData(filtered), info = filter)
   }
   filter.list.regr = as.character(filter.list$id)[!filter.list$task.classif & filter.list$task.regr]
   if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
