@@ -99,21 +99,20 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
     })
 }
 
-## The folliwing package was deleted
-# @title Filter Features: \dQuote{mrmr}
-#
-# @template cpo_doc_intro
-#
-# @description
-# Minimum redundancy, maximum relevance filter \dQuote{mrmr} computes the
-# mutual information between the target and each individual feature minus the
-# average mutual information of previously selected features and this feature
-# using the \pkg{mRMRe} package.
-# @template arg_filter
-# @template cpo_doc_outro
-# @export
-# cpoFilterMrmr = declareFilterCPO("mrmr") # nolint  #  missing parameters
-# registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features using 'minimum redundancy, maximum relevance'.")
+#' @title Filter Features: \dQuote{mrmr}
+#'
+#' @template cpo_doc_intro
+#'
+#' @description
+#' Minimum redundancy, maximum relevance filter \dQuote{mrmr} computes the
+#' mutual information between the target and each individual feature minus the
+#' average mutual information of previously selected features and this feature
+#' using the \pkg{mRMRe} package.
+#' @template arg_filter
+#' @template cpo_doc_outro
+#' @export
+cpoFilterMrmr = declareFilterCPO("mrmr") # nolint  #  missing parameters
+registerCPO(cpoFilterMrmr, "featurefilter", "specialised", "Filter features using 'minimum redundancy, maximum relevance'.")
 
 #' @title Filter Features: \dQuote{carscore}
 #'
