@@ -127,6 +127,18 @@ predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
   }
 }
 
+# Makes sure a valid 'BaseWrapperModel' is created even when CPO fails.
+# If CPO fails then we don't create a 'BaseWrapper' model.
+#' @export
+makeWrappedModel.CPOLearner = function(learner, learner.model, task.desc, subset = NULL, features, factor.levels, time) {
+  x = NextMethod()
+  if ("FailureModel" %in% class(x)) {
+    class(x) = setdiff(class(x), "BaseWrapperModel")
+  }
+  x
+}
+
+
 #' @export
 # Target Bound CPOs have the possibility of mapping some predict.type values
 # of a wrapped learner to different predict.type values of the base learner.
