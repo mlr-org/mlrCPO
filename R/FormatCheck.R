@@ -1233,7 +1233,10 @@ recombinedf = function(df, newdata, dataformat = c("df.features", "split", "df.a
   if (nrow(df) != nrow(newdata)) {
     stopf("CPO %s must not change number of rows.", name)
   }
-  outsetcols = dropNamed(df, targetcols)[-subset.index]
+  outsetcols = dropNamed(df, targetcols)
+  if (length(subset.index)) {
+    outsetcols = outsetcols[-subset.index]
+  }
   fullnames = c(names(newdata), names(outsetcols), targetcols)
   dubs = duplicated(fullnames)
   if (any(dubs)) {
