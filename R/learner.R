@@ -116,7 +116,7 @@ predictLearner.CPOLearner = function(.learner, .model, .newdata, ...) {
   } else {
     inverter = NULLCPO
   }
-  prediction = NextMethod(.newdata = .newdata)
+  prediction = NextMethod()
   if (!is.nullcpo(inverter)) {
     # check prediction before we feed it to CPOs
     prediction = checkPredictLearnerOutput(.learner$next.learner, .model$learner.model$next.model, prediction)
