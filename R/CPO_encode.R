@@ -164,10 +164,13 @@ registerCPO(cpoImpactEncodeRegr, "data", "feature conversion", "Convert factoria
 #'   If \dQuote{reference.cat} is \code{TRUE}, the first level of every factor column
 #'   is taken as the reference category and the encoding is \code{c(0, 0, 0, ...)}.
 #'   If this is \code{FALSE}, the encoding is always one-hot-encoding. Default is \code{FALSE}.
+#' @param infixdot [\code{logical}]\cr
+#'   Whether to add an infix dot when creating names. This is nicer in some ways, but is
+#'   not compatible with model.matrix.
 #' @template cpo_doc_outro
 #' @export
 cpoDummyEncode = makeCPO("dummyencode",  # nolint
-  pSS(reference.cat = FALSE: logical),
+  pSS(reference.cat = FALSE: logical, infixdot = FALSE: logical),
   dataformat = "df.features",
   properties.needed = "numerics",
   properties.adding = c("factors", "ordered"),
@@ -175,12 +178,20 @@ cpoDummyEncode = makeCPO("dummyencode",  # nolint
     lapply(data, levels)
   },
   cpo.retrafo = {
+    if (!length(data)) {
+      return(data)
+    }
+    if (infixdot) {
+      idot = "."
+    } else {
+      idot = ""
+    }
     lvls = control
     datas = lapply(names(data), function(d) {
       if (is.factor(data[[d]])) {
         df = do.call(data.frame, lapply(lvls[[d]], function(l)
           as.integer(data[[d]] == l)))
-        names(df) = paste0(d, lvls[[d]])
+        names(df) = paste0(d, idot, lvls[[d]])
         if (reference.cat) {
           # check that no unknown factors occurred
           cleand = data[[d]][!is.na(data[[d]])]
