@@ -156,7 +156,7 @@ prepareRetrafoInput = function(indata, dataformat, strict.factors, allowed.prope
     private = list(tempdata = split.data$tempdata, subset.index = subset.info$subset.index,
       origdata = origdata, dataformat = dataformat, strict.factors = strict.factors,
       name = name, operating.type = operating.type, origdatatype = origdatatype,
-      targetnames = names(target)))
+      targetnames = names(target) %??% character(0)))
 }
 
 # Do the check of the trafo's return value
