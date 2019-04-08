@@ -4,17 +4,22 @@
 \alias{cpoDummyEncode}
 \title{CPO Dummy Encoder}
 \usage{
-cpoDummyEncode(reference.cat = FALSE, id, export = "export.default",
-  affect.type = NULL, affect.index = integer(0),
-  affect.names = character(0), affect.pattern = NULL,
-  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
-  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+cpoDummyEncode(reference.cat = FALSE, infixdot = FALSE, id,
+  export = "export.default", affect.type = NULL,
+  affect.index = integer(0), affect.names = character(0),
+  affect.pattern = NULL, affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE, affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE)
 }
 \arguments{
 \item{reference.cat}{[\code{logical}]\cr
 If \dQuote{reference.cat} is \code{TRUE}, the first level of every factor column
 is taken as the reference category and the encoding is \code{c(0, 0, 0, ...)}.
 If this is \code{FALSE}, the encoding is always one-hot-encoding. Default is \code{FALSE}.}
+
+\item{infixdot}{[\code{logical}]\cr
+Whether to add an infix dot when creating names. This is nicer in some ways, but is
+not compatible with model.matrix.}
 
 \item{id}{[\code{character(1)}]\cr
 id to use as prefix for the CPO's hyperparameters. this
