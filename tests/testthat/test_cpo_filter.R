@@ -2,6 +2,7 @@ context("cpo filter")
 
 
 test_that("filterFeatures default test", {
+  testthat::skip_on_cran()
   # Loop through all filters
   filter.list = listFilterMethods(desc = FALSE, tasks = TRUE, features = FALSE)
   filter.list.classif = as.character(filter.list$id)[filter.list$task.classif]
