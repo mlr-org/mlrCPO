@@ -52,7 +52,7 @@ Suggests:
     rex
 LazyData: yes
 ByteCompile: yes
-Version: 0.3.4-3
+Version: 0.3.4-4
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'
