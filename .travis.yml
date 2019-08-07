@@ -23,7 +23,7 @@ r_github_packages:
 #  - berndbischl/BBmisc
 #  - berndbischl/ParamHelpers
 #  - mlr-org/mlr
-  - jimhester/lintr
+  - jimhester/lintr@e65804d5fa477da63be35
   - r-lib/covr
 
 before_install:
