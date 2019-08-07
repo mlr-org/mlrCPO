@@ -31,8 +31,8 @@ test_that("cpoMakeCols behaves as expected", {
 
   expect_identical(clearRI(indat %>>% cpoMakeCols(x = TRUE, y = c("a", "b"))), data.frame(x = factor(rep(TRUE, 6)), y = factor(rep(c("a", "b"), 3))))
 
-  expect_identical(clearRI(indat %>>% cpoMakeCols()), unname(indat[character(0)]))
-  expect_identical(clearRI(indat %>>% cpoAddCols()), indat)
+  expect_identical(unname(clearRI(indat %>>% cpoMakeCols())), unname(indat[character(0)]))
+  expect_identical(unname(clearRI(indat %>>% cpoAddCols())), unname(indat))
 
   expect_identical(getTaskData(pid.task %>>% cpoMakeCols()), pd[trg])
   expect_equal(clearRI(pid.task %>>% cpoAddCols()), pid.task)
