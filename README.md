@@ -109,7 +109,7 @@ To get familiar with `mlrCPO`, it is recommended that you read the **vignettes**
 2. [mlrCPO Core](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_2_mlrCPO_core.html): Description of general tools for `CPO` handling ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_2_mlrCPO_core_terse.html)).
 3. [Builtin CPOs](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_3_all_CPOs.html): Listing and description of all builtin `CPO`s ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_3_all_CPOs_terse.html)).
 4. [Custom CPOs](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/a_4_custom_CPOs.html): How to create your own `CPO`s. ([compact version](https://rawgit.com/mlr-org/mlrCPO/master/inst/doc/z_4_custom_CPOs_terse.html)).
-5. [CPO Internals](info/developers.md): A small intro guide for developers into the code base. See the `info` directory for pdf / html versions.
+5. [CPO Internals](https://github.com/mlr-org/mlrCPO/blob/master/info/developers.md): A small intro guide for developers into the code base. See the `info` directory for pdf / html versions.
 
 For more documentation of individual `mlrCPO` functions, use R's built-in `help()` functionality.
 
