@@ -70,7 +70,7 @@ If it is absent, the result is a normal \code{\link{Param}} or \code{\link{Learn
 the result is a \code{Vector(Learner)Param}. Note that a one-dimensional \code{Vector(Learner)Param}
 is distinct from a normal \code{(Learner)Param}.
 
-\bold{code{settings}} may be a collection of further settings to supply to \code{makeXXXParam}
+\bold{\code{settings}} may be a collection of further settings to supply to \code{makeXXXParam}
 and is optional. To specify one or more settings, put in double square brackets (\code{[[}, \code{]]}),
 and comma-separate settings if more than one is present.
 }
