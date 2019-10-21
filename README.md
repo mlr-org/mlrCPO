@@ -1,12 +1,13 @@
+# mlrCPO
+
+Composable Preprocessing Operators for [mlr](https://github.com/mlr-org/mlr).
+
+GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction.
+
 [![Build Status](https://travis-ci.org/mlr-org/mlrCPO.svg?branch=master)](https://travis-ci.org/mlr-org/mlrCPO)
 [![Coverage](https://codecov.io/github/mlr-org/mlrCPO/branch/master/graphs/badge.svg)](https://codecov.io/github/mlr-org/mlrCPO)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version/mlrCPO)](https://CRAN.R-project.org/package=mlrCPO)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/mlrCPO)](https://CRAN.R-project.org/package=mlrCPO)
-
-
-# mlrCPO: Composable Preprocessing Operators for [mlr](https://github.com/mlr-org/mlr)
-
-GSoC 2017 Project: Operator Based Machine Learning Pipeline Construction
 
 ## What is CPO?
 
