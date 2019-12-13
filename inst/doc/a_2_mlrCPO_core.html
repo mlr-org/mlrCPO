@@ -7,12 +7,13 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2019-03-14" />
+<meta name="date" content="2019-08-16" />
 
 <title>mlrCPO Core</title>
 
@@ -98,7 +99,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -305,7 +306,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">mlrCPO Core</h1>
 <h4 class="author">Martin Binder</h4>
-<h4 class="date">2019-03-14</h4>
+<h4 class="date">2019-08-16</h4>
 
 
 
@@ -433,15 +434,17 @@ Table of Contents
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; &lt;&lt;CPO as.numeric()&gt;&gt;</span></a>
 <a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; cpo.retrafo:</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; function(data) {</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;       as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) }</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; &lt;environment: namespace:mlrCPO&gt;</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw">class</span>(cpoAsNumeric)</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; [1] &quot;CPOConstructor&quot; &quot;function&quot;</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="kw">getCPOName</span>(cpoPca)  <span class="co"># same as getCPOName() of the *constructed* CPO</span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#&gt; [1] &quot;pca&quot;</span></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="kw">getCPOClass</span>(cpoPca)</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">#&gt; [1] &quot;CPOConstructor&quot;</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; function (data) </span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; {</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;     as.data.frame(lapply(data, as.numeric), row.names = rownames(data))</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt; }</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; &lt;environment: namespace:mlrCPO&gt;</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="kw">class</span>(cpoAsNumeric)</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co">#&gt; [1] &quot;CPOConstructor&quot; &quot;function&quot;</span></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="kw">getCPOName</span>(cpoPca)  <span class="co"># same as getCPOName() of the *constructed* CPO</span></a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">#&gt; [1] &quot;pca&quot;</span></a>
+<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="kw">getCPOClass</span>(cpoPca)</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17"><span class="co">#&gt; [1] &quot;CPOConstructor&quot;</span></a></code></pre></div>
 <p>The function parameters of a <code>CPOConstructor</code></p>
 <ul>
 <li>set the <code>CPO</code> Hyperparameters</li>
@@ -1184,6 +1187,9 @@ Table of Contents
 </ul>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

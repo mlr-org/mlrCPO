@@ -7,12 +7,13 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2019-03-14" />
+<meta name="date" content="2019-08-16" />
 
 <title>First Steps</title>
 
@@ -98,7 +99,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -305,12 +306,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">First Steps</h1>
 <h4 class="author">Martin Binder</h4>
-<h4 class="date">2019-03-14</h4>
+<h4 class="date">2019-08-16</h4>
 
 
 
 <div id="cpo-vignette-navigation" class="section level4">
 <h4>CPO Vignette Navigation</h4>
+<pre><code>## Loading required package: ParamHelpers</code></pre>
+<pre><code>## Loading required package: mlr</code></pre>
 <ol style="list-style-type: decimal">
 <li>First Steps (<a href="z_1_getting_started_terse.html">compact version</a>)</li>
 <li><a href="a_2_mlrCPO_core.html">mlrCPO Core</a> (<a href="z_2_mlrCPO_core_terse.html">compact version</a>)</li>
@@ -417,394 +420,394 @@ Table of Contents
 <div id="preprocessing-operations" class="section level2">
 <h2>Preprocessing Operations</h2>
 <p>At the centre of <code>mlrCPO</code> are “<code>CPO</code>” objects. To get a <code>CPO</code> object, it is necessary to call a <em>CPO Constructor</em>. A CPO Constructor sets up the parameters of a <code>CPO</code> and provides further options for its behaviour. Internally, CPO Constructors are <em>functions</em> that have a common interface and a friendly printer method.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">cpoScale  <span class="co"># a cpo constructor</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO scale(center = TRUE, scale = TRUE)&gt;&gt;</span></a></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">cpoAddCols</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO new.cols(..., .make.factors = TRUE)&gt;&gt;</span></a></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">cpoScale</span>(<span class="dt">center =</span> <span class="ot">FALSE</span>)  <span class="co"># create a CPO object that scales, but does not center, data</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; scale(center = FALSE, scale = TRUE)</span></a></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">cpoAddCols</span>(<span class="dt">Sepal.Area =</span> Sepal.Length <span class="op">*</span><span class="st"> </span>Sepal.Width)  <span class="co">#  this would add a column</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; new.cols()[not exp'd: expr = Sepal.Area=&lt;call&gt;, superceding.env = &lt;environment&gt;, make.factors = TRUE, add.cols = TRUE]</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">cpoScale  <span class="co"># a cpo constructor</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO scale(center = TRUE, scale = TRUE)&gt;&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">cpoAddCols</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO new.cols(..., .make.factors = TRUE)&gt;&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">cpoScale</span>(<span class="dt">center =</span> <span class="ot">FALSE</span>)  <span class="co"># create a CPO object that scales, but does not center, data</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; scale(center = FALSE, scale = TRUE)</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">cpoAddCols</span>(<span class="dt">Sepal.Area =</span> Sepal.Length <span class="op">*</span><span class="st"> </span>Sepal.Width)  <span class="co">#  this would add a column</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt; new.cols()[not exp'd: expr = Sepal.Area=&lt;call&gt;, superceding.env = &lt;environment&gt;, make.factors = TRUE, add.cols = TRUE]</span></a></code></pre></div>
 <p><code>CPO</code>s exist first to be <em>applied</em> to data. Every <code>CPO</code> represents a certain data transformation, and this transformation is performed when the <code>CPO</code> is applied. This can be done using the <strong><code>applyCPO</code></strong> function, or the <strong><code>%&gt;&gt;%</code></strong> operator. <code>CPO</code>s can be applied to <code>data.frame</code> objects, and to <code>mlr</code> “<code>Task</code>” objects.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>, <span class="dv">103</span>), ]</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">tail</span>(iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>())  <span class="co"># bin the data in below &amp; above median</span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; 2     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt; 3     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; 51    (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (-Inf,1.4] versicolor</span></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; 52    (5.8, Inf]  (-Inf,3.2]   (-Inf,4.5]  (1.4, Inf] versicolor</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt; 102   (-Inf,5.8]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt; 103   (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">iris.demo =<span class="st"> </span>iris[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">51</span>, <span class="dv">52</span>, <span class="dv">102</span>, <span class="dv">103</span>), ]</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">tail</span>(iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>())  <span class="co"># bin the data in below &amp; above median</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; 2     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; 3     (-Inf,5.8]  (-Inf,3.2]   (-Inf,4.5]  (-Inf,1.4]     setosa</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; 51    (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (-Inf,1.4] versicolor</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; 52    (5.8, Inf]  (-Inf,3.2]   (-Inf,4.5]  (1.4, Inf] versicolor</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; 102   (-Inf,5.8]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; 103   (5.8, Inf]  (-Inf,3.2]   (4.5, Inf]  (1.4, Inf]  virginica</span></a></code></pre></div>
 <p>A useful feature of <code>CPO</code>s is that they can be concatenated to form new operations. Two <code>CPO</code>s can be combined using the <strong><code>composeCPO</code></strong> function or, as before, the <strong><code>%&gt;&gt;%</code></strong> operator. When two <code>CPO</code>s are combined, the product is a new <code>CPO</code> that can itself be composed or applied. The result of a composition represents the operation of first applying the first <code>CPO</code> and then the second <code>CPO</code>. Therefore, <code>data %&gt;&gt;% (cpo1 %&gt;&gt;% cpo2)</code> is the same as <code>(data %&gt;&gt;% cpo1) %&gt;&gt;% cpo2</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># first create three quantile bins, then as.numeric() all columns to</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co"># get 1, 2 or 3 as the bin number</span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">quantilenum =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoAsNumeric</span>()</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; 1              1           3            1           1       1</span></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; 2              1           1            1           1       1</span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; 3              1           2            1           1       1</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt; 51             3           2            2           2       2</span></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; 52             2           2            2           2       2</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt; 102            2           1            3           3       3</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt; 103            3           1            3           3       3</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># first create three quantile bins, then as.numeric() all columns to</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co"># get 1, 2 or 3 as the bin number</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">quantilenum =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoAsNumeric</span>()</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt; 1              1           3            1           1       1</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; 2              1           1            1           1       1</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt; 3              1           2            1           1       1</span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt; 51             3           2            2           2       2</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt; 52             2           2            2           2       2</span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt; 102            2           1            3           3       3</span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt; 103            3           1            3           3       3</span></a></code></pre></div>
 <p>The last example shows that it is sometimes not a good idea to have a <code>CPO</code> affect the whole dataset. Therefore, when a <code>CPO</code> is created, it is possible to choose what columns the <code>CPO</code> should affect. The CPO Constructor has a variety of parameters, starting with <code>affect.</code>, that can be used to choose what columns the <code>CPO</code> operates on. To prevent <code>cpoAsNumeric</code> from influencing the <code>Species</code> column, we can thus do</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">quantilenum.restricted =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) <span class="op">%&gt;&gt;%</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw">cpoAsNumeric</span>(<span class="dt">affect.names =</span> <span class="st">&quot;Species&quot;</span>, <span class="dt">affect.invert =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum.restricted</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; 1              1           3            1           1     setosa</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; 2              1           1            1           1     setosa</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; 3              1           2            1           1     setosa</span></a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; 51             3           2            2           2 versicolor</span></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; 52             2           2            2           2 versicolor</span></a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; 102            2           1            3           3  virginica</span></a>
-<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; 103            3           1            3           3  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">quantilenum.restricted =<span class="st"> </span><span class="kw">cpoQuantileBinNumerics</span>(<span class="dt">numsplits =</span> <span class="dv">3</span>) <span class="op">%&gt;&gt;%</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw">cpoAsNumeric</span>(<span class="dt">affect.names =</span> <span class="st">&quot;Species&quot;</span>, <span class="dt">affect.invert =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum.restricted</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; 1              1           3            1           1     setosa</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt; 2              1           1            1           1     setosa</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; 3              1           2            1           1     setosa</span></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt; 51             3           2            2           2 versicolor</span></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt; 52             2           2            2           2 versicolor</span></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt; 102            2           1            3           3  virginica</span></a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt; 103            3           1            3           3  virginica</span></a></code></pre></div>
 <p>A more convenient method in this case, however, is to use an <code>mlr</code> “<code>Task</code>”, which keeps track of the target column. “Feature Operation” <code>CPO</code>s (as all the ones shown) do not influence the target column.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">demo.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Species&quot;</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">result =<span class="st"> </span>demo.task <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">getTaskData</span>(result)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; 1              1           3            1           1     setosa</span></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#&gt; 2              1           1            1           1     setosa</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#&gt; 3              1           2            1           1     setosa</span></a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt; 51             3           2            2           2 versicolor</span></a>
-<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt; 52             2           2            2           2 versicolor</span></a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt; 102            2           1            3           3  virginica</span></a>
-<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt; 103            3           1            3           3  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">demo.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Species&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">result =<span class="st"> </span>demo.task <span class="op">%&gt;&gt;%</span><span class="st"> </span>quantilenum</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">getTaskData</span>(result)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; 1              1           3            1           1     setosa</span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt; 2              1           1            1           1     setosa</span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt; 3              1           2            1           1     setosa</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co">#&gt; 51             3           2            2           2 versicolor</span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co">#&gt; 52             2           2            2           2 versicolor</span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#&gt; 102            2           1            3           3  virginica</span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co">#&gt; 103            3           1            3           3  virginica</span></a></code></pre></div>
 </div>
 <div id="hyperparameters" class="section level2">
 <h2>Hyperparameters</h2>
 <p>When performing preprocessing, it is sometimes necessary to change a small aspect of a long preprocessing pipeline. Instead of having to re-construct the whole pipeline, <code>mlrCPO</code> offers the possibility to change <em>hyperparameters</em> of a <code>CPO</code>. This makes it very easy e.g. for tuning of preprocessing in combination with a machine learning algorithm.</p>
 <p>Hyperparameters of <code>CPO</code>s can be manipulated in the same way as they are manipulated for <code>Learners</code> in <code>mlr</code>, using <strong><code>getParamSet</code></strong> (to list the parameters), <strong><code>getHyperPars</code></strong> (to list the parameter values), and <strong><code>setHyperPars</code></strong> (to change these values). To get the parameter set of a <code>CPO</code>, it is also possible to use <strong>verbose printing</strong> using the <code>!</code> (exclamation mark) operator.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">cpo</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">getHyperPars</span>(cpo)  <span class="co"># list of parameter names and values</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; $scale.center</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; $scale.scale</span></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">getParamSet</span>(cpo)  <span class="co"># more detailed view of parameters and their type / range</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="op">!</span>cpo  <span class="co"># equivalent to print(cpo, verbose = TRUE)</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">cpo</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">getHyperPars</span>(cpo)  <span class="co"># list of parameter names and values</span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; $scale.center</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt; $scale.scale</span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">getParamSet</span>(cpo)  <span class="co"># more detailed view of parameters and their type / range</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="op">!</span>cpo  <span class="co"># equivalent to print(cpo, verbose = TRUE)</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a></code></pre></div>
 <p><code>CPO</code>s use copy semantics, therefore <code>setHyperPars</code> creates a copy of a <code>CPO</code> that has the changed hyperparameters.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">cpo2 =<span class="st"> </span><span class="kw">setHyperPars</span>(cpo, <span class="dt">scale.scale =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">cpo2</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = FALSE)</span></a></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo  <span class="co"># scales and centers</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541   -1.0268892  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123   -1.0268892  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343   -1.0764631  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343    0.6090515   0.3874815 versicolor</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343    0.5099036   0.5054106 versicolor</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322    0.8073474   0.9771273  virginica</span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123    1.2039390   1.2129856  virginica</span></a></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo2 <span class="co"># only centers</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt; 1    -0.75714286  0.38571429    -2.071429  -0.8714286     setosa</span></a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co">#&gt; 2    -0.95714286 -0.11428571    -2.071429  -0.8714286     setosa</span></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; 3    -1.15714286  0.08571429    -2.171429  -0.8714286     setosa</span></a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; 51    1.14285714  0.08571429     1.228571   0.3285714 versicolor</span></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt; 52    0.54285714  0.08571429     1.028571   0.4285714 versicolor</span></a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; 102  -0.05714286 -0.41428571     1.628571   0.8285714  virginica</span></a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; 103   1.24285714 -0.11428571     2.428571   1.0285714  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">cpo2 =<span class="st"> </span><span class="kw">setHyperPars</span>(cpo, <span class="dt">scale.scale =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">cpo2</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = FALSE)</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo  <span class="co"># scales and centers</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541   -1.0268892  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123   -1.0268892  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343   -1.0764631  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343    0.6090515   0.3874815 versicolor</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343    0.5099036   0.5054106 versicolor</span></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322    0.8073474   0.9771273  virginica</span></a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123    1.2039390   1.2129856  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo2 <span class="co"># only centers</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co">#&gt; 1    -0.75714286  0.38571429    -2.071429  -0.8714286     setosa</span></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="co">#&gt; 2    -0.95714286 -0.11428571    -2.071429  -0.8714286     setosa</span></a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="co">#&gt; 3    -1.15714286  0.08571429    -2.171429  -0.8714286     setosa</span></a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="co">#&gt; 51    1.14285714  0.08571429     1.228571   0.3285714 versicolor</span></a>
+<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt; 52    0.54285714  0.08571429     1.028571   0.4285714 versicolor</span></a>
+<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co">#&gt; 102  -0.05714286 -0.41428571     1.628571   0.8285714  virginica</span></a>
+<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="co">#&gt; 103   1.24285714 -0.11428571     2.428571   1.0285714  virginica</span></a></code></pre></div>
 <p>When chaining many <code>CPO</code>s, it is possible for the many hyperparameters to lead to very cluttered <code>ParamSet</code>s, or even for hyperparameter names to clash. <code>mlrCPO</code> has two remedies for that.</p>
 <p>First, any <code>CPO</code> also has an <strong><code>id</code></strong> that is always prepended to the hyperparameter names. It can be set during construction, using the <code>id</code> parameter, or changed later using <code>setCPOId</code>. The latter one only works on primitive, i.e. not compound, <code>CPO</code>s. Set the <code>id</code> to <code>NULL</code> to use the <code>CPO</code>’s hyperparameters without a prefix.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;a&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;b&quot;</span>)  <span class="co"># not very useful example</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw">getHyperPars</span>(cpo)</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">#&gt; $a.center</span></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">#&gt; $a.scale</span></a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co">#&gt; $b.center</span></a>
-<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb16-12" data-line-number="12"><span class="co">#&gt; $b.scale</span></a>
-<a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;a&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;b&quot;</span>)  <span class="co"># not very useful example</span></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw">getHyperPars</span>(cpo)</a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="co">#&gt; $a.center</span></a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co">#&gt; $a.scale</span></a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co">#&gt; $b.center</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co">#&gt; $b.scale</span></a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
 <p>The second remedy against hyperparameter clashes is different “exports” of hyperparameters: The hyperparameters that can be changed using <code>setHyperPars</code>, i.e. that are <em>exported</em> by a <code>CPO</code>, are a subset of the parameters of the <code>CPOConstructor</code>. For each kind of <code>CPO</code>, there is a standard set of parameters that are exported, but during construction, it is possible to influence the parameters that actually get exported via the <code>export</code> parameter. <code>export</code> can be one of a set of standard export settings (among them “<code>export.all</code>” and “<code>export.none</code>”) or a <code>character</code> vector of the parameters to export.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;rank&quot;</span>))</a>
-<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw">getParamSet</span>(cpo)</a>
-<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co">#&gt;               Type len    Def   Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="co">#&gt; pca.center logical   -   TRUE        -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="co">#&gt; pca.rank   integer   - &lt;NULL&gt; 1 to Inf   -    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;rank&quot;</span>))</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw">getParamSet</span>(cpo)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="co">#&gt;               Type len    Def   Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="co">#&gt; pca.center logical   -   TRUE        -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="co">#&gt; pca.rank   integer   - &lt;NULL&gt; 1 to Inf   -    TRUE     -</span></a></code></pre></div>
 </div>
 <div id="retrafo" class="section level2">
 <h2>Retrafo</h2>
 <p>Manipulating data for preprocessing itself is relatively easy. A challenge comes when one wants to integrate preprocessing into a machine-learning pipeline: The same preprocessing steps that are performed on the training data need to be performed on the new prediction data. However, the transformation performed for prediction often needs information from the training step. For example, if training entail performing PCA, then for prediction, the data must not undergo another PCA, instead it needs to be rotated by the <em>rotation matrix</em> found by the training PCA. The process of obtaining the rotation matrix will be called “training” the <code>CPO</code>, and the object that contains the trained information is called <code>CPOTrained</code>. For preprocessing operations that operate only on <em>features</em> of a task (as opposed to the target column), the <code>CPOTrained</code> will always be applied to new incoming data, and hence be of class <code>CPORetrafo</code> and called a “<strong>retrafo</strong>” object. To obtain this retrafo object, one can use <strong><code>retrafo()</code></strong>. Retrafo objects can be applied to data just as <code>CPO</code>s can, by using the <code>%&gt;&gt;%</code> operator.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">transformed =<span class="st"> </span>iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">transformed</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="co">#&gt;        Species       PC1         PC2         PC3</span></a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span></a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403</span></a>
-<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477</span></a>
-<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449</span></a>
-<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907</span></a>
-<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707</span></a></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2">ret</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)]</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">transformed =<span class="st"> </span>iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">transformed</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co">#&gt;        Species       PC1         PC2         PC3</span></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span></a>
+<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403</span></a>
+<a class="sourceLine" id="cb20-7" data-line-number="7"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477</span></a>
+<a class="sourceLine" id="cb20-8" data-line-number="8"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449</span></a>
+<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907</span></a>
+<a class="sourceLine" id="cb20-10" data-line-number="10"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707</span></a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">ret</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)]</span></a></code></pre></div>
 <p>To show that <code>ret</code> actually represents the exact same preprocessing operation, we can feed the first line of <code>iris.demo</code> back to it, to verify that the transformation is the same.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">iris.demo[<span class="dv">1</span>, ] <span class="op">%&gt;&gt;%</span><span class="st"> </span>ret</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="co">#&gt;   Species       PC1        PC2       PC3</span></a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co">#&gt; 1  setosa -2.380452 -0.2754891 0.1725646</span></a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">iris.demo[<span class="dv">1</span>, ] <span class="op">%&gt;&gt;%</span><span class="st"> </span>ret</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="co">#&gt;   Species       PC1        PC2       PC3</span></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="co">#&gt; 1  setosa -2.380452 -0.2754891 0.1725646</span></a></code></pre></div>
 <p>We obviously would not have gotten there by feeding the first line to <code>cpoPca</code> directly:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">iris.demo[<span class="dv">1</span>, ] <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="co">#&gt;   Species PC1</span></a>
-<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co">#&gt; 1  setosa   0</span></a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">iris.demo[<span class="dv">1</span>, ] <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">rank =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="co">#&gt;   Species PC1</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="co">#&gt; 1  setosa   0</span></a></code></pre></div>
 <p><code>CPOTrained</code> objects associated with an object are automatically chained when another <code>CPO</code> is applied. To prevent this from happening, it is necessary to “clear” the retrafos and <a href="#inverter">inverters</a> associated with the object using <strong><code>clearRI()</code></strong>.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">t2 =<span class="st"> </span>transformed <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="kw">retrafo</span>(t2)</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)] =&gt;</span></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5"><span class="co">#&gt; [RETRAFO scale(center = TRUE, scale = TRUE)]</span></a></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">t3 =<span class="st"> </span><span class="kw">clearRI</span>(transformed) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw">retrafo</span>(t3)</a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
-<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="co">#&gt; [RETRAFO scale(center = TRUE, scale = TRUE)]</span></a></code></pre></div>
-<p>Note that <code>clearRI</code> has no influence on the <code>CPO</code> operations themselves, and the resulting data is the same:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">all.equal</span>(t2, t3, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
-<p>It is also possible to chain <code>CPOTrained</code> object using <code>composeCPO()</code> or <code>%&gt;&gt;%</code>. This can be useful if the trafo chain loses access to the <code>retrafo</code> attribute for some reason. In general, it is only recommended to compose <code>CPOTrained</code> objects that were created in the same process and in correct order, since they are usually closely associated with the training data in a particular place within the preprocessing chain.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">retrafo</span>(transformed) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(t3)  <span class="co"># is the same as retrafo(t2) above.</span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="co">#&gt; CPO Retrafo chain</span></a>
-<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)] =&gt;</span></a>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">t2 =<span class="st"> </span>transformed <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="kw">retrafo</span>(t2)</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)] =&gt;</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="co">#&gt; [RETRAFO scale(center = TRUE, scale = TRUE)]</span></a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">t3 =<span class="st"> </span><span class="kw">clearRI</span>(transformed) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw">retrafo</span>(t3)</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="co">#&gt; CPO Retrafo chain</span></a>
 <a class="sourceLine" id="cb25-4" data-line-number="4"><span class="co">#&gt; [RETRAFO scale(center = TRUE, scale = TRUE)]</span></a></code></pre></div>
+<p>Note that <code>clearRI</code> has no influence on the <code>CPO</code> operations themselves, and the resulting data is the same:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">all.equal</span>(t2, t3, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
+<p>It is also possible to chain <code>CPOTrained</code> object using <code>composeCPO()</code> or <code>%&gt;&gt;%</code>. This can be useful if the trafo chain loses access to the <code>retrafo</code> attribute for some reason. In general, it is only recommended to compose <code>CPOTrained</code> objects that were created in the same process and in correct order, since they are usually closely associated with the training data in a particular place within the preprocessing chain.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">retrafo</span>(transformed) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(t3)  <span class="co"># is the same as retrafo(t2) above.</span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="co">#&gt; CPO Retrafo chain</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="co">#&gt; [RETRAFO pca(center = TRUE, scale = FALSE)] =&gt;</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="co">#&gt; [RETRAFO scale(center = TRUE, scale = TRUE)]</span></a></code></pre></div>
 </div>
 <div id="inverter" class="section level2">
 <h2>Inverter</h2>
 <p>So far only <code>CPO</code>s were introduced that change the feature columns of a <code>Task</code>. (“Feature Operation <code>CPO</code>s”–<em>FOCPO</em>s). There is another class of <code>CPO</code>s, “Target Operation <code>CPO</code>s” or <em>TOCPO</em>s, that can change a <code>Task</code>’s target columns.</p>
 <p>This comes at the cost of some complexity when performing prediction: Since the training data that was ultimately fed into a <code>Learner</code> had a transformed target column, the predictions made by the resulting model will not be directly comparable to the original target values. Consider <code>cpoLogTrafoRegr</code>, a <code>CPO</code> that log-transforms the target variable of a regression <code>Task</code>. The predictions made with a <code>Learner</code> on a log-transformed target variable will be in log-space and need to be exponentiated (or otherwise re-transformed). This inversion operation is represented by an “<strong>inverter</strong>” object that is attached to a transformation result similarly to a retrafo object, and can be obtained using the <strong><code>inverter()</code></strong> function. It is of class <code>CPOInverter</code>, a subclass of <code>CPOTrained</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">iris.regr =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>)</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2">iris.logd =<span class="st"> </span>iris.regr <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
-<a class="sourceLine" id="cb26-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="kw">getTaskData</span>(iris.logd)  <span class="co"># log-transformed target 'Petal.Width'</span></a>
-<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb26-6" data-line-number="6"><span class="co">#&gt; 1            5.1         3.5          1.4  -1.6094379     setosa</span></a>
-<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="co">#&gt; 2            4.9         3.0          1.4  -1.6094379     setosa</span></a>
-<a class="sourceLine" id="cb26-8" data-line-number="8"><span class="co">#&gt; 3            4.7         3.2          1.3  -1.6094379     setosa</span></a>
-<a class="sourceLine" id="cb26-9" data-line-number="9"><span class="co">#&gt; 51           7.0         3.2          4.7   0.3364722 versicolor</span></a>
-<a class="sourceLine" id="cb26-10" data-line-number="10"><span class="co">#&gt; 52           6.4         3.2          4.5   0.4054651 versicolor</span></a>
-<a class="sourceLine" id="cb26-11" data-line-number="11"><span class="co">#&gt; 102          5.8         2.7          5.1   0.6418539  virginica</span></a>
-<a class="sourceLine" id="cb26-12" data-line-number="12"><span class="co">#&gt; 103          7.1         3.0          5.9   0.7419373  virginica</span></a></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">inv =<span class="st"> </span><span class="kw">inverter</span>(iris.logd)  <span class="co"># inverter object</span></a>
-<a class="sourceLine" id="cb27-2" data-line-number="2">inv</a>
-<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="co">#&gt; CPO Inverter chain {type:regr} (able to predict 'response', 'se')</span></a>
-<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="co">#&gt; [INVERTER fun.apply.regr.target(){type:regr}]</span></a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">iris.regr =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="dt">data =</span> iris.demo, <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">iris.logd =<span class="st"> </span>iris.regr <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="kw">getTaskData</span>(iris.logd)  <span class="co"># log-transformed target 'Petal.Width'</span></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb28-6" data-line-number="6"><span class="co">#&gt; 1            5.1         3.5          1.4  -1.6094379     setosa</span></a>
+<a class="sourceLine" id="cb28-7" data-line-number="7"><span class="co">#&gt; 2            4.9         3.0          1.4  -1.6094379     setosa</span></a>
+<a class="sourceLine" id="cb28-8" data-line-number="8"><span class="co">#&gt; 3            4.7         3.2          1.3  -1.6094379     setosa</span></a>
+<a class="sourceLine" id="cb28-9" data-line-number="9"><span class="co">#&gt; 51           7.0         3.2          4.7   0.3364722 versicolor</span></a>
+<a class="sourceLine" id="cb28-10" data-line-number="10"><span class="co">#&gt; 52           6.4         3.2          4.5   0.4054651 versicolor</span></a>
+<a class="sourceLine" id="cb28-11" data-line-number="11"><span class="co">#&gt; 102          5.8         2.7          5.1   0.6418539  virginica</span></a>
+<a class="sourceLine" id="cb28-12" data-line-number="12"><span class="co">#&gt; 103          7.1         3.0          5.9   0.7419373  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">inv =<span class="st"> </span><span class="kw">inverter</span>(iris.logd)  <span class="co"># inverter object</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2">inv</a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="co">#&gt; CPO Inverter chain {type:regr} (able to predict 'response', 'se')</span></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="co">#&gt; [INVERTER fun.apply.regr.target(){type:regr}]</span></a></code></pre></div>
 <p>The inverter object is used by the <code>invert()</code> function that inverts the prediction made by a model trained on the transformed task, and re-transforms this prediction to fit the space of the original target data. The inverter object caches the “truth” of the data being inverted (<code>iris.logd</code>, in the example), so <code>invert</code> can give information on the truth of the inverted data.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">logmodel =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, iris.logd)</a>
-<a class="sourceLine" id="cb28-2" data-line-number="2">pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, iris.logd)  <span class="co"># prediction on the task itself</span></a>
-<a class="sourceLine" id="cb28-3" data-line-number="3">pred</a>
-<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="co">#&gt; Prediction: 7 observations</span></a>
-<a class="sourceLine" id="cb28-5" data-line-number="5"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb28-6" data-line-number="6"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb28-7" data-line-number="7"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb28-8" data-line-number="8"><span class="co">#&gt;     id      truth   response</span></a>
-<a class="sourceLine" id="cb28-9" data-line-number="9"><span class="co">#&gt; 1    1 -1.6094379 -1.6155677</span></a>
-<a class="sourceLine" id="cb28-10" data-line-number="10"><span class="co">#&gt; 2    2 -1.6094379 -1.6182648</span></a>
-<a class="sourceLine" id="cb28-11" data-line-number="11"><span class="co">#&gt; 3    3 -1.6094379 -1.5944813</span></a>
-<a class="sourceLine" id="cb28-12" data-line-number="12"><span class="co">#&gt; 51   4  0.3364722  0.3429698</span></a>
-<a class="sourceLine" id="cb28-13" data-line-number="13"><span class="co">#&gt; 52   5  0.4054651  0.3989676</span></a>
-<a class="sourceLine" id="cb28-14" data-line-number="14"><span class="co">#&gt; 102  6  0.6418539  0.6416087</span></a>
-<a class="sourceLine" id="cb28-15" data-line-number="15"><span class="co">#&gt; ... (#rows: 7, #cols: 3)</span></a></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">invert</span>(inv, pred)</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="co">#&gt; Prediction: 7 observations</span></a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="co">#&gt;     id truth  response</span></a>
-<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="co">#&gt; 1    1   0.2 0.1987778</span></a>
-<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="co">#&gt; 2    2   0.2 0.1982424</span></a>
-<a class="sourceLine" id="cb29-9" data-line-number="9"><span class="co">#&gt; 3    3   0.2 0.2030138</span></a>
-<a class="sourceLine" id="cb29-10" data-line-number="10"><span class="co">#&gt; 51   4   1.4 1.4091262</span></a>
-<a class="sourceLine" id="cb29-11" data-line-number="11"><span class="co">#&gt; 52   5   1.5 1.4902853</span></a>
-<a class="sourceLine" id="cb29-12" data-line-number="12"><span class="co">#&gt; 102  6   1.9 1.8995342</span></a>
-<a class="sourceLine" id="cb29-13" data-line-number="13"><span class="co">#&gt; ... (#rows: 7, #cols: 3)</span></a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">logmodel =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, iris.logd)</a>
+<a class="sourceLine" id="cb30-2" data-line-number="2">pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, iris.logd)  <span class="co"># prediction on the task itself</span></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3">pred</a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="co">#&gt; Prediction: 7 observations</span></a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb30-7" data-line-number="7"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb30-8" data-line-number="8"><span class="co">#&gt;     id      truth   response</span></a>
+<a class="sourceLine" id="cb30-9" data-line-number="9"><span class="co">#&gt; 1    1 -1.6094379 -1.6155677</span></a>
+<a class="sourceLine" id="cb30-10" data-line-number="10"><span class="co">#&gt; 2    2 -1.6094379 -1.6182648</span></a>
+<a class="sourceLine" id="cb30-11" data-line-number="11"><span class="co">#&gt; 3    3 -1.6094379 -1.5944813</span></a>
+<a class="sourceLine" id="cb30-12" data-line-number="12"><span class="co">#&gt; 51   4  0.3364722  0.3429698</span></a>
+<a class="sourceLine" id="cb30-13" data-line-number="13"><span class="co">#&gt; 52   5  0.4054651  0.3989676</span></a>
+<a class="sourceLine" id="cb30-14" data-line-number="14"><span class="co">#&gt; 102  6  0.6418539  0.6416087</span></a>
+<a class="sourceLine" id="cb30-15" data-line-number="15"><span class="co">#&gt; ... (#rows: 7, #cols: 3)</span></a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">invert</span>(inv, pred)</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="co">#&gt; Prediction: 7 observations</span></a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co">#&gt;     id truth  response</span></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="co">#&gt; 1    1   0.2 0.1987778</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="co">#&gt; 2    2   0.2 0.1982424</span></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9"><span class="co">#&gt; 3    3   0.2 0.2030138</span></a>
+<a class="sourceLine" id="cb31-10" data-line-number="10"><span class="co">#&gt; 51   4   1.4 1.4091262</span></a>
+<a class="sourceLine" id="cb31-11" data-line-number="11"><span class="co">#&gt; 52   5   1.5 1.4902853</span></a>
+<a class="sourceLine" id="cb31-12" data-line-number="12"><span class="co">#&gt; 102  6   1.9 1.8995342</span></a>
+<a class="sourceLine" id="cb31-13" data-line-number="13"><span class="co">#&gt; ... (#rows: 7, #cols: 3)</span></a></code></pre></div>
 <p>This procedure can also be done with new incoming data. In general, more than just the <code>cpoLogTrafoRegr</code> operation could be done on the <code>iris.regr</code> task in the example, so to perform the complete preprocessing <em>and</em> inversion, one needs to use the retrafo object as well. When applying the retrafo object, a new inverter object is generated, which is specific to the exact new data that was being retransformed:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">newdata =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="st">&quot;newiris&quot;</span>, iris[<span class="dv">7</span><span class="op">:</span><span class="dv">9</span>, ], <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>,</a>
-<a class="sourceLine" id="cb30-2" data-line-number="2">  <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># the retrafo does the same transformation(s) on newdata that were</span></a>
-<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="co"># done on the training data of the model, iris.logd. In general, this</span></a>
-<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="co"># could be more than just the target log transformation.</span></a>
-<a class="sourceLine" id="cb31-4" data-line-number="4">newdata.transformed =<span class="st"> </span>newdata <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(iris.logd)</a>
-<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="kw">getTaskData</span>(newdata.transformed)</a>
-<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
-<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="co">#&gt; 7          4.6         3.4          1.4   -1.203973  setosa</span></a>
-<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="co">#&gt; 8          5.0         3.4          1.5   -1.609438  setosa</span></a>
-<a class="sourceLine" id="cb31-9" data-line-number="9"><span class="co">#&gt; 9          4.4         2.9          1.4   -1.609438  setosa</span></a></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, newdata.transformed)</a>
-<a class="sourceLine" id="cb32-2" data-line-number="2">pred</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb32-6" data-line-number="6"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="co">#&gt;   id     truth  response</span></a>
-<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="co">#&gt; 7  1 -1.203973 -1.494340</span></a>
-<a class="sourceLine" id="cb32-9" data-line-number="9"><span class="co">#&gt; 8  2 -1.609438 -1.548810</span></a>
-<a class="sourceLine" id="cb32-10" data-line-number="10"><span class="co">#&gt; 9  3 -1.609438 -1.497037</span></a></code></pre></div>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co"># the inverter of the newly transformed data contains information specific</span></a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="co"># to the newly transformed data. In the current case, that is just the</span></a>
-<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="co"># new &quot;truth&quot; column for the new data.</span></a>
-<a class="sourceLine" id="cb33-4" data-line-number="4">inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.transformed)</a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="kw">invert</span>(inv.newdata, pred)</a>
-<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb33-8" data-line-number="8"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb33-9" data-line-number="9"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb33-10" data-line-number="10"><span class="co">#&gt;   id truth  response</span></a>
-<a class="sourceLine" id="cb33-11" data-line-number="11"><span class="co">#&gt; 7  1   0.3 0.2243966</span></a>
-<a class="sourceLine" id="cb33-12" data-line-number="12"><span class="co">#&gt; 8  2   0.2 0.2125006</span></a>
-<a class="sourceLine" id="cb33-13" data-line-number="13"><span class="co">#&gt; 9  3   0.2 0.2237922</span></a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">newdata =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="st">&quot;newiris&quot;</span>, iris[<span class="dv">7</span><span class="op">:</span><span class="dv">9</span>, ], <span class="dt">target =</span> <span class="st">&quot;Petal.Width&quot;</span>,</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2">  <span class="dt">fixup.data =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">check.data =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co"># the retrafo does the same transformation(s) on newdata that were</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="co"># done on the training data of the model, iris.logd. In general, this</span></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="co"># could be more than just the target log transformation.</span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">newdata.transformed =<span class="st"> </span>newdata <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(iris.logd)</a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="kw">getTaskData</span>(newdata.transformed)</a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="co">#&gt; 7          4.6         3.4          1.4   -1.203973  setosa</span></a>
+<a class="sourceLine" id="cb33-8" data-line-number="8"><span class="co">#&gt; 8          5.0         3.4          1.5   -1.609438  setosa</span></a>
+<a class="sourceLine" id="cb33-9" data-line-number="9"><span class="co">#&gt; 9          4.4         2.9          1.4   -1.609438  setosa</span></a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">pred =<span class="st"> </span><span class="kw">predict</span>(logmodel, newdata.transformed)</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2">pred</a>
+<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb34-6" data-line-number="6"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="co">#&gt;   id     truth  response</span></a>
+<a class="sourceLine" id="cb34-8" data-line-number="8"><span class="co">#&gt; 7  1 -1.203973 -1.494340</span></a>
+<a class="sourceLine" id="cb34-9" data-line-number="9"><span class="co">#&gt; 8  2 -1.609438 -1.548810</span></a>
+<a class="sourceLine" id="cb34-10" data-line-number="10"><span class="co">#&gt; 9  3 -1.609438 -1.497037</span></a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="co"># the inverter of the newly transformed data contains information specific</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="co"># to the newly transformed data. In the current case, that is just the</span></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="co"># new &quot;truth&quot; column for the new data.</span></a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.transformed)</a>
+<a class="sourceLine" id="cb35-5" data-line-number="5"><span class="kw">invert</span>(inv.newdata, pred)</a>
+<a class="sourceLine" id="cb35-6" data-line-number="6"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb35-7" data-line-number="7"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb35-8" data-line-number="8"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb35-9" data-line-number="9"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb35-10" data-line-number="10"><span class="co">#&gt;   id truth  response</span></a>
+<a class="sourceLine" id="cb35-11" data-line-number="11"><span class="co">#&gt; 7  1   0.3 0.2243966</span></a>
+<a class="sourceLine" id="cb35-12" data-line-number="12"><span class="co">#&gt; 8  2   0.2 0.2125006</span></a>
+<a class="sourceLine" id="cb35-13" data-line-number="13"><span class="co">#&gt; 9  3   0.2 0.2237922</span></a></code></pre></div>
 <div id="constant-inverters" class="section level3">
 <h3>Constant Inverters</h3>
 <p>The <code>cpoLogTrafoRegr</code> is a special case of TOCPO in that its inversion operation is <em>constant</em>: It does not depend on the new incoming data, so in theory it is not necessary to get a new inverter object for every piece of data that is being transformed. Therefore, it is possible to use the <em>retrafo</em> object for inversion in this case. However, the “truth” column will not be available in this case:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">invert</span>(<span class="kw">retrafo</span>(iris.logd), pred)</a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb34-6" data-line-number="6"><span class="co">#&gt;   id  response</span></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="co">#&gt; 7  1 0.2243966</span></a>
-<a class="sourceLine" id="cb34-8" data-line-number="8"><span class="co">#&gt; 8  2 0.2125006</span></a>
-<a class="sourceLine" id="cb34-9" data-line-number="9"><span class="co">#&gt; 9  3 0.2237922</span></a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">invert</span>(<span class="kw">retrafo</span>(iris.logd), pred)</a>
+<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb36-3" data-line-number="3"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb36-4" data-line-number="4"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb36-5" data-line-number="5"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb36-6" data-line-number="6"><span class="co">#&gt;   id  response</span></a>
+<a class="sourceLine" id="cb36-7" data-line-number="7"><span class="co">#&gt; 7  1 0.2243966</span></a>
+<a class="sourceLine" id="cb36-8" data-line-number="8"><span class="co">#&gt; 8  2 0.2125006</span></a>
+<a class="sourceLine" id="cb36-9" data-line-number="9"><span class="co">#&gt; 9  3 0.2237922</span></a></code></pre></div>
 <p>Whether a retrafo object is capable of performing inversion can be checked with the <strong><code>getCPOTrainedCapability()</code></strong> function. It returns a vector with named elements <code>&quot;retrafo&quot;</code> and <code>&quot;invert&quot;</code>, indicating whether a <code>CPOTrained</code> is capable of performing retrafo or inversion. A <code>1</code> indicates that the object can perform the action and has an effect, a <code>0</code> indicates that the action would have no effect (but also throws no error), and a <code>-1</code> means that the object is not capable of performing the action.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">getCPOTrainedCapability</span>(<span class="kw">retrafo</span>(iris.logd))  <span class="co"># can do both retrafo and inversion</span></a>
-<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="co">#&gt; retrafo  invert </span></a>
-<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="co">#&gt;       1       1</span></a></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">getCPOTrainedCapability</span>(inv)  <span class="co"># a pure inverter, can not be used for retrafo</span></a>
-<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="co">#&gt; retrafo  invert </span></a>
-<a class="sourceLine" id="cb36-3" data-line-number="3"><span class="co">#&gt;      -1       1</span></a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw">getCPOTrainedCapability</span>(<span class="kw">retrafo</span>(iris.logd))  <span class="co"># can do both retrafo and inversion</span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="co">#&gt; retrafo  invert </span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="co">#&gt;       1       1</span></a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">getCPOTrainedCapability</span>(inv)  <span class="co"># a pure inverter, can not be used for retrafo</span></a>
+<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="co">#&gt; retrafo  invert </span></a>
+<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="co">#&gt;      -1       1</span></a></code></pre></div>
 </div>
 <div id="general-inverters" class="section level3">
 <h3>General Inverters</h3>
 <p>As an example of a <code>CPO</code> that does not have a constant inverter, consider <code>cpoRegrResiduals</code>, wich fits a regression model on training data and returns the residuals of this fit. When performing prediction, the <code>invert</code> action is to add predictions by the <code>CPO</code>’s model to the incoming predictions made by a model trained on the residuals.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></a>
-<a class="sourceLine" id="cb37-2" data-line-number="2">iris.resid =<span class="st"> </span>iris.regr <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>)</a>
-<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="kw">getTaskData</span>(iris.resid)</a>
-<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length   Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb37-5" data-line-number="5"><span class="co">#&gt; 1            5.1         3.5          1.4  0.0086897922     setosa</span></a>
-<a class="sourceLine" id="cb37-6" data-line-number="6"><span class="co">#&gt; 2            4.9         3.0          1.4  0.0125133007     setosa</span></a>
-<a class="sourceLine" id="cb37-7" data-line-number="7"><span class="co">#&gt; 3            4.7         3.2          1.3 -0.0212030929     setosa</span></a>
-<a class="sourceLine" id="cb37-8" data-line-number="8"><span class="co">#&gt; 51           7.0         3.2          4.7 -0.0092111797 versicolor</span></a>
-<a class="sourceLine" id="cb37-9" data-line-number="9"><span class="co">#&gt; 52           6.4         3.2          4.5  0.0092111797 versicolor</span></a>
-<a class="sourceLine" id="cb37-10" data-line-number="10"><span class="co">#&gt; 102          5.8         2.7          5.1  0.0003475917  virginica</span></a>
-<a class="sourceLine" id="cb37-11" data-line-number="11"><span class="co">#&gt; 103          7.1         3.0          5.9 -0.0003475917  virginica</span></a></code></pre></div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">model.resid =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.randomForest&quot;</span>, iris.resid)</a>
-<a class="sourceLine" id="cb38-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb38-3" data-line-number="3">newdata.resid =<span class="st"> </span>newdata <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(iris.resid)</a>
-<a class="sourceLine" id="cb38-4" data-line-number="4"><span class="kw">getTaskData</span>(newdata.resid)  <span class="co"># Petal.Width are now the residuals of lm model predictions</span></a>
-<a class="sourceLine" id="cb38-5" data-line-number="5"><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
-<a class="sourceLine" id="cb38-6" data-line-number="6"><span class="co">#&gt; 7          4.6         3.4          1.4  -0.0883876  setosa</span></a>
-<a class="sourceLine" id="cb38-7" data-line-number="7"><span class="co">#&gt; 8          5.0         3.4          1.5  -0.1045896  setosa</span></a>
-<a class="sourceLine" id="cb38-8" data-line-number="8"><span class="co">#&gt; 9          4.4         2.9          1.4  -0.1845641  setosa</span></a></code></pre></div>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">pred =<span class="st"> </span><span class="kw">predict</span>(model.resid, newdata.resid)</a>
-<a class="sourceLine" id="cb39-2" data-line-number="2">pred</a>
-<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb39-6" data-line-number="6"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb39-7" data-line-number="7"><span class="co">#&gt;   id      truth      response</span></a>
-<a class="sourceLine" id="cb39-8" data-line-number="8"><span class="co">#&gt; 7  1 -0.0883876 -0.0013163703</span></a>
-<a class="sourceLine" id="cb39-9" data-line-number="9"><span class="co">#&gt; 8  2 -0.1045896  0.0029175514</span></a>
-<a class="sourceLine" id="cb39-10" data-line-number="10"><span class="co">#&gt; 9  3 -0.1845641 -0.0009788587</span></a></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="co"># transforming this prediction back to compare</span></a>
-<a class="sourceLine" id="cb40-2" data-line-number="2"><span class="co"># it to the original 'Petal.Width'</span></a>
-<a class="sourceLine" id="cb40-3" data-line-number="3">inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.resid)</a>
-<a class="sourceLine" id="cb40-4" data-line-number="4"><span class="kw">invert</span>(inv.newdata, pred)</a>
-<a class="sourceLine" id="cb40-5" data-line-number="5"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb40-6" data-line-number="6"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb40-7" data-line-number="7"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb40-8" data-line-number="8"><span class="co">#&gt; time: 0.00</span></a>
-<a class="sourceLine" id="cb40-9" data-line-number="9"><span class="co">#&gt;   id truth  response</span></a>
-<a class="sourceLine" id="cb40-10" data-line-number="10"><span class="co">#&gt; 7  1   0.3 0.3870712</span></a>
-<a class="sourceLine" id="cb40-11" data-line-number="11"><span class="co">#&gt; 8  2   0.2 0.3075072</span></a>
-<a class="sourceLine" id="cb40-12" data-line-number="12"><span class="co">#&gt; 9  3   0.2 0.3835852</span></a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></a>
+<a class="sourceLine" id="cb39-2" data-line-number="2">iris.resid =<span class="st"> </span>iris.regr <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>)</a>
+<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="kw">getTaskData</span>(iris.resid)</a>
+<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length   Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="co">#&gt; 1            5.1         3.5          1.4  0.0086897922     setosa</span></a>
+<a class="sourceLine" id="cb39-6" data-line-number="6"><span class="co">#&gt; 2            4.9         3.0          1.4  0.0125133007     setosa</span></a>
+<a class="sourceLine" id="cb39-7" data-line-number="7"><span class="co">#&gt; 3            4.7         3.2          1.3 -0.0212030929     setosa</span></a>
+<a class="sourceLine" id="cb39-8" data-line-number="8"><span class="co">#&gt; 51           7.0         3.2          4.7 -0.0092111797 versicolor</span></a>
+<a class="sourceLine" id="cb39-9" data-line-number="9"><span class="co">#&gt; 52           6.4         3.2          4.5  0.0092111797 versicolor</span></a>
+<a class="sourceLine" id="cb39-10" data-line-number="10"><span class="co">#&gt; 102          5.8         2.7          5.1  0.0003475917  virginica</span></a>
+<a class="sourceLine" id="cb39-11" data-line-number="11"><span class="co">#&gt; 103          7.1         3.0          5.9 -0.0003475917  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">model.resid =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.randomForest&quot;</span>, iris.resid)</a>
+<a class="sourceLine" id="cb40-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb40-3" data-line-number="3">newdata.resid =<span class="st"> </span>newdata <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(iris.resid)</a>
+<a class="sourceLine" id="cb40-4" data-line-number="4"><span class="kw">getTaskData</span>(newdata.resid)  <span class="co"># Petal.Width are now the residuals of lm model predictions</span></a>
+<a class="sourceLine" id="cb40-5" data-line-number="5"><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></a>
+<a class="sourceLine" id="cb40-6" data-line-number="6"><span class="co">#&gt; 7          4.6         3.4          1.4  -0.0883876  setosa</span></a>
+<a class="sourceLine" id="cb40-7" data-line-number="7"><span class="co">#&gt; 8          5.0         3.4          1.5  -0.1045896  setosa</span></a>
+<a class="sourceLine" id="cb40-8" data-line-number="8"><span class="co">#&gt; 9          4.4         2.9          1.4  -0.1845641  setosa</span></a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1">pred =<span class="st"> </span><span class="kw">predict</span>(model.resid, newdata.resid)</a>
+<a class="sourceLine" id="cb41-2" data-line-number="2">pred</a>
+<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb41-4" data-line-number="4"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb41-7" data-line-number="7"><span class="co">#&gt;   id      truth     response</span></a>
+<a class="sourceLine" id="cb41-8" data-line-number="8"><span class="co">#&gt; 7  1 -0.0883876 -0.001403442</span></a>
+<a class="sourceLine" id="cb41-9" data-line-number="9"><span class="co">#&gt; 8  2 -0.1045896  0.002960334</span></a>
+<a class="sourceLine" id="cb41-10" data-line-number="10"><span class="co">#&gt; 9  3 -0.1845641 -0.001075935</span></a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="co"># transforming this prediction back to compare</span></a>
+<a class="sourceLine" id="cb42-2" data-line-number="2"><span class="co"># it to the original 'Petal.Width'</span></a>
+<a class="sourceLine" id="cb42-3" data-line-number="3">inv.newdata =<span class="st"> </span><span class="kw">inverter</span>(newdata.resid)</a>
+<a class="sourceLine" id="cb42-4" data-line-number="4"><span class="kw">invert</span>(inv.newdata, pred)</a>
+<a class="sourceLine" id="cb42-5" data-line-number="5"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb42-6" data-line-number="6"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb42-7" data-line-number="7"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb42-8" data-line-number="8"><span class="co">#&gt; time: 0.00</span></a>
+<a class="sourceLine" id="cb42-9" data-line-number="9"><span class="co">#&gt;   id truth  response</span></a>
+<a class="sourceLine" id="cb42-10" data-line-number="10"><span class="co">#&gt; 7  1   0.3 0.3869842</span></a>
+<a class="sourceLine" id="cb42-11" data-line-number="11"><span class="co">#&gt; 8  2   0.2 0.3075500</span></a>
+<a class="sourceLine" id="cb42-12" data-line-number="12"><span class="co">#&gt; 9  3   0.2 0.3834882</span></a></code></pre></div>
 </div>
 </div>
 <div id="retrafoless-cpos" class="section level2">
 <h2>Retrafoless CPOs</h2>
 <p>Besides <em>FOCPO</em>s and <em>TOCPO</em>s, there are also “<em>Retrafoless</em>” <code>CPO</code>s (<em>ROCPO</em>s). These only perform operation in the training part of a machine learning pipeline, but in turn are the only <code>CPO</code>s that may change the number of rows in a dataset. The goal of ROCPOs is to change the number of data samples, but not to transform the data or target values themselves. Examples of ROCPOs are <code>cpoUndersample</code>, <code>cpoSmote</code>, and <code>cpoSample</code>.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1">sampled =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoSample</span>(<span class="dt">size =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb41-2" data-line-number="2">sampled</a>
-<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species</span></a>
-<a class="sourceLine" id="cb41-4" data-line-number="4"><span class="co">#&gt; 9            4.4         2.9          1.4         0.2    setosa</span></a>
-<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="co">#&gt; 147          6.3         2.5          5.0         1.9 virginica</span></a>
-<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="co">#&gt; 4            4.6         3.1          1.5         0.2    setosa</span></a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1">sampled =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoSample</span>(<span class="dt">size =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb43-2" data-line-number="2">sampled</a>
+<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="co">#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb43-4" data-line-number="4"><span class="co">#&gt; 27          5.0         3.4          1.6         0.4     setosa</span></a>
+<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="co">#&gt; 38          4.9         3.6          1.4         0.1     setosa</span></a>
+<a class="sourceLine" id="cb43-6" data-line-number="6"><span class="co">#&gt; 86          6.0         3.4          4.5         1.6 versicolor</span></a></code></pre></div>
 <p>There is no retrafo or inverter associated with the result. Instead, both of them are <a href="#nullcpo">NULLCPO</a></p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="kw">retrafo</span>(sampled)</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2"><span class="co">#&gt; NULLCPO</span></a>
-<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="kw">inverter</span>(sampled)</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4"><span class="co">#&gt; NULLCPO</span></a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw">retrafo</span>(sampled)</a>
+<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="co">#&gt; NULLCPO</span></a>
+<a class="sourceLine" id="cb44-3" data-line-number="3"><span class="kw">inverter</span>(sampled)</a>
+<a class="sourceLine" id="cb44-4" data-line-number="4"><span class="co">#&gt; NULLCPO</span></a></code></pre></div>
 </div>
 <div id="cpo-learners" class="section level2">
 <h2>CPO Learners</h2>
 <p>Until now, the <code>CPO</code>s have been invoked explicitly to manipulate data and get retrafo and inverter objects. It is good to be aware of the data flows in a machine learning process involving preprocessing, but <code>mlrCPO</code> makes it very easy to automatize this. It is possible to <em>attach</em> a <code>CPO</code> to a <code>Learner</code> using <strong><code>attachCPO</code></strong> or the <code>%&gt;&gt;%</code>-operator. When a <code>CPO</code> is attached to a <code>Learner</code>, a <code>CPOLearner</code> is created. The <code>CPOLearner</code> performs the preprocessing operation dictated by the <code>CPO</code> before training the underlying model, and stores and uses the retrafo and inverter objects necessary during prediction. It is possible to attach compound <code>CPO</code>s, and it is possible to attach further <code>CPO</code>s to a <code>CPOLearner</code> to extend the preprocessing pipeline. Exported hyperparamters of a <code>CPO</code> are also present in a <code>CPOLearner</code> and can be changed using <code>setHyperPars</code>, as usual with other <code>Learner</code> objects.</p>
 <p>Recreating the pipeline from <a href="#general-inverters">General Inverters</a> with a <code>CPOLearner</code> looks like the following. Note the prediction <code>pred</code> made in the end is identical with the one made above.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></a>
-<a class="sourceLine" id="cb43-2" data-line-number="2">lrn =<span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.randomForest&quot;</span>)</a>
-<a class="sourceLine" id="cb43-3" data-line-number="3">lrn</a>
-<a class="sourceLine" id="cb43-4" data-line-number="4"><span class="co">#&gt; Learner regr.randomForest.regr.residuals from package randomForest</span></a>
-<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="co">#&gt; Type: regr</span></a>
-<a class="sourceLine" id="cb43-6" data-line-number="6"><span class="co">#&gt; Name: ; Short name: </span></a>
-<a class="sourceLine" id="cb43-7" data-line-number="7"><span class="co">#&gt; Class: CPOLearner</span></a>
-<a class="sourceLine" id="cb43-8" data-line-number="8"><span class="co">#&gt; Properties: numerics,factors,oobpreds,featimp</span></a>
-<a class="sourceLine" id="cb43-9" data-line-number="9"><span class="co">#&gt; Predict-Type: response</span></a>
-<a class="sourceLine" id="cb43-10" data-line-number="10"><span class="co">#&gt; Hyperparameters: regr.residuals.crr.train.residuals=plain,regr.residuals.crr.resampling=&lt;CVDesc&gt;</span></a></code></pre></div>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1">model =<span class="st"> </span><span class="kw">train</span>(lrn, iris.regr)</a>
-<a class="sourceLine" id="cb44-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb44-3" data-line-number="3">pred =<span class="st"> </span><span class="kw">predict</span>(model, newdata)</a>
-<a class="sourceLine" id="cb44-4" data-line-number="4">pred</a>
-<a class="sourceLine" id="cb44-5" data-line-number="5"><span class="co">#&gt; Prediction: 3 observations</span></a>
-<a class="sourceLine" id="cb44-6" data-line-number="6"><span class="co">#&gt; predict.type: response</span></a>
-<a class="sourceLine" id="cb44-7" data-line-number="7"><span class="co">#&gt; threshold: </span></a>
-<a class="sourceLine" id="cb44-8" data-line-number="8"><span class="co">#&gt; time: 0.01</span></a>
-<a class="sourceLine" id="cb44-9" data-line-number="9"><span class="co">#&gt;   id truth  response</span></a>
-<a class="sourceLine" id="cb44-10" data-line-number="10"><span class="co">#&gt; 7  1   0.3 0.3870712</span></a>
-<a class="sourceLine" id="cb44-11" data-line-number="11"><span class="co">#&gt; 8  2   0.2 0.3075072</span></a>
-<a class="sourceLine" id="cb44-12" data-line-number="12"><span class="co">#&gt; 9  3   0.2 0.3835852</span></a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></a>
+<a class="sourceLine" id="cb45-2" data-line-number="2">lrn =<span class="st"> </span><span class="kw">cpoRegrResiduals</span>(<span class="st">&quot;regr.lm&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.randomForest&quot;</span>)</a>
+<a class="sourceLine" id="cb45-3" data-line-number="3">lrn</a>
+<a class="sourceLine" id="cb45-4" data-line-number="4"><span class="co">#&gt; Learner regr.randomForest.regr.residuals from package randomForest</span></a>
+<a class="sourceLine" id="cb45-5" data-line-number="5"><span class="co">#&gt; Type: regr</span></a>
+<a class="sourceLine" id="cb45-6" data-line-number="6"><span class="co">#&gt; Name: ; Short name: </span></a>
+<a class="sourceLine" id="cb45-7" data-line-number="7"><span class="co">#&gt; Class: CPOLearner</span></a>
+<a class="sourceLine" id="cb45-8" data-line-number="8"><span class="co">#&gt; Properties: numerics,factors,oobpreds,featimp</span></a>
+<a class="sourceLine" id="cb45-9" data-line-number="9"><span class="co">#&gt; Predict-Type: response</span></a>
+<a class="sourceLine" id="cb45-10" data-line-number="10"><span class="co">#&gt; Hyperparameters: regr.residuals.crr.train.residuals=plain,regr.residuals.crr.resampling=&lt;CVDesc&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1">model =<span class="st"> </span><span class="kw">train</span>(lrn, iris.regr)</a>
+<a class="sourceLine" id="cb46-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb46-3" data-line-number="3">pred =<span class="st"> </span><span class="kw">predict</span>(model, newdata)</a>
+<a class="sourceLine" id="cb46-4" data-line-number="4">pred</a>
+<a class="sourceLine" id="cb46-5" data-line-number="5"><span class="co">#&gt; Prediction: 3 observations</span></a>
+<a class="sourceLine" id="cb46-6" data-line-number="6"><span class="co">#&gt; predict.type: response</span></a>
+<a class="sourceLine" id="cb46-7" data-line-number="7"><span class="co">#&gt; threshold: </span></a>
+<a class="sourceLine" id="cb46-8" data-line-number="8"><span class="co">#&gt; time: 0.01</span></a>
+<a class="sourceLine" id="cb46-9" data-line-number="9"><span class="co">#&gt;   id truth  response</span></a>
+<a class="sourceLine" id="cb46-10" data-line-number="10"><span class="co">#&gt; 7  1   0.3 0.3869842</span></a>
+<a class="sourceLine" id="cb46-11" data-line-number="11"><span class="co">#&gt; 8  2   0.2 0.3075500</span></a>
+<a class="sourceLine" id="cb46-12" data-line-number="12"><span class="co">#&gt; 9  3   0.2 0.3834882</span></a></code></pre></div>
 <p>It is possible to get the retrafo object from a model trained with a <code>CPOLearner</code> using the <code>retrafo()</code> function. In this example, it is identical with the <code>retrafo(iris.resid)</code> gotten in the example in <a href="#general-inverters">General Inverters</a>.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">retrafo</span>(model)</a>
-<a class="sourceLine" id="cb45-2" data-line-number="2"><span class="co">#&gt; CPO Retrafo chain {type:regr}</span></a>
-<a class="sourceLine" id="cb45-3" data-line-number="3"><span class="co">#&gt; [RETRAFO regr.residuals(crr.train.residuals = plain, crr.resampling = &lt;CVDesc&gt;)]</span></a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">retrafo</span>(model)</a>
+<a class="sourceLine" id="cb47-2" data-line-number="2"><span class="co">#&gt; CPO Retrafo chain {type:regr}</span></a>
+<a class="sourceLine" id="cb47-3" data-line-number="3"><span class="co">#&gt; [RETRAFO regr.residuals(crr.train.residuals = plain, crr.resampling = &lt;CVDesc&gt;)]</span></a></code></pre></div>
 </div>
 <div id="cpo-tuning" class="section level2">
 <h2>CPO Tuning</h2>
 <p>Since the hyperparameters of a <code>CPO</code> are present in a <code>CPOLearner</code>, is possible to tune hyperparameters of preprocessing operations. It can be done using <code>mlr</code>’s <strong><code>tuneParams()</code></strong> function and works identically to tuning common <code>Learner</code>-parameters.</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1">icalrn =<span class="st"> </span><span class="kw">cpoIca</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)</a>
-<a class="sourceLine" id="cb46-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb46-3" data-line-number="3"><span class="kw">getParamSet</span>(icalrn)</a>
-<a class="sourceLine" id="cb46-4" data-line-number="4"><span class="co">#&gt;                 Type len      Def             Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb46-5" data-line-number="5"><span class="co">#&gt; ica.n.comp   integer   -   &lt;NULL&gt;           1 to Inf   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb46-6" data-line-number="6"><span class="co">#&gt; ica.alg.typ discrete   - parallel parallel,deflation   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb46-7" data-line-number="7"><span class="co">#&gt; ica.fun     discrete   -  logcosh        logcosh,exp   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb46-8" data-line-number="8"><span class="co">#&gt; ica.alpha    numeric   -        1             1 to 2   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb46-9" data-line-number="9"><span class="co">#&gt; model        logical   -     TRUE                  -   -   FALSE     -</span></a></code></pre></div>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1">ps =<span class="st"> </span><span class="kw">makeParamSet</span>(</a>
-<a class="sourceLine" id="cb47-2" data-line-number="2">    <span class="kw">makeIntegerParam</span>(<span class="st">&quot;ica.n.comp&quot;</span>, <span class="dt">lower =</span> <span class="dv">1</span>, <span class="dt">upper =</span> <span class="dv">8</span>),</a>
-<a class="sourceLine" id="cb47-3" data-line-number="3">    <span class="kw">makeDiscreteParam</span>(<span class="st">&quot;ica.alg.typ&quot;</span>, <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;parallel&quot;</span>, <span class="st">&quot;deflation&quot;</span>)))</a>
-<a class="sourceLine" id="cb47-4" data-line-number="4"><span class="co"># shorter version using pSS:</span></a>
-<a class="sourceLine" id="cb47-5" data-line-number="5"><span class="co"># ps = pSS(ica.n.comp: integer[1, 8], ica.alg.typ: discrete[parallel, deflation])</span></a></code></pre></div>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw">tuneParams</span>(icalrn, pid.task, cv5, <span class="dt">par.set =</span> ps,</a>
-<a class="sourceLine" id="cb48-2" data-line-number="2">  <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),</a>
-<a class="sourceLine" id="cb48-3" data-line-number="3">  <span class="dt">show.info =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb48-4" data-line-number="4"><span class="co">#&gt; Tune result:</span></a>
-<a class="sourceLine" id="cb48-5" data-line-number="5"><span class="co">#&gt; Op. pars: ica.n.comp=8; ica.alg.typ=deflation</span></a>
-<a class="sourceLine" id="cb48-6" data-line-number="6"><span class="co">#&gt; mmce.test.mean=0.2292675</span></a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1">icalrn =<span class="st"> </span><span class="kw">cpoIca</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)</a>
+<a class="sourceLine" id="cb48-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb48-3" data-line-number="3"><span class="kw">getParamSet</span>(icalrn)</a>
+<a class="sourceLine" id="cb48-4" data-line-number="4"><span class="co">#&gt;                 Type len      Def             Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb48-5" data-line-number="5"><span class="co">#&gt; ica.n.comp   integer   -   &lt;NULL&gt;           1 to Inf   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb48-6" data-line-number="6"><span class="co">#&gt; ica.alg.typ discrete   - parallel parallel,deflation   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb48-7" data-line-number="7"><span class="co">#&gt; ica.fun     discrete   -  logcosh        logcosh,exp   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb48-8" data-line-number="8"><span class="co">#&gt; ica.alpha    numeric   -        1             1 to 2   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb48-9" data-line-number="9"><span class="co">#&gt; model        logical   -     TRUE                  -   -   FALSE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1">ps =<span class="st"> </span><span class="kw">makeParamSet</span>(</a>
+<a class="sourceLine" id="cb49-2" data-line-number="2">    <span class="kw">makeIntegerParam</span>(<span class="st">&quot;ica.n.comp&quot;</span>, <span class="dt">lower =</span> <span class="dv">1</span>, <span class="dt">upper =</span> <span class="dv">8</span>),</a>
+<a class="sourceLine" id="cb49-3" data-line-number="3">    <span class="kw">makeDiscreteParam</span>(<span class="st">&quot;ica.alg.typ&quot;</span>, <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;parallel&quot;</span>, <span class="st">&quot;deflation&quot;</span>)))</a>
+<a class="sourceLine" id="cb49-4" data-line-number="4"><span class="co"># shorter version using pSS:</span></a>
+<a class="sourceLine" id="cb49-5" data-line-number="5"><span class="co"># ps = pSS(ica.n.comp: integer[1, 8], ica.alg.typ: discrete[parallel, deflation])</span></a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">tuneParams</span>(icalrn, pid.task, cv5, <span class="dt">par.set =</span> ps,</a>
+<a class="sourceLine" id="cb50-2" data-line-number="2">  <span class="dt">control =</span> <span class="kw">makeTuneControlGrid</span>(),</a>
+<a class="sourceLine" id="cb50-3" data-line-number="3">  <span class="dt">show.info =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb50-4" data-line-number="4"><span class="co">#&gt; Tune result:</span></a>
+<a class="sourceLine" id="cb50-5" data-line-number="5"><span class="co">#&gt; Op. pars: ica.n.comp=8; ica.alg.typ=deflation</span></a>
+<a class="sourceLine" id="cb50-6" data-line-number="6"><span class="co">#&gt; mmce.test.mean=0.2252355</span></a></code></pre></div>
 </div>
 <div id="syntactic-sugar" class="section level2">
 <h2>Syntactic Sugar</h2>
@@ -819,110 +822,112 @@ Table of Contents
 <h2>Inspecting CPOs</h2>
 <p>As described before, it is possible to <em>compose</em> <code>CPO</code>s to create relatively complex preprocessing pipelines. It is therefore necessary to have tools to inspect a <code>CPO</code> pipeline or related objects.</p>
 <p>The first line of attack when inspecting a <code>CPO</code> is always the <code>print</code> function. <code>print(x, verbose = TRUE)</code> will often print more information about a <code>CPO</code> than the ordinary print function. A shorthand alias for this is the exclamation point “<strong><code>!</code></strong>”. When verbosely printing a <code>CPOConstructor</code>, the transformation functions are shown. When verbosely printing a <code>CPO</code>, the constituent elements are separately printed, each showing their parameter sets.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1">cpoAsNumeric  <span class="co"># plain print</span></a>
-<a class="sourceLine" id="cb49-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO as.numeric()&gt;&gt;</span></a>
-<a class="sourceLine" id="cb49-3" data-line-number="3"><span class="op">!</span>cpoAsNumeric  <span class="co"># verbose print</span></a>
-<a class="sourceLine" id="cb49-4" data-line-number="4"><span class="co">#&gt; &lt;&lt;CPO as.numeric()&gt;&gt;</span></a>
-<a class="sourceLine" id="cb49-5" data-line-number="5"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb49-6" data-line-number="6"><span class="co">#&gt; cpo.retrafo:</span></a>
-<a class="sourceLine" id="cb49-7" data-line-number="7"><span class="co">#&gt; function(data) {</span></a>
-<a class="sourceLine" id="cb49-8" data-line-number="8"><span class="co">#&gt;       as.data.frame(lapply(data, as.numeric), row.names = rownames(data)) }</span></a>
-<a class="sourceLine" id="cb49-9" data-line-number="9"><span class="co">#&gt; &lt;environment: namespace:mlrCPO&gt;</span></a></code></pre></div>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>()  <span class="co"># plain print</span></a>
-<a class="sourceLine" id="cb50-2" data-line-number="2"><span class="co">#&gt; (scale &gt;&gt; ica)(scale.center = TRUE, scale.scale = TRUE, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1)</span></a>
-<a class="sourceLine" id="cb50-3" data-line-number="3"><span class="op">!</span><span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>()  <span class="co"># verbose print</span></a>
-<a class="sourceLine" id="cb50-4" data-line-number="4"><span class="co">#&gt; Trafo chain of 2 cpos:</span></a>
-<a class="sourceLine" id="cb50-5" data-line-number="5"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
-<a class="sourceLine" id="cb50-6" data-line-number="6"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb50-7" data-line-number="7"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb50-8" data-line-number="8"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb50-9" data-line-number="9"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb50-10" data-line-number="10"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb50-11" data-line-number="11"><span class="co">#&gt;   ====&gt;</span></a>
-<a class="sourceLine" id="cb50-12" data-line-number="12"><span class="co">#&gt; ica(n.comp = &lt;NULL&gt;, alg.typ = parallel, fun = logcosh, alpha = 1)[not exp'd: method = C, maxit = 200, tol = 0.0001, verbose = FALSE]</span></a>
-<a class="sourceLine" id="cb50-13" data-line-number="13"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb50-14" data-line-number="14"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb50-15" data-line-number="15"><span class="co">#&gt;                 Type len      Def             Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb50-16" data-line-number="16"><span class="co">#&gt; ica.n.comp   integer   -   &lt;NULL&gt;           1 to Inf   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb50-17" data-line-number="17"><span class="co">#&gt; ica.alg.typ discrete   - parallel parallel,deflation   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb50-18" data-line-number="18"><span class="co">#&gt; ica.fun     discrete   -  logcosh        logcosh,exp   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb50-19" data-line-number="19"><span class="co">#&gt; ica.alpha    numeric   -        1             1 to 2   Y    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1">cpoAsNumeric  <span class="co"># plain print</span></a>
+<a class="sourceLine" id="cb51-2" data-line-number="2"><span class="co">#&gt; &lt;&lt;CPO as.numeric()&gt;&gt;</span></a>
+<a class="sourceLine" id="cb51-3" data-line-number="3"><span class="op">!</span>cpoAsNumeric  <span class="co"># verbose print</span></a>
+<a class="sourceLine" id="cb51-4" data-line-number="4"><span class="co">#&gt; &lt;&lt;CPO as.numeric()&gt;&gt;</span></a>
+<a class="sourceLine" id="cb51-5" data-line-number="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb51-6" data-line-number="6"><span class="co">#&gt; cpo.retrafo:</span></a>
+<a class="sourceLine" id="cb51-7" data-line-number="7"><span class="co">#&gt; function (data) </span></a>
+<a class="sourceLine" id="cb51-8" data-line-number="8"><span class="co">#&gt; {</span></a>
+<a class="sourceLine" id="cb51-9" data-line-number="9"><span class="co">#&gt;     as.data.frame(lapply(data, as.numeric), row.names = rownames(data))</span></a>
+<a class="sourceLine" id="cb51-10" data-line-number="10"><span class="co">#&gt; }</span></a>
+<a class="sourceLine" id="cb51-11" data-line-number="11"><span class="co">#&gt; &lt;environment: namespace:mlrCPO&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>()  <span class="co"># plain print</span></a>
+<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="co">#&gt; (scale &gt;&gt; ica)(scale.center = TRUE, scale.scale = TRUE, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1)</span></a>
+<a class="sourceLine" id="cb52-3" data-line-number="3"><span class="op">!</span><span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>()  <span class="co"># verbose print</span></a>
+<a class="sourceLine" id="cb52-4" data-line-number="4"><span class="co">#&gt; Trafo chain of 2 cpos:</span></a>
+<a class="sourceLine" id="cb52-5" data-line-number="5"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
+<a class="sourceLine" id="cb52-6" data-line-number="6"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb52-7" data-line-number="7"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb52-8" data-line-number="8"><span class="co">#&gt;                 Type len  Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb52-9" data-line-number="9"><span class="co">#&gt; scale.center logical   - TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb52-10" data-line-number="10"><span class="co">#&gt; scale.scale  logical   - TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb52-11" data-line-number="11"><span class="co">#&gt;   ====&gt;</span></a>
+<a class="sourceLine" id="cb52-12" data-line-number="12"><span class="co">#&gt; ica(n.comp = &lt;NULL&gt;, alg.typ = parallel, fun = logcosh, alpha = 1)[not exp'd: method = C, maxit = 200, tol = 0.0001, verbose = FALSE]</span></a>
+<a class="sourceLine" id="cb52-13" data-line-number="13"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb52-14" data-line-number="14"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb52-15" data-line-number="15"><span class="co">#&gt;                 Type len      Def             Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb52-16" data-line-number="16"><span class="co">#&gt; ica.n.comp   integer   -   &lt;NULL&gt;           1 to Inf   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb52-17" data-line-number="17"><span class="co">#&gt; ica.alg.typ discrete   - parallel parallel,deflation   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb52-18" data-line-number="18"><span class="co">#&gt; ica.fun     discrete   -  logcosh        logcosh,exp   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb52-19" data-line-number="19"><span class="co">#&gt; ica.alpha    numeric   -        1             1 to 2   Y    TRUE     -</span></a></code></pre></div>
 <p>When working with compound <code>CPO</code>s, it is sometimes necessary to manipulate a <code>CPO</code> inside a compound <code>CPO</code> pipeline. For this purpose, the <strong><code>as.list()</code></strong> generic is implemented for both <code>CPO</code> and <code>CPOTrained</code> for splitting a pipeline into a list of the primitive elements. The inverse is <strong><code>pipeCPO()</code></strong>, which takes a list of <code>CPO</code> or <code>CPOTrained</code> and concatenates them using <code>composeCPO()</code>.</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="kw">as.list</span>(<span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>())</a>
-<a class="sourceLine" id="cb51-2" data-line-number="2"><span class="co">#&gt; [[1]]</span></a>
-<a class="sourceLine" id="cb51-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
-<a class="sourceLine" id="cb51-4" data-line-number="4"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb51-5" data-line-number="5"><span class="co">#&gt; [[2]]</span></a>
-<a class="sourceLine" id="cb51-6" data-line-number="6"><span class="co">#&gt; ica(n.comp = &lt;NULL&gt;, alg.typ = parallel, fun = logcosh, alpha = 1)[not exp'd: method = C, maxit = 200, tol = 0.0001, verbose = FALSE]</span></a></code></pre></div>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">pipeCPO</span>(<span class="kw">list</span>(<span class="kw">cpoScale</span>(), <span class="kw">cpoIca</span>()))</a>
-<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="co">#&gt; (scale &gt;&gt; ica)(scale.center = TRUE, scale.scale = TRUE, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1)</span></a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="kw">as.list</span>(<span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoIca</span>())</a>
+<a class="sourceLine" id="cb53-2" data-line-number="2"><span class="co">#&gt; [[1]]</span></a>
+<a class="sourceLine" id="cb53-3" data-line-number="3"><span class="co">#&gt; scale(center = TRUE, scale = TRUE)</span></a>
+<a class="sourceLine" id="cb53-4" data-line-number="4"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb53-5" data-line-number="5"><span class="co">#&gt; [[2]]</span></a>
+<a class="sourceLine" id="cb53-6" data-line-number="6"><span class="co">#&gt; ica(n.comp = &lt;NULL&gt;, alg.typ = parallel, fun = logcosh, alpha = 1)[not exp'd: method = C, maxit = 200, tol = 0.0001, verbose = FALSE]</span></a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw">pipeCPO</span>(<span class="kw">list</span>(<span class="kw">cpoScale</span>(), <span class="kw">cpoIca</span>()))</a>
+<a class="sourceLine" id="cb54-2" data-line-number="2"><span class="co">#&gt; (scale &gt;&gt; ica)(scale.center = TRUE, scale.scale = TRUE, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1)</span></a></code></pre></div>
 <p><code>CPOTrained</code> objects contain information about the retrafo or inversion to be performed for a <code>CPO</code>. It is possible to access this information using <strong><code>getCPOTrainedState()</code></strong>. The “state” of a <code>CPOTrained</code> object often contains a <code>$data</code> slot with information about the expected input and output format (“<code>ShapeInfo</code>”) of incoming data, a slot for each of its hyperparameters, and a <code>$control</code> slot that is specific to the <code>CPO</code> in question. The <code>cpoPca</code> state, for example, contains the PCA rotation matrix and a vector for scaling and centering. The contents of a state’s <code>$control</code> object are described in a <code>CPO</code>’s help page.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1">repca =<span class="st"> </span><span class="kw">retrafo</span>(iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>())</a>
-<a class="sourceLine" id="cb53-2" data-line-number="2">state =<span class="st"> </span><span class="kw">getCPOTrainedState</span>(repca)</a>
-<a class="sourceLine" id="cb53-3" data-line-number="3">state</a>
-<a class="sourceLine" id="cb53-4" data-line-number="4"><span class="co">#&gt; $center</span></a>
-<a class="sourceLine" id="cb53-5" data-line-number="5"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb53-6" data-line-number="6"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-7" data-line-number="7"><span class="co">#&gt; $scale</span></a>
-<a class="sourceLine" id="cb53-8" data-line-number="8"><span class="co">#&gt; [1] FALSE</span></a>
-<a class="sourceLine" id="cb53-9" data-line-number="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-10" data-line-number="10"><span class="co">#&gt; $tol</span></a>
-<a class="sourceLine" id="cb53-11" data-line-number="11"><span class="co">#&gt; NULL</span></a>
-<a class="sourceLine" id="cb53-12" data-line-number="12"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-13" data-line-number="13"><span class="co">#&gt; $rank</span></a>
-<a class="sourceLine" id="cb53-14" data-line-number="14"><span class="co">#&gt; NULL</span></a>
-<a class="sourceLine" id="cb53-15" data-line-number="15"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-16" data-line-number="16"><span class="co">#&gt; $control</span></a>
-<a class="sourceLine" id="cb53-17" data-line-number="17"><span class="co">#&gt; $control$rotation</span></a>
-<a class="sourceLine" id="cb53-18" data-line-number="18"><span class="co">#&gt;                      PC1        PC2         PC3        PC4</span></a>
-<a class="sourceLine" id="cb53-19" data-line-number="19"><span class="co">#&gt; Sepal.Length  0.39017855 -0.8270920 -0.33170933  0.2316213</span></a>
-<a class="sourceLine" id="cb53-20" data-line-number="20"><span class="co">#&gt; Sepal.Width  -0.04877314 -0.4166469  0.90027349 -0.1163364</span></a>
-<a class="sourceLine" id="cb53-21" data-line-number="21"><span class="co">#&gt; Petal.Length  0.84914741  0.2328611  0.09372219 -0.4646940</span></a>
-<a class="sourceLine" id="cb53-22" data-line-number="22"><span class="co">#&gt; Petal.Width   0.35260539  0.2968162  0.26588101  0.8466858</span></a>
-<a class="sourceLine" id="cb53-23" data-line-number="23"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-24" data-line-number="24"><span class="co">#&gt; $control$scale</span></a>
-<a class="sourceLine" id="cb53-25" data-line-number="25"><span class="co">#&gt; [1] FALSE</span></a>
-<a class="sourceLine" id="cb53-26" data-line-number="26"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-27" data-line-number="27"><span class="co">#&gt; $control$center</span></a>
-<a class="sourceLine" id="cb53-28" data-line-number="28"><span class="co">#&gt; Sepal.Length  Sepal.Width Petal.Length  Petal.Width </span></a>
-<a class="sourceLine" id="cb53-29" data-line-number="29"><span class="co">#&gt;     5.857143     3.114286     3.471429     1.071429 </span></a>
-<a class="sourceLine" id="cb53-30" data-line-number="30"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-31" data-line-number="31"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-32" data-line-number="32"><span class="co">#&gt; $data</span></a>
-<a class="sourceLine" id="cb53-33" data-line-number="33"><span class="co">#&gt; $data$shapeinfo.input</span></a>
-<a class="sourceLine" id="cb53-34" data-line-number="34"><span class="co">#&gt; &lt;ShapeInfo (input) Sepal.Length: num, Sepal.Width: num, Petal.Length: num, Petal.Width: num, Species: fac&gt;</span></a>
-<a class="sourceLine" id="cb53-35" data-line-number="35"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb53-36" data-line-number="36"><span class="co">#&gt; $data$shapeinfo.output</span></a>
-<a class="sourceLine" id="cb53-37" data-line-number="37"><span class="co">#&gt; &lt;ShapeInfo (output)&gt;:</span></a>
-<a class="sourceLine" id="cb53-38" data-line-number="38"><span class="co">#&gt; numeric:</span></a>
-<a class="sourceLine" id="cb53-39" data-line-number="39"><span class="co">#&gt; &lt;ShapeInfo PC1: num, PC2: num, PC3: num, PC4: num&gt;</span></a>
-<a class="sourceLine" id="cb53-40" data-line-number="40"><span class="co">#&gt; factor:</span></a>
-<a class="sourceLine" id="cb53-41" data-line-number="41"><span class="co">#&gt; &lt;ShapeInfo Species: fac&gt;</span></a>
-<a class="sourceLine" id="cb53-42" data-line-number="42"><span class="co">#&gt; other:</span></a>
-<a class="sourceLine" id="cb53-43" data-line-number="43"><span class="co">#&gt; &lt;ShapeInfo (empty)&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" data-line-number="1">repca =<span class="st"> </span><span class="kw">retrafo</span>(iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>())</a>
+<a class="sourceLine" id="cb55-2" data-line-number="2">state =<span class="st"> </span><span class="kw">getCPOTrainedState</span>(repca)</a>
+<a class="sourceLine" id="cb55-3" data-line-number="3">state</a>
+<a class="sourceLine" id="cb55-4" data-line-number="4"><span class="co">#&gt; $center</span></a>
+<a class="sourceLine" id="cb55-5" data-line-number="5"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb55-6" data-line-number="6"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-7" data-line-number="7"><span class="co">#&gt; $scale</span></a>
+<a class="sourceLine" id="cb55-8" data-line-number="8"><span class="co">#&gt; [1] FALSE</span></a>
+<a class="sourceLine" id="cb55-9" data-line-number="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-10" data-line-number="10"><span class="co">#&gt; $tol</span></a>
+<a class="sourceLine" id="cb55-11" data-line-number="11"><span class="co">#&gt; NULL</span></a>
+<a class="sourceLine" id="cb55-12" data-line-number="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-13" data-line-number="13"><span class="co">#&gt; $rank</span></a>
+<a class="sourceLine" id="cb55-14" data-line-number="14"><span class="co">#&gt; NULL</span></a>
+<a class="sourceLine" id="cb55-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-16" data-line-number="16"><span class="co">#&gt; $control</span></a>
+<a class="sourceLine" id="cb55-17" data-line-number="17"><span class="co">#&gt; $control$rotation</span></a>
+<a class="sourceLine" id="cb55-18" data-line-number="18"><span class="co">#&gt;                      PC1        PC2         PC3        PC4</span></a>
+<a class="sourceLine" id="cb55-19" data-line-number="19"><span class="co">#&gt; Sepal.Length  0.39017855 -0.8270920 -0.33170933  0.2316213</span></a>
+<a class="sourceLine" id="cb55-20" data-line-number="20"><span class="co">#&gt; Sepal.Width  -0.04877314 -0.4166469  0.90027349 -0.1163364</span></a>
+<a class="sourceLine" id="cb55-21" data-line-number="21"><span class="co">#&gt; Petal.Length  0.84914741  0.2328611  0.09372219 -0.4646940</span></a>
+<a class="sourceLine" id="cb55-22" data-line-number="22"><span class="co">#&gt; Petal.Width   0.35260539  0.2968162  0.26588101  0.8466858</span></a>
+<a class="sourceLine" id="cb55-23" data-line-number="23"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-24" data-line-number="24"><span class="co">#&gt; $control$scale</span></a>
+<a class="sourceLine" id="cb55-25" data-line-number="25"><span class="co">#&gt; [1] FALSE</span></a>
+<a class="sourceLine" id="cb55-26" data-line-number="26"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-27" data-line-number="27"><span class="co">#&gt; $control$center</span></a>
+<a class="sourceLine" id="cb55-28" data-line-number="28"><span class="co">#&gt; Sepal.Length  Sepal.Width Petal.Length  Petal.Width </span></a>
+<a class="sourceLine" id="cb55-29" data-line-number="29"><span class="co">#&gt;     5.857143     3.114286     3.471429     1.071429 </span></a>
+<a class="sourceLine" id="cb55-30" data-line-number="30"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-31" data-line-number="31"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-32" data-line-number="32"><span class="co">#&gt; $data</span></a>
+<a class="sourceLine" id="cb55-33" data-line-number="33"><span class="co">#&gt; $data$shapeinfo.input</span></a>
+<a class="sourceLine" id="cb55-34" data-line-number="34"><span class="co">#&gt; &lt;ShapeInfo (input) Sepal.Length: num, Sepal.Width: num, Petal.Length: num, Petal.Width: num, Species: fac&gt;</span></a>
+<a class="sourceLine" id="cb55-35" data-line-number="35"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb55-36" data-line-number="36"><span class="co">#&gt; $data$shapeinfo.output</span></a>
+<a class="sourceLine" id="cb55-37" data-line-number="37"><span class="co">#&gt; &lt;ShapeInfo (output)&gt;:</span></a>
+<a class="sourceLine" id="cb55-38" data-line-number="38"><span class="co">#&gt; numeric:</span></a>
+<a class="sourceLine" id="cb55-39" data-line-number="39"><span class="co">#&gt; &lt;ShapeInfo PC1: num, PC2: num, PC3: num, PC4: num&gt;</span></a>
+<a class="sourceLine" id="cb55-40" data-line-number="40"><span class="co">#&gt; factor:</span></a>
+<a class="sourceLine" id="cb55-41" data-line-number="41"><span class="co">#&gt; &lt;ShapeInfo Species: fac&gt;</span></a>
+<a class="sourceLine" id="cb55-42" data-line-number="42"><span class="co">#&gt; other:</span></a>
+<a class="sourceLine" id="cb55-43" data-line-number="43"><span class="co">#&gt; &lt;ShapeInfo (empty)&gt;</span></a></code></pre></div>
 <p>It is even possible to change the “state” of a <code>CPOTrained</code> and construct a new <code>CPOTrained</code> using <strong><code>makeCPOTrainedFromState()</code></strong>. This is fairly advanced usage and only recommended for users familiar with the inner workings of the particular <code>CPO</code>. If we get familiar with the <code>cpoPca</code> <code>CPO</code> using the <code>!</code>-print (i.e. <code>!cpoPca</code>) to look at the retrafo function, we notice that the <code>control$center</code> and <code>control$scale</code> values are given to a call of <code>scale()</code>. If we want to create a new <code>CPOTrained</code> that does <em>not</em> perform centering or scaling during before applying the rotation matrix, we can change these values.</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1">state<span class="op">$</span>control<span class="op">$</span>center =<span class="st"> </span><span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb54-2" data-line-number="2">state<span class="op">$</span>control<span class="op">$</span>scale =<span class="st"> </span><span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb54-3" data-line-number="3">nosc.repca =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</span>(cpoPca, state)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1">state<span class="op">$</span>control<span class="op">$</span>center =<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb56-2" data-line-number="2">state<span class="op">$</span>control<span class="op">$</span>scale =<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb56-3" data-line-number="3">nosc.repca =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</span>(cpoPca, state)</a></code></pre></div>
 <p>Comparing this to the original “<code>repca</code>” retrafo shows that the result of applying <code>repca</code> has generally smaller values because of the centering.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>repca</a>
-<a class="sourceLine" id="cb55-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3           PC4</span></a>
-<a class="sourceLine" id="cb55-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456  0.0045112647</span></a>
-<a class="sourceLine" id="cb55-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031  0.0163551932</span></a>
-<a class="sourceLine" id="cb55-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403 -0.0067669498</span></a>
-<a class="sourceLine" id="cb55-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477 -0.0379746458</span></a>
-<a class="sourceLine" id="cb55-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449  0.0006599373</span></a>
-<a class="sourceLine" id="cb55-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907 -0.0202867763</span></a>
-<a class="sourceLine" id="cb55-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707  0.0435019768</span></a></code></pre></div>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>nosc.repca</a>
-<a class="sourceLine" id="cb56-2" data-line-number="2"><span class="co">#&gt;        Species      PC1       PC2      PC3       PC4</span></a>
-<a class="sourceLine" id="cb56-3" data-line-number="3"><span class="co">#&gt; 1       setosa 3.078532 -5.291065 1.643627 0.2928570</span></a>
-<a class="sourceLine" id="cb56-4" data-line-number="4"><span class="co">#&gt; 2       setosa 3.024883 -4.917323 1.259832 0.3047009</span></a>
-<a class="sourceLine" id="cb56-5" data-line-number="5"><span class="co">#&gt; 3       setosa 2.852178 -4.858520 1.496856 0.2815788</span></a>
-<a class="sourceLine" id="cb56-6" data-line-number="6"><span class="co">#&gt; 51  versicolor 7.059816 -5.612924 1.371638 0.2503711</span></a>
-<a class="sourceLine" id="cb56-7" data-line-number="7"><span class="co">#&gt; 52  versicolor 6.691140 -5.133560 1.578507 0.2890056</span></a>
-<a class="sourceLine" id="cb56-8" data-line-number="8"><span class="co">#&gt; 102  virginica 7.131950 -4.170538 1.489981 0.2680589</span></a>
-<a class="sourceLine" id="cb56-9" data-line-number="9"><span class="co">#&gt; 103  virginica 8.374389 -5.125100 1.456995 0.3318477</span></a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>repca</a>
+<a class="sourceLine" id="cb57-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3           PC4</span></a>
+<a class="sourceLine" id="cb57-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456  0.0045112647</span></a>
+<a class="sourceLine" id="cb57-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031  0.0163551932</span></a>
+<a class="sourceLine" id="cb57-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403 -0.0067669498</span></a>
+<a class="sourceLine" id="cb57-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477 -0.0379746458</span></a>
+<a class="sourceLine" id="cb57-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449  0.0006599373</span></a>
+<a class="sourceLine" id="cb57-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907 -0.0202867763</span></a>
+<a class="sourceLine" id="cb57-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707  0.0435019768</span></a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>nosc.repca</a>
+<a class="sourceLine" id="cb58-2" data-line-number="2"><span class="co">#&gt;        Species      PC1       PC2      PC3       PC4</span></a>
+<a class="sourceLine" id="cb58-3" data-line-number="3"><span class="co">#&gt; 1       setosa 3.078532 -5.291065 1.643627 0.2928570</span></a>
+<a class="sourceLine" id="cb58-4" data-line-number="4"><span class="co">#&gt; 2       setosa 3.024883 -4.917323 1.259832 0.3047009</span></a>
+<a class="sourceLine" id="cb58-5" data-line-number="5"><span class="co">#&gt; 3       setosa 2.852178 -4.858520 1.496856 0.2815788</span></a>
+<a class="sourceLine" id="cb58-6" data-line-number="6"><span class="co">#&gt; 51  versicolor 7.059816 -5.612924 1.371638 0.2503711</span></a>
+<a class="sourceLine" id="cb58-7" data-line-number="7"><span class="co">#&gt; 52  versicolor 6.691140 -5.133560 1.578507 0.2890056</span></a>
+<a class="sourceLine" id="cb58-8" data-line-number="8"><span class="co">#&gt; 102  virginica 7.131950 -4.170538 1.489981 0.2680589</span></a>
+<a class="sourceLine" id="cb58-9" data-line-number="9"><span class="co">#&gt; 103  virginica 8.374389 -5.125100 1.456995 0.3318477</span></a></code></pre></div>
 </div>
 <div id="special-cpos" class="section level2">
 <h2>Special CPOs</h2>
@@ -930,127 +935,127 @@ Table of Contents
 <div id="nullcpo" class="section level3">
 <h3>NULLCPO</h3>
 <p>The value associated with “no operation” is the <code>NULLCPO</code> value. It is the neutral element of the <code>%&gt;&gt;%</code> operations, and the value of <code>retrafo()</code> and <code>inverter()</code> when there are otherwise no associated retrafo or inverter values.</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1">NULLCPO</a>
-<a class="sourceLine" id="cb57-2" data-line-number="2"><span class="co">#&gt; NULLCPO</span></a></code></pre></div>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="kw">all.equal</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>NULLCPO, iris)</a>
-<a class="sourceLine" id="cb58-2" data-line-number="2"><span class="co">#&gt; [1] TRUE</span></a>
-<a class="sourceLine" id="cb58-3" data-line-number="3"><span class="kw">cpoPca</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span>NULLCPO</a>
-<a class="sourceLine" id="cb58-4" data-line-number="4"><span class="co">#&gt; pca(center = TRUE, scale = FALSE)[not exp'd: tol = &lt;NULL&gt;, rank = &lt;NULL&gt;]</span></a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1">NULLCPO</a>
+<a class="sourceLine" id="cb59-2" data-line-number="2"><span class="co">#&gt; NULLCPO</span></a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" data-line-number="1"><span class="kw">all.equal</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>NULLCPO, iris)</a>
+<a class="sourceLine" id="cb60-2" data-line-number="2"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb60-3" data-line-number="3"><span class="kw">cpoPca</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span>NULLCPO</a>
+<a class="sourceLine" id="cb60-4" data-line-number="4"><span class="co">#&gt; pca(center = TRUE, scale = FALSE)[not exp'd: tol = &lt;NULL&gt;, rank = &lt;NULL&gt;]</span></a></code></pre></div>
 </div>
 <div id="cpo-multiplexer" class="section level3">
 <h3>CPO Multiplexer</h3>
 <p>The multiplexer makes it possible to combine many CPOs into one, with an extra <code>selected.cpo</code> parameter that chooses between them. This makes it possible to tune over many different tuner configurations at once.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1">cpm =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(cpoIca, <span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="st">&quot;export.all&quot;</span>)))</a>
-<a class="sourceLine" id="cb59-2" data-line-number="2"><span class="op">!</span>cpm</a>
-<a class="sourceLine" id="cb59-3" data-line-number="3"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
-<a class="sourceLine" id="cb59-4" data-line-number="4"><span class="co">#&gt; multiplex(selected.cpo = ica, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1, pca.center = TRUE, pca.scale = FALSE, pca.tol = &lt;NULL&gt;, pca.rank = &lt;NULL&gt;)</span></a>
-<a class="sourceLine" id="cb59-5" data-line-number="5"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb59-6" data-line-number="6"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb59-7" data-line-number="7"><span class="co">#&gt;                  Type len      Def             Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb59-8" data-line-number="8"><span class="co">#&gt; selected.cpo discrete   -      ica            ica,pca   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-9" data-line-number="9"><span class="co">#&gt; ica.n.comp    integer   -   &lt;NULL&gt;           1 to Inf   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-10" data-line-number="10"><span class="co">#&gt; ica.alg.typ  discrete   - parallel parallel,deflation   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-11" data-line-number="11"><span class="co">#&gt; ica.fun      discrete   -  logcosh        logcosh,exp   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-12" data-line-number="12"><span class="co">#&gt; ica.alpha     numeric   -        1             1 to 2   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-13" data-line-number="13"><span class="co">#&gt; pca.center    logical   -     TRUE                  -   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-14" data-line-number="14"><span class="co">#&gt; pca.scale     logical   -    FALSE                  -   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-15" data-line-number="15"><span class="co">#&gt; pca.tol       numeric   -   &lt;NULL&gt;           0 to Inf   Y    TRUE     -</span></a>
-<a class="sourceLine" id="cb59-16" data-line-number="16"><span class="co">#&gt; pca.rank      integer   -   &lt;NULL&gt;           1 to Inf   Y    TRUE     -</span></a></code></pre></div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;ica&quot;</span>, <span class="dt">ica.n.comp =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb60-2" data-line-number="2"><span class="co">#&gt;        Species         V1         V2          V3</span></a>
-<a class="sourceLine" id="cb60-3" data-line-number="3"><span class="co">#&gt; 1       setosa  1.3338380 -1.3349042  0.44908496</span></a>
-<a class="sourceLine" id="cb60-4" data-line-number="4"><span class="co">#&gt; 2       setosa -0.1380753  1.5387091  1.45460007</span></a>
-<a class="sourceLine" id="cb60-5" data-line-number="5"><span class="co">#&gt; 3       setosa  0.1873067 -0.4344488  1.17301339</span></a>
-<a class="sourceLine" id="cb60-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  0.8117048  1.2727772 -1.01724739</span></a>
-<a class="sourceLine" id="cb60-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  0.2172529 -0.7386264 -0.79711005</span></a>
-<a class="sourceLine" id="cb60-8" data-line-number="8"><span class="co">#&gt; 102  virginica -2.0868447 -0.6261321  0.01673841</span></a>
-<a class="sourceLine" id="cb60-9" data-line-number="9"><span class="co">#&gt; 103  virginica -0.3251824  0.3226253 -1.27907938</span></a></code></pre></div>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>, <span class="dt">pca.rank =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb61-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3</span></a>
-<a class="sourceLine" id="cb61-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span></a>
-<a class="sourceLine" id="cb61-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031</span></a>
-<a class="sourceLine" id="cb61-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403</span></a>
-<a class="sourceLine" id="cb61-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477</span></a>
-<a class="sourceLine" id="cb61-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449</span></a>
-<a class="sourceLine" id="cb61-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907</span></a>
-<a class="sourceLine" id="cb61-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707</span></a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1">cpm =<span class="st"> </span><span class="kw">cpoMultiplex</span>(<span class="kw">list</span>(cpoIca, <span class="kw">cpoPca</span>(<span class="dt">export =</span> <span class="st">&quot;export.all&quot;</span>)))</a>
+<a class="sourceLine" id="cb61-2" data-line-number="2"><span class="op">!</span>cpm</a>
+<a class="sourceLine" id="cb61-3" data-line-number="3"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
+<a class="sourceLine" id="cb61-4" data-line-number="4"><span class="co">#&gt; multiplex(selected.cpo = ica, ica.n.comp = &lt;NULL&gt;, ica.alg.typ = parallel, ica.fun = logcosh, ica.alpha = 1, pca.center = TRUE, pca.scale = FALSE, pca.tol = &lt;NULL&gt;, pca.rank = &lt;NULL&gt;)</span></a>
+<a class="sourceLine" id="cb61-5" data-line-number="5"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb61-6" data-line-number="6"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb61-7" data-line-number="7"><span class="co">#&gt;                  Type len      Def             Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb61-8" data-line-number="8"><span class="co">#&gt; selected.cpo discrete   -      ica            ica,pca   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-9" data-line-number="9"><span class="co">#&gt; ica.n.comp    integer   -   &lt;NULL&gt;           1 to Inf   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-10" data-line-number="10"><span class="co">#&gt; ica.alg.typ  discrete   - parallel parallel,deflation   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-11" data-line-number="11"><span class="co">#&gt; ica.fun      discrete   -  logcosh        logcosh,exp   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-12" data-line-number="12"><span class="co">#&gt; ica.alpha     numeric   -        1             1 to 2   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-13" data-line-number="13"><span class="co">#&gt; pca.center    logical   -     TRUE                  -   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-14" data-line-number="14"><span class="co">#&gt; pca.scale     logical   -    FALSE                  -   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-15" data-line-number="15"><span class="co">#&gt; pca.tol       numeric   -   &lt;NULL&gt;           0 to Inf   Y    TRUE     -</span></a>
+<a class="sourceLine" id="cb61-16" data-line-number="16"><span class="co">#&gt; pca.rank      integer   -   &lt;NULL&gt;           1 to Inf   Y    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;ica&quot;</span>, <span class="dt">ica.n.comp =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb62-2" data-line-number="2"><span class="co">#&gt;        Species          V1         V2         V3</span></a>
+<a class="sourceLine" id="cb62-3" data-line-number="3"><span class="co">#&gt; 1       setosa -0.48992601  1.3633976 -1.2899186</span></a>
+<a class="sourceLine" id="cb62-4" data-line-number="4"><span class="co">#&gt; 2       setosa -1.45184032 -1.5399552  0.1524775</span></a>
+<a class="sourceLine" id="cb62-5" data-line-number="5"><span class="co">#&gt; 3       setosa -1.17776569  0.4394187 -0.1398900</span></a>
+<a class="sourceLine" id="cb62-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  0.98835136 -1.2561560 -0.8711213</span></a>
+<a class="sourceLine" id="cb62-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  0.79084013  0.7423458 -0.2272596</span></a>
+<a class="sourceLine" id="cb62-8" data-line-number="8"><span class="co">#&gt; 102  virginica  0.05191575  0.5816014  2.0991157</span></a>
+<a class="sourceLine" id="cb62-9" data-line-number="9"><span class="co">#&gt; 103  virginica  1.28842477 -0.3306522  0.2765962</span></a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpm, <span class="dt">selected.cpo =</span> <span class="st">&quot;pca&quot;</span>, <span class="dt">pca.rank =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb63-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3</span></a>
+<a class="sourceLine" id="cb63-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456</span></a>
+<a class="sourceLine" id="cb63-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031</span></a>
+<a class="sourceLine" id="cb63-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403</span></a>
+<a class="sourceLine" id="cb63-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477</span></a>
+<a class="sourceLine" id="cb63-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449</span></a>
+<a class="sourceLine" id="cb63-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907</span></a>
+<a class="sourceLine" id="cb63-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707</span></a></code></pre></div>
 </div>
 <div id="cpo-wrapper" class="section level3">
 <h3>CPO Wrapper</h3>
 <p>A simple CPO with one parameter which gets applied to the data as CPO. This is different from a multiplexer in that its parameter is free and can take any value that behaves like a CPO. On the downside, this does not expose the argument’s parameters to the outside.</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1">cpa =<span class="st"> </span><span class="kw">cpoWrap</span>()</a>
-<a class="sourceLine" id="cb62-2" data-line-number="2"><span class="op">!</span>cpa</a>
-<a class="sourceLine" id="cb62-3" data-line-number="3"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
-<a class="sourceLine" id="cb62-4" data-line-number="4"><span class="co">#&gt; wrap()</span></a>
-<a class="sourceLine" id="cb62-5" data-line-number="5"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb62-6" data-line-number="6"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb62-7" data-line-number="7"><span class="co">#&gt;             Type len Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb62-8" data-line-number="8"><span class="co">#&gt; wrap.cpo untyped   -   -      -   -    TRUE     -</span></a></code></pre></div>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpa, <span class="dt">wrap.cpo =</span> <span class="kw">cpoScale</span>())</a>
-<a class="sourceLine" id="cb63-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
-<a class="sourceLine" id="cb63-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541   -1.0268892  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb63-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123   -1.0268892  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb63-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343   -1.0764631  -1.0276683     setosa</span></a>
-<a class="sourceLine" id="cb63-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343    0.6090515   0.3874815 versicolor</span></a>
-<a class="sourceLine" id="cb63-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343    0.5099036   0.5054106 versicolor</span></a>
-<a class="sourceLine" id="cb63-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322    0.8073474   0.9771273  virginica</span></a>
-<a class="sourceLine" id="cb63-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123    1.2039390   1.2129856  virginica</span></a></code></pre></div>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpa, <span class="dt">wrap.cpo =</span> <span class="kw">cpoPca</span>())</a>
-<a class="sourceLine" id="cb64-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3           PC4</span></a>
-<a class="sourceLine" id="cb64-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456  0.0045112647</span></a>
-<a class="sourceLine" id="cb64-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031  0.0163551932</span></a>
-<a class="sourceLine" id="cb64-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403 -0.0067669498</span></a>
-<a class="sourceLine" id="cb64-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477 -0.0379746458</span></a>
-<a class="sourceLine" id="cb64-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449  0.0006599373</span></a>
-<a class="sourceLine" id="cb64-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907 -0.0202867763</span></a>
-<a class="sourceLine" id="cb64-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707  0.0435019768</span></a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1">cpa =<span class="st"> </span><span class="kw">cpoWrap</span>()</a>
+<a class="sourceLine" id="cb64-2" data-line-number="2"><span class="op">!</span>cpa</a>
+<a class="sourceLine" id="cb64-3" data-line-number="3"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
+<a class="sourceLine" id="cb64-4" data-line-number="4"><span class="co">#&gt; wrap()</span></a>
+<a class="sourceLine" id="cb64-5" data-line-number="5"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb64-6" data-line-number="6"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb64-7" data-line-number="7"><span class="co">#&gt;             Type len Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb64-8" data-line-number="8"><span class="co">#&gt; wrap.cpo untyped   -   -      -   -    TRUE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpa, <span class="dt">wrap.cpo =</span> <span class="kw">cpoScale</span>())</a>
+<a class="sourceLine" id="cb65-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species</span></a>
+<a class="sourceLine" id="cb65-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541   -1.0268892  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb65-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123   -1.0268892  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb65-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343   -1.0764631  -1.0276683     setosa</span></a>
+<a class="sourceLine" id="cb65-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343    0.6090515   0.3874815 versicolor</span></a>
+<a class="sourceLine" id="cb65-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343    0.5099036   0.5054106 versicolor</span></a>
+<a class="sourceLine" id="cb65-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322    0.8073474   0.9771273  virginica</span></a>
+<a class="sourceLine" id="cb65-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123    1.2039390   1.2129856  virginica</span></a></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setHyperPars</span>(cpa, <span class="dt">wrap.cpo =</span> <span class="kw">cpoPca</span>())</a>
+<a class="sourceLine" id="cb66-2" data-line-number="2"><span class="co">#&gt;        Species       PC1         PC2         PC3           PC4</span></a>
+<a class="sourceLine" id="cb66-3" data-line-number="3"><span class="co">#&gt; 1       setosa -2.380452 -0.27548909  0.17256456  0.0045112647</span></a>
+<a class="sourceLine" id="cb66-4" data-line-number="4"><span class="co">#&gt; 2       setosa -2.434101  0.09825278 -0.21123031  0.0163551932</span></a>
+<a class="sourceLine" id="cb66-5" data-line-number="5"><span class="co">#&gt; 3       setosa -2.606806  0.15705569  0.02579403 -0.0067669498</span></a>
+<a class="sourceLine" id="cb66-6" data-line-number="6"><span class="co">#&gt; 51  versicolor  1.600832 -0.59734881 -0.09942477 -0.0379746458</span></a>
+<a class="sourceLine" id="cb66-7" data-line-number="7"><span class="co">#&gt; 52  versicolor  1.232156 -0.11798420  0.10744449  0.0006599373</span></a>
+<a class="sourceLine" id="cb66-8" data-line-number="8"><span class="co">#&gt; 102  virginica  1.672966  0.84503760  0.01891907 -0.0202867763</span></a>
+<a class="sourceLine" id="cb66-9" data-line-number="9"><span class="co">#&gt; 103  virginica  2.915405 -0.10952398 -0.01406707  0.0435019768</span></a></code></pre></div>
 <p>Attaching the cpo applicator to a learner gives this learner a “cpo” hyperparameter that can be set to any CPO.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1"><span class="kw">getParamSet</span>(<span class="kw">cpoWrap</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>))</a>
-<a class="sourceLine" id="cb65-2" data-line-number="2"><span class="co">#&gt;             Type len  Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb65-3" data-line-number="3"><span class="co">#&gt; wrap.cpo untyped   -    -      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb65-4" data-line-number="4"><span class="co">#&gt; model    logical   - TRUE      -   -   FALSE     -</span></a></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1"><span class="kw">getParamSet</span>(<span class="kw">cpoWrap</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>))</a>
+<a class="sourceLine" id="cb67-2" data-line-number="2"><span class="co">#&gt;             Type len  Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb67-3" data-line-number="3"><span class="co">#&gt; wrap.cpo untyped   -    -      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="co">#&gt; model    logical   - TRUE      -   -   FALSE     -</span></a></code></pre></div>
 </div>
 <div id="cbind-cpo" class="section level3">
 <h3>CBind CPO</h3>
 <p><code>cbind</code> other CPOs as operation. The <code>cbinder</code> makes it possible to build DAGs of CPOs that perform different operations on data and paste the results next to each other. It is often useful to combine <code>cpoCbind</code> with <code>cpoSelect</code> to filter out columns that would otherwise be duplciated.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" data-line-number="1">scale =<span class="st"> </span><span class="kw">cpoSelect</span>(<span class="dt">pattern =</span> <span class="st">&quot;Sepal&quot;</span>, <span class="dt">id =</span> <span class="st">&quot;first&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;scale&quot;</span>)</a>
-<a class="sourceLine" id="cb66-2" data-line-number="2">scale.pca =<span class="st"> </span>scale <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
-<a class="sourceLine" id="cb66-3" data-line-number="3">cbinder =<span class="st"> </span><span class="kw">cpoCbind</span>(scale, scale.pca, <span class="kw">cpoSelect</span>(<span class="dt">pattern =</span> <span class="st">&quot;Petal&quot;</span>, <span class="dt">id =</span> <span class="st">&quot;second&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1">scale =<span class="st"> </span><span class="kw">cpoSelect</span>(<span class="dt">pattern =</span> <span class="st">&quot;Sepal&quot;</span>, <span class="dt">id =</span> <span class="st">&quot;first&quot;</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>(<span class="dt">id =</span> <span class="st">&quot;scale&quot;</span>)</a>
+<a class="sourceLine" id="cb68-2" data-line-number="2">scale.pca =<span class="st"> </span>scale <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
+<a class="sourceLine" id="cb68-3" data-line-number="3">cbinder =<span class="st"> </span><span class="kw">cpoCbind</span>(scale, scale.pca, <span class="kw">cpoSelect</span>(<span class="dt">pattern =</span> <span class="st">&quot;Petal&quot;</span>, <span class="dt">id =</span> <span class="st">&quot;second&quot;</span>))</a></code></pre></div>
 <p><code>cpoCbind</code> recognises that <code>&quot;scale&quot;</code> happens before <code>&quot;pca&quot;</code>, but is also fed to the result directly. The verbose print draws a (crude) ascii-art graph.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1"><span class="op">!</span>cbinder</a>
-<a class="sourceLine" id="cb67-2" data-line-number="2"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
-<a class="sourceLine" id="cb67-3" data-line-number="3"><span class="co">#&gt; cbind(scale.center = TRUE, scale.scale = TRUE, pca.center = TRUE, pca.scale = FALSE)</span></a>
-<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="co">#&gt; Operating: feature</span></a>
-<a class="sourceLine" id="cb67-5" data-line-number="5"><span class="co">#&gt; ParamSet:</span></a>
-<a class="sourceLine" id="cb67-6" data-line-number="6"><span class="co">#&gt;                 Type len   Def Constr Req Tunable Trafo</span></a>
-<a class="sourceLine" id="cb67-7" data-line-number="7"><span class="co">#&gt; scale.center logical   -  TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb67-8" data-line-number="8"><span class="co">#&gt; scale.scale  logical   -  TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb67-9" data-line-number="9"><span class="co">#&gt; pca.center   logical   -  TRUE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb67-10" data-line-number="10"><span class="co">#&gt; pca.scale    logical   - FALSE      -   -    TRUE     -</span></a>
-<a class="sourceLine" id="cb67-11" data-line-number="11"><span class="co">#&gt; O       first&lt;select&gt;()[not exp'd: type = character(0), index = integer(0),</span></a>
-<a class="sourceLine" id="cb67-12" data-line-number="12"><span class="co">#&gt; |      names = character(0), pattern = Sepal, pattern.ignore.case = FALSE,</span></a>
-<a class="sourceLine" id="cb67-13" data-line-number="13"><span class="co">#&gt; |      pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE]</span></a>
-<a class="sourceLine" id="cb67-14" data-line-number="14"><span class="co">#&gt; |      </span></a>
-<a class="sourceLine" id="cb67-15" data-line-number="15"><span class="co">#&gt; O&gt;+     scale(center = TRUE, scale = TRUE)</span></a>
-<a class="sourceLine" id="cb67-16" data-line-number="16"><span class="co">#&gt; | |    </span></a>
-<a class="sourceLine" id="cb67-17" data-line-number="17"><span class="co">#&gt; +--&lt;O   second&lt;select&gt;()[not exp'd: type = character(0), index = integer(0),</span></a>
-<a class="sourceLine" id="cb67-18" data-line-number="18"><span class="co">#&gt; | |  names = character(0), pattern = Petal, pattern.ignore.case = FALSE,</span></a>
-<a class="sourceLine" id="cb67-19" data-line-number="19"><span class="co">#&gt; | |  pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE]</span></a>
-<a class="sourceLine" id="cb67-20" data-line-number="20"><span class="co">#&gt; | |  </span></a>
-<a class="sourceLine" id="cb67-21" data-line-number="21"><span class="co">#&gt; +&lt;O   pca(center = TRUE, scale = FALSE)[not exp'd: tol = &lt;NULL&gt;, rank =</span></a>
-<a class="sourceLine" id="cb67-22" data-line-number="22"><span class="co">#&gt; |  &lt;NULL&gt;]</span></a>
-<a class="sourceLine" id="cb67-23" data-line-number="23"><span class="co">#&gt; |  </span></a>
-<a class="sourceLine" id="cb67-24" data-line-number="24"><span class="co">#&gt; O   CBIND[,,]</span></a>
-<a class="sourceLine" id="cb67-25" data-line-number="25"><span class="co">#&gt; </span></a></code></pre></div>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cbinder</a>
-<a class="sourceLine" id="cb68-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width        PC1        PC2 Petal.Length Petal.Width</span></a>
-<a class="sourceLine" id="cb68-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541 -1.6368414  0.5640343          1.4         0.2</span></a>
-<a class="sourceLine" id="cb68-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123 -0.3520394 -1.0041507          1.4         0.2</span></a>
-<a class="sourceLine" id="cb68-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343 -1.0643283 -0.5752448          1.3         0.2</span></a>
-<a class="sourceLine" id="cb68-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343  0.5651240  1.0542075          4.7         1.4</span></a>
-<a class="sourceLine" id="cb68-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343  0.1400495  0.6291330          4.5         1.5</span></a>
-<a class="sourceLine" id="cb68-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322  1.1414685 -1.2224350          5.1         1.9</span></a>
-<a class="sourceLine" id="cb68-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123  1.2065671  0.5544558          5.9         2.1</span></a></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1"><span class="op">!</span>cbinder</a>
+<a class="sourceLine" id="cb69-2" data-line-number="2"><span class="co">#&gt; Trafo chain of 1 cpos:</span></a>
+<a class="sourceLine" id="cb69-3" data-line-number="3"><span class="co">#&gt; cbind(scale.center = TRUE, scale.scale = TRUE, pca.center = TRUE, pca.scale = FALSE)</span></a>
+<a class="sourceLine" id="cb69-4" data-line-number="4"><span class="co">#&gt; Operating: feature</span></a>
+<a class="sourceLine" id="cb69-5" data-line-number="5"><span class="co">#&gt; ParamSet:</span></a>
+<a class="sourceLine" id="cb69-6" data-line-number="6"><span class="co">#&gt;                 Type len   Def Constr Req Tunable Trafo</span></a>
+<a class="sourceLine" id="cb69-7" data-line-number="7"><span class="co">#&gt; scale.center logical   -  TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb69-8" data-line-number="8"><span class="co">#&gt; scale.scale  logical   -  TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb69-9" data-line-number="9"><span class="co">#&gt; pca.center   logical   -  TRUE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb69-10" data-line-number="10"><span class="co">#&gt; pca.scale    logical   - FALSE      -   -    TRUE     -</span></a>
+<a class="sourceLine" id="cb69-11" data-line-number="11"><span class="co">#&gt; O       first&lt;select&gt;()[not exp'd: type = character(0), index = integer(0),</span></a>
+<a class="sourceLine" id="cb69-12" data-line-number="12"><span class="co">#&gt; |      names = character(0), pattern = Sepal, pattern.ignore.case = FALSE,</span></a>
+<a class="sourceLine" id="cb69-13" data-line-number="13"><span class="co">#&gt; |      pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE]</span></a>
+<a class="sourceLine" id="cb69-14" data-line-number="14"><span class="co">#&gt; |      </span></a>
+<a class="sourceLine" id="cb69-15" data-line-number="15"><span class="co">#&gt; O&gt;+     scale(center = TRUE, scale = TRUE)</span></a>
+<a class="sourceLine" id="cb69-16" data-line-number="16"><span class="co">#&gt; | |    </span></a>
+<a class="sourceLine" id="cb69-17" data-line-number="17"><span class="co">#&gt; +--&lt;O   second&lt;select&gt;()[not exp'd: type = character(0), index = integer(0),</span></a>
+<a class="sourceLine" id="cb69-18" data-line-number="18"><span class="co">#&gt; | |  names = character(0), pattern = Petal, pattern.ignore.case = FALSE,</span></a>
+<a class="sourceLine" id="cb69-19" data-line-number="19"><span class="co">#&gt; | |  pattern.perl = FALSE, pattern.fixed = FALSE, invert = FALSE]</span></a>
+<a class="sourceLine" id="cb69-20" data-line-number="20"><span class="co">#&gt; | |  </span></a>
+<a class="sourceLine" id="cb69-21" data-line-number="21"><span class="co">#&gt; +&lt;O   pca(center = TRUE, scale = FALSE)[not exp'd: tol = &lt;NULL&gt;, rank =</span></a>
+<a class="sourceLine" id="cb69-22" data-line-number="22"><span class="co">#&gt; |  &lt;NULL&gt;]</span></a>
+<a class="sourceLine" id="cb69-23" data-line-number="23"><span class="co">#&gt; |  </span></a>
+<a class="sourceLine" id="cb69-24" data-line-number="24"><span class="co">#&gt; O   CBIND[,,]</span></a>
+<a class="sourceLine" id="cb69-25" data-line-number="25"><span class="co">#&gt; </span></a></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1">iris.demo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cbinder</a>
+<a class="sourceLine" id="cb70-2" data-line-number="2"><span class="co">#&gt;     Sepal.Length Sepal.Width        PC1        PC2 Petal.Length Petal.Width</span></a>
+<a class="sourceLine" id="cb70-3" data-line-number="3"><span class="co">#&gt; 1    -0.75858917   1.5562541 -1.6368414  0.5640343          1.4         0.2</span></a>
+<a class="sourceLine" id="cb70-4" data-line-number="4"><span class="co">#&gt; 2    -0.95897121  -0.4611123 -0.3520394 -1.0041507          1.4         0.2</span></a>
+<a class="sourceLine" id="cb70-5" data-line-number="5"><span class="co">#&gt; 3    -1.15935326   0.3458343 -1.0643283 -0.5752448          1.3         0.2</span></a>
+<a class="sourceLine" id="cb70-6" data-line-number="6"><span class="co">#&gt; 51    1.14504025   0.3458343  0.5651240  1.0542075          4.7         1.4</span></a>
+<a class="sourceLine" id="cb70-7" data-line-number="7"><span class="co">#&gt; 52    0.54389412   0.3458343  0.1400495  0.6291330          4.5         1.5</span></a>
+<a class="sourceLine" id="cb70-8" data-line-number="8"><span class="co">#&gt; 102  -0.05725201  -1.6715322  1.1414685 -1.2224350          5.1         1.9</span></a>
+<a class="sourceLine" id="cb70-9" data-line-number="9"><span class="co">#&gt; 103   1.24523128  -0.4611123  1.2065671  0.5544558          5.9         2.1</span></a></code></pre></div>
 </div>
 </div>
 <div id="custom-cpos" class="section level2">
@@ -1079,6 +1084,9 @@ Table of Contents
 </ul>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
