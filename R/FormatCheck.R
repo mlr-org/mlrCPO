@@ -458,7 +458,7 @@ assertTargetShapeConform = function(data, shapeinfo, operating.type, name) {
 # @return [ShapeInfo] a simple datastructure that contains information about data column names and types
 makeShapeInfo = function(data) {
   makeS3Obj("ShapeInfo",
-    colnames = colnames(data),
+    colnames = colnames(data) %??% character(0),
     coltypes = vcapply(data, function(x) class(x)[1]))
 }
 

@@ -28,7 +28,9 @@ The retrieved CPOs will have the hyperparameter set according to the hyperparame
 This function is complementary to \code{\link{getLearnerBare}}.
 }
 \seealso{
-Other CPOLearner related: \code{\link{CPOLearner}},
-  \code{\link{attachCPO}}, \code{\link{getLearnerBare}}
+Other CPOLearner related: 
+\code{\link{CPOLearner}},
+\code{\link{attachCPO}()},
+\code{\link{getLearnerBare}()}
 }
 \concept{CPOLearner related}

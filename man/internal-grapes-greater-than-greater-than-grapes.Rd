@@ -9,17 +9,17 @@
 \alias{internal\%|<\%}
 \title{Internally Used \code{\%>>\%} Operators}
 \usage{
-"internal\%>>\%"(cpo1, cpo2)
+`internal\%>>\%`(cpo1, cpo2)
 
-"internal\%<<\%"(cpo2, cpo1)
+`internal\%<<\%`(cpo2, cpo1)
 
-"internal\%<>>\%"(cpo1, cpo2)
+`internal\%<>>\%`(cpo1, cpo2)
 
-"internal\%<<<\%"(cpo2, cpo1)
+`internal\%<<<\%`(cpo2, cpo1)
 
-"internal\%>|\%"(cpo1, cpo2)
+`internal\%>|\%`(cpo1, cpo2)
 
-"internal\%|<\%"(cpo2, cpo1)
+`internal\%|<\%`(cpo2, cpo1)
 }
 \arguments{
 \item{cpo1}{[\code{\link[base]{data.frame}} | \code{\link[mlr]{Task}} | \code{\link{CPO}} | \code{\link{CPOTrained}}]\cr

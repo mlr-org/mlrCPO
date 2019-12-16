@@ -24,15 +24,17 @@ are in one-to-one correspondence to the \code{affect.*} parameters given to the 
 see the parameter documentation there.
 }
 \seealso{
-Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{setCPOId}}
+Other getters and setters: 
+\code{\link{CPO}},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOId}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{setCPOId}()}
 }
 \concept{getters and setters}

@@ -18,28 +18,40 @@ Get the \code{\link{CPOConstructor}} used to create a \code{\link{CPO}} or \code
 Only primitive \code{\link{CPO}} or \code{\link{CPOTrained}} objects have an originating \code{\link{CPOConstructor}}.
 }
 \seealso{
-Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOId}}, \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{setCPOId}}
+Other getters and setters: 
+\code{\link{CPO}},
+\code{\link{getCPOAffect}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOId}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{setCPOId}()}
 
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 
-Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOClass}}, \code{\link{getCPOName}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}},
-  \code{\link{print.CPOConstructor}}
+Other CPOConstructor related: 
+\code{\link{CPOConstructor}},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOName}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()},
+\code{\link{print.CPOConstructor}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOConstructor related}

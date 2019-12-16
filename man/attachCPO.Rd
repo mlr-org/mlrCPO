@@ -24,21 +24,32 @@ data, and the \code{\link{CPOInverter}} objects to predictions made by the inter
 The \code{\link{\%>>\%}} operator can be used synonymously to attach CPO objects to Learners.
 }
 \seealso{
-Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{composeCPO}}, \code{\link{pipeCPO}}
+Other operators: 
+\code{\link{CPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{composeCPO}()},
+\code{\link{pipeCPO}()}
 
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{composeCPO}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 
-Other CPOLearner related: \code{\link{CPOLearner}},
-  \code{\link{getLearnerBare}}, \code{\link{getLearnerCPO}}
+Other CPOLearner related: 
+\code{\link{CPOLearner}},
+\code{\link{getLearnerBare}()},
+\code{\link{getLearnerCPO}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOLearner related}

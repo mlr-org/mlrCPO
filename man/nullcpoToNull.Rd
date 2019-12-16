@@ -17,7 +17,9 @@ The cpo.}
 Convert \code{\link{NULLCPO}} to \code{NULL}, leave other values intact.
 }
 \seealso{
-Other NULLCPO related: \code{\link{NULLCPO}},
-  \code{\link{is.nullcpo}}, \code{\link{nullToNullcpo}}
+Other NULLCPO related: 
+\code{\link{NULLCPO}},
+\code{\link{is.nullcpo}()},
+\code{\link{nullToNullcpo}()}
 }
 \concept{NULLCPO related}

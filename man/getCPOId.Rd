@@ -23,18 +23,21 @@ id as prefix. This makes it possible to
 compose CPOs that have clashing parameter names.
 }
 \seealso{
-Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{setCPOId}}
+Other getters and setters: 
+\code{\link{CPO}},
+\code{\link{getCPOAffect}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{setCPOId}()}
 
-Other CPO ID related: \code{\link{setCPOId}}
+Other CPO ID related: 
+\code{\link{setCPOId}()}
 }
 \concept{CPO ID related}
 \concept{getters and setters}

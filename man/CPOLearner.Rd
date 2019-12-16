@@ -38,17 +38,24 @@ predict(model, pid.task)  # otherwise behaves like an mlr model
 
 }
 \seealso{
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOTrained}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{composeCPO}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 
-Other CPOLearner related: \code{\link{attachCPO}},
-  \code{\link{getLearnerBare}}, \code{\link{getLearnerCPO}}
+Other CPOLearner related: 
+\code{\link{attachCPO}()},
+\code{\link{getLearnerBare}()},
+\code{\link{getLearnerCPO}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOLearner related}

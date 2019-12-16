@@ -39,18 +39,27 @@ that was used to create it, and therefore on their original position in the CPO 
 training.
 }
 \seealso{
-Other operators: \code{\link{CPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{attachCPO}}, \code{\link{pipeCPO}}
+Other operators: 
+\code{\link{CPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{attachCPO}()},
+\code{\link{pipeCPO}()}
 
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 }
 \concept{CPO lifecycle related}
 \concept{operators}

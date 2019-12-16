@@ -21,51 +21,70 @@ The only case where this is \emph{not true} is if \code{cpo} is a \code{\link{CP
 that was created using \code{\link{makeCPOTrainedFromState}}.
 }
 \seealso{
-Other getters and setters: \code{\link{CPO}},
-  \code{\link{getCPOAffect}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}}, \code{\link{getCPOId}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{setCPOId}}
+Other getters and setters: 
+\code{\link{CPO}},
+\code{\link{getCPOAffect}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOId}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{setCPOId}()}
 
-Other retrafo related: \code{\link{CPOTrained}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{getCPOTrainedState}},
-  \code{\link{is.retrafo}},
-  \code{\link{makeCPOTrainedFromState}},
-  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+Other retrafo related: 
+\code{\link{CPOTrained}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{clearRI}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{getCPOTrainedState}()},
+\code{\link{is.retrafo}()},
+\code{\link{makeCPOTrainedFromState}()},
+\code{\link{pipeCPO}()},
+\code{\link{print.CPOConstructor}()}
 
-Other inverter related: \code{\link{CPOTrained}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{getCPOTrainedState}},
-  \code{\link{is.inverter}},
-  \code{\link{makeCPOTrainedFromState}},
-  \code{\link{pipeCPO}}, \code{\link{print.CPOConstructor}}
+Other inverter related: 
+\code{\link{CPOTrained}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{clearRI}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{getCPOTrainedState}()},
+\code{\link{is.inverter}()},
+\code{\link{makeCPOTrainedFromState}()},
+\code{\link{pipeCPO}()},
+\code{\link{print.CPOConstructor}()}
 
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 }
 \concept{CPO lifecycle related}
 \concept{getters and setters}

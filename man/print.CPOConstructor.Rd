@@ -46,41 +46,51 @@ Verbose printing can also be done using the \code{!} operator. \code{!cpo} is eq
 \code{print(cpo, verbose = TRUE)}.
 }
 \seealso{
-Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOName}}, \code{\link{identicalCPO}},
-  \code{\link{makeCPO}}
+Other CPOConstructor related: 
+\code{\link{CPOConstructor}},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOName}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 
-Other retrafo related: \code{\link{CPOTrained}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{getCPOTrainedState}},
-  \code{\link{is.retrafo}},
-  \code{\link{makeCPOTrainedFromState}},
-  \code{\link{pipeCPO}}
+Other retrafo related: 
+\code{\link{CPOTrained}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{clearRI}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{getCPOTrainedState}()},
+\code{\link{is.retrafo}()},
+\code{\link{makeCPOTrainedFromState}()},
+\code{\link{pipeCPO}()}
 
-Other inverter related: \code{\link{CPOTrained}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{applyCPO}}, \code{\link{as.list.CPO}},
-  \code{\link{clearRI}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOName}},
-  \code{\link{getCPOOperatingType}},
-  \code{\link{getCPOPredictType}},
-  \code{\link{getCPOProperties}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{getCPOTrainedCapability}},
-  \code{\link{getCPOTrainedState}},
-  \code{\link{is.inverter}},
-  \code{\link{makeCPOTrainedFromState}},
-  \code{\link{pipeCPO}}
+Other inverter related: 
+\code{\link{CPOTrained}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{applyCPO}()},
+\code{\link{as.list.CPO}},
+\code{\link{clearRI}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOName}()},
+\code{\link{getCPOOperatingType}()},
+\code{\link{getCPOPredictType}()},
+\code{\link{getCPOProperties}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{getCPOTrainedCapability}()},
+\code{\link{getCPOTrainedState}()},
+\code{\link{is.inverter}()},
+\code{\link{makeCPOTrainedFromState}()},
+\code{\link{pipeCPO}()}
 }
 \concept{CPOConstructor related}
 \concept{inverter related}

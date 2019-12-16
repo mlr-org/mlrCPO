@@ -8,56 +8,105 @@
 \alias{makeCPOExtendedTargetOp}
 \title{Create a Custom CPO Constructor}
 \usage{
-makeCPO(cpo.name, par.set = makeParamSet(), par.vals = NULL,
-  dataformat = c("df.features", "split", "df.all", "task", "factor",
-  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
-  export.params = TRUE, fix.factors = FALSE,
+makeCPO(
+  cpo.name,
+  par.set = makeParamSet(),
+  par.vals = NULL,
+  dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered",
+    "numeric"),
+  dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE,
+  fix.factors = FALSE,
   properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = character(0), properties.needed = character(0),
-  properties.target = c("cluster", "classif", "multilabel", "regr",
-  "surv", "oneclass", "twoclass", "multiclass"), packages = character(0),
-  cpo.train, cpo.retrafo)
+  properties.adding = character(0),
+  properties.needed = character(0),
+  properties.target = c("cluster", "classif", "multilabel", "regr", "surv", "oneclass",
+    "twoclass", "multiclass"),
+  packages = character(0),
+  cpo.train,
+  cpo.retrafo
+)
 
-makeCPOExtendedTrafo(cpo.name, par.set = makeParamSet(),
-  par.vals = NULL, dataformat = c("df.features", "split", "df.all",
-  "task", "factor", "ordered", "numeric"),
-  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
-  fix.factors = FALSE, properties.data = c("numerics", "factors",
-  "ordered", "missings"), properties.adding = character(0),
-  properties.needed = character(0), properties.target = c("cluster",
-  "classif", "multilabel", "regr", "surv", "oneclass", "twoclass",
-  "multiclass"), packages = character(0), cpo.trafo, cpo.retrafo)
+makeCPOExtendedTrafo(
+  cpo.name,
+  par.set = makeParamSet(),
+  par.vals = NULL,
+  dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered",
+    "numeric"),
+  dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE,
+  fix.factors = FALSE,
+  properties.data = c("numerics", "factors", "ordered", "missings"),
+  properties.adding = character(0),
+  properties.needed = character(0),
+  properties.target = c("cluster", "classif", "multilabel", "regr", "surv", "oneclass",
+    "twoclass", "multiclass"),
+  packages = character(0),
+  cpo.trafo,
+  cpo.retrafo
+)
 
-makeCPORetrafoless(cpo.name, par.set = makeParamSet(), par.vals = NULL,
+makeCPORetrafoless(
+  cpo.name,
+  par.set = makeParamSet(),
+  par.vals = NULL,
   dataformat = c("df.all", "task"),
-  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
-  fix.factors = FALSE, properties.data = c("numerics", "factors",
-  "ordered", "missings"), properties.adding = character(0),
-  properties.needed = character(0), properties.target = c("cluster",
-  "classif", "multilabel", "regr", "surv", "oneclass", "twoclass",
-  "multiclass"), packages = character(0), cpo.trafo)
-
-makeCPOTargetOp(cpo.name, par.set = makeParamSet(), par.vals = NULL,
-  dataformat = c("df.features", "split", "df.all", "task", "factor",
-  "ordered", "numeric"), dataformat.factor.with.ordered = TRUE,
-  export.params = TRUE, fix.factors = FALSE,
+  dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE,
+  fix.factors = FALSE,
   properties.data = c("numerics", "factors", "ordered", "missings"),
-  properties.adding = character(0), properties.needed = character(0),
-  properties.target = "cluster", task.type.out = NULL,
-  predict.type.map = c(response = "response"), packages = character(0),
-  constant.invert = FALSE, cpo.train, cpo.retrafo, cpo.train.invert,
-  cpo.invert)
+  properties.adding = character(0),
+  properties.needed = character(0),
+  properties.target = c("cluster", "classif", "multilabel", "regr", "surv", "oneclass",
+    "twoclass", "multiclass"),
+  packages = character(0),
+  cpo.trafo
+)
 
-makeCPOExtendedTargetOp(cpo.name, par.set = makeParamSet(),
-  par.vals = NULL, dataformat = c("df.features", "split", "df.all",
-  "task", "factor", "ordered", "numeric"),
-  dataformat.factor.with.ordered = TRUE, export.params = TRUE,
-  fix.factors = FALSE, properties.data = c("numerics", "factors",
-  "ordered", "missings"), properties.adding = character(0),
-  properties.needed = character(0), properties.target = "cluster",
-  task.type.out = NULL, predict.type.map = c(response = "response"),
-  packages = character(0), constant.invert = FALSE, cpo.trafo,
-  cpo.retrafo, cpo.invert)
+makeCPOTargetOp(
+  cpo.name,
+  par.set = makeParamSet(),
+  par.vals = NULL,
+  dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered",
+    "numeric"),
+  dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE,
+  fix.factors = FALSE,
+  properties.data = c("numerics", "factors", "ordered", "missings"),
+  properties.adding = character(0),
+  properties.needed = character(0),
+  properties.target = "cluster",
+  task.type.out = NULL,
+  predict.type.map = c(response = "response"),
+  packages = character(0),
+  constant.invert = FALSE,
+  cpo.train,
+  cpo.retrafo,
+  cpo.train.invert,
+  cpo.invert
+)
+
+makeCPOExtendedTargetOp(
+  cpo.name,
+  par.set = makeParamSet(),
+  par.vals = NULL,
+  dataformat = c("df.features", "split", "df.all", "task", "factor", "ordered",
+    "numeric"),
+  dataformat.factor.with.ordered = TRUE,
+  export.params = TRUE,
+  fix.factors = FALSE,
+  properties.data = c("numerics", "factors", "ordered", "missings"),
+  properties.adding = character(0),
+  properties.needed = character(0),
+  properties.target = "cluster",
+  task.type.out = NULL,
+  predict.type.map = c(response = "response"),
+  packages = character(0),
+  constant.invert = FALSE,
+  cpo.trafo,
+  cpo.retrafo,
+  cpo.invert
+)
 }
 \arguments{
 \item{cpo.name}{[\code{character(1)}]\cr
@@ -615,20 +664,27 @@ constFeatRem = makeCPO("constFeatRem",
   }, cpo.retrafo = NULL)
 }
 \seealso{
-Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOName}}, \code{\link{identicalCPO}},
-  \code{\link{print.CPOConstructor}}
+Other CPOConstructor related: 
+\code{\link{CPOConstructor}},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOName}()},
+\code{\link{identicalCPO}()},
+\code{\link{print.CPOConstructor}()}
 
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOConstructor related}

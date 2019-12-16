@@ -31,19 +31,27 @@ This function is used in \code{\link{cpoCbind}} to check for equality of underly
 \code{\link{CPO}}s.
 }
 \seealso{
-Other CPO lifecycle related: \code{\link{CPOConstructor}},
-  \code{\link{CPOLearner}}, \code{\link{CPOTrained}},
-  \code{\link{CPO}}, \code{\link{NULLCPO}},
-  \code{\link{\%>>\%}}, \code{\link{attachCPO}},
-  \code{\link{composeCPO}}, \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOConstructor}},
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{makeCPO}()}
 
-Other CPOConstructor related: \code{\link{CPOConstructor}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOName}}, \code{\link{makeCPO}},
-  \code{\link{print.CPOConstructor}}
+Other CPOConstructor related: 
+\code{\link{CPOConstructor}},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOName}()},
+\code{\link{makeCPO}()},
+\code{\link{print.CPOConstructor}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOConstructor related}

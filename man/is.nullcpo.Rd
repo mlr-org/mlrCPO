@@ -17,7 +17,9 @@ The object to check}
 Check whether the given object is a \code{\link{NULLCPO}}.
 }
 \seealso{
-Other NULLCPO related: \code{\link{NULLCPO}},
-  \code{\link{nullToNullcpo}}, \code{\link{nullcpoToNull}}
+Other NULLCPO related: 
+\code{\link{NULLCPO}},
+\code{\link{nullToNullcpo}()},
+\code{\link{nullcpoToNull}()}
 }
 \concept{NULLCPO related}

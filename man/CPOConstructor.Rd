@@ -91,19 +91,27 @@ class(cpoPca())  # c("CPOPrimitive", "CPO")
 \seealso{
 \code{\link{print.CPOConstructor}} for possibly verbose printing.
 
-Other CPO lifecycle related: \code{\link{CPOLearner}},
-  \code{\link{CPOTrained}}, \code{\link{CPO}},
-  \code{\link{NULLCPO}}, \code{\link{\%>>\%}},
-  \code{\link{attachCPO}}, \code{\link{composeCPO}},
-  \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOTrainedCPO}},
-  \code{\link{identicalCPO}}, \code{\link{makeCPO}}
+Other CPO lifecycle related: 
+\code{\link{CPOLearner}},
+\code{\link{CPOTrained}},
+\code{\link{CPO}},
+\code{\link{NULLCPO}},
+\code{\link{\%>>\%}()},
+\code{\link{attachCPO}()},
+\code{\link{composeCPO}()},
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOTrainedCPO}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()}
 
-Other CPOConstructor related: \code{\link{getCPOClass}},
-  \code{\link{getCPOConstructor}},
-  \code{\link{getCPOName}}, \code{\link{identicalCPO}},
-  \code{\link{makeCPO}}, \code{\link{print.CPOConstructor}}
+Other CPOConstructor related: 
+\code{\link{getCPOClass}()},
+\code{\link{getCPOConstructor}()},
+\code{\link{getCPOName}()},
+\code{\link{identicalCPO}()},
+\code{\link{makeCPO}()},
+\code{\link{print.CPOConstructor}()}
 }
 \concept{CPO lifecycle related}
 \concept{CPOConstructor related}

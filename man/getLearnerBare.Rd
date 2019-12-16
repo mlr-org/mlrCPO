@@ -23,7 +23,9 @@ tuning wrapper, there are more CPOs. These can and will not be removed.
 This function is complementary to \code{\link{getLearnerCPO}}.
 }
 \seealso{
-Other CPOLearner related: \code{\link{CPOLearner}},
-  \code{\link{attachCPO}}, \code{\link{getLearnerCPO}}
+Other CPOLearner related: 
+\code{\link{CPOLearner}},
+\code{\link{attachCPO}()},
+\code{\link{getLearnerCPO}()}
 }
 \concept{CPOLearner related}
