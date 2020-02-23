@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2019-12-16" />
+<meta name="date" content="2020-02-23" />
 
 <title>mlrCPO Core (No Output)</title>
 
@@ -23,7 +22,7 @@
 <style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -36,11 +35,13 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
 pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -118,9 +119,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -289,7 +287,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -304,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">mlrCPO Core (No Output)</h1>
 <h4 class="author">Martin Binder</h4>
-<h4 class="date">2019-12-16</h4>
+<h4 class="date">2020-02-23</h4>
 
 
 
@@ -413,19 +412,19 @@ Table of Contents
 <div id="lifecycle-of-a-cpo" class="section level2">
 <h2>Lifecycle of a CPO</h2>
 <p><strong>CPO</strong>s are first-class objects in R that represent data manipulation. They can be combined to form networks of operation, they can be attached to <code>mlr</code> <code>Learner</code>s, and they have tunable Hyperparameters that influence their behaviour. <code>CPO</code>s go through a lifecycle from construction to <code>CPO</code> to a <code>CPOTrained</code> “retrafo” or “inverter” object. The different stages of a <code>CPO</code> related object can be distinguished using <strong><code>getCPOClass()</code></strong>, which takes one of five values:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">getCPOClass</span>(cpoPca)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">getCPOClass</span>(<span class="kw">cpoPca</span>())</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">getCPOClass</span>(pid.task <span class="op">%&gt;|%</span><span class="st"> </span><span class="kw">cpoPca</span>())</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">getCPOClass</span>(<span class="kw">inverter</span>(bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()))</a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw">getCPOClass</span>(NULLCPO)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">getCPOClass</span>(cpoPca)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">getCPOClass</span>(<span class="kw">cpoPca</span>())</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">getCPOClass</span>(pid.task <span class="op">%&gt;|%</span><span class="st"> </span><span class="kw">cpoPca</span>())</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">getCPOClass</span>(<span class="kw">inverter</span>(bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()))</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">getCPOClass</span>(NULLCPO)</a></code></pre></div>
 <div id="cpoconstructor" class="section level3">
 <h3>CPOConstructor</h3>
 <p><code>CPO</code>s are created using <strong><code>CPOConstructor</code></strong>s. These are R functions with a print function and many parameters in common.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">print</span>(cpoAsNumeric)  <span class="co"># example CPOConstructor</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="kw">print</span>(cpoAsNumeric, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)  <span class="co"># alternative: !cpoAsNumeric</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">class</span>(cpoAsNumeric)</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">getCPOName</span>(cpoPca)  <span class="co"># same as getCPOName() of the *constructed* CPO</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="kw">getCPOClass</span>(cpoPca)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">print</span>(cpoAsNumeric)  <span class="co"># example CPOConstructor</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">print</span>(cpoAsNumeric, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)  <span class="co"># alternative: !cpoAsNumeric</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">class</span>(cpoAsNumeric)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw">getCPOName</span>(cpoPca)  <span class="co"># same as getCPOName() of the *constructed* CPO</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw">getCPOClass</span>(cpoPca)</a></code></pre></div>
 <p>The function parameters of a <code>CPOConstructor</code></p>
 <ul>
 <li>set the <code>CPO</code> Hyperparameters</li>
@@ -433,44 +432,44 @@ Table of Contents
 <li>resetrict the data columns a CPO operates on (<code>affect.*</code> parameters)</li>
 <li>control which of the <code>CPO</code>’s hyperparameters are “exported”, i.e. can late be manipulated using <code>setHyperPars()</code>.</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">names</span>(<span class="kw">formals</span>(cpoPca))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">names</span>(<span class="kw">formals</span>(cpoPca))</a></code></pre></div>
 </div>
 <div id="cpo" class="section level3">
 <h3>CPO</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">(<span class="dt">cpo =</span> <span class="kw">cpoScale</span>()) <span class="co"># construct CPO with default Hyperparameter values</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="kw">print</span>(cpo, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)  <span class="co"># detailed printing. Alternative: !cpo</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="kw">class</span>(cpo)  <span class="co"># CPOs that are not compound are &quot;CPOPrimitive&quot;</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="kw">getCPOClass</span>(cpo)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">(<span class="dt">cpo =</span> <span class="kw">cpoScale</span>()) <span class="co"># construct CPO with default Hyperparameter values</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">print</span>(cpo, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)  <span class="co"># detailed printing. Alternative: !cpo</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw">class</span>(cpo)  <span class="co"># CPOs that are not compound are &quot;CPOPrimitive&quot;</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw">getCPOClass</span>(cpo)</a></code></pre></div>
 <div id="functions-that-work-on-cpos" class="section level4">
 <h4>Functions that work on CPOs</h4>
 <p>The inner “state” of a <code>CPO</code> can be inspected and manipulated using various getters and setters.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">getParamSet</span>(cpo)</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw">getHyperPars</span>(cpo)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">setHyperPars</span>(cpo, <span class="dt">scale.center =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="kw">getCPOId</span>(cpo)</a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="kw">setCPOId</span>(cpo, <span class="st">&quot;MYID&quot;</span>)</a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="kw">getCPOName</span>(cpo)</a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="kw">getCPOAffect</span>(cpo)  <span class="co"># empty, since no affect set</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="kw">getCPOAffect</span>(<span class="kw">cpoPca</span>(<span class="dt">affect.pattern =</span> <span class="st">&quot;Width$&quot;</span>))</a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="kw">getCPOConstructor</span>(cpo)  <span class="co"># the constructor used to create the CPO</span></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="kw">getCPOProperties</span>(cpo)  <span class="co"># see properties explanation below</span></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="kw">getCPOPredictType</span>(cpo)</a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="kw">getCPOClass</span>(cpo)</a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="kw">getCPOOperatingType</span>(cpo)  <span class="co"># Operating on feature, target, retrafoless?</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">getParamSet</span>(cpo)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">getHyperPars</span>(cpo)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">setHyperPars</span>(cpo, <span class="dt">scale.center =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw">getCPOId</span>(cpo)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw">setCPOId</span>(cpo, <span class="st">&quot;MYID&quot;</span>)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="kw">getCPOName</span>(cpo)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="kw">getCPOAffect</span>(cpo)  <span class="co"># empty, since no affect set</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw">getCPOAffect</span>(<span class="kw">cpoPca</span>(<span class="dt">affect.pattern =</span> <span class="st">&quot;Width$&quot;</span>))</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="kw">getCPOConstructor</span>(cpo)  <span class="co"># the constructor used to create the CPO</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="kw">getCPOProperties</span>(cpo)  <span class="co"># see properties explanation below</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="kw">getCPOPredictType</span>(cpo)</a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw">getCPOClass</span>(cpo)</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="kw">getCPOOperatingType</span>(cpo)  <span class="co"># Operating on feature, target, retrafoless?</span></a></code></pre></div>
 <p>Compare the predict type and operating type of a TOCPO or ROCPO:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">getCPOPredictType</span>(<span class="kw">cpoResponseFromSE</span>())</a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoResponseFromSE</span>())</a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoSample</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">getCPOPredictType</span>(<span class="kw">cpoResponseFromSE</span>())</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoResponseFromSE</span>())</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoSample</span>())</a></code></pre></div>
 <p>The <code>identicalCPO()</code> function is used to check whether the <em>underlying operation</em> of two <code>CPO</code>s is identical. For this understanding, <code>CPO</code>s with different hyperparameters can still be “identical”.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">identicalCPO</span>(<span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">TRUE</span>), <span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">identicalCPO</span>(<span class="kw">cpoScale</span>(), <span class="kw">cpoPca</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">identicalCPO</span>(<span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">TRUE</span>), <span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">identicalCPO</span>(<span class="kw">cpoScale</span>(), <span class="kw">cpoPca</span>())</a></code></pre></div>
 </div>
 <div id="cpo-application" class="section level4">
 <h4>CPO Application</h4>
 <p><code>CPO</code>s can be applied to <code>data.frame</code> and <code>Task</code> objects using <code>%&gt;&gt;%</code> or <code>applyCPO</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
-<a class="sourceLine" id="cb8-2" title="2">task =<span class="st"> </span><span class="kw">applyCPO</span>(<span class="kw">cpoPca</span>(), iris.task)</a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="kw">head</span>(<span class="kw">getTaskData</span>(task))</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">task =<span class="st"> </span><span class="kw">applyCPO</span>(<span class="kw">cpoPca</span>(), iris.task)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">head</span>(<span class="kw">getTaskData</span>(task))</a></code></pre></div>
 </div>
 <div id="cpo-composition" class="section level4">
 <h4>CPO Composition</h4>
@@ -479,158 +478,158 @@ Table of Contents
 <li>Compound CPOs have no <code>id</code></li>
 <li>Affect of compound CPOs cannot be retrieved</li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">scale =<span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb9-2" title="2">pca =<span class="st"> </span><span class="kw">cpoPca</span>()</a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">compound =<span class="st"> </span>scale <span class="op">%&gt;&gt;%</span><span class="st"> </span>pca</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">composeCPO</span>(scale, pca)  <span class="co"># same</span></a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="kw">class</span>(compound)</a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="op">!</span>compound</a>
-<a class="sourceLine" id="cb10-5" title="5"><span class="kw">getCPOName</span>(compound)</a>
-<a class="sourceLine" id="cb10-6" title="6"><span class="kw">getHyperPars</span>(compound)</a>
-<a class="sourceLine" id="cb10-7" title="7"><span class="kw">setHyperPars</span>(compound, <span class="dt">scale.center =</span> <span class="ot">TRUE</span>, <span class="dt">pca.center =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">getCPOId</span>(compound)  <span class="co"># error: no ID for compound CPOs</span></a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="kw">getCPOAffect</span>(compound)  <span class="co"># error: no affect for compound CPOs</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">scale =<span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">pca =<span class="st"> </span><span class="kw">cpoPca</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">compound =<span class="st"> </span>scale <span class="op">%&gt;&gt;%</span><span class="st"> </span>pca</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw">composeCPO</span>(scale, pca)  <span class="co"># same</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">class</span>(compound)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="op">!</span>compound</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="kw">getCPOName</span>(compound)</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="kw">getHyperPars</span>(compound)</a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="kw">setHyperPars</span>(compound, <span class="dt">scale.center =</span> <span class="ot">TRUE</span>, <span class="dt">pca.center =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">getCPOId</span>(compound)  <span class="co"># error: no ID for compound CPOs</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw">getCPOAffect</span>(compound)  <span class="co"># error: no affect for compound CPOs</span></a></code></pre></div>
 <p><code>getCPOOperatingType()</code> always considers the operating type of the whole <code>CPO</code> chain and may return multiple values:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">getCPOOperatingType</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoScale</span>())</a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoSample</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">getCPOOperatingType</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoScale</span>())</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="kw">getCPOOperatingType</span>(<span class="kw">cpoScale</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoSample</span>())</a></code></pre></div>
 </div>
 <div id="compound-cpo-chaining-and-decomposition" class="section level4">
 <h4>Compound CPO Chaining and Decomposition</h4>
 <p>Composite <code>CPO</code> objects can be broken into their constituent primitive <code>CPO</code>s using <code>as.list()</code>. The inverse of this operation is <code>pipeCPO()</code>, which composes a list of <code>CPO</code>s in the given order.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">as.list</span>(compound)</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="kw">pipeCPO</span>(<span class="kw">as.list</span>(compound))  <span class="co"># chainCPO: (list of CPO) -&gt; CPO</span></a>
-<a class="sourceLine" id="cb13-3" title="3"><span class="kw">pipeCPO</span>(<span class="kw">list</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">as.list</span>(compound)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="kw">pipeCPO</span>(<span class="kw">as.list</span>(compound))  <span class="co"># chainCPO: (list of CPO) -&gt; CPO</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw">pipeCPO</span>(<span class="kw">list</span>())</a></code></pre></div>
 </div>
 </div>
 <div id="cpolearner" class="section level3">
 <h3>CPOLearner</h3>
 <p>CPO-Learner attachment works using <code>%&gt;&gt;%</code> or <code>attachCPO</code>.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">lrn =<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)</a>
-<a class="sourceLine" id="cb14-2" title="2">(<span class="dt">cpolrn =</span> cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span>lrn)  <span class="co"># the new learner has the CPO hyperparameters</span></a>
-<a class="sourceLine" id="cb14-3" title="3"><span class="kw">attachCPO</span>(compound, lrn)  <span class="co"># attaching compound CPO</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">lrn =<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.logreg&quot;</span>)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">(<span class="dt">cpolrn =</span> cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span>lrn)  <span class="co"># the new learner has the CPO hyperparameters</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw">attachCPO</span>(compound, lrn)  <span class="co"># attaching compound CPO</span></a></code></pre></div>
 <p>The new object is a <code>CPOLearner</code>, which performs the operation given by the <code>CPO</code> before trainign the <code>Learner</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">class</span>(lrn)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">class</span>(lrn)</a></code></pre></div>
 <p>The work performed by a <code>CPOLearner</code> can also be performed manually:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">lrn =<span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.lm&quot;</span>)</a>
-<a class="sourceLine" id="cb16-2" title="2">model =<span class="st"> </span><span class="kw">train</span>(lrn, <span class="kw">subsetTask</span>(bh.task, <span class="dv">1</span><span class="op">:</span><span class="dv">300</span>))</a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="kw">predict</span>(model, <span class="kw">subsetTask</span>(bh.task, <span class="dv">301</span><span class="op">:</span><span class="dv">500</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">lrn =<span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>() <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.lm&quot;</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">model =<span class="st"> </span><span class="kw">train</span>(lrn, <span class="kw">subsetTask</span>(bh.task, <span class="dv">1</span><span class="op">:</span><span class="dv">300</span>))</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw">predict</span>(model, <span class="kw">subsetTask</span>(bh.task, <span class="dv">301</span><span class="op">:</span><span class="dv">500</span>))</a></code></pre></div>
 <p>is equivalent to</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">trafo =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">1</span><span class="op">:</span><span class="dv">300</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
-<a class="sourceLine" id="cb17-2" title="2">model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, trafo)</a>
-<a class="sourceLine" id="cb17-3" title="3"></a>
-<a class="sourceLine" id="cb17-4" title="4">newdata =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">301</span><span class="op">:</span><span class="dv">500</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(trafo)</a>
-<a class="sourceLine" id="cb17-5" title="5">pred =<span class="st"> </span><span class="kw">predict</span>(model, newdata)</a>
-<a class="sourceLine" id="cb17-6" title="6"><span class="kw">invert</span>(<span class="kw">inverter</span>(newdata), pred)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">trafo =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">1</span><span class="op">:</span><span class="dv">300</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">model =<span class="st"> </span><span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, trafo)</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">newdata =<span class="st"> </span><span class="kw">subsetTask</span>(bh.task, <span class="dv">301</span><span class="op">:</span><span class="dv">500</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(trafo)</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">pred =<span class="st"> </span><span class="kw">predict</span>(model, newdata)</a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="kw">invert</span>(<span class="kw">inverter</span>(newdata), pred)</a></code></pre></div>
 <div id="cpolearner-decomposition" class="section level4">
 <h4>CPOLearner Decomposition</h4>
 <p>It is possible to obtain both the underlying <code>Learner</code> and the attached <code>CPO</code> from a <code>CPOLearner</code>. Note that if a <code>CPOLearner</code> is wrapped by some method (e.g. a <code>TuneWrapper</code>), this does not work, since <code>CPO</code> can not probe below the first wrapping layer.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">getLearnerCPO</span>(cpolrn)  <span class="co"># the CPO</span></a>
-<a class="sourceLine" id="cb18-2" title="2"><span class="kw">getLearnerBare</span>(cpolrn)  <span class="co"># the Learner</span></a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">getLearnerCPO</span>(cpolrn)  <span class="co"># the CPO</span></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw">getLearnerBare</span>(cpolrn)  <span class="co"># the Learner</span></a></code></pre></div>
 </div>
 </div>
 <div id="cpotrained" class="section level3">
 <h3>CPOTrained</h3>
 <p>CPOs perform data-dependent operation. However, when this operation becomes part of a machine-learning process, the operation on predict-data must depend only on the training data. A <code>CPORetrafo</code> object represents the re-application of a trained CPO. A <code>CPOInverter</code> object represents the transformation of a prediction made on a transformed task back to the form of the original data.</p>
 <p>The <code>CPOTrained</code> objects generated by application of a <code>CPO</code> (or application of another <code>CPOTrained</code>) can be retrieved using the <code>retrafo()</code> or the <code>inverter()</code> function.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">transformed =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb19-2" title="2"><span class="kw">head</span>(transformed)</a>
-<a class="sourceLine" id="cb19-3" title="3">(<span class="dt">ret =</span> <span class="kw">retrafo</span>(transformed))</a></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">head</span>(<span class="kw">getTaskTargets</span>(bh.task))</a>
-<a class="sourceLine" id="cb20-2" title="2">transformed =<span class="st"> </span>bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
-<a class="sourceLine" id="cb20-3" title="3"><span class="kw">head</span>(<span class="kw">getTaskTargets</span>(transformed))</a>
-<a class="sourceLine" id="cb20-4" title="4">(<span class="dt">inv =</span> <span class="kw">inverter</span>(transformed))</a>
-<a class="sourceLine" id="cb20-5" title="5"><span class="kw">head</span>(<span class="kw">invert</span>(inv, <span class="kw">getTaskTargets</span>(transformed)))</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">transformed =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw">head</span>(transformed)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">(<span class="dt">ret =</span> <span class="kw">retrafo</span>(transformed))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">head</span>(<span class="kw">getTaskTargets</span>(bh.task))</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">transformed =<span class="st"> </span>bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw">head</span>(<span class="kw">getTaskTargets</span>(transformed))</a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">(<span class="dt">inv =</span> <span class="kw">inverter</span>(transformed))</a>
+<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="kw">head</span>(<span class="kw">invert</span>(inv, <span class="kw">getTaskTargets</span>(transformed)))</a></code></pre></div>
 <p>Retrafos and inverters are stored as attributes:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">attributes</span>(transformed)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">attributes</span>(transformed)</a></code></pre></div>
 <p>It is possible to <em>set</em> the <code>&quot;retrafo&quot;</code> and <code>&quot;inverter&quot;</code> attributes of an object using <code>retrafo()</code> and <code>inverter()</code>. This can be useful for writing elegant scripts, especially since <a href="#cpotrained-are-automatically-chained">CPOTrained are automatically chained</a>. To delete the <code>CPOTrained</code> attribute of an object, set it to <code>NULL</code> or <code>NULLCPO</code>, or use <code>clearRI()</code>.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">bh2 =<span class="st"> </span>bh.task</a>
-<a class="sourceLine" id="cb22-2" title="2"><span class="kw">retrafo</span>(bh2) =<span class="st"> </span>ret</a>
-<a class="sourceLine" id="cb22-3" title="3"><span class="kw">attributes</span>(bh2)</a></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">retrafo</span>(bh2) =<span class="st"> </span>NULLCPO</a>
-<a class="sourceLine" id="cb23-2" title="2"><span class="co"># equivalent:</span></a>
-<a class="sourceLine" id="cb23-3" title="3"><span class="co"># retrafo(bh2) = NULL</span></a>
-<a class="sourceLine" id="cb23-4" title="4"><span class="kw">attributes</span>(bh2)</a></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="co"># clearRI returns the object without retrafo or inverter attributes</span></a>
-<a class="sourceLine" id="cb24-2" title="2">bh3 =<span class="st"> </span><span class="kw">clearRI</span>(transformed)</a>
-<a class="sourceLine" id="cb24-3" title="3"><span class="kw">attributes</span>(bh3)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">bh2 =<span class="st"> </span>bh.task</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="kw">retrafo</span>(bh2) =<span class="st"> </span>ret</a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw">attributes</span>(bh2)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">retrafo</span>(bh2) =<span class="st"> </span>NULLCPO</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="co"># equivalent:</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="co"># retrafo(bh2) = NULL</span></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="kw">attributes</span>(bh2)</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="co"># clearRI returns the object without retrafo or inverter attributes</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">bh3 =<span class="st"> </span><span class="kw">clearRI</span>(transformed)</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="kw">attributes</span>(bh3)</a></code></pre></div>
 <div id="functions-that-work-on-cpotrained" class="section level4">
 <h4>Functions that work on CPOTrained</h4>
 <p>General methods that work on <code>CPOTrained</code> object to inspect its object properties. Many methods that work on a <code>CPO</code> also work on a <code>CPOTrained</code> and give the same result.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">getCPOName</span>(ret)</a>
-<a class="sourceLine" id="cb25-2" title="2"><span class="kw">getParamSet</span>(ret)</a>
-<a class="sourceLine" id="cb25-3" title="3"><span class="kw">getHyperPars</span>(ret)</a>
-<a class="sourceLine" id="cb25-4" title="4"><span class="kw">getCPOProperties</span>(ret)</a>
-<a class="sourceLine" id="cb25-5" title="5"><span class="kw">getCPOPredictType</span>(ret)</a>
-<a class="sourceLine" id="cb25-6" title="6"><span class="kw">getCPOOperatingType</span>(ret)  <span class="co"># Operating on feature, target, both?</span></a>
-<a class="sourceLine" id="cb25-7" title="7"><span class="kw">getCPOOperatingType</span>(inv)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">getCPOName</span>(ret)</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw">getParamSet</span>(ret)</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="kw">getHyperPars</span>(ret)</a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="kw">getCPOProperties</span>(ret)</a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="kw">getCPOPredictType</span>(ret)</a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"><span class="kw">getCPOOperatingType</span>(ret)  <span class="co"># Operating on feature, target, both?</span></a>
+<a class="sourceLine" id="cb25-7" data-line-number="7"><span class="kw">getCPOOperatingType</span>(inv)</a></code></pre></div>
 <p>A <code>CPOTrained</code> has information about whether it can be used as a <code>CPORetrafo</code> object (and be applied to new data using <code>%&gt;&gt;%</code>), or as a <code>CPOInverter</code> object (and used by <code>invert()</code>), or possibly both. This is given by <code>getCPOTrainedCapability()</code>, which returns a <code>1</code> if the object has an effect in the given role, <code>0</code> if the object has no effect (but can be used), or <code>-1</code> if the object can not be used in the role.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">getCPOTrainedCapability</span>(ret)</a>
-<a class="sourceLine" id="cb26-2" title="2"><span class="kw">getCPOTrainedCapability</span>(inv)</a>
-<a class="sourceLine" id="cb26-3" title="3"><span class="kw">getCPOTrainedCapability</span>(NULLCPO)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">getCPOTrainedCapability</span>(ret)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="kw">getCPOTrainedCapability</span>(inv)</a>
+<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="kw">getCPOTrainedCapability</span>(NULLCPO)</a></code></pre></div>
 <p>The “<code>CPO</code> class” of a <code>CPOTrained</code> is determined by this as well. A pure inverter is <code>CPOInverter</code>, an object that can be used for retrafo is a <code>CPORetrafo</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">getCPOClass</span>(ret)</a>
-<a class="sourceLine" id="cb27-2" title="2"><span class="kw">getCPOClass</span>(inv)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">getCPOClass</span>(ret)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw">getCPOClass</span>(inv)</a></code></pre></div>
 <p>The <code>CPO</code> and the <code>CPOConstructor</code> used to create the `CPOTrained can be queried.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">getCPOTrainedCPO</span>(ret)</a>
-<a class="sourceLine" id="cb28-2" title="2"><span class="kw">getCPOConstructor</span>(ret)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">getCPOTrainedCPO</span>(ret)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="kw">getCPOConstructor</span>(ret)</a></code></pre></div>
 </div>
 <div id="cpotrained-inspection" class="section level4">
 <h4>CPOTrained Inspection</h4>
 <p><code>CPOTrained</code> objects can be inspected using <code>getCPOTrainedState()</code>. The state contains the hyperparameters, the <code>control</code> object (CPO dependent data representing the data information needed to re-apply the operation), and information about the <code>Task</code> / <code>data.frame</code> layout used for training (column names, column types) in <code>data$shapeinfo.input</code> and <code>data$shapeinfo.output</code>.</p>
 <p>The state can be manipulated and used to create new <code>CPOTrained</code>s, using <code>makeCPOTrainedFromState()</code>.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">(<span class="dt">state =</span> <span class="kw">getCPOTrainedState</span>(<span class="kw">retrafo</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>())))</a>
-<a class="sourceLine" id="cb29-2" title="2">state<span class="op">$</span>control<span class="op">$</span>center[<span class="dv">1</span>] =<span class="st"> </span><span class="dv">1000</span>  <span class="co"># will now subtract 1000 from the first column</span></a>
-<a class="sourceLine" id="cb29-3" title="3">new.retrafo =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</span>(cpoScale, state)</a>
-<a class="sourceLine" id="cb29-4" title="4"><span class="kw">head</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>new.retrafo)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">(<span class="dt">state =</span> <span class="kw">getCPOTrainedState</span>(<span class="kw">retrafo</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>())))</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2">state<span class="op">$</span>control<span class="op">$</span>center[<span class="dv">1</span>] =<span class="st"> </span><span class="dv">1000</span>  <span class="co"># will now subtract 1000 from the first column</span></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">new.retrafo =<span class="st"> </span><span class="kw">makeCPOTrainedFromState</span>(cpoScale, state)</a>
+<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="kw">head</span>(iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>new.retrafo)</a></code></pre></div>
 </div>
 <div id="cpotrained-are-automatically-chained" class="section level4">
 <h4>CPOTrained are Automatically Chained</h4>
 <p>When executing <code>data %&gt;&gt;% CPO</code>, the result has an associated <code>CPORetrafo</code> and <code>CPOInverter</code> object. When applying another <code>CPO</code>, the <code>CPORetrafo</code> and <code>CPOInverter</code> will be chained automatically. This is to make <code>(data %&gt;&gt;% CPO1) %&gt;&gt;% CPO2</code> work the same as <code>data %&gt;&gt;% (CPO1 %&gt;&gt;% CPO2)</code>.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1">data =<span class="st"> </span><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
-<a class="sourceLine" id="cb30-2" title="2"><span class="kw">retrafo</span>(data)</a>
-<a class="sourceLine" id="cb30-3" title="3">data2 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">data =<span class="st"> </span><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>()</a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="kw">retrafo</span>(data)</a>
+<a class="sourceLine" id="cb30-3" data-line-number="3">data2 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a></code></pre></div>
 <p><code>retrafo(data2)</code> is the same as <code>retrafo(data %&gt;&gt;% pca %&gt;&gt;% scale)</code>:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">retrafo</span>(data2)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">retrafo</span>(data2)</a></code></pre></div>
 <p>To interrupt this chain, set retrafo to <code>NULL</code> either explicitly, or using <code>clearRI()</code>.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">data =<span class="st"> </span><span class="kw">clearRI</span>(data)</a>
-<a class="sourceLine" id="cb32-2" title="2">data2 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb32-3" title="3"><span class="kw">retrafo</span>(data2)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">data =<span class="st"> </span><span class="kw">clearRI</span>(data)</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2">data2 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="kw">retrafo</span>(data2)</a></code></pre></div>
 <p>this is equivalent to</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">retrafo</span>(data) =<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb33-2" title="2"><span class="kw">inverter</span>(data) =<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb33-3" title="3">data3 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb33-4" title="4"><span class="kw">retrafo</span>(data3)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">retrafo</span>(data) =<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw">inverter</span>(data) =<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">data3 =<span class="st"> </span>data <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb33-4" data-line-number="4"><span class="kw">retrafo</span>(data3)</a></code></pre></div>
 </div>
 <div id="cpotrained-composition-decomposition-and-chaining" class="section level4">
 <h4>CPOTrained Composition, Decomposition, and Chaining</h4>
 <p><code>CPOTrained</code> can be composed using <code>%&gt;&gt;%</code> and <code>pipeCPO()</code>, just like <code>CPO</code>s. They can also be split apart into primitive parts using <code>as.list</code>. It is recommended to only chain <code>CPOTrained</code> objects if they were created in the given order by preprocessing operations, since <code>CPOTrained</code>s are very dependent on their position within a preprocessing pipeline.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">compound.retrafo =<span class="st"> </span><span class="kw">retrafo</span>(<span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span>compound)</a>
-<a class="sourceLine" id="cb34-2" title="2">compound.retrafo</a></code></pre></div>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">(<span class="dt">retrafolist =</span> <span class="kw">as.list</span>(compound.retrafo))</a></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1">retrafolist[[<span class="dv">1</span>]] <span class="op">%&gt;&gt;%</span><span class="st"> </span>retrafolist[[<span class="dv">2</span>]]</a>
-<a class="sourceLine" id="cb36-2" title="2"><span class="kw">pipeCPO</span>(retrafolist)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">compound.retrafo =<span class="st"> </span><span class="kw">retrafo</span>(<span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span>compound)</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2">compound.retrafo</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">(<span class="dt">retrafolist =</span> <span class="kw">as.list</span>(compound.retrafo))</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">retrafolist[[<span class="dv">1</span>]] <span class="op">%&gt;&gt;%</span><span class="st"> </span>retrafolist[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="kw">pipeCPO</span>(retrafolist)</a></code></pre></div>
 </div>
 <div id="application-of-cpotrained" class="section level4">
 <h4>Application of CPOTrained</h4>
 <p>Similarly to <code>CPO</code>s, <code>CPOTrained</code> objects can be applied to data using <code>%&gt;&gt;%</code>, <code>applyCPO</code>, or <code>predict</code>. This only works with objects that have the <code>&quot;retrafo&quot;</code> capability and hence the <code>CPORetrafo</code> class.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">transformed =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
-<a class="sourceLine" id="cb37-2" title="2"><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(transformed)</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">transformed =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoScale</span>()</a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="kw">head</span>(iris) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">retrafo</span>(transformed)</a></code></pre></div>
 <p>Should in general give the same as <code>head(transformed)</code>, since the same data was used:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">head</span>(transformed)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">head</span>(transformed)</a></code></pre></div>
 <p><strong><code>applyCPO()</code></strong> and <strong><code>predict()</code></strong> are synonyms of <code>%&gt;&gt;%</code> when used for <code>CPORetrafo</code> objects:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">applyCPO</span>(<span class="kw">retrafo</span>(transformed), <span class="kw">head</span>(iris))</a>
-<a class="sourceLine" id="cb39-2" title="2"><span class="kw">predict</span>(<span class="kw">retrafo</span>(transformed), <span class="kw">head</span>(iris))</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">applyCPO</span>(<span class="kw">retrafo</span>(transformed), <span class="kw">head</span>(iris))</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="kw">predict</span>(<span class="kw">retrafo</span>(transformed), <span class="kw">head</span>(iris))</a></code></pre></div>
 </div>
 <div id="inversion-using-cpotrained" class="section level4">
 <h4>Inversion using CPOTrained</h4>
 <p>To use <code>CPOTrained</code> objects for inversion, the <code>invert()</code> function is used. Besides the <code>CPOTrained</code>, it takes the data to invert, and optionally the <code>predict.type</code>. Typically <code>CPOTrained</code> objects that were retrieved using <code>inverter()</code> from a transformed dataset should be used for inversion. Retrafo <code>CPOTrained</code> objects retrieved from a transformed data set using <code>retrafo()</code> sometimes have both the <code>&quot;retrafo&quot;</code> as well as the <code>&quot;invert&quot;</code> capability (precisely when all TOCPOs used had the <code>constant.invert</code> flag set, see <a href="a_4_custom_CPOs.html">Building Custom CPOs</a>) and can then also be used for inversion. In that case, however, the <code>&quot;truth&quot;</code> column of an inverted prediction is dropped.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">transformed =<span class="st"> </span>bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
-<a class="sourceLine" id="cb40-2" title="2">prediction =<span class="st"> </span><span class="kw">predict</span>(<span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, transformed), transformed)</a>
-<a class="sourceLine" id="cb40-3" title="3">inv =<span class="st"> </span><span class="kw">inverter</span>(transformed)</a>
-<a class="sourceLine" id="cb40-4" title="4"><span class="kw">invert</span>(inv, prediction)</a></code></pre></div>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1">ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)</a>
-<a class="sourceLine" id="cb41-2" title="2"><span class="kw">invert</span>(ret, prediction)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">transformed =<span class="st"> </span>bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoLogTrafoRegr</span>()</a>
+<a class="sourceLine" id="cb40-2" data-line-number="2">prediction =<span class="st"> </span><span class="kw">predict</span>(<span class="kw">train</span>(<span class="st">&quot;regr.lm&quot;</span>, transformed), transformed)</a>
+<a class="sourceLine" id="cb40-3" data-line-number="3">inv =<span class="st"> </span><span class="kw">inverter</span>(transformed)</a>
+<a class="sourceLine" id="cb40-4" data-line-number="4"><span class="kw">invert</span>(inv, prediction)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1">ret =<span class="st"> </span><span class="kw">retrafo</span>(transformed)</a>
+<a class="sourceLine" id="cb41-2" data-line-number="2"><span class="kw">invert</span>(ret, prediction)</a></code></pre></div>
 <p>Inversion can be done on both predictions given by <code>mlr</code> <code>Learner</code>s, as well as plain vectors, <code>data.frame</code>s, and <code>matrix</code> objects.</p>
 <p>Note that the prediction being inverted must have the form of a prediction done with the <code>predict.type</code> that an inverter expects as input for the <code>predict.type</code> given to <code>invert()</code> as an argument. This can be queried using the <code>getCPOPredictType()</code> function. If <code>invert()</code> is called with <code>predict.type = p</code>, then the prediction must be one made with a <code>Learner</code> that has <code>predict.type</code> set to <code>getCPOPredictType(cpo)[p]</code>.</p>
 </div>
@@ -639,57 +638,57 @@ Table of Contents
 <div id="nullcpo" class="section level2">
 <h2>NULLCPO</h2>
 <p><code>NULLCPO</code> is the neutral element of <code>%&gt;&gt;%</code> and the operations it represents (<code>composeCPO()</code>, <code>applyCPO()</code>, and <code>attachCPO()</code>), i.e. when it is used as an argument of these functions, the data, <code>Learner</code> or <code>CPO</code> is not changed. <code>NULLCPO</code> is also the result <code>pipeCPO()</code> called with the empty list, and of <code>retrafo()</code> and <code>inverter()</code> when they are called for objects with no <code>CPOTrained</code> objects attached.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">pipeCPO</span>(<span class="kw">list</span>())</a>
-<a class="sourceLine" id="cb42-2" title="2"><span class="kw">as.list</span>(NULLCPO)  <span class="co"># the inverse of pipeCPO</span></a>
-<a class="sourceLine" id="cb42-3" title="3"><span class="kw">retrafo</span>(bh.task)</a>
-<a class="sourceLine" id="cb42-4" title="4"><span class="kw">inverter</span>(bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>())  <span class="co"># cpoPca is a TOCPO, so no inverter is created</span></a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="kw">pipeCPO</span>(<span class="kw">list</span>())</a>
+<a class="sourceLine" id="cb42-2" data-line-number="2"><span class="kw">as.list</span>(NULLCPO)  <span class="co"># the inverse of pipeCPO</span></a>
+<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="kw">retrafo</span>(bh.task)</a>
+<a class="sourceLine" id="cb42-4" data-line-number="4"><span class="kw">inverter</span>(bh.task <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">cpoPca</span>())  <span class="co"># cpoPca is a TOCPO, so no inverter is created</span></a></code></pre></div>
 <p>Many getters give characteristic results for <code>NULLCPO</code>.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">getCPOClass</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-2" title="2"><span class="kw">getCPOName</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-3" title="3"><span class="kw">getCPOId</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-4" title="4"><span class="kw">getHyperPars</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-5" title="5"><span class="kw">getParamSet</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-6" title="6"><span class="kw">getCPOAffect</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-7" title="7"><span class="kw">getCPOOperatingType</span>(NULLCPO)  <span class="co"># operates neither on features nor on targets.</span></a>
-<a class="sourceLine" id="cb43-8" title="8"><span class="kw">getCPOProperties</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-9" title="9"><span class="co"># applying NULLCPO leads to a retrafo() of NULLCPO, so it is its own CPOTrainedCPO</span></a>
-<a class="sourceLine" id="cb43-10" title="10"><span class="kw">getCPOTrainedCPO</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-11" title="11"><span class="co"># NULLCPO has no effect on applyCPO and invert, so NULLCPO&#39;s capabilities are 0.</span></a>
-<a class="sourceLine" id="cb43-12" title="12"><span class="kw">getCPOTrainedCapability</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb43-13" title="13"><span class="kw">getCPOTrainedState</span>(NULLCPO)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">getCPOClass</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-2" data-line-number="2"><span class="kw">getCPOName</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="kw">getCPOId</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-4" data-line-number="4"><span class="kw">getHyperPars</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="kw">getParamSet</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-6" data-line-number="6"><span class="kw">getCPOAffect</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-7" data-line-number="7"><span class="kw">getCPOOperatingType</span>(NULLCPO)  <span class="co"># operates neither on features nor on targets.</span></a>
+<a class="sourceLine" id="cb43-8" data-line-number="8"><span class="kw">getCPOProperties</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-9" data-line-number="9"><span class="co"># applying NULLCPO leads to a retrafo() of NULLCPO, so it is its own CPOTrainedCPO</span></a>
+<a class="sourceLine" id="cb43-10" data-line-number="10"><span class="kw">getCPOTrainedCPO</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-11" data-line-number="11"><span class="co"># NULLCPO has no effect on applyCPO and invert, so NULLCPO's capabilities are 0.</span></a>
+<a class="sourceLine" id="cb43-12" data-line-number="12"><span class="kw">getCPOTrainedCapability</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb43-13" data-line-number="13"><span class="kw">getCPOTrainedState</span>(NULLCPO)</a></code></pre></div>
 <p>Some helper functions convert <code>NULLCPO</code> to <code>NULL</code> and back, while leaving other values as they are.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">nullToNullcpo</span>(<span class="ot">NULL</span>)</a>
-<a class="sourceLine" id="cb44-2" title="2"><span class="kw">nullcpoToNull</span>(NULLCPO)</a>
-<a class="sourceLine" id="cb44-3" title="3"><span class="kw">nullToNullcpo</span>(<span class="dv">10</span>) <span class="co"># not changed</span></a>
-<a class="sourceLine" id="cb44-4" title="4"><span class="kw">nullcpoToNull</span>(<span class="dv">10</span>) <span class="co"># ditto</span></a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw">nullToNullcpo</span>(<span class="ot">NULL</span>)</a>
+<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="kw">nullcpoToNull</span>(NULLCPO)</a>
+<a class="sourceLine" id="cb44-3" data-line-number="3"><span class="kw">nullToNullcpo</span>(<span class="dv">10</span>) <span class="co"># not changed</span></a>
+<a class="sourceLine" id="cb44-4" data-line-number="4"><span class="kw">nullcpoToNull</span>(<span class="dv">10</span>) <span class="co"># ditto</span></a></code></pre></div>
 </div>
 <div id="cpo-name-and-id" class="section level2">
 <h2>CPO Name and ID</h2>
 <p>A <code>CPO</code> has a “name” which identifies the general operation done by this <code>CPO</code>. For example, it is <code>&quot;pca&quot;</code> for a <code>CPO</code> created using <code>cpoPca()</code>. Furthermore, a <code>CPO</code> has an “ID” which is associated with the particular <code>CPO</code> object at hand. For primitive <code>CPO</code>s, it can be queried and set using <code>getCPOId()</code> and <code>setCPOId()</code>, and it can be set during construction, but it <em>defaults</em> to the <code>CPO</code>’s name. The ID will also be prefixed to the <code>CPO</code>’s hyperparameters after construction, if they are exported. This can help prevent hyperparameter name clashes when composing <code>CPO</code>s with otherwise identical hyperparameter names. It is possible to set the ID to <code>NULL</code> to have no prefix for hyperparameter names.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">cpo =<span class="st"> </span><span class="kw">cpoPca</span>()</a>
-<a class="sourceLine" id="cb45-2" title="2"><span class="kw">getCPOId</span>(cpo)</a></code></pre></div>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">getParamSet</span>(cpo)</a></code></pre></div>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">getParamSet</span>(<span class="kw">setCPOId</span>(cpo, <span class="st">&quot;my.id&quot;</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">getParamSet</span>(<span class="kw">setCPOId</span>(cpo, <span class="ot">NULL</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1">cpo =<span class="st"> </span><span class="kw">cpoPca</span>()</a>
+<a class="sourceLine" id="cb45-2" data-line-number="2"><span class="kw">getCPOId</span>(cpo)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw">getParamSet</span>(cpo)</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">getParamSet</span>(<span class="kw">setCPOId</span>(cpo, <span class="st">&quot;my.id&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw">getParamSet</span>(<span class="kw">setCPOId</span>(cpo, <span class="ot">NULL</span>))</a></code></pre></div>
 <p>In the following (silly) example an error is thrown because of hyperparameter name clash. This can be avoided by setting the ID of one of the constituents to a different value.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"></a>
-<a class="sourceLine" id="cb49-2" title="2">cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo</a></code></pre></div>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setCPOId</span>(cpo, <span class="st">&quot;two&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb49-2" data-line-number="2">cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1">cpo <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">setCPOId</span>(cpo, <span class="st">&quot;two&quot;</span>)</a></code></pre></div>
 </div>
 <div id="cpo-properties" class="section level2">
 <h2>CPO Properties</h2>
 <p>CPOs contain information about the kind of data they can work with, and what kind of data they produce. <code>getCPOProperties</code> returns a list with the slots <code>handling</code>, <code>adding</code>, <code>needed</code>. <code>properties$handling</code> indicates the kind of data a CPO can handle, <code>properties$needed</code> indicates the kind of data it needs the data receiver (e.g. attached learner) to have, and <code>properties$adding</code> lists the properties it adds to a given learner. An example is <code>cpoDummyEncode()</code>, a CPO that converts factors to numerics: The receiving learner needs to handle numerics, so <code>properties$needed == &quot;numerics&quot;</code>, but it <em>adds</em> the ability to handle factors (since they are converted), so <code>properties$adding = c(&quot;factors&quot;, &quot;ordered&quot;)</code>.</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">getCPOProperties</span>(<span class="kw">cpoDummyEncode</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="kw">getCPOProperties</span>(<span class="kw">cpoDummyEncode</span>())</a></code></pre></div>
 <p>As a result, <code>cpoDummyEncode</code> endows a <code>Learner</code> with the ability to train on data with factor variables:</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1"><span class="kw">train</span>(<span class="st">&quot;classif.geoDA&quot;</span>, bc.task)  <span class="co"># gives an error</span></a></code></pre></div>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">train</span>(<span class="kw">cpoDummyEncode</span>(<span class="dt">reference.cat =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.geoDA&quot;</span>), bc.task)</a></code></pre></div>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">getLearnerProperties</span>(<span class="st">&quot;classif.geoDA&quot;</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">getLearnerProperties</span>(<span class="kw">cpoDummyEncode</span>(<span class="ot">TRUE</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.geoDA&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">train</span>(<span class="st">&quot;classif.geoDA&quot;</span>, bc.task)  <span class="co"># gives an error</span></a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="kw">train</span>(<span class="kw">cpoDummyEncode</span>(<span class="dt">reference.cat =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.geoDA&quot;</span>), bc.task)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw">getLearnerProperties</span>(<span class="st">&quot;classif.geoDA&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" data-line-number="1"><span class="kw">getLearnerProperties</span>(<span class="kw">cpoDummyEncode</span>(<span class="ot">TRUE</span>) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.geoDA&quot;</span>))</a></code></pre></div>
 <div id="sometimes-properties" class="section level3">
 <h3><code>.sometimes</code>-Properties</h3>
 <p>As described in more detail in the <a href="a_4_custom_CPOs.html">Building Custom CPOs</a> vignette, <code>CPO</code>s can have properties that are considered only when composing <code>CPO</code>s, or only when checking data returned by <code>CPO</code>s. In short, consider a <code>CPO</code> that does imputation, but only for factorial features. This <code>CPO</code> would need to have <code>&quot;missings&quot;</code> in its <code>$adding</code> properties slot, since it enables <code>Learner</code> to handle (some) <code>Tasks</code> that have missing values. However, this <code>CPO</code> may under certain circumstances still return data that has missing values. This discrepancy is recorded internally by having two “hidden” sets of properties that can be retrieved with <code>getCPOProperties()</code> with <code>get.internal</code> set to <code>TRUE</code>. These properties are <code>adding.min</code>, the minimal set of properties added, and <code>needed.max</code>, the maximal set of properties needed by consecutive operators. These can be understood as a description of the “worst case” behaviour of the <code>CPO</code>, since behaviour that is out of bounds of these sets causes an error by the <code>mlrCPO</code>-framework.</p>
 <p>An example is the <code>cpoApplyFun</code> <code>CPO</code>: When it is constructed, it is not known what kind of properties will be added or needed, so <code>adding.min</code> is empty while <code>needed.max</code> is the set of all data properties. When composing <code>CPO</code>s, this <code>CPO</code> is handled as if it magically does exactly the data conversion necessary to make the <code>CPO</code>s or <code>Learner</code> coming after it work with the data. If this ends up not being the case, an error is thrown during application or training by the following <code>CPO</code> or <code>Learner</code>.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="kw">getCPOProperties</span>(<span class="kw">cpoApplyFun</span>(<span class="dt">export =</span> <span class="st">&quot;export.all&quot;</span>), <span class="dt">get.internal =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw">getCPOProperties</span>(<span class="kw">cpoApplyFun</span>(<span class="dt">export =</span> <span class="st">&quot;export.all&quot;</span>), <span class="dt">get.internal =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
 </div>
 <div id="cpo-affect" class="section level2">
@@ -704,18 +703,18 @@ Table of Contents
 <li><strong><code>affect.pattern.fixed</code></strong>: Use fixed pattern instead of regex in <code>affect.pattern</code>.</li>
 <li><strong><code>affect.invert</code></strong>: Invert the columns to affect: Only columns not matched by any of the other <code>affect.*</code> parameters are affected.</li>
 </ul>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1"><span class="co"># onlhy PCA columns that have &#39;.Length&#39; in their name</span></a>
-<a class="sourceLine" id="cb57-2" title="2">cpo =<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">affect.pattern =</span> <span class="st">&quot;.Length&quot;</span>)</a>
-<a class="sourceLine" id="cb57-3" title="3"><span class="kw">getCPOAffect</span>(cpo)</a></code></pre></div>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1">triris =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo</a>
-<a class="sourceLine" id="cb58-2" title="2"><span class="kw">head</span>(triris)</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="co"># onlhy PCA columns that have '.Length' in their name</span></a>
+<a class="sourceLine" id="cb57-2" data-line-number="2">cpo =<span class="st"> </span><span class="kw">cpoPca</span>(<span class="dt">affect.pattern =</span> <span class="st">&quot;.Length&quot;</span>)</a>
+<a class="sourceLine" id="cb57-3" data-line-number="3"><span class="kw">getCPOAffect</span>(cpo)</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1">triris =<span class="st"> </span>iris <span class="op">%&gt;&gt;%</span><span class="st"> </span>cpo</a>
+<a class="sourceLine" id="cb58-2" data-line-number="2"><span class="kw">head</span>(triris)</a></code></pre></div>
 </div>
 <div id="cpo-parameter-export" class="section level2">
 <h2>CPO Parameter Export</h2>
 <p>Sometimes when using many CPOs, their hyperparameters may get messy. <code>mlrCPO</code> enables the user to control which hyperparameter get exported. The parameter “export” can be one of <code>&quot;export.default&quot;</code>, <code>&quot;export.set&quot;</code>, <code>&quot;export.unset&quot;</code>, <code>&quot;export.default.set&quot;</code>, <code>&quot;export.default.unset&quot;</code>, <code>&quot;export.all&quot;</code>, <code>&quot;export.none&quot;</code>. “all” and “none” do what one expects; “default” exports the “recommended” parameters; “set” and “unset” export the values that have not been set, or only the values that were set (and are not left as default). “default.set” and “default.unset” work as “set” and “unset”, but restricted to the default exported parameters.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="op">!</span><span class="kw">cpoScale</span>()</a></code></pre></div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="op">!</span><span class="kw">cpoScale</span>(<span class="dt">export =</span> <span class="st">&quot;export.none&quot;</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="op">!</span><span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">FALSE</span>, <span class="dt">export =</span> <span class="st">&quot;export.unset&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="op">!</span><span class="kw">cpoScale</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" data-line-number="1"><span class="op">!</span><span class="kw">cpoScale</span>(<span class="dt">export =</span> <span class="st">&quot;export.none&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1"><span class="op">!</span><span class="kw">cpoScale</span>(<span class="dt">scale =</span> <span class="ot">FALSE</span>, <span class="dt">export =</span> <span class="st">&quot;export.unset&quot;</span>)</a></code></pre></div>
 </div>
 <div id="syntactic-sugar" class="section level2">
 <h2>Syntactic Sugar</h2>
