@@ -1,7 +1,7 @@
 context("cpo impute")
 
 test_that("CPO Impute data frame", {
-  data = data.frame(f = letters[c(1, 1, 1, 1, 2)], x = rep(1., 5), y = c(1, 2, 3, 3, 4), z = NA)
+  data = data.frame(f = factor(letters[c(1, 1, 1, 1, 2)]), x = rep(1., 5), y = c(1, 2, 3, 3, 4), z = NA)
   target = "z"
   data[6, ] = NA
 
@@ -145,12 +145,12 @@ test_that("CPO ImputeWrapper", {
 })
 
 test_that("CPO Impute and reimpute task", {
-  data = data.frame(f = letters[c(1, 1, 1, 1, 2)], x = rep(1., 5), y = c(1, 2, 3, 3, 4))
+  data = data.frame(f = factor(letters[c(1, 1, 1, 1, 2)]), x = rep(1., 5), y = c(1, 2, 3, 3, 4))
   data[6L, ] = NA
   classif.tar = factor(c(rep(c("a", "b"), 3L)))
   regr.tar = rep(c(.1, .2), 3L)
   #additional data-frame to check reimpute
-  data2 = data.frame(f = letters[c(2, 1, 1, 1, 1)], x = rep(2., 5), y = c(2, 4, 2, 3, 3))
+  data2 = data.frame(f = factor(letters[c(2, 1, 1, 1, 1)]), x = rep(2., 5), y = c(2, 4, 2, 3, 3))
   data2[6L, ] = NA
   data2$z = classif.tar
   #test classif task
