@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Binder" />
 
-<meta name="date" content="2020-02-23" />
+<meta name="date" content="2020-02-29" />
 
 <title>CPOs Built Into mlrCPO</title>
 
@@ -303,7 +303,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">CPOs Built Into mlrCPO</h1>
 <h4 class="author">Martin Binder</h4>
-<h4 class="date">2020-02-23</h4>
+<h4 class="date">2020-02-29</h4>
 
 
 
@@ -1880,7 +1880,7 @@ predict.type
 <a class="sourceLine" id="cb32-2" data-line-number="2"><span class="kw">train</span>(<span class="kw">cpoImputeAll</span>(<span class="dt">cols =</span> <span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">imputeMedian</span>())) <span class="op">%&gt;&gt;%</span><span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;regr.lm&quot;</span>), missing.task)</a>
 <a class="sourceLine" id="cb32-3" data-line-number="3"><span class="co">#&gt; Model for learner.id=regr.lm.impute; learner.class=CPOLearner</span></a>
 <a class="sourceLine" id="cb32-4" data-line-number="4"><span class="co">#&gt; Trained on: task.id = missing.task; obs = 3; features = 1</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="co">#&gt; Hyperparameters: impute.target.cols=character(0),impute.classes=,impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></a></code></pre></div>
+<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="co">#&gt; Hyperparameters: impute.target.cols=character(0),impute.classes=list(),impute.cols=a=&lt;ImputeMethod&gt;,impute.dummy.classes=character(0),impute.dummy.cols=character(0),impute.dummy.type=factor,impute.force.dummies=FALSE,impute.impute.new.levels=TRUE,impute.recode.factor.levels=TRUE</span></a></code></pre></div>
 </div>
 <div id="specialised-imputation-wrappers" class="section level4">
 <h4>Specialised Imputation Wrappers</h4>
