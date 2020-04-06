@@ -15,7 +15,7 @@ set.seed(123)
 # get the path of the parent document
 # path = names(knitr::opts_knit$get("encoding"))[1]
 base = knitr::opts_knit$get("output.dir")
-file = sys.frame(min(grep("knit", sapply(sys.calls(), function(x) as.character(x)[1]))))$input
+file = sys.frame(min(grep("^knit$", sapply(sys.calls(), function(x) as.character(x)[1]))))$input
 path = file.path(base, file)
 rpath = gsub("\\.[^.]*$", ".R", path)
 

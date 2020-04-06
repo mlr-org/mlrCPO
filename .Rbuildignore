@@ -6,7 +6,7 @@
 ^\.git$
 ^\.ignore$
 ^\.travis.yml$
-^_pkgdown\.yml$
+^pkgdown$
 ^.*\.tar\.gz$
 ^.*\.Rproj$
 ^\.Rproj\.user$
