@@ -1,0 +1,16 @@
+pandoc: '2.2'
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  a_1_getting_started: a_1_getting_started.html
+  a_2_mlrCPO_core: a_2_mlrCPO_core.html
+  a_3_all_CPOs: a_3_all_CPOs.html
+  a_4_custom_CPOs: a_4_custom_CPOs.html
+  z_1_getting_started_terse: z_1_getting_started_terse.html
+  z_2_mlrCPO_core_terse: z_2_mlrCPO_core_terse.html
+  z_3_all_CPOs_terse: z_3_all_CPOs_terse.html
+  z_4_custom_CPOs_terse: z_4_custom_CPOs_terse.html
+urls:
+  reference: https://mlrCPO.mlr-org.com//reference
+  article: https://mlrCPO.mlr-org.com//articles
+
