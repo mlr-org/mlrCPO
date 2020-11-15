@@ -45,7 +45,7 @@
 #' @export
 cpoApplyFun = makeCPO("fun.apply",  # nolint
   pSS(fun: funct, param = NULL: untyped, vectorize = TRUE: logical, make.factors = TRUE: logical),
-  export = "param",
+  export.params = "param",
   properties.adding = paste0(cpo.dataproperties, ".sometimes"),
   properties.needed = paste0(cpo.dataproperties, ".sometimes"),
   dataformat = "df.features",
@@ -146,7 +146,7 @@ cpoApplyFunRegrTarget = makeCPOTargetOp("fun.apply.regr.target",  # nolint
     param = NULL: untyped, vectorize = TRUE: logical,
     gauss.points = 23: integer[3, ]),
   properties.target = "regr", predict.type.map = c(response = "response", se = "se"),
-  export = "param",
+  export.params = "param",
   constant.invert = TRUE,
   cpo.train = NULL, cpo.train.invert = NULL,
   cpo.retrafo = {

@@ -1293,13 +1293,18 @@ constructTask = function(data, target, type, id, flip = FALSE) {
     }
     return(makeClusterTask(id = id, data = data, fixup.data = "no", check.data = FALSE))
   }
-  if (type == "classif" && flip && length(target) == 1) {
+  if (type == "classif") {
+    assertString(target)
     targetcol = data[[target]]
-    assert(is.factor(targetcol))
-    if (length(levels(targetcol)) == 2) {
-      positive = levels(targetcol)[2]
-      return(makeClassifTask(id = id, data = data, target = target,
-        positive = positive, fixup.data = "no", check.data = FALSE))
+    if (!is.factor(targetcol)) {
+      stop("ClassifTask target must be a factor column!")
+    }
+    if (flip && length(target) == 1) {
+      if (length(levels(targetcol)) == 2) {
+        positive = levels(targetcol)[2]
+        return(makeClassifTask(id = id, data = data, target = target,
+          positive = positive, fixup.data = "no", check.data = FALSE))
+      }
     }
   }
   constructor = switch(type,

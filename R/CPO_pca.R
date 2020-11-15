@@ -30,14 +30,14 @@ cpoPca = makeCPOExtendedTrafo("pca",  # nolint
     tol = NULL: numeric[0, ] [[special.vals = list(NULL)]],
     rank = NULL: integer[1, ] [[special.vals = list(NULL)]]),
   dataformat = "numeric",
-  export = c("center", "scale"),
+  export.params = c("center", "scale"),
   cpo.trafo = {
     if (!ncol(data)) {
       emat = matrix(data = numeric(0), nrow = 0, ncol = 0)
       control = list(rotation = emat, scale = numeric(0), center = numeric(0))
       return(data)
     }
-    pcr = prcomp(as.matrix(data), center = center, scale. = scale, tol = tol, rank = rank)
+    pcr = prcomp(as.matrix(data), center = center, scale. = scale, tol = tol, rank. = rank)
     control = pcr[c("rotation", "scale", "center")]
     pcr$x
   },

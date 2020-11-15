@@ -1,7 +1,7 @@
 #' @import methods
 #' @importFrom stats setNames predict
-#' @import BBmisc
 #' @import checkmate
+#' @import BBmisc
 #' @import stringi
 #' @import ParamHelpers
 #' @import mlr

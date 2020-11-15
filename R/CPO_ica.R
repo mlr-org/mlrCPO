@@ -45,7 +45,7 @@ cpoIca = makeCPOExtendedTrafo("ica",  # nolint
     tol = 1e-4: numeric[~0, ],
     verbose = FALSE: logical),
   dataformat = "numeric", packages = "fastICA",
-  export = c("n.comp", "alg.typ", "fun", "alpha"),
+  export.params = c("n.comp", "alg.typ", "fun", "alpha"),
   cpo.trafo = {
     if (!ncol(data)) {
       emat = matrix(data = numeric(0), nrow = 0, ncol = 0)

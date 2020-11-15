@@ -69,7 +69,7 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
 #' }
 #' @export
 listCPO = function() {
-  df = convertListOfRowsToDataFrame(parent.env(environment())$CPOLIST)
+  df = convertListOfRowsToDataFrame(parent.env(environment())$CPOLIST, strings.as.factors = TRUE)
   df = df[order(paste(df$category, df$subcategory, df$name, sep = "$")), ]
   df$description = as.character(df$description)
   df$name = as.character(df$name)
