@@ -1,3 +1,9 @@
+mlrCPO 0.3.7
+* further fixes in tests to accomodate changes in R 4.0
+* using testthat 3.0 with parallel tests
+* new cpo: cpoDropMostlyConstants
+* fix learner ID change when attaching CPO (thank you, @annette987)
+
 mlrCPO 0.3.6
 * minor fix to tests to accomodate changes in R 4.0
 
