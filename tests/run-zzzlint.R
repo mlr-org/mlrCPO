@@ -1,4 +1,4 @@
 library(testthat)
-# test_check("mlrCPO", filter = "^_lint")
+# test_check("mlrCPO", filter = "^lint")
 
 

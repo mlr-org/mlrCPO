@@ -1,3 +1,3 @@
 library(testthat)
-test_check("mlrCPO", filter = "^_meta_")
+test_check("mlrCPO", filter = "^meta_")
 
