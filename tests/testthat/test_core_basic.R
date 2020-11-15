@@ -1305,7 +1305,7 @@ test_that("retrafo accessor does what it is supposed to do", {
               ((cpoadder(-10, id = "thd") %>>% cpomultiplier(2, id = "frth")) %>>% wrappedlearner), testtaskcpo)
     expect_equal(testglobalenv$cpotest.parvals, list(240))
 
-    expect_message({ retr = retrafo(m) }, "has some wrappers besides CPOs", all = TRUE)
+    suppressWarnings(expect_message({ retr = retrafo(m) }, "has some wrappers besides CPOs", all = TRUE))
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2 + 10 - 23) / 2)
     predict(m, testtaskcpo2)
@@ -1320,7 +1320,7 @@ test_that("retrafo accessor does what it is supposed to do", {
     m = train((cpoadder(10, id = "fst") %>>% (cpomultiplier(2, id = "snd")) %>>% buriedlearner), testtaskcpo)
     expect_equal(testglobalenv$cpotest.parvals, list((11 * 2 * 10 - 10) * 2))
 
-    expect_warning({ retr = retrafo(m) }, "has some CPOs wrapped by other wrappers", all = TRUE)
+    suppressWarnings(expect_warning({ retr = retrafo(m) }, "has some CPOs wrapped by other wrappers", all = TRUE))
     expect_equal(getTaskData(predict(retr, testtaskcpo2))$A, ((c(3, 4) - 10 - 1.5) / 2))
     expect_equal(predict(retr, testdfcpo2)$A, ((c(3, 4) - 10 - 1.5) / 2))
     predict(m, testtaskcpo2)
@@ -1633,6 +1633,14 @@ test_that("getLearnerCPO, getLearnerBare: hyperparameter changes propagate", {
   expect_equal(rts[[2]]$factor, 2)
 
   expect_equal(rts[[3]]$summand, 1)
+
+})
+
+test_that("CPOLearner gets correct ID", {
+
+  expect_equal(getLearnerId((cpoDummyEncode() %>>% cpoScale()) %>>% testlearnercpo), "testlearnercpo.scale.dummyencode")
+  expect_equal(getLearnerId(cpoDummyEncode() %>>% (cpoScale() %>>% testlearnercpo)), "testlearnercpo.scale.dummyencode")
+
 })
 
 test_that("warning about buried cpos", {

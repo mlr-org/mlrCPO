@@ -33,6 +33,7 @@ attachCPO.CPO = function(cpo, learner) {
     learner$predict.type = learner$next.learner$predict.type
   } else {
     cpo = composeCPO(cpo, learner$cpo)
+    learner$id = learner$next.learner$id
   }
   learner$cpo = cpo
   learner$properties = compositeCPOLearnerProps(cpo, learner$next.learner)
