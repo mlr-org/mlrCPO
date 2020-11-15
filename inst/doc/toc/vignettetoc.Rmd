@@ -77,9 +77,9 @@ linkify = function(info, title) {
 for (idx in seq_along(fileinfolist)) {
   content = fileinfolist[[sort(names(fileinfolist))[idx]]]
   if (!is.null(content$compact)) {
-    if (paste(content$main$title, "(No Output)") != content$compact$title) {
-      stop(sprintf("File %s and its compact version %s have incompatible titles\nThe compact version must be paste(main_title, \"(No Output)\")",
-        content$main$url, content$compact$url))
+    if (paste(sub("[0-9]\\. ", "", content$main$title), "(No Output)") != sub("^z ", "", content$compact$title)) {
+      stop(sprintf("File %s and its compact version %s have incompatible titles\nThe compact version must be paste(main_title, \"(No Output)\"). Is: '%s', expected: '%s'",
+        content$main$url, content$compact$url, content$compact$title, paste(content$main$title, "(No Output)")))
     }
     line = sprintf("%s (%s)", linkify(content$main, content$main$title), linkify(content$compact, "compact version"))
   } else {

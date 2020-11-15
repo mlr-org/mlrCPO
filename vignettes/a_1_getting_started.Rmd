@@ -1,5 +1,5 @@
 ---
-title: "First Steps"
+title: "1. First Steps"
 author: "Martin Binder"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

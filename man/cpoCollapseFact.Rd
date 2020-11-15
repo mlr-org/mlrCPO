@@ -108,6 +108,7 @@ Other CPOs:
 \code{\link{cpoCache}()},
 \code{\link{cpoCbind}()},
 \code{\link{cpoDropConstants}()},
+\code{\link{cpoDropMostlyConstants}()},
 \code{\link{cpoDummyEncode}()},
 \code{\link{cpoFilterAnova}()},
 \code{\link{cpoFilterCarscore}()},

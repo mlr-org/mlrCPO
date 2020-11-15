@@ -126,6 +126,7 @@ Other CPOs:
 \code{\link{cpoCache}()},
 \code{\link{cpoCbind}()},
 \code{\link{cpoCollapseFact}()},
+\code{\link{cpoDropMostlyConstants}()},
 \code{\link{cpoDummyEncode}()},
 \code{\link{cpoFilterAnova}()},
 \code{\link{cpoFilterCarscore}()},

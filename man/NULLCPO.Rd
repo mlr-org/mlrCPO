@@ -4,7 +4,9 @@
 \name{NULLCPO}
 \alias{NULLCPO}
 \title{CPO Composition Neutral Element}
-\format{An object of class \code{NULLCPO} (inherits from \code{CPOPrimitive}, \code{CPORetrafo}, \code{CPOInverter}, \code{CPOTrained}, \code{CPO}) of length 0.}
+\format{
+An object of class \code{NULLCPO} (inherits from \code{CPOPrimitive}, \code{CPORetrafo}, \code{CPOInverter}, \code{CPOTrained}, \code{CPO}) of length 0.
+}
 \usage{
 NULLCPO
 }
