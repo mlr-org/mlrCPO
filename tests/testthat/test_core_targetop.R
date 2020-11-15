@@ -998,8 +998,9 @@ test_that("convert data.frame as if it were 'cluster'", {
 
   testthat::skip_on_cran()
 
-  testClusterTarget(cpo.df5, data.frame(xx = c("a", "a", "b")), "classif")
-  testClusterTarget(cpo.df5, data.frame(xx = c("a", "b", "c")), "classif")
+  expect_error(testClusterTarget(cpo.df5, data.frame(xx = c("a", "a", "b")), "classif"), "must be a factor column")
+  testClusterTarget(cpo.df5, data.frame(xx = as.factor(c("a", "a", "b"))), "classif")
+  testClusterTarget(cpo.df5, data.frame(xx = as.factor(c("a", "b", "c"))), "classif")
   testClusterTarget(cpo.df5, data.frame(xx = 1:3, yy = c(TRUE, TRUE, FALSE)), "surv")
   testClusterTarget(cpo.df5, data.frame(xx = c(TRUE, FALSE, FALSE), yy = c(TRUE, TRUE, FALSE)), "multilabel")
 
@@ -1158,7 +1159,7 @@ test_that("sanitizePrediction", {
       }
       inverter = dfs[[type]] %>|% noinvert()
       expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10)[character(0)]), "Prediction was empty.")
-      expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3, b = c("a", "b", "c"))), "Prediction had columns of multiple modes")
+      expect_error(invert(inverter, predict.type = px, data.frame(a = 1:3, b = factor(c("a", "b", "c")))), "Prediction had columns of multiple modes")
       if (type == "classif" && px == "response") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 2:11)), "'classif' response prediction needs single factor")
       } else if (px == "response" && type != "multilabel") {
@@ -1166,12 +1167,12 @@ test_that("sanitizePrediction", {
       }
       expect_error(invert(inverter, predict.type = px, c("a", "b", "c")), "data was not in any valid prediction format")
       if (px == "prob") {
-        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "predict.type 'prob' must have numeric data")
+        expect_error(invert(inverter, predict.type = px, data.frame(a = factor(c("a", "b", "c")))), "predict.type 'prob' must have numeric data")
         expect_error(sanitizePrediction(data.frame(a = 1:3), type = type, predict.type = "se"), "predict.type 'se' only valid for 'regr'")
         input = data.frame(a = 1:10, b = 1:10)
         expect_equal(data.frame(invert(inverter, predict.type = px, input)), input)
       } else if (px == "se") {
-        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "'regr' 'se' prediction must be a numeric matrix with two columns")
+        expect_error(invert(inverter, predict.type = px, data.frame(a = factor(c("a", "b", "c")))), "'regr' 'se' prediction must be a numeric matrix with two columns")
         expect_error(invert(inverter, predict.type = px, 1:10), "'regr' 'se' prediction must be a numeric matrix with two columns")
         expect_error(invert(inverter, predict.type = px, data.frame(a = 1:10, b = 1:10, c = 1:10)), "'regr' 'se' prediction must be a numeric matrix with two columns")
         input = data.frame(a = 1:10, b = 1:10)
@@ -1192,10 +1193,10 @@ test_that("sanitizePrediction", {
         expect_equal(matrix(invert(inverter, predict.type = px, input)), input)
       } else if (type == "classif") {
         expect_error(invert(inverter, predict.type = px, data.frame(a = c(1, 2, 2.1))), "'classif' response prediction must be a factor")
-        input = data.frame(a = c("a", "b", "c"))
+        input = data.frame(a = factor(c("a", "b", "c")))
         expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
       } else {
-        expect_error(invert(inverter, predict.type = px, data.frame(a = c("a", "b", "c"))), "' response prediction must be a numeric vector")
+        expect_error(invert(inverter, predict.type = px, data.frame(a = factor(c("a", "b", "c")))), "' response prediction must be a numeric vector")
         input = data.frame(a = c(1, 2, 2.45))
         expect_equal(data.frame(a = invert(inverter, predict.type = px, input)), input)
         input = matrix(c(1, 2, 2.45))

@@ -485,7 +485,7 @@ test_that("various error messages", {
 
   expect_error(cpo.df4[, -2] %>>% ret, "Some, but not all target columns of training data found.* T2")
 
-  expect_error(expect_warning(applyCPO.CPO(ret, 1)), "Data fed into CPO.*not a Task or data.frame")  # very far fetched
+  suppressWarnings(expect_error(applyCPO.CPO(ret, 1), "Data fed into CPO.*not a Task or data.frame"))  # very far fetched
 
   cpx = makeCPO("errreturn", cpo.train = NULL, cpo.retrafo = { 1 })
 

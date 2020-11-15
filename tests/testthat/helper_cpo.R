@@ -2,6 +2,7 @@
 # helper objects for cpo tests in test_base_cpo
 library("BBmisc")
 library("checkmate")
+library("datasets")
 
 # sorted list, needed for comparison when order doesn't matter.
 slist = function(...) {
@@ -12,6 +13,12 @@ slist = function(...) {
     l
   }
 }
+
+expect_equal = function(object, expected, ..., info = NULL, label = NULL) {
+  expect_true(all.equal(object, expected, ...), info = info, label = label)
+}
+
+context = function(...) suppressWarnings(testthat::context(...))
 
 # emulate makeCPOObject, makeFunctionalObject, makeCPOExtended
 
@@ -533,7 +540,7 @@ cpoPcaLegacy = makeCPOExtendedTrafo("pca", pSS(center = TRUE: logical, scale = F
 })
 
 # from mlr
-data(Sonar, package = "mlbench", envir = environment())
+utils::data(Sonar, package = "mlbench", envir = environment())
 binaryclass.df = Sonar
 binaryclass.formula = Class~.
 binaryclass.target = "Class"
@@ -555,7 +562,7 @@ multiclass.test  = multiclass.df[multiclass.test.inds, ]
 multiclass.class.col = 5
 multiclass.task = makeClassifTask("multiclass", data = multiclass.df, target = multiclass.target)
 
-data(BostonHousing, package = "mlbench", envir = environment())
+utils::data(BostonHousing, package = "mlbench", envir = environment())
 regr.df = BostonHousing
 regr.formula = medv ~ .
 regr.target = "medv"
