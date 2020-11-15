@@ -101,7 +101,7 @@ devtools::install_github("mlr-org/mlrCPO")
 
 ## Documentation
 
-To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr-org.github.io/mlr/) online; for more resources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
+To effectively use `mlrCPO`, you should first familiarize yourself a little with `mlr`. There is an extensive [tutorial](https://mlr.mlr-org.com/) online; for more resources on `mlr`, see the overview on `mlr`'s [GitHub page](https://github.com/mlr-org/mlr).
 
 To get familiar with `mlrCPO`, it is recommended that you read the **vignettes**. For each vignette, there is also a *compact version* that has all the R output removed.
 
@@ -143,7 +143,7 @@ When you make a Pull Request, it is assumed that you permit us (and are able to 
 
 ## Similar Projects
 
-There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. [dplyr](https://github.com/tidyverse/dplyr) has similar syntax and some overlapping functionality, but is focused ultimately more on (manual) *data manipulation* instead of (machine learning pipeline integrated) *preprocessing*. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://topepo.github.io/recipes/). [scikit learn](http://scikit-learn.org/stable/) also has [preprocessing functionality](http://scikit-learn.org/stable/modules/preprocessing.html) built in.
+There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. [dplyr](https://github.com/tidyverse/dplyr) has similar syntax and some overlapping functionality, but is focused ultimately more on (manual) *data manipulation* instead of (machine learning pipeline integrated) *preprocessing*. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://topepo.github.io/recipes/). [scikit learn](https://scikit-learn.org/stable/) also has [preprocessing functionality](https://scikit-learn.org/stable/modules/preprocessing.html) built in.
 
 ## License
 
