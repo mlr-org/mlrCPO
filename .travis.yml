@@ -1,7 +1,6 @@
 language: r
 sudo: false
 cache: packages
-dist: trusty
 r:
   - release
 
@@ -20,9 +19,6 @@ warnings_are_errors: true
 r_check_args: "--as-cran --run-donttest"
 
 r_github_packages:
-#  - berndbischl/BBmisc
-#  - berndbischl/ParamHelpers
-#  - mlr-org/mlr
   - jimhester/lintr@fe5de83b
   - r-lib/covr
 
