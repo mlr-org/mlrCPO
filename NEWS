@@ -1,3 +1,6 @@
+mlrCPO 0.3.7-3
+* minor fix to tests to accomodate changes in R 4.2
+
 mlrCPO 0.3.7-2
 * minor fix to tests to accomodate tests on Solaris
 

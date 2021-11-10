@@ -4,6 +4,8 @@ context("encoding CPO test")
 
 test_that("cpoProbEncode works as expected", {
 
+  iris.task <- clearRI(iris.task %>>% makeCPO("nop", cpo.train = NULL, cpo.retrafo = { data })())  # solve problem where mlr constructs different objects in different R versions
+
   testdf = data.frame(
       a = factor(c("a", "b", "a", "b", "a", "b")),
       b = factor(c("a", "b", "b", "a", "a", "a")),
@@ -59,6 +61,8 @@ test_that("cpoProbEncode works as expected", {
 })
 
 test_that("cpoImpactEncodeClassif works as expected", {
+
+  iris.task <- clearRI(iris.task %>>% makeCPO("nop", cpo.train = NULL, cpo.retrafo = { data })())  # solve problem where mlr constructs different objects in different R versions
 
   testdf = data.frame(
       a = factor(c("a", "b", "a", "b", "a", "b")),

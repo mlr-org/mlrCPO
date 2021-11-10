@@ -5,6 +5,8 @@ context("cpoMakeCols")
 
 test_that("cpoMakeCols behaves as expected", {
 
+  pid.task <- clearRI(pid.task %>>% makeCPO("nop", cpo.train = NULL, cpo.retrafo = { data })())  # solve problem where mlr constructs different objects in different R versions
+
   pd = getTaskData(pid.task)
   trg = getTaskTargetNames(pid.task)
 

@@ -50,11 +50,10 @@ Suggests:
     Hmisc,
     fastICA,
     rex
-LazyData: yes
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 ByteCompile: yes
-Version: 0.3.7-2
+Version: 0.3.7-3
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'
@@ -106,5 +105,5 @@ Collate:
     'makeCPOHelp.R'
     'print.R'
     'zzz.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
