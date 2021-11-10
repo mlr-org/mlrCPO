@@ -956,9 +956,11 @@ test_that("discrete parameters work well", {
 
   X = 1
   Y = 2
+  f1 = function() 1
+  f2 = function() Y
 
   cpof = makeCPOFunctional("testCPOF",
-    a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
+    a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = f1, b = f2]^2,
     cpo.trafo = {
       testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       cpo.retrafo = function(data) data
@@ -966,7 +968,7 @@ test_that("discrete parameters work well", {
     })
 
   cpoo = makeCPOObject("testCPOO",
-    a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = function() 1, b = function() Y]^2,
+    a: logical, b: discrete[a, b, 1], c = 1: discrete[a, b, 1], d = c(TRUE, TRUE): logical^2, e: discrete[a = f1, b = f2]^2,
     cpo.trafo = {
       testglobalenv$cpotest.parvals = list(a = a, b = b, c = c, d = d, e = c(e[[1]](), e[[2]]()))  # nolint
       control = 0
@@ -978,11 +980,11 @@ test_that("discrete parameters work well", {
 
   testCPO = function(cpo) {
     testglobalenv$cpotest.parvals = list()  # nolint
-    train(cpo(TRUE, "a", e = list(function() 1, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
+    train(cpo(TRUE, "a", e = list(f1, f1)) %>>% makeLearner("classif.logreg"), pid.task)
     expect_identical(testglobalenv$cpotest.parvals, list(a = TRUE, b = "a", c = 1, d = c(TRUE, TRUE), e = c(1, 1)))
 
     testglobalenv$cpotest.parvals = list()  # nolint
-    train(cpo(TRUE, 1, e = list(function() Y, function() 1)) %>>% makeLearner("classif.logreg"), pid.task)
+    train(cpo(TRUE, 1, e = list(f2, f1)) %>>% makeLearner("classif.logreg"), pid.task)
     expect_identical(testglobalenv$cpotest.parvals, list(a = TRUE, b = 1, c = 1, d = c(TRUE, TRUE), e = c(2, 1)))
   }
 

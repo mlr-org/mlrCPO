@@ -54,7 +54,7 @@ LazyData: yes
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 ByteCompile: yes
-Version: 0.3.7
+Version: 0.3.7-2
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'

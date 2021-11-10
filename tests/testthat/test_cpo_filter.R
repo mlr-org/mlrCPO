@@ -68,6 +68,13 @@ test_that("filterFeatures default test", {
 test_that("specialised CPOs work", {
   specd = listCPO()[listCPO()$category == "featurefilter" & listCPO()$subcategory == "specialised", "name"]
   expect_true(length(specd) > 0)
+  # drop packages that can not be loaded, but only on CRAN.
+  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    specd = Filter(function(fname) {
+      pkg = environment(get(fname))$packages
+      length(pkg) == 0 || requireNamespace(pkg)
+    }, specd)
+  }
   for (filter in specd) {
     cpoconst = get(filter)
     cpo = cpoconst(perc = 0.5)

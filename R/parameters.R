@@ -48,7 +48,14 @@ checkParamsFeasible = function(par.set, par.vals) {
   par.vals = par.vals = convertNamesToItemsDVP(par.vals, par.set)
   if (oobreaction != "quiet") {
     for (n in names(par.vals)) {
-      if (!isFeasible(par.set$pars[[n]], par.vals[[n]])) {
+      curpar = par.set$pars[[n]]
+      pv = par.vals[[n]]
+      # all.equal fails when check.environment is TRUE (default, unfortunately), but ParamHelpers doesn't know
+      # Therefore we check for specials extra and give no specials to ParamHelpers::isFeasible().
+      specials = curpar$special.vals
+      curpar$special.vals = list()
+      matches.special = any(vlapply(specials, function(s) isTRUE(all.equal(s, pv, check.environment = FALSE))))
+      if (!matches.special && !isFeasible(curpar, pv)) {
         msg = sprintf("%s is not feasible for parameter '%s'!", convertToShortString(par.vals[[n]]), n)
         if (oobreaction == "stop") {
           stop(msg)
