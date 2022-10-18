@@ -9,7 +9,9 @@ cpoFilterPermutationImportance(
   abs = NULL,
   threshold = NULL,
   imp.learner,
-  contrast = function(x, y) {     x - y },
+  contrast = function(x, y) {
+     x - y
+ },
   measure = NULL,
   aggregation = function(x, ...) UseMethod("mean"),
   nmc = 50,
@@ -155,7 +157,8 @@ Other filter:
 \code{\link{cpoFilterRfSRCMinDepth}()},
 \code{\link{cpoFilterSymmetricalUncertainty}()},
 \code{\link{cpoFilterUnivariate}()},
-\code{\link{cpoFilterVariance}()}
+\code{\link{cpoFilterVariance}()},
+\code{\link{randomForestSRC_filters}}
 
 Other CPOs: 
 \code{\link{cpoApplyFunRegrTarget}()},

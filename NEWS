@@ -1,3 +1,6 @@
+mlrCPO 0.3.7-4
+* copy over default filters that were removed from mlr
+
 mlrCPO 0.3.7-3
 * minor fix to tests to accomodate changes in R 4.2
 
