@@ -53,7 +53,7 @@ Suggests:
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 ByteCompile: yes
-Version: 0.3.7-4
+Version: 0.3.7-5
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'

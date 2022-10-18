@@ -174,7 +174,7 @@ invertCPO = function(inverter, prediction, predict.type) {
   output.predict.type = unname(inverter$prev.predict.type[predict.type])
   assert(output.predict.type %in% names(cpo$predict.type))
 
-  if (class(inverter) == "InverterElement") {
+  if (inherits(inverter, "InverterElement")) {
     state = inverter$state
   } else {
     assert("state.invert" %in% names(inverter),
