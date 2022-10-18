@@ -232,7 +232,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
 
   expect_equal(getLearnerType(reg.to.reg %>>% makeLearner("regr.randomForest")), "regr")
 
-  expect_equal(getLearnerType(reg.to.reg %>>% reg.to.clas %>>% clas.to.multilab %>>% makeLearner("multilabel.randomForestSRC")), "regr")
+  expect_equal(getLearnerType(reg.to.reg %>>% reg.to.clas %>>% clas.to.multilab %>>% makeLearner("multilabel.cforest")), "regr")
 
   expect_error(reg.to.reg %>>% lrn, "outputs type regr with learner of type classif")
 
@@ -349,7 +349,7 @@ test_that("composing CPO with conversion etc. behaves as expected", {
   testinv(iris.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(pid.task, clas.to.reg, makeLearner("regr.lm"))
   testinv(bh.task, reg.to.clas, makeLearner("classif.randomForestSRC", seed = 1, mtry = 1, ntree = 1))
-  testinv(iris.task, clas.to.multilab, makeLearner("multilabel.randomForestSRC", seed = -1, mtry = 1, ntree = 1))
+  testinv(iris.task, clas.to.multilab, makeLearner("multilabel.cforest", mtry = 1, ntree = 1))
   testinv(iris.task, clas.to.surv, makeLearner("surv.coxph"))
   testinv(bh.task, reg.to.surv, makeLearner("surv.coxph"))
   testinv(iris.task, clas.to.reg %>>% reg.to.surv, makeLearner("surv.coxph"))
@@ -490,14 +490,14 @@ test_that("composing CPO, CPOTrained with conversion etc. behaves as expected", 
 
   expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.logreg")), c("prob", "se")), "se")
 
-  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.geoDA")), c("prob", "se")), character(0))
+  expect_set_equal(intersect(getLearnerProperties(se.from.prob %>>% makeLearner("classif.fnn")), c("prob", "se")), character(0))
 
   expect_set_equal(intersect(getLearnerProperties(se.remover %>>% (se.from.prob %>>% makeLearner("classif.logreg"))), c("prob", "se")), character(0))
 
   expect_equal(getLearnerType(se.from.prob %>>% makeLearner("classif.logreg")), "regr")
   expect_equal(getLearnerType(prob.from.response %>>% makeLearner("classif.logreg")), "classif")
 
-  expect_error(se.remover %>>% (se.from.prob %>>% makeLearner("classif.geoDA")), "for 'response' prediction, the Learner must have 'prob' prediction")
+  expect_error(se.remover %>>% (se.from.prob %>>% makeLearner("classif.fnn")), "for 'response' prediction, the Learner must have 'prob' prediction")
 
   expect_error(se.remover %>>% makeLearner("regr.ctree"), "for 'response' prediction, the Learner must have 'se' prediction")
 

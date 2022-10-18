@@ -131,7 +131,8 @@ Other filter:
 \code{\link{cpoFilterRfSRCImportance}()},
 \code{\link{cpoFilterRfSRCMinDepth}()},
 \code{\link{cpoFilterUnivariate}()},
-\code{\link{cpoFilterVariance}()}
+\code{\link{cpoFilterVariance}()},
+\code{\link{randomForestSRC_filters}}
 
 Other CPOs: 
 \code{\link{cpoApplyFunRegrTarget}()},

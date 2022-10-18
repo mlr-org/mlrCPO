@@ -1,4 +1,4 @@
-.FilterRegister = get(".FilterRegister", envir = getNamespace("mlr"))  # nolint
+#' @include RandomForestSRC.R
 
 #' @title Filter Features by Thresholding Filter Values
 #'
@@ -24,7 +24,7 @@
 #' @family filter
 cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
   par.set = c(
-      makeParamSet(makeDiscreteLearnerParam("method", values = unique(c(ls(.FilterRegister), "randomForestSRC.rfsrc")), default = "randomForestSRC.rfsrc"),
+      makeParamSet(makeDiscreteLearnerParam("method", values = unique(c(names(.FilterRegister()), "randomForestSRC.rfsrc")), default = "randomForestSRC.rfsrc"),
         makeUntypedLearnerParam("fval", default = NULL)),
       pSSLrn(
           perc = NULL: numeric[0, 1] [[special.vals = list(NULL)]],
@@ -34,7 +34,7 @@ cpoFilterFeatures = makeCPOExtendedTrafo("filterFeatures", #nolint
   dataformat = "task",
   cpo.trafo = function(data, target, method, fval, perc, abs, threshold, filter.args) {
     assertList(filter.args)
-    if (method == "randomForestSRC.rfsrc" && method %nin% ls(.FilterRegister)) method = "randomForestSRC_importance"
+    if (method == "randomForestSRC.rfsrc" && method %nin% names(.FilterRegister())) method = "randomForestSRC_importance"
     fullargs = c(list(task = data, method = method, fval = fval, perc = perc, abs = abs, threshold = threshold), filter.args)
     assertSubset(unique(names(fullargs)[duplicated(names(fullargs))]), "")
     data = do.call(filterFeatures, fullargs)
@@ -67,7 +67,7 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
   # get the filter object from mlr. The .FilterRegister was previously gotten
   # from mlr at the top of this file.
   for (mtry in method) {
-    if (mtry %in% names(.FilterRegister)) {
+    if (mtry %in% names(.FilterRegister())) {
       method = mtry
       break
     }
@@ -75,7 +75,7 @@ declareFilterCPO = function(method, ..., .par.set = makeParamSet()) {
   if (length(method) > 1) {
     stopf("None of the methods %s could be found", collapse(method))
   }
-  methodobj = get(method, envir = .FilterRegister)
+  methodobj = get(method, envir = .FilterRegister())
 
   makeCPO(method, par.set = par.set, dataformat = "task",
     properties.target = c(methodobj$supported.tasks, cpo.targetproperties),  # the supported tasks as declared by the filter object
