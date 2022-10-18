@@ -430,16 +430,16 @@ getCPOProperties(cpoDummyEncode())
 
 As a result, `cpoDummyEncode` endows a `Learner` with the ability to train on data with factor variables:
 ```{r, error = TRUE}
-train("classif.geoDA", bc.task)  # gives an error
+train("classif.fnn", bc.task)  # gives an error
 ```
 ```{r}
-train(cpoDummyEncode(reference.cat = TRUE) %>>% makeLearner("classif.geoDA"), bc.task)
+train(cpoDummyEncode(reference.cat = TRUE) %>>% makeLearner("classif.fnn"), bc.task)
 ```
 ```{r}
-getLearnerProperties("classif.geoDA")
+getLearnerProperties("classif.fnn")
 ```
 ```{r}
-getLearnerProperties(cpoDummyEncode(TRUE) %>>% makeLearner("classif.geoDA"))
+getLearnerProperties(cpoDummyEncode(TRUE) %>>% makeLearner("classif.fnn"))
 ```
 
 ### `.sometimes`-Properties

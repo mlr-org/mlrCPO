@@ -44,7 +44,7 @@ Suggests:
     FSelector,
     FSelectorRcpp,
     e1071,
-    DiscriMiner,
+    FNN,
     digest,
     lintr,
     Hmisc,
