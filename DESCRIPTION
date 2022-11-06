@@ -26,7 +26,8 @@ Imports:
     methods,
     stats,
     utils,
-    backports (>= 1.1.0)
+    backports (>= 1.1.0),
+    digest
 Suggests:
     care,
     party,
@@ -45,7 +46,6 @@ Suggests:
     FSelectorRcpp,
     e1071,
     FNN,
-    digest,
     lintr,
     Hmisc,
     fastICA,
