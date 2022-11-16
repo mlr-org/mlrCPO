@@ -26,8 +26,7 @@ Imports:
     methods,
     stats,
     utils,
-    backports (>= 1.1.0),
-    digest
+    backports (>= 1.1.0)
 Suggests:
     care,
     party,
@@ -37,6 +36,7 @@ Suggests:
     rmarkdown,
     testthat,
     mRMRe,
+    digest,
     praznik,
     randomForestSRC,
     randomForest,
@@ -53,7 +53,7 @@ Suggests:
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 ByteCompile: yes
-Version: 0.3.7-5
+Version: 0.3.7-6
 Collate: 
     'CPOHelp.R'
     'fauxCPOConstructor.R'

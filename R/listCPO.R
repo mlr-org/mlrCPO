@@ -19,6 +19,8 @@ registerCPO = function(cpo, category, subcategory = NULL, description) {
   } else if (!is.function(cpo)) {
     name = cpo$name
     cponame = cpo$cponame
+  } else if (inherits(cpo, "FauxCPOConstructor")) {
+    cponame = environment(cpo)$cpo.name
   } else {
     # don't load packages when we only want to inspect CPO
     # TODO: there has to be a better way
