@@ -106,5 +106,5 @@ Collate:
     'makeCPOHelp.R'
     'print.R'
     'zzz.R'
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2
 VignetteBuilder: knitr

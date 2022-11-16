@@ -679,5 +679,5 @@ makeWrappingCPOConstructor = function(cpo.selector, paramset, paramvals, props.c
 cpoTransformParams = wrapFauxCPOConstructor(cpoTransformParams)  # nolint
 registerCPO(cpoTransformParams, "meta", NULL, "Transform a CPO's Hyperparameters.")
 
-cpoCache = wrapFauxCPOConstructor(cpoCache)  # nolint
+cpoCache = wrapFauxCPOConstructor(cpoCache, cpo.name = "cache", cpo.type.extended = "feature.extended")  # nolint
 registerCPO(cpoCache, "meta", NULL, "Cache a CPO's results.")
