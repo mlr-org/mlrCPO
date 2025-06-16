@@ -1,3 +1,6 @@
+mlrCPO 0.3.7-7
+* minor fix to concur with static checks
+
 mlrCPO 0.3.7-6
 * avoid construction on install if possible
 

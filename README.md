@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/mlr-org/mlrCPO.svg?branch=master)](https://travis-ci.org/mlr-org/mlrCPO)
-[![Coverage](https://codecov.io/github/mlr-org/mlrCPO/branch/master/graphs/badge.svg)](https://codecov.io/github/mlr-org/mlrCPO)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version/mlrCPO)](https://CRAN.R-project.org/package=mlrCPO)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/mlrCPO)](https://CRAN.R-project.org/package=mlrCPO)
 
@@ -82,7 +80,7 @@ Or to attach an operation to an MLR `Learner`, which extends the Learner's hyper
 > cpoScale() %>>% makeLearner("classif.logreg")
 Learner classif.logreg.scale from package stats
 Type: classif
-Name: ; Short name: 
+Name: ; Short name:
 Class: CPOLearner
 Properties: numerics,factors,prob,twoclass
 Predict-Type: response
@@ -123,7 +121,7 @@ The foundation of `mlrCPO` is built and is reasonably stable, only small improve
 
 `mlrCPO` is a free and open source software project that encourages participation and feedback. If you have any issues, questions, suggestions or feedback, please do not hesitate to open an "issue" about it on the GitHub page!
 
-In case of problems / bugs, it is often helpful if you provide a "minimum working example" that showcases the behaviour (but don't worry about this if the bug is obvious). 
+In case of problems / bugs, it is often helpful if you provide a "minimum working example" that showcases the behaviour (but don't worry about this if the bug is obvious).
 
 Please understand that the resources of the project are limited: response may sometimes be delayed by a few days, and some suggestions may not not make it to become features for a while.
 
@@ -137,7 +135,7 @@ Pull Requests that fix small issues are very welcome, *especially* if they conta
 
 When creating Pull Requests, please follow the [Style Guide](https://github.com/rdatsci/PackagesInfo/wiki/R-Style-Guide). Adherence to this is checked by the CI system (Travis). On Linux (and possibly Mac) you can check this locally on your computer using the **`quicklint`** tool in the `tools` directory. This is **recommended** to avoid frustrating failed builds caused by style violations.
 
-Before merging a Pull Request, it is possible that an `mlrCPO` developer makes further changes to it, e.g. to harmonise it with conventions, or to incorporate other ideas. 
+Before merging a Pull Request, it is possible that an `mlrCPO` developer makes further changes to it, e.g. to harmonise it with conventions, or to incorporate other ideas.
 
 When you make a Pull Request, it is assumed that you permit us (and are able to permit us) to incorporate the given code into the `mlrCPO` codebase as given, or with modifications, and distribute the result under the BSD 2-Clause License.
 

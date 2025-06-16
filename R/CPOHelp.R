@@ -39,6 +39,6 @@
 #' @param affect.pattern.fixed [\code{logical(1)}]\cr
 #'   Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.
 #' @keywords internal
-cpoTemplate = function(id, export, affect.type, affect.index, affect.name, affect.pattern, affect.invert, affect.pattern.ignore.case, affect.pattern.perl, affect.pattern.fixed) {
+cpoTemplate = function(id, export, affect.type, affect.index, affect.names, affect.pattern, affect.invert, affect.pattern.ignore.case, affect.pattern.perl, affect.pattern.fixed) {
   stop()
 }

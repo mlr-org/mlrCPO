@@ -9,7 +9,7 @@ cpoTemplate(
   export,
   affect.type,
   affect.index,
-  affect.name,
+  affect.names,
   affect.pattern,
   affect.invert,
   affect.pattern.ignore.case,
@@ -43,6 +43,9 @@ to not match by column type. Default is \code{NULL}.}
 Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
 (since target columns are always included). Default is \code{integer(0)}.}
 
+\item{affect.names}{[\code{character}]\cr
+Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
+
 \item{affect.pattern}{[\code{character(1)} | \code{NULL}]\cr
 \code{\link[base]{grep}} pattern to match feature names by. Default is \code{NULL} (no pattern matching)}
 
@@ -57,9 +60,6 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
-
-\item{affect.names}{[\code{character}]\cr
-Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
 }
 \description{
 Not used.
