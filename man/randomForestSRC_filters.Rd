@@ -15,11 +15,6 @@ the `method` parameter. Possible values are `permute` (default), `random`,
 `anti`, `permute.ensemble`, `random.ensemble`, `anti.ensemble`.
 See the VIMP section in the docs for [randomForestSRC::rfsrc] for
 details.
-
-Filter \dQuote{randomForestSRC_var.select} uses the minimal depth variable
-selection proposed by Ishwaran et al. (2010) (`method = "md"`) or a
-variable hunting approach (`method = "vh"` or `method = "vh.vimp"`).
-The minimal depth measure is the default.
 }
 \seealso{
 Other filter: 
@@ -39,29 +34,6 @@ Other filter:
 \code{\link{cpoFilterRfCImportance}()},
 \code{\link{cpoFilterRfImportance}()},
 \code{\link{cpoFilterRfSRCImportance}()},
-\code{\link{cpoFilterRfSRCMinDepth}()},
-\code{\link{cpoFilterSymmetricalUncertainty}()},
-\code{\link{cpoFilterUnivariate}()},
-\code{\link{cpoFilterVariance}()}
-
-Other filter: 
-\code{\link{cpoFilterAnova}()},
-\code{\link{cpoFilterCarscore}()},
-\code{\link{cpoFilterChiSquared}()},
-\code{\link{cpoFilterFeatures}()},
-\code{\link{cpoFilterGainRatio}()},
-\code{\link{cpoFilterInformationGain}()},
-\code{\link{cpoFilterKruskal}()},
-\code{\link{cpoFilterLinearCorrelation}()},
-\code{\link{cpoFilterMrmr}()},
-\code{\link{cpoFilterOneR}()},
-\code{\link{cpoFilterPermutationImportance}()},
-\code{\link{cpoFilterRankCorrelation}()},
-\code{\link{cpoFilterRelief}()},
-\code{\link{cpoFilterRfCImportance}()},
-\code{\link{cpoFilterRfImportance}()},
-\code{\link{cpoFilterRfSRCImportance}()},
-\code{\link{cpoFilterRfSRCMinDepth}()},
 \code{\link{cpoFilterSymmetricalUncertainty}()},
 \code{\link{cpoFilterUnivariate}()},
 \code{\link{cpoFilterVariance}()}

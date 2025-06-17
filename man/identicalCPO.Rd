@@ -32,10 +32,10 @@ This function is used in \code{\link{cpoCbind}} to check for equality of underly
 }
 \seealso{
 Other CPO lifecycle related: 
+\code{\link{CPO}},
 \code{\link{CPOConstructor}},
 \code{\link{CPOLearner}},
 \code{\link{CPOTrained}},
-\code{\link{CPO}},
 \code{\link{NULLCPO}},
 \code{\link{\%>>\%}()},
 \code{\link{attachCPO}()},

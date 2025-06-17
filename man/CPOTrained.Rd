@@ -134,9 +134,9 @@ predicted = getTaskData(reimpute(preddat \%>>\% reFun1, imp$desc),
 \code{\link{clearRI}} about the problem of needing to reset \code{retrafo} and \code{inverter} attributes sometimes.
 
 Other CPO lifecycle related: 
+\code{\link{CPO}},
 \code{\link{CPOConstructor}},
 \code{\link{CPOLearner}},
-\code{\link{CPO}},
 \code{\link{NULLCPO}},
 \code{\link{\%>>\%}()},
 \code{\link{attachCPO}()},

@@ -33,7 +33,7 @@
 #'       (unordered factors) and \dQuote{ordered}.
 #'     \item no the \dQuote{data} variable contains a data.frame with all data, the \dQuote{target}
 #'       variable is a \code{character} indicating the names of the target columns.
-#'     \item task the \dQuote{data} variable contains the data as a \dQuote{\link{Task}}.
+#'     \item task the \dQuote{data} variable contains the data as a \dQuote{\link[mlr]{Task}}.
 #'   }
 #'   Note that the returned data must always be in the same format as the one requested.
 #'   Currently it is an error to change the target column(s) in the \dQuote{no} and \dQuote{task}

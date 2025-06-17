@@ -582,7 +582,7 @@ NULL
 #   Possible values are the same as for \code{.type}. Default is \code{.type}.
 # @param predict.type [\code{character} | \code{list}]\cr
 #   Must be a named \code{character}, or named \code{list} of \code{character(1)}, indicating
-#   what \code{predict.type} (see \link{Prediction}) a prediction must have if the output prediction
+#   what \code{predict.type} (see \link[mlr]{Prediction}) a prediction must have if the output prediction
 #   is to be of some type. E.g. if a CPO converts a \dQuote{regr} \code{Task} into a
 #   \dQuote{classif} \code{Task}, and if for \dQuote{se} prediction it needs a classification
 #   learner to give \dQuote{prob} type predictions, while for \dQuote{response} prediction it

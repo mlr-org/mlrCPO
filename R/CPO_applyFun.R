@@ -77,7 +77,7 @@ cpoApplyFun = makeCPO("fun.apply",  # nolint
 #' @template cpo_doc_intro
 #'
 #' @description
-#' Apply a given function to the target column of a regression \code{\link{Task}}.
+#' Apply a given function to the target column of a regression \code{\link[mlr]{Task}}.
 #'
 #' @section Details:
 #'   When both \code{mean} and \code{se} prediction is available, it may be possible to

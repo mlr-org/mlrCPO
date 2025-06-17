@@ -39,9 +39,9 @@ predict(model, pid.task)  # otherwise behaves like an mlr model
 }
 \seealso{
 Other CPO lifecycle related: 
+\code{\link{CPO}},
 \code{\link{CPOConstructor}},
 \code{\link{CPOTrained}},
-\code{\link{CPO}},
 \code{\link{NULLCPO}},
 \code{\link{\%>>\%}()},
 \code{\link{attachCPO}()},

@@ -20,7 +20,7 @@ control what kind of prediction to perform. One of \dQuote{response}, \dQuote{se
 with a prediction type that fits this, i.e. it must be of type \code{getCPOPredictType(inverter)[predict.type]}.}
 }
 \value{
-[\code{\link[mlr]{Prediction}} | \code{data.frame}]. A transformed \code{\link{Prediction}} if a prediction was given,
+[\code{\link[mlr]{Prediction}} | \code{data.frame}]. A transformed \code{\link[mlr]{Prediction}} if a prediction was given,
   or a \code{data.frame}. If the first object in the chain is a \code{CPORetrafo} object, the \sQuote{truth} column(s) of the
   prediction will be dropped.
 }

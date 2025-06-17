@@ -22,9 +22,9 @@ cpoImputeLearner(
 )
 }
 \arguments{
-\item{learner}{[\code{\link{Learner}} | \code{character(1)}]\cr
+\item{learner}{[\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
 Supervised learner. Its predictions will be used for imputations.
-If you pass a string the learner will be created via \code{\link{makeLearner}}.
+If you pass a string the learner will be created via \code{\link[mlr]{makeLearner}}.
 Note that the target column is not available for this operation.}
 
 \item{features}{[\code{character}]\cr
@@ -113,13 +113,13 @@ The description object contains these slots
 \section{General CPO info}{
 
 This function creates a CPO object, which can be applied to
-\code{\link{Task}}s, \code{data.frame}s, \code{link{Learner}}s
+\code{\link[mlr]{Task}}s, \code{data.frame}s, \code{link[mlr]{Learner}}s
 and other CPO objects using the \code{\link{\%>>\%}} operator.
 
 The parameters of this object can be changed after creation
-using the function \code{\link{setHyperPars}}. The other
-hyper-parameter manipulating functins, \code{\link{getHyperPars}}
-and \code{\link{getParamSet}} similarly work as one expects.
+using the function \code{\link[mlr]{setHyperPars}}. The other
+hyper-parameter manipulating functins, \code{\link[mlr]{getHyperPars}}
+and \code{\link[ParamHelpers]{getParamSet}} similarly work as one expects.
 
 If the \dQuote{id} parameter is given, the hyperparameters
 will have this id as aprefix; this will, however, not change
@@ -136,6 +136,7 @@ data features are affected by default.
 
 \seealso{
 Other imputation CPOs: 
+\code{\link{cpoImpute}()},
 \code{\link{cpoImputeConstant}()},
 \code{\link{cpoImputeHist}()},
 \code{\link{cpoImputeMax}()},
@@ -144,12 +145,11 @@ Other imputation CPOs:
 \code{\link{cpoImputeMin}()},
 \code{\link{cpoImputeMode}()},
 \code{\link{cpoImputeNormal}()},
-\code{\link{cpoImputeUniform}()},
-\code{\link{cpoImpute}()}
+\code{\link{cpoImputeUniform}()}
 
 Other CPOs: 
-\code{\link{cpoApplyFunRegrTarget}()},
 \code{\link{cpoApplyFun}()},
+\code{\link{cpoApplyFunRegrTarget}()},
 \code{\link{cpoAsNumeric}()},
 \code{\link{cpoCache}()},
 \code{\link{cpoCbind}()},
@@ -173,7 +173,6 @@ Other CPOs:
 \code{\link{cpoFilterRfCImportance}()},
 \code{\link{cpoFilterRfImportance}()},
 \code{\link{cpoFilterRfSRCImportance}()},
-\code{\link{cpoFilterRfSRCMinDepth}()},
 \code{\link{cpoFilterSymmetricalUncertainty}()},
 \code{\link{cpoFilterUnivariate}()},
 \code{\link{cpoFilterVariance}()},
@@ -181,6 +180,7 @@ Other CPOs:
 \code{\link{cpoIca}()},
 \code{\link{cpoImpactEncodeClassif}()},
 \code{\link{cpoImpactEncodeRegr}()},
+\code{\link{cpoImpute}()},
 \code{\link{cpoImputeConstant}()},
 \code{\link{cpoImputeHist}()},
 \code{\link{cpoImputeMax}()},
@@ -190,7 +190,6 @@ Other CPOs:
 \code{\link{cpoImputeMode}()},
 \code{\link{cpoImputeNormal}()},
 \code{\link{cpoImputeUniform}()},
-\code{\link{cpoImpute}()},
 \code{\link{cpoLogTrafoRegr}()},
 \code{\link{cpoMakeCols}()},
 \code{\link{cpoMissingIndicators}()},
@@ -202,9 +201,9 @@ Other CPOs:
 \code{\link{cpoRegrResiduals}()},
 \code{\link{cpoResponseFromSE}()},
 \code{\link{cpoSample}()},
+\code{\link{cpoScale}()},
 \code{\link{cpoScaleMaxAbs}()},
 \code{\link{cpoScaleRange}()},
-\code{\link{cpoScale}()},
 \code{\link{cpoSelect}()},
 \code{\link{cpoSmote}()},
 \code{\link{cpoSpatialSign}()},

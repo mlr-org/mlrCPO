@@ -5,14 +5,14 @@
 #' @template cpo_doc_intro
 #'
 #' @description
-#' First, calls \code{\link{generateFilterValuesData}}.
+#' First, calls \code{\link[mlr]{generateFilterValuesData}}.
 #' Features are then selected via \code{select} and \code{val}.
 #'
 #' @param method [\code{character(1)}]\cr
-#'   See \code{\link{listFilterMethods}}.
+#'   See \code{\link[mlr]{listFilterMethods}}.
 #'   Default is \dQuote{randomForestSRC.rfsrc}.
-#' @param fval [\code{\link{FilterValues}}]\cr
-#'   Result of \code{\link{generateFilterValuesData}}.
+#' @param fval [\code{\link[mlr]{FilterValues}}]\cr
+#'   Result of \code{\link[mlr]{generateFilterValuesData}}.
 #'   If you pass this, the filter values in the object are used for feature filtering.
 #'   \code{method} and \code{...} are ignored then.
 #'   Default is \code{NULL} and not used.
@@ -147,21 +147,6 @@ registerCPO(cpoFilterCarscore, "featurefilter", "specialised", "Filter features 
 cpoFilterRfSRCImportance = declareFilterCPO(c("randomForestSRC_importance", "randomForestSRC.rfsrc")) #,  # nolint
 #  method = "permute": discrete[permute, random, anti, permute.ensemble, random.ensemble, anti.ensemble])  # missing parameters
 registerCPO(cpoFilterRfSRCImportance, "featurefilter", "specialised", "Filter features using randomForestSRC.rfsrc.")
-
-#' @title Filter Features: \dQuote{randomForestSRC.var.select}
-#'
-#' @template cpo_doc_intro
-#'
-#' @description
-#' Filter \dQuote{randomForestSRC.var.select} uses the minimal depth variable
-#' selection proposed by Ishwaran et al. (2010) (\code{method = "md"}) or a
-#' variable hunting approach (\code{method = "vh"} or \code{method = "vh.vimp"}).
-#' The minimal depth measure is the default.
-#' @template arg_filter
-#' @template cpo_doc_outro
-#' @export
-cpoFilterRfSRCMinDepth = declareFilterCPO(c("randomForestSRC_var.select", "randomForestSRC.var.select"))  # missing parameter: , method = "md": discrete[md, vh, vh.vimp])  # nolint  # missing parameters
-registerCPO(cpoFilterRfSRCMinDepth, "featurefilter", "specialised", "Filter features using randomForestSRC minimal depth.")
 
 #' @title Filter Features: \dQuote{cforest.importance}
 #'

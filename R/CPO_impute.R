@@ -13,13 +13,13 @@
 #' The function \code{impute} performs the imputation on a data set and returns,
 #' alongside with the imputed data set, an \dQuote{ImputationDesc} object
 #' which can contain \dQuote{learned} coefficients and helpful data.
-#' It can then be passed together with a new data set to \code{\link{reimpute}}.
+#' It can then be passed together with a new data set to \code{\link[mlr]{reimpute}}.
 #'
 #' The imputation techniques can be specified for certain features or for feature classes,
 #' see function arguments.
 #'
 #' You can either provide an arbitrary object, use a built-in imputation method listed
-#' under \code{\link{imputations}} or create one yourself using \code{\link{makeImputeMethod}}.
+#' under \code{\link[mlr]{imputations}} or create one yourself using \code{\link[mlr]{makeImputeMethod}}.
 #'
 #' \code{cpoImpute} will impute some columns. \code{cpoImputeAll} behaves just like \code{cpoImpute},
 #' except that it will throw an error if there are any missings remaining in its output. \code{cpoImputeAll}
@@ -300,9 +300,9 @@ registerCPO(cpoImputeHist, "imputation", "specialised", "Imputation using random
 #'
 #' @template impute_doc_intro
 #'
-#' @param learner [\code{\link{Learner}} | \code{character(1)}]\cr
+#' @param learner [\code{\link[mlr]{Learner}} | \code{character(1)}]\cr
 #'  Supervised learner. Its predictions will be used for imputations.
-#'  If you pass a string the learner will be created via \code{\link{makeLearner}}.
+#'  If you pass a string the learner will be created via \code{\link[mlr]{makeLearner}}.
 #'  Note that the target column is not available for this operation.
 #' @param features [\code{character}]\cr
 #'  Features to use in \code{learner} for prediction.

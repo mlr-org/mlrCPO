@@ -141,7 +141,7 @@ When you make a Pull Request, it is assumed that you permit us (and are able to 
 
 ## Similar Projects
 
-There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. [dplyr](https://github.com/tidyverse/dplyr) has similar syntax and some overlapping functionality, but is focused ultimately more on (manual) *data manipulation* instead of (machine learning pipeline integrated) *preprocessing*. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://topepo.github.io/recipes/). [scikit learn](https://scikit-learn.org/stable/) also has [preprocessing functionality](https://scikit-learn.org/stable/modules/preprocessing.html) built in.
+There are other projects that provide functionality similar to `mlrCPO` for other machine learning frameworks. The [caret](https://github.com/topepo/caret) project provides some preprocessing functionality, though not as flexible as `mlrCPO`. [dplyr](https://github.com/tidyverse/dplyr) has similar syntax and some overlapping functionality, but is focused ultimately more on (manual) *data manipulation* instead of (machine learning pipeline integrated) *preprocessing*. Much more close to `mlrCPO`'s functionality is the [Recipes package](https://cran.r-project.org/package=recipes). [scikit learn](https://scikit-learn.org/stable/) also has [preprocessing functionality](https://scikit-learn.org/stable/modules/preprocessing.html) built in.
 
 ## License
 

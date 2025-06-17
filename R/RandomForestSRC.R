@@ -29,18 +29,6 @@
 #' @family filter
 NULL
 
-# randomForestSRC_var.select ----------------
-
-#' Filter \dQuote{randomForestSRC_var.select} uses the minimal depth variable
-#' selection proposed by Ishwaran et al. (2010) (`method = "md"`) or a
-#' variable hunting approach (`method = "vh"` or `method = "vh.vimp"`).
-#' The minimal depth measure is the default.
-#'
-#' @rdname randomForestSRC_filters
-#' @name randomForestSRC_filters
-#' @family filter
-NULL
-
 
 
 .FilterRegister = function() {
@@ -113,41 +101,5 @@ if (!"randomForestSRC.rfsrc" %in% names(.FilterRegister)) {
 
 }
 
-
-if (!"randomForestSRC_var.select" %in% names(.FilterRegister)) {
-# for some reason we cannot call 'randomForestSRC_var.select' directly as we then face
-# nested recursion problems when using other methods than "md".
-rf.min.depth = makeFilter(
-  name = "randomForestSRC_var.select",
-  desc = "Minimal depth of / variable hunting via method var.select on random forests fitted in package 'randomForestSRC'.",
-  pkg  = "randomForestSRC",
-  supported.tasks = c("classif", "regr", "surv"),
-  supported.features = c("numerics", "factors", "ordered"),
-  fun = function(task, nselect, method = "md", ...) {
-    im = randomForestSRC::var.select(getTaskFormula(task), getTaskData(task),
-      method = method, verbose = FALSE, ...)$md.obj$order
-    setNames(-im[, 1L], rownames(im))
-  }
-)
-}
-if (!"rf.min.depth" %in% names(.FilterRegister)) {
-.FilterRegister[["rf.min.depth"]] = .FilterRegister[["randomForestSRC_var.select"]]
-.FilterRegister[["rf.min.depth"]]$desc = "(DEPRECATED)"
-.FilterRegister[["rf.min.depth"]]$fun = function(...) {
-  .Deprecated(old = "Filter 'rf.min.depth'", new = "Filter 'randomForestSRC_var.select'")
-  .FilterRegister[["randomForestSRC_var.select"]]$fun(...)
-}
-
-}
-
-if (!"randomForestSRC.var.select" %in% names(.FilterRegister)) {
-.FilterRegister[["randomForestSRC.var.select"]] = .FilterRegister[["randomForestSRC_var.select"]]
-.FilterRegister[["randomForestSRC.var.select"]]$desc = "(DEPRECATED)"
-.FilterRegister[["randomForestSRC.var.select"]]$fun = function(...) {
-  .Deprecated(old = "Filter 'randomForestSRC.var.select'", new = "Filter 'randomForestSRC_var.select' (package randomForestSRC)")
-  .FilterRegister[["randomForestSRC_var.select"]]$fun(...)
-}
-
-}
 .FilterRegister
 }

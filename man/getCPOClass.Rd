@@ -95,10 +95,10 @@ Other CPO classifications:
 \code{\link{getCPOTrainedCapability}()}
 
 Other CPO lifecycle related: 
+\code{\link{CPO}},
 \code{\link{CPOConstructor}},
 \code{\link{CPOLearner}},
 \code{\link{CPOTrained}},
-\code{\link{CPO}},
 \code{\link{NULLCPO}},
 \code{\link{\%>>\%}()},
 \code{\link{attachCPO}()},

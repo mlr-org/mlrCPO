@@ -15,13 +15,13 @@ untyped = list
 #'
 #' @description
 #'
-#' \code{pSS}, short for \dQuote{ParamSet Sugar}, is a shorthand API for \code{\link{makeParamSet}}
-#' which enables entry of \code{\link{ParamSet}}s in short form. It behaves similarly to
-#' \code{\link{makeParamSet}}, but instead of having to construct each parameter individually,
+#' \code{pSS}, short for \dQuote{ParamSet Sugar}, is a shorthand API for \code{\link[ParamHelpers]{makeParamSet}}
+#' which enables entry of \code{\link[ParamHelpers]{ParamSet}}s in short form. It behaves similarly to
+#' \code{\link[ParamHelpers]{makeParamSet}}, but instead of having to construct each parameter individually,
 #' the parameters can be given in shorthand form with a convenient syntax, making use of R's
 #' nonstandard evaluation.
 #'
-#' This makes definition of \code{\link{ParamSet}}s shorter and more readable.
+#' This makes definition of \code{\link[ParamHelpers]{ParamSet}}s shorter and more readable.
 #'
 #' The difference between \code{pSS} and \code{pSSLrn} is only in the default value of \code{.pss.learner.params}
 #' being \code{FALSE} for the former and \code{TRUE} for the latter.
@@ -43,7 +43,7 @@ untyped = list
 #'
 #' \bold{\code{type}} is one of
 #' \dQuote{integer}, \dQuote{numeric}, \dQuote{logical}, \dQuote{discrete}, \dQuote{funct}, \dQuote{character}, \dQuote{untyped}.
-#' Each of these types leads to a \code{\link{Param}} or \code{\link{LearnerParam}} of the given type to be created.
+#' Each of these types leads to a \code{\link[ParamHelpers]{Param}} or \code{\link[ParamHelpers]{LearnerParam}} of the given type to be created.
 #' Note that \dQuote{character} is not available if \sQuote{Learner}-parameters are created.
 #'
 #' \bold{\code{range}} is optional and only used for \emph{integer}, \emph{numeric}, and \emph{discrete} parameters.
@@ -59,7 +59,7 @@ untyped = list
 #' or use tilde-dot (\dQuote{~.}).
 #'
 #' \bold{\code{^ dimension}} is optionally determining the dimension of a \sQuote{vector} parameter.
-#' If it is absent, the result is a normal \code{\link{Param}} or \code{\link{LearnerParam}}, if it is present,
+#' If it is absent, the result is a normal \code{\link[ParamHelpers]{Param}} or \code{\link[ParamHelpers]{LearnerParam}}, if it is present,
 #' the result is a \code{Vector(Learner)Param}. Note that a one-dimensional \code{Vector(Learner)Param}
 #' is distinct from a normal \code{(Learner)Param}.
 #'
@@ -69,7 +69,7 @@ untyped = list
 #'
 #' @param ... Parameters, see Details below.
 #' @param .pss.learner.params [\code{logical}]\cr
-#'   Whether to create \code{\link{LearnerParam}} instead of \code{\link{Param}} objects.
+#'   Whether to create \code{\link[ParamHelpers]{LearnerParam}} instead of \code{\link[ParamHelpers]{Param}} objects.
 #'   Default is \code{TRUE} for \code{pSSLrn} and \code{FALSE} for \code{pSS}.
 #' @param .pss.env [\code{environment}]\cr
 #'   Which environment to use when evaluating expressions. Defaults to the calling

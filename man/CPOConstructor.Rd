@@ -92,9 +92,9 @@ class(cpoPca())  # c("CPOPrimitive", "CPO")
 \code{\link{print.CPOConstructor}} for possibly verbose printing.
 
 Other CPO lifecycle related: 
+\code{\link{CPO}},
 \code{\link{CPOLearner}},
 \code{\link{CPOTrained}},
-\code{\link{CPO}},
 \code{\link{NULLCPO}},
 \code{\link{\%>>\%}()},
 \code{\link{attachCPO}()},

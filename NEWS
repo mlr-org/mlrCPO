@@ -1,3 +1,6 @@
+mlrCPO 0.3.8
+* Remove `randomForestSRC_var.select` filter, since it was removed from upstream.
+
 mlrCPO 0.3.7-7
 * minor fix to concur with static checks
 
